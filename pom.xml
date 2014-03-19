@@ -1,0 +1,360 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.ptoceti</groupId>
+	<artifactId>com.ptoceti.parent</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>com.ptoceti.obix</name>
+	<description>Parent project</description>
+	<inceptionYear>2013</inceptionYear>
+	
+	<organization>
+		<name>ptoceti</name>
+		<url>www.ptoceti.com</url>
+	</organization>
+
+	<!-- LICENSE -->
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+			<comments>A business-friendly OSS license</comments>
+		</license>
+	</licenses>
+
+	<properties>
+		<!-- Don't let your Mac use a crazy non-standard encoding -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<pom.organization.name>Ptoceti</pom.organization.name>
+		<pom.organization.url>www.ptoceti.com</pom.organization.url>
+	</properties>
+
+	<scm>
+		<developerConnection>scm:git:ssh://git@github.com:lathil/Ptoceti.git</developerConnection>
+		<connection>scm:git:ssh://git@github.com:lathil/Ptoceti.git</connection>
+		<url>https://github.com/lathil/Ptoceti.git</url>
+	</scm>
+	
+	<issueManagement>
+		<url>https://github.com/lathil/Ptoceti/issues</url>
+		<system>github</system>
+	</issueManagement>
+
+	
+	
+	<distributionManagement>
+		<!-- Publish versioned releases here -->
+		 <!--
+		<repository>
+			<id>releases</id>
+			<name>Releases</name>
+			<url>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/releases</url>
+		</repository>
+		  -->
+
+		<!-- Publish snapshots here -->
+		<!--  
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Snapshots</name>
+			<url>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/snapshots</url>
+		</snapshotRepository>
+		-->
+		
+	</distributionManagement>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>LICENSE.txt</include>
+					<include>NOTICE.txt</include>
+					<include>README.md</include>
+				</includes>
+			</resource>
+		</resources>
+
+		<plugins>
+			<!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<executions>
+						<execution>
+							<id>update-project-license</id>
+							<goals>
+								<goal>update-project-license</goal>
+							</goals>
+							<phase>process-sources</phase>
+							<configuration>
+								<licenseName>apache_v2</licenseName>
+								<canUpdateLicense>true</canUpdateLicense>
+							</configuration>
+						</execution>
+						<execution>
+							<id>append-license-file-headers</id>
+							<goals>
+								<goal>check-file-header</goal>
+							</goals>
+							<phase>process-sources</phase>
+							<configuration>
+								<licenseName>apache_v2</licenseName>
+								<descriptionTemplate>${basedir}/src/license/template.ftl</descriptionTemplate>
+							</configuration>
+						</execution>
+					</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>${basedir}/LICENSE.txt</file>
+									<type>txt</type>
+									<classifier>license</classifier>
+								</artifact>
+								<artifact>
+									<file>${basedir}/NOTICE.txt</file>
+									<type>txt</type>
+									<classifier>notice</classifier>
+								</artifact>
+								<artifact>
+									<file>${basedir}/README.md</file>
+									<type>md</type>
+									<classifier>readme</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+				<inherited>false</inherited>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<!-- JAVA COMPILER -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<showDeprecation>true</showDeprecation>
+						<showWarnings>true</showWarnings>
+						<verbose>true</verbose>
+						<compilerVersion>1.7</compilerVersion>
+					</configuration>
+				</plugin>
+
+				<!-- INCLUDE SOURCE JAR -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<configuration>
+						<includePom>true</includePom>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- INCLUDE JAVADOC JAR -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- DOWNLOAD LICENSE, README & NOTICE ARTIFACTS -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>copy-license</id>
+							<phase>validate</phase>
+							<goals>
+								<goal>copy</goal>
+							</goals>
+							<configuration>
+								<artifactItems>
+									<artifactItem>
+										<groupId>com.ptoceti</groupId>
+										<artifactId>com.ptoceti.parent</artifactId>
+										<version>${project.version}</version>
+										<classifier>license</classifier>
+										<type>txt</type>
+										<overWrite>true</overWrite>
+										<outputDirectory>${project.build.directory}</outputDirectory>
+										<destFileName>LICENSE.txt</destFileName>
+									</artifactItem>
+									<artifactItem>
+										<groupId>com.ptoceti</groupId>
+										<artifactId>com.ptoceti.parent</artifactId>
+										<version>${project.version}</version>
+										<classifier>notice</classifier>
+										<type>txt</type>
+										<overWrite>true</overWrite>
+										<outputDirectory>${project.build.directory}</outputDirectory>
+										<destFileName>NOTICE.txt</destFileName>
+									</artifactItem>
+									<artifactItem>
+										<groupId>com.ptoceti</groupId>
+										<artifactId>com.ptoceti.parent</artifactId>
+										<version>${project.version}</version>
+										<classifier>readme</classifier>
+										<type>md</type>
+										<overWrite>true</overWrite>
+										<outputDirectory>${project.build.directory}</outputDirectory>
+										<destFileName>README.txt</destFileName>
+									</artifactItem>
+								</artifactItems>
+								<outputDirectory>${project.build.directory}</outputDirectory>
+								<overWriteReleases>false</overWriteReleases>
+								<overWriteSnapshots>true</overWriteSnapshots>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- OSGi BUNDLE -->
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>2.4.0</version>
+					<extensions>true</extensions>
+				</plugin>
+
+				<!-- USED TO ATTACH EXTRA ARTIFACTS -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>1.7</version>
+				</plugin>
+
+				<!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>1.5</version>
+					<executions>
+						<execution>
+							<id>check-license-file-headers</id>
+							<goals>
+								<goal>update-file-header</goal>
+							</goals>
+							<phase>process-sources</phase>
+							<configuration>
+								<licenseName>apache_v2</licenseName>
+								<descriptionTemplate>${basedir}/src/license/template.ftl</descriptionTemplate>
+								<canUpdateCopyright>true</canUpdateCopyright>
+								<canUpdateDescription>true</canUpdateDescription>
+								<canUpdateLicense>true</canUpdateLicense>
+								
+									<roots>
+										<root>src/main/java</root>
+										<root>src/main/test</root>
+									</roots>
+								
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											license-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.3,)
+										</versionRange>
+										<goals>
+											<goal>check-file-header</goal>
+											<goal>update-file-header</goal>
+											<goal>update-project-license</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<dependencyManagement>
+		<dependencies>
+
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>4.1.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.compendium</artifactId>
+				<version>4.0.0</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+
+	<modules>
+		<module>com.ptoceti.osgi.data</module>
+		<module>com.ptoceti.osgi.control</module>
+		<module>com.ptoceti.osgi.modbus</module>
+		<module>com.ptoceti.osgi.modbusdevice</module>
+		<module>com.ptoceti.osgi.obix.</module>
+		<module>com.ptoceti.osgi.obix.backbones</module>
+		<module>com.ptoceti.osgi.rxtx</module>
+		<module>com.ptoceti.osgi.sqlite</module>
+		<!-- <module>com.ptoceti.osgi.wiredamin</module> -->
+	</modules>
+</project>

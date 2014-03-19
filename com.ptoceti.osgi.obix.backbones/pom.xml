@@ -1,0 +1,152 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+	    <artifactId>com.ptoceti.parent</artifactId>
+	    <groupId>com.ptoceti</groupId>
+	    <version>1.0.0-SNAPSHOT</version>
+	    <relativePath>..</relativePath>
+	  </parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>com.ptoceti.osgi.obix.backbones</artifactId>
+	<packaging>bundle</packaging>
+
+	<name>Obix Backbones</name>
+	<description>Ptoceti's Obix Backbones client</description>
+
+	<properties>
+		<!-- Don't let your Mac use a crazy non-standard encoding -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.ops4j.pax.web</groupId>
+			<artifactId>pax-web-extender-whiteboard</artifactId>
+			<version>1.0.12.1</version>
+		</dependency>
+	</dependencies>
+	<build>
+
+		<!-- Generate compiled stuff in the folder used for development mode -->
+		<outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
+
+		<resources>
+			<resource>
+				<directory>${project.build.directory}</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>LICENSE.txt</include>
+					<include>NOTICE.txt</include>
+					<include>README.md</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+			
+			<resource>
+				<directory>src/main/webapp/dev</directory>
+				<filtering>false</filtering>
+				<targetPath>webapp/dev</targetPath>
+				<excludes>
+					<exclude>js/lib/**</exclude>
+				</excludes>
+			</resource>
+			
+		</resources>
+
+		<plugins>
+			<!-- JAVA COMPILER -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+
+			<!-- INCLUDE SOURCE JAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			
+			<!-- INCLUDE JAVADOC JAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+
+			<!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>*.handlebars</exclude>
+					</excludes>
+					<roots>
+						<root>src/main/java</root>
+						<root>src/main/webapp/dev/js/app</root>
+						<root>src/test</root>
+					</roots>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>${pom.artifactId}</Export-Package>
+						<Private-Package>${pom.artifactId}.impl.*</Private-Package>
+						<Bundle-Activator>${pom.artifactId}.impl.Activator</Bundle-Activator>
+						<Include-Resource>/resources =
+							src/main/webapp/build/js_optimized,/OSGI-INF=src/main/resources/OSGI-INF</Include-Resource>
+					</instructions>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>pl.allegro</groupId>
+				<artifactId>grunt-maven-plugin</artifactId>
+				<version>1.0.2</version>
+				<configuration>
+				<!-- If run in Eclipse add env PATH = /usr/bin:/usr/local/bin:$PATH -->
+					<!-- relative to src/main/webapp/, default: static -->
+					<jsSourceDirectory>dev</jsSourceDirectory>
+					<gruntBuildDirectory>src/main/webapp/build</gruntBuildDirectory>
+					<target>build</target>
+					<!-- <gruntExecutable>node_modules/grunt-cli/bin/grunt</gruntExecutable> -->
+					<!--  <npmExecutable>/usr/local/lib/node_modules/npm/bin/npm</npmExecutable>-->
+					<!-- <nodeExecutable>/usr/local/bin/node</nodeExecutable>-->
+					<!-- <runGruntWithNode>true</runGruntWithNode> -->
+				</configuration>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>create-resources</goal>
+							<goal>npm</goal>
+							<goal>grunt</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+	</build>
+</project>

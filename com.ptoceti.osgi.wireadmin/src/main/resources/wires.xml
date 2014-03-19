@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<org.osgi.service.wireadmin.WireAdmin>
+	<org.osgi.service.wireadmin.Wire>
+		<wireadmin.producer.pid>com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory.4</wireadmin.producer.pid>
+		<wireadmin.consumer.pid>com.ptoceti.osgi.obix.impl.WireHandler</wireadmin.consumer.pid>
+	</org.osgi.service.wireadmin.Wire>
+	<org.osgi.service.wireadmin.Wire>
+		<wireadmin.producer.pid>com.ptoceti.osgi.obix.impl.WireHandler</wireadmin.producer.pid>
+		<wireadmin.consumer.pid>com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory.4</wireadmin.consumer.pid>
+	</org.osgi.service.wireadmin.Wire>
+</org.osgi.service.wireadmin.WireAdmin>

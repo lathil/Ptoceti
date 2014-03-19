@@ -1,0 +1,5 @@
+Ptoceti project
+Copyright [2013-2014] Ptoceti
+
+This product includes software developed at
+The Ptoceti project (http://www.ptoceti.com/).

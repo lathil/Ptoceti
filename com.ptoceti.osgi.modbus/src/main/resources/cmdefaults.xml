@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+		
+<metatype:values
+	xmlns:metatype = "http://www.knopflerfish.org/XMLMetatype">
+
+  <com.ptoceti.osgi.ModbusDriverFactory>
+	<modbus_encoding>ascii_encoding</modbus_encoding>
+	<modbus_slave_master>master</modbus_slave_master>
+	<modbus_port>/dev/tty.modem</modbus_port>
+	<modbus_id>1</modbus_id>
+	<modbus_baudrate>9600</modbus_baudrate>
+	<modbus_usesparity>true</modbus_usesparity>
+	<modbus_evenparity>true</modbus_evenparity>
+	<modbus_echo>true</modbus_echo>
+  </com.ptoceti.osgi.ModbusDriverFactory>
+  
+</metatype:values>
+

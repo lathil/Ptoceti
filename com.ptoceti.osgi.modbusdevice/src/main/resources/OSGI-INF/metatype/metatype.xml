@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
+	<OCD description="ModbusDevice" name="Ptoceti Modbus Device Service" id="ocd">
+		<AD name="Composite identity" id="com.ptoceti.osgi.modbusdevice.compositeIdentity" required="true" type="String" />
+		<AD name="Port Name" id="com.ptoceti.osgi.modbusdevice.portName" required="true" type="String" />
+		<AD name="Modbus Id" id="com.ptoceti.osgi.modbusdevice.modbusId" required="true" type="Integer" />
+		<AD name="Pooling rate" id="com.ptoceti.osgi.modbusdevice.poolingRate" required="true" type="Integer" />
+		<AD name="Mock device" id="com.ptoceti.osgi.modbusdevice.mock" required="true" type="Boolean" />
+	    <AD name="Device configuration filepath" id="com.ptoceti.osgi.modbusdevice.configFilePath" required="true" type="String" />
+	</OCD>
+	<Designate factorypid="com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory" pid="com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory" bundle="*">
+	   <Object ocdref="ocd"/>
+	</Designate>
+</MetaData>
+

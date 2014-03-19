@@ -1,0 +1,101 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+	    <artifactId>com.ptoceti.parent</artifactId>
+	    <groupId>com.ptoceti</groupId>
+	    <version>1.0.0-SNAPSHOT</version>
+	    <relativePath>..</relativePath>
+	 </parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>com.ptoceti.osgi.sqlite</artifactId>
+	<packaging>bundle</packaging>
+
+	<name>SQLite</name>
+	<description>Ptoceti's packaging of SQLite</description>
+
+	<properties>
+		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+	</properties>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${project.build.directory}</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>LICENSE.txt</include>
+					<include>NOTICE.txt</include>
+					<include>README.md</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+		<plugins>
+			<!-- INCLUDE SOURCE JAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+
+			<!-- INCLUDE JAVADOC JAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+
+			<!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Import-Package>!org.ibex.classgen,!org.ibex.nestedvm,*</Import-Package>
+						<Bundle-Activator>${pom.artifactId}.Activator</Bundle-Activator>
+						<Embed-Dependency>sqlite-jdbc;scope|runtime</Embed-Dependency>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ptoceti</groupId>
+			<artifactId>com.ptoceti.osgi.data</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<!-- <scope>system</scope>
+			<systemPath>${basedir}/src/main/resources/sqlite-jdbc-3.7.15-SNAPSHOT.jar</systemPath> -->
+			<version>3.7.15-SNAPSHOT</version>
+			<!-- <version>3.7.15-M1</version> -->
+		</dependency>
+
+	</dependencies>
+
+</project>

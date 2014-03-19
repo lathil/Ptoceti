@@ -1,0 +1,13 @@
+
+{
+	"name": "ptoceti",
+	"version": "1.0.0",
+	"devDependencies": {
+		"grunt": "latest",
+		"grunt-contrib-jshint": "latest",
+		"grunt-bower-task" : "latest",
+		"grunt-contrib-watch": "latest",
+		"grunt-contrib-requirejs": "latest",
+		"grunt-modernizr": "latest"
+	}
+}

@@ -1,0 +1,47 @@
+DROP TABLE IF EXISTS "abstime";
+CREATE TABLE "abstime" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "min_abstime_id" INTEGER, "max_abstime_id" INTEGER, "value" INTEGER);
+DROP TABLE IF EXISTS "bool";
+CREATE TABLE "bool" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "range_uri_id" INTEGER, "value" BOOLEAN);
+DROP TABLE IF EXISTS "enum";
+CREATE TABLE "enum" ("id" INTEGER, "object_id" INTEGER, "value" VARCHAR, "range_uri_id" INTEGER);
+DROP TABLE IF EXISTS "feed";
+CREATE TABLE "feed" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "in_contract_id" INTEGER, "of_contract_id" INTEGER);
+DROP TABLE IF EXISTS "int";
+CREATE TABLE "int" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "min" INTEGER, "max" INTEGER, "unit_uri_id" INTEGER, "value" INTEGER);
+DROP TABLE IF EXISTS "list";
+CREATE TABLE "list" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "min" INTEGER, "max" INTEGER, "of_contract_id" INTEGER);
+DROP TABLE IF EXISTS "object";
+CREATE TABLE "object" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ,"name" VARCHAR,"uri_id" INTEGER,"contract_id" INTEGER,"isnullable" BOOLEAN,"icon_id" INTEGER,"displayname" VARCHAR,"display" VARCHAR,"writable" BOOLEAN,"status_id" INTEGER,"type_id" INTEGER,"parent_id" INTEGER, "created_ts" INTEGER, "modified_ts" INTEGER );
+DROP TABLE IF EXISTS "op";
+CREATE TABLE "op" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "in_contract_id" INTEGER, "out_contract_id" INTEGER);
+DROP TABLE IF EXISTS "real";
+CREATE TABLE "real" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "min" REAL, "max" REAL, "value" REAL, "unit_uri_id" INTEGER, "precision" INTEGER);
+DROP TABLE IF EXISTS "reltime";
+CREATE TABLE "reltime" ("id" INTEGER, "object_id" INTEGER, "min_reltime_id" INTEGER, "max_reltime_id" INTEGER, "value" INTEGER);
+DROP TABLE IF EXISTS "str";
+CREATE TABLE "str" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "min" INTEGER, "max" INTEGER, "value" VARCHAR);
+DROP TABLE IF EXISTS "uri";
+CREATE TABLE "uri" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "value" VARCHAR);
+DROP TABLE IF EXISTS "contract";
+CREATE TABLE "contract" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "object_id" INTEGER);
+DROP TABLE IF EXISTS "contracturi";
+CREATE TABLE "contracturi" ("contract_id" INTEGER NOT NULL, "uri_id" INTEGER NOT NULL);
+CREATE INDEX create_ts_idx ON "object"("parent_id" ASC, "created_ts" ASC);
+CREATE INDEX parent_id_idx ON "object"("parent_id" ASC);
+CREATE INDEX contract_id_idx ON "object"("contract_id" ASC);
+CREATE INDEX modified_ts_idx ON "object"("modified_ts" ASC);
+CREATE INDEX abstime_object_id_idx ON "abstime"("object_id" ASC);
+CREATE INDEX bool_object_id_idx ON "bool"("object_id" ASC);
+CREATE INDEX enum_object_id_idx ON "enum"("object_id" ASC);
+CREATE INDEX feed_object_id_idx ON "feed"("object_id" ASC);
+CREATE INDEX int_object_id_idx ON "int"("object_id" ASC);
+CREATE INDEX list_object_id_idx ON "list"("object_id" ASC);
+CREATE INDEX op_object_id_idx ON "op"("object_id" ASC);
+CREATE INDEX real_object_id_idx ON "real"("object_id" ASC);
+CREATE INDEX reltime_object_id_idx ON "reltime"("object_id" ASC);
+CREATE INDEX str_object_id_idx ON "str"("object_id" ASC);
+CREATE INDEX uri_object_id_idx ON "uri"("object_id" ASC);
+CREATE INDEX contract_object_id_idx ON "contract"("object_id" ASC);
+
+
+

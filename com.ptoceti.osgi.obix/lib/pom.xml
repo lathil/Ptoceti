@@ -1,0 +1,189 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>com.ptoceti.osgi.obix</artifactId>
+		<groupId>com.ptoceti</groupId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>com.ptoceti.osgi.obix-lib</artifactId>
+	<packaging>bundle</packaging>
+
+	<name>Obix-Lib</name>
+	<description>Ptoceti's Obix service</description>
+
+	<properties>
+		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+	</properties>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${project.build.directory}</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>LICENSE.txt</include>
+					<include>NOTICE.txt</include>
+					<include>README.md</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+		</resources>
+		<plugins>
+			<!-- INCLUDE SOURCE JAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+
+			<!-- INCLUDE JAVADOC JAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+
+			<!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<roots>
+						<root>src/main/java</root>
+						<root>src/test</root>
+					</roots>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Private-Package>${pom.parent.artifactId}.impl.*</Private-Package>
+						<Bundle-Activator>${pom.parent.artifactId}.impl.Activator</Bundle-Activator>
+						<Bundle-DocURL>${pom.organization.url}</Bundle-DocURL>
+					</instructions>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.ops4j</groupId>
+				<artifactId>maven-pax-plugin</artifactId>
+				<configuration>
+					<provision>
+						<param>--vmOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</param>
+						<param>--usePersistedState=true</param>
+						<param>--platform=felix</param>
+						<param>--profiles=web,compendium</param>
+						<param>--log=debug</param>
+						<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
+						<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
+						<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0</param>
+						<param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param>
+						<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
+						<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
+						<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
+						<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
+						<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/1.0.12.1</param>
+						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.0.0-SNAPSHOT</param>
+						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.0.0-SNAPSHOT</param>
+						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.0.0-SNAPSHOT@update</param>
+						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.0.0-SNAPSHOT@update</param>
+						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.0.0-SNAPSHOT</param>
+						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.0.0-SNAPSHOT</param>
+						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.0.0-SNAPSHOT</param>
+						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.0.0-SNAPSHOT</param>
+						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.0.0-SNAPSHOT</param>
+					</provision>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.knopflerfish.bundle</groupId>
+			<artifactId>kxml-LIB</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.knopflerfish.bundle</groupId>
+			<artifactId>jsdk-API</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.restlet.jee</groupId>
+			<artifactId>org.restlet</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.restlet.jee</groupId>
+			<artifactId>org.restlet.ext.servlet</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.inject</groupId>
+			<artifactId>guice</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.ptoceti</groupId>
+			<artifactId>com.ptoceti.osgi.sqlite</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ptoceti</groupId>
+			<artifactId>com.ptoceti.osgi.data</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ptoceti</groupId>
+			<artifactId>com.ptoceti.osgi.control</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.ptoceti</groupId>
+			<artifactId>com.ptoceti.osgi.obix-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+
+	</dependencies>
+
+</project>
