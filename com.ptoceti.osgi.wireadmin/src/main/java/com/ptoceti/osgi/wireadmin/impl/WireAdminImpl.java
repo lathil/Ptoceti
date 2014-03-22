@@ -4,7 +4,7 @@ package com.ptoceti.osgi.wireadmin.impl;
 /*
  * #%L
  * **********************************************************************
- * ORGANIZATION : Ptoceti
+ * ORGANIZATION : ptoceti
  * PROJECT : WireAdmin
  * FILENAME : WireAdminImpl.java
  * 
@@ -12,7 +12,7 @@ package com.ptoceti.osgi.wireadmin.impl;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 Ptoceti
+ * Copyright (C) 2013 - 2014 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
