@@ -41,5 +41,28 @@ jre or jdk : 1.7
 
 
 To run, it will need an implementation of Osgi R4. I made it execute on a patch of [Felix](/felix.apache.org) and [Knopflerfish](http://www.knopflerfish.org/) bundles.
-It will also need an implementation of Osgi Http server such as [Paw Web](https://github.com/ops4j/org.ops4j.pax.web)
+It will also need an implementation of Osgi Http server such as [Pax Web](https://github.com/ops4j/org.ops4j.pax.web)
  
+##Getting started
+
+### Build from sources
+
+You'll need maven 3.x installed for compiling and packaging the bundles. For building the Spa project ( com.ptoceti.osgi.obix.backbones ), you'll need node.js, npm and Grunt installed as well.
+Assure that everything is available from the current path and under the shell simply enter
+
+'''
+maven clean install
+'''
+
+If you want to execute the freshly build bundles for debugging or testing, you can launch a full settup using the include maven-pax-plugin by isuing the command
+'''
+maven pax:run
+'''
+For remote debuging, the port 5005 is available. The Osgi console is then reachable under http://localhost:8080/system/console/bundles.
+If you need to fine tune the launching setup, you can modify the configuration of maven-pax-plugin according to the documention of [Pax Runner](https://ops4j1.jira.com/wiki/display/paxrunner/Pax+Runner)
+
+Once the platform successfully launched, the single page application is accessivle under http://localhost:8080/obix/client/backbones/index.html
+
+
+
+

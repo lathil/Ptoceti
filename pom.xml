@@ -33,6 +33,7 @@
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<pom.organization.name>Ptoceti</pom.organization.name>
 		<pom.organization.url>www.ptoceti.com</pom.organization.url>
+		<bundles.configuration.location>../configurations</bundles.configuration.location>
 	</properties>
 
 	<scm>
@@ -146,37 +147,7 @@
 				</executions>
 				<inherited>false</inherited>
 			</plugin>
-			<plugin>
-				<groupId>org.ops4j</groupId>
-				<artifactId>maven-pax-plugin</artifactId>
-				<configuration>
-					<provision>
-						<param>--vmOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</param>
-						<param>--usePersistedState=true</param>
-						<param>--platform=felix</param>
-						<param>--profiles=web,compendium</param>
-						<param>--log=debug</param>
-						<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
-						<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
-						<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0</param>
-						<param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param>
-						<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
-						<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
-						<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
-						<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
-						<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/1.0.12.1</param>
-						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.0.0-SNAPSHOT</param>
-						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.0.0-SNAPSHOT</param>
-						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.0.0-SNAPSHOT@update</param>
-						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.0.0-SNAPSHOT@update</param>
-						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.0.0-SNAPSHOT</param>
-						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.0.0-SNAPSHOT</param>
-						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.0.0-SNAPSHOT</param>
-						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.0.0-SNAPSHOT</param>
-						<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.0.0-SNAPSHOT</param>
-					</provision>
-				</configuration>
-			</plugin>
+			
 		</plugins>
 
 		<pluginManagement>
@@ -320,39 +291,41 @@
 					</executions>
 				</plugin>
 
-
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
 				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
+					<groupId>org.ops4j</groupId>
+					<artifactId>maven-pax-plugin</artifactId>
+					<version>1.5</version>
 					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.codehaus.mojo
-										</groupId>
-										<artifactId>
-											license-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.3,)
-										</versionRange>
-										<goals>
-											<goal>check-file-header</goal>
-											<goal>update-file-header</goal>
-											<goal>update-project-license</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore></ignore>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
+						<provision>
+							<param>--vmOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</param>
+							<param>--usePersistedState=false</param>
+							<param>--platform=felix</param>
+							<param>--profiles=config,compendium</param>
+							<param>--log=debug</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.confman/pax-confman-propsloader/0.2.3</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0</param>
+							<param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param>
+							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
+							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
+							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/1.0.12.1</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.0.0-SNAPSHOT</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.0.0-SNAPSHOT</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.0.0-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.0.0-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-jetty-bundle/1.0.2</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-api/1.4</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-service/1.4</param>
+						</provision>
 					</configuration>
 				</plugin>
 			</plugins>
