@@ -259,9 +259,10 @@ public class ObixService  implements ManagedService {
 				}
 				ObixDataHandler.getInstance().getDataDevice().setupDatabase(databasePath,
 						sbf.toString());
+				
+				databaseInitialised = true;
 			}
 			
-			databaseInitialised = true;
 			wireHandler.setRespondToUpdates(true);
 		}
 	}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
 	<OCD description="Configuration of ObixService" name="Ptoceti Obix Service"  id="com.ptoceti.osgi.obix.impl.ObixService">
-		<AD name="Servlet path" id="com.ptoceti.osgi.obixservice.servletpath" required="true" type="String" default="obix"/>
+		<AD name="Servlet path" id="com.ptoceti.osgi.obixservice.servletpath" required="true" type="String" default="obix/rest"/>
 	    <AD name="Resource path" id="com.ptoceti.osgi.obixservice.resourcepath" required="true" type="String" default="obix/res"/>
-	    <AD name="External resources path" id="com.ptoceti.osgi.obixservice.externalresourcepath" required="true" type="String" default="/resources"/>
+	    <AD name="External resources path" id="com.ptoceti.osgi.obixservice.externalresourcepath" required="true" type="String" default="/res"/>
 	    <AD name="Database path" id="com.ptoceti.osgi.obixservice.databasepath" required="true" type="String" default="obix.sqlite"/>
 	</OCD>
 	<Designate pid="com.ptoceti.osgi.obix.impl.ObixService">
