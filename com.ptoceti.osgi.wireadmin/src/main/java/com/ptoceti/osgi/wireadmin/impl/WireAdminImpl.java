@@ -48,36 +48,46 @@ import org.osgi.service.wireadmin.Producer;
 import org.osgi.service.wireadmin.Wire;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
 
 
-
+/**
+ * Implementation of Osgi Spec WireAdmin
+ * 
+ * @author LATHIL
+ *
+ */
 public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener {
 
 	// A HashMap table with the consumer PID as key, and the corresponding service reference as value
-	private Hashtable consumersTable;
+	private Hashtable<String, ServiceReference> consumersTable;
 	// A HashMap table with the producer PID as key, and the corresponding service reference as value
-	private Hashtable producersTable;
+	private Hashtable<String, ServiceReference> producersTable;
 	// A list of all the wires managed by the WireAdmin class
-	private ArrayList wires;
+	private List<WireImpl> wires;
+	// A list of wires to create for which we do not yet have both producers and consumer PIDs
+	private List<DisconnectedWire> diconnectedWiresTable;
 	
 	// The class responsable for responding to (un)registering event from producer services
 	private ProducerServiceListener producerSerListener;
 	// The list of services pid the producer listerer is registered to
-	private ArrayList producerListenerList;
+	private List<String> producerListenerList;
 	// The class responsable for responding to (un)registering event from consumer services
 	private ConsumerServiceListener consumerSerListener;
 	// The list of services pid the consumer listener is registered to
-	private ArrayList consumerListenerList;
+	private List<String> consumerListenerList;
 	// a table of services that have subscribed to receive WireAdminEvents. ServiceReference is key, Service is value
-	private Hashtable wireAdminEventListeners;
+	private Hashtable<ServiceReference, WireAdminListener> wireAdminEventListeners;
 	
 	// A count used for generating wire's PID.
 	private int selfNamedWireCount = 0;
@@ -108,18 +118,20 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	 */
 	public WireAdminImpl(){
 	
-		consumersTable = new Hashtable();
-		producersTable = new Hashtable();
+		consumersTable = new Hashtable<String, ServiceReference>();
+		producersTable = new Hashtable<String, ServiceReference>();
 		
-		wires = new ArrayList();
+		wires = new ArrayList<WireImpl>();
+		
+		diconnectedWiresTable = Collections.synchronizedList (new ArrayList<DisconnectedWire>());
 		
 		producerSerListener = new ProducerServiceListener();
 		consumerSerListener = new ConsumerServiceListener();
 		
-		producerListenerList = new ArrayList();
-		consumerListenerList = new ArrayList();
+		producerListenerList = new ArrayList<String>();
+		consumerListenerList = new ArrayList<String>();
 		
-		wireAdminEventListeners = new Hashtable();
+		wireAdminEventListeners = new Hashtable<ServiceReference, WireAdminListener>();
 		
 		asyncWireDispatcher = new WireDispatcher();
 		asyncEventDispatcher = new EventDispatcher();
@@ -128,7 +140,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 				ManagedService.class.getName(),
 				WireAdmin.class.getName()
 		};
-		Hashtable properties = new Hashtable();
+		Hashtable<String, Object> properties = new Hashtable<String, Object>();
 		properties.put(Constants.SERVICE_PID, this.getClass().getName());
 		properties.put(WireConstants.WIREADMIN_PID, this.getClass().getName());
 		wireAdminImplReg = Activator.bc.registerService(clazzes, this, properties );
@@ -148,7 +160,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 				synchronized( wireAdminEventListeners ){
 					for( int i=0; i> srRefs.length; i++) {
 						ServiceReference sRef = srRefs[i];
-						wireAdminEventListeners.put( sRef, Activator.bc.getService(sRef));
+						wireAdminEventListeners.put( sRef, (WireAdminListener)Activator.bc.getService(sRef));
 					}
 				}
 			}
@@ -175,7 +187,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 			case ServiceEvent.REGISTERED: {
 					synchronized( wireAdminEventListeners ){
 						if( !wireAdminEventListeners.containsKey( sr)) {
-							wireAdminEventListeners.put( sr, Activator.bc.getService( sr ));
+							wireAdminEventListeners.put( sr,(WireAdminListener) Activator.bc.getService( sr ));
 						}
 					}
 				}
@@ -199,8 +211,10 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	 */
 	public void updated(Dictionary properties) {
 		
+		Activator.log(LogService.LOG_DEBUG, "Receiving configuration.");
+		
 		if( properties == null ){
-			
+			// only delete existing wires if properties equal null
 			while(! wires.isEmpty()) {
 				WireImpl wire;
 				synchronized(wires){				
@@ -208,9 +222,19 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 				}
 				this.deleteWire(wire);
 			}
+			
+			synchronized(diconnectedWiresTable) {
+				
+				Iterator<DisconnectedWire> iter = diconnectedWiresTable.iterator();
+				while( iter.hasNext()){
+					DisconnectedWire disconWire = iter.next();
+					iter.remove();
+				}
+			}
+
 		} else {
 			
-		  for( Enumeration e = properties.keys();e.hasMoreElements();){
+		  for( Enumeration<?> e = properties.keys();e.hasMoreElements();){
 			  String key = (String) e.nextElement();
 			  if( key.equals(wireConfigProperty)){
 				  Object wireProps = properties.get(key);
@@ -234,6 +258,8 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 							} catch (MalformedURLException e) {
 								Activator.log(LogService.LOG_ERROR, "Error creating url for file path: " + configFile);
 							}
+						} else {
+							Activator.log(LogService.LOG_ERROR, "Error reading wire file at: " + file.getAbsolutePath());
 						}
 				  } else {
 					  configUrl = Activator.getResourceStream(configFile);
@@ -269,15 +295,15 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 			}
 		}
 		
-		for (Enumeration e = consumersTable.elements();e.hasMoreElements();){
-			ServiceReference sRef = (ServiceReference) e.nextElement();
+		for (Enumeration<ServiceReference> e = consumersTable.elements();e.hasMoreElements();){
+			ServiceReference sRef =  e.nextElement();
 			Consumer consumer = (Consumer)Activator.bc.getService(sRef);
 			consumer.producersConnected( null );
 			Activator.bc.ungetService(sRef);
 		}
 		
-		for (Enumeration e = producersTable.elements();e.hasMoreElements();){
-			ServiceReference sRef = (ServiceReference) e.nextElement();
+		for (Enumeration<ServiceReference> e = producersTable.elements();e.hasMoreElements();){
+			ServiceReference sRef =  e.nextElement();
 			Producer producer = (Producer)Activator.bc.getService(sRef);
 			producer.consumersConnected( null);
 			Activator.bc.ungetService(sRef);
@@ -311,16 +337,30 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	 *
 	 */
 	 
-	public Wire createWire(String producerPID, String consumerPID, Dictionary properties) {
-	
+	public WireImpl createWire(String producerPID, String consumerPID, Dictionary properties) {
 		// Create a new wire with the provided parameters..
 		
+		// check firts if we already have such a wire
+		synchronized( wires){
+			
+			Iterator<WireImpl> wireIter = wires.iterator();
+			while( wireIter.hasNext()){
+				WireImpl wireImpl = wireIter.next();
+				if( wireImpl.getConsumerPID().equals(consumerPID) && wireImpl.getProducerPID().equals(producerPID)){
+					// wire already exist, only update properties
+					//wireImpl.setProperties(properties);
+					return null;
+				}
+			}
+		}
+		
+		
 		// Create a new property table for this wire
-		Hashtable props = new Hashtable();
+		Hashtable<String, Object> props = new Hashtable<String,Object>();
 		// If the property table given by the method is not null, ..
 		if( properties != null ){
 			// .. then we are copying all the (key,values) tuples over.
-			for ( Enumeration e = properties.keys(); e.hasMoreElements(); ) {
+			for ( Enumeration<?> e = properties.keys(); e.hasMoreElements(); ) {
 				String key = (String)e.nextElement();
 				props.put( key, properties.get(key));
 			}
@@ -399,6 +439,74 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 		return wire;
 	}
 	
+	/**
+	 * Create a wire beetwen a consumer et and producer, identified either by a pid, or a name or/and a filter. Usefull when services are created by factory and the 
+	 * pid cannot be pre-determined.
+	 * 
+	 * @param producerPID The persistent identifier for the producer service.
+	 * @param producerNames
+	 * @param producerFilter
+	 * @param consumerPID The persistent identifier for the consumer service.
+	 * @param consumerName
+	 * @param consumerFilter
+	 * @param properties The wire's properties as (key, values) tuples.
+	 * @return The create wire object. Return null if failed.
+	 */
+	public Wire createWire(String producerPID, String producerFilter, String consumerPID, String consumerFilter, Dictionary properties) {
+	
+		
+		// If we have pid ...
+		if( producerPID != null && consumerPID != null) {
+			// ... we can go straight here
+			return createWire( producerPID, consumerPID, properties);
+		}
+		
+		
+		// add the wire properties to the list of wires to create when we get more informations on producer and consumers.
+		DisconnectedWire disConWire = new DisconnectedWire(producerPID, producerFilter, consumerPID, consumerFilter, properties);
+		
+		if( consumerPID == null ) {
+			try {
+				ServiceReference[] consumerRef = Activator.bc.getServiceReferences(null, consumerFilter);
+				if( consumerRef != null && consumerRef.length > 0){
+					disConWire.setConsumerPID((String)consumerRef[0].getProperty(Constants.SERVICE_PID));
+					if(disConWire.isComplete()){
+						return createWire( disConWire.getProducerPID(), disConWire.getConsumerPID(), properties);
+					}
+				}
+			
+				Activator.bc.addServiceListener( consumerSerListener, disConWire.getConsumerFilter().toString() );
+			} catch ( InvalidSyntaxException e ) {
+				Activator.log(LogService.LOG_INFO, "Error in filter string while adding consumer service listener." + e.toString());
+				return(null);
+			}
+		}
+		
+		if( producerPID == null ) {
+			
+			try { // set ourselved as listener to the register / unregister event from this service
+				ServiceReference[] producerRef = Activator.bc.getServiceReferences(null, producerFilter);
+				if( producerRef != null && producerRef.length > 0){
+					disConWire.setProducerPID((String)producerRef[0].getProperty(Constants.SERVICE_PID));
+					if(disConWire.isComplete()){
+						return createWire( disConWire.getProducerPID(), disConWire.getConsumerPID(), properties);
+					}
+				}
+				
+				Activator.bc.addServiceListener( producerSerListener, disConWire.getProducerFilter().toString() );
+			} catch ( InvalidSyntaxException e ) {
+				Activator.log(LogService.LOG_INFO, "Error in filter string while adding producer service listener." + e.toString());
+				return(null);
+			}
+		}
+		
+		synchronized(diconnectedWiresTable) {
+			diconnectedWiresTable.add(disConWire);
+		}
+		
+		return null;
+	}
+	
 
 	/**
 	 * Delete a wire object.
@@ -456,11 +564,11 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 				WireImpl wi = (WireImpl) wire;
 				
 				// Clone the properties
-				Hashtable props = new Hashtable();
+				Hashtable<String, Object> props = new Hashtable<String, Object>();
 				// If the property table given by the method is not null, ..
 				if( properties != null ){
 					// .. then we are copying all the (key,values) tuples over.
-					for ( Enumeration e = properties.keys(); e.hasMoreElements(); ) {
+					for ( Enumeration<?> e = properties.keys(); e.hasMoreElements(); ) {
 						String key = (String)e.nextElement();
 						props.put( key, properties.get(key));
 					}
@@ -512,10 +620,10 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 				wireArray = (Wire[]) wires.toArray(new Wire[wires.size()]);
 			} else {
 				Filter wireFilter = Activator.bc.createFilter(filter);
-				ArrayList result = new ArrayList();
+				List<Wire> result = new ArrayList<Wire>();
 				// try to match each wire in the list afainst the filter
 				for( int i = 0; i < wires.size(); i++ ){
-					WireImpl wire = (WireImpl)wires.get(i);
+					WireImpl wire = wires.get(i);
 					if( wireFilter.match(wire.getProperties())){
 						// if matches, add it to the new list
 						result.add( wire );
@@ -548,13 +656,13 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	private Wire[] getConsumerWires(String consumerPID) {
 	
 		Wire[] result = null;
-		ArrayList wiresArray = new ArrayList();
+		List<Wire> wiresArray = new ArrayList<Wire>();
 		
 		if( consumersTable.containsKey( consumerPID )){
 			
 			synchronized( wires ) {
 				for( int i = 0; i < wires.size(); i++ ){
-					WireImpl w = (WireImpl) wires.get(i);
+					WireImpl w =  wires.get(i);
 					// if the PID of the service matches that of the wire producer PID
 					if(( w.getConsumerPID().equals( consumerPID )) && (w.isConnected())){
 						wiresArray.add(w);
@@ -578,13 +686,13 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	private Wire[] getProducerWires(String producerPID) {
 	
 		Wire[] result;
-		ArrayList wiresArray = new ArrayList();
+		List<Wire> wiresArray = new ArrayList<Wire>();
 		
 		if( producersTable.containsKey( producerPID )){
 			
 			synchronized( wires ) {
 				for( int i = 0; i < wires.size(); i++ ){
-					WireImpl w = (WireImpl) wires.get(i);
+					WireImpl w =  wires.get(i);
 					// if the PID of the service matches that of the wire producer PID
 					if(( w.getProducerPID().equals( producerPID ))&&(w.isConnected())){
 						wiresArray.add(w);
@@ -659,7 +767,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 						Activator.log(LogService.LOG_INFO, "Producer service " + producerPID + " registered.");
 						// and we give the service object to every wire that needs it as producer
 						for( int i = 0; i < wires.size(); i++ ){
-							WireImpl wire = (WireImpl) wires.get(i);
+							WireImpl wire =  wires.get(i);
 							// if the PID of the service matches that of the wire producer PID
 							if( wire.getProducerPID().equals( producerPID )){
 								wire.setProducer( producerServiceRef );
@@ -670,13 +778,29 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 								}
 							}
 						}
+						
+						synchronized(diconnectedWiresTable){
+							Iterator<DisconnectedWire> iter = diconnectedWiresTable.iterator();
+							while(iter.hasNext()){
+								DisconnectedWire disconWire = iter.next();
+								if( disconWire.producerMatches(producerServiceRef) && disconWire.isComplete()){
+									iter.remove();
+									WireImpl wire = createWire(disconWire.getProducerPID(), disconWire.getConsumerPID(), disconWire.getProperties());
+									if( wire != null && wire.isConnected()) {
+										asyncWireDispatcher.addConsumerWires(wire.getConsumer(), getConsumerWires(wire.getConsumerPID()));
+										asyncWireDispatcher.addProducerWires(wire.getProducer(), getProducerWires(wire.getProducerPID()));
+									}
+									
+								}
+							}
+						}
 					}
 					break;
 					case ServiceEvent.UNREGISTERING: {
 						// we need to set, for each wire that use the service as producer, their reference to null.
 						Activator.log(LogService.LOG_INFO, "Producer service " + producerPID + " unregistered.");
 						for( int i = 0; i < wires.size(); i++ ){
-							WireImpl wire = (WireImpl) wires.get(i);
+							WireImpl wire =  wires.get(i);
 							// if the PID of the service matches that of the wire producer PID
 							if( wire.getProducerPID().equals( producerPID )){
 								wire.setProducer( null );
@@ -711,7 +835,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 						Activator.log(LogService.LOG_INFO, "Consumer service " + consumerPID + " registered.");
 						// and we give the service object to every wire that needs it as producer
 						for( int i = 0; i < wires.size(); i++ ){
-							WireImpl wire = (WireImpl) wires.get(i);
+							WireImpl wire =  wires.get(i);
 							// if the PID of the service matches that of the wire producer PID
 							if( wire.getConsumerPID().equals( consumerPID )){
 								wire.setConsumer( consumerServiceRef );
@@ -722,13 +846,28 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 								}
 							}
 						}
+						
+						synchronized(diconnectedWiresTable){
+							Iterator<DisconnectedWire> iter = diconnectedWiresTable.iterator();
+							while( iter.hasNext()){
+								DisconnectedWire disconWire = iter.next();
+								if( disconWire.consumerMatches(consumerServiceRef) && disconWire.isComplete()){ 
+									iter.remove();
+									WireImpl wire = createWire(disconWire.getProducerPID(), disconWire.getConsumerPID(), disconWire.getProperties());
+									if( wire != null && wire.isConnected()) {
+										asyncWireDispatcher.addConsumerWires(wire.getConsumer(), getConsumerWires(wire.getConsumerPID()));
+										asyncWireDispatcher.addProducerWires(wire.getProducer(), getProducerWires(wire.getProducerPID()));
+									}
+								}
+							}
+						}
 					}
 					break;
 					case ServiceEvent.UNREGISTERING: {
 						// we need to set, for each wire that use the service as producer, their reference to null.
 						Activator.log(LogService.LOG_INFO, "Consumer service " + consumerPID + " unregistered.");
 						for( int i = 0; i < wires.size(); i++ ){
-							WireImpl wire = (WireImpl) wires.get(i);
+							WireImpl wire =  wires.get(i);
 							// if the PID of the service matches that of the wire producer PID
 							if( wire.getConsumerPID().equals( consumerPID )){
 								wire.setConsumer( null );
@@ -764,7 +903,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 		private boolean mustStop;
 		private Thread myThread;
 		
-		private ArrayList eventList;
+		private List<WireAdminEvent> eventList;
 		
 		/**
 		 * Constructor method. create and initialise the thread, create a empty WireAdminEvent stack.
@@ -773,7 +912,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 		public EventDispatcher() {
 		
 			mustStop = false;
-			eventList = new ArrayList();
+			eventList = new ArrayList<WireAdminEvent>();
 			myThread = new Thread( this );
 			myThread.start();
 		}
@@ -795,18 +934,18 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 						// If there is no event to be sent, block the execution of the thread till receiving notification.
 						while( eventList.size() == 0 ) eventList.wait();
 					} catch ( InterruptedException e ) {}
-					nextEvent = (WireAdminEvent)eventList.get(0);
+					nextEvent = eventList.get(0);
 					eventList.remove(0);
 				}
 				
 				// If we got an event from the stack, we can proceed to send it.
 				if( nextEvent != null ) {
 					synchronized( wireAdminEventListeners ) {
-						Enumeration sRefKeys = wireAdminEventListeners.keys();
+						Enumeration<ServiceReference> sRefKeys = wireAdminEventListeners.keys();
 						// We review every WireAdminListener that we know.
 						while( sRefKeys.hasMoreElements()) {
-							ServiceReference waListenerRef = (ServiceReference) sRefKeys.nextElement();
-							WireAdminListener waListener = (WireAdminListener)wireAdminEventListeners.get( waListenerRef );
+							ServiceReference waListenerRef =  sRefKeys.nextElement();
+							WireAdminListener waListener = wireAdminEventListeners.get( waListenerRef );
 							// We got a WireAdminListener instance ..
 							if( waListener != null ) {
 								// we get what kind of WireAdminEvent it is interested in ..

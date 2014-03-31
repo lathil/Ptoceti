@@ -46,10 +46,12 @@ public class WireConfig {
 	public static final String WireElement = Wire.class.getName();
 	public static final String ConsumerElement = WireConstants.WIREADMIN_CONSUMER_PID;
 	public static final String ProducerElement = WireConstants.WIREADMIN_PRODUCER_PID;
+	public static final String ConsumerFilter = "wireadmin.consumer.consumer.filter";
+	public static final String ProducerFilter = "wireadmin.consumer.producer.filter";
 	
-	WireAdmin wireAdmin;
+	WireAdminImpl wireAdmin;
 	
-	public WireConfig(WireAdmin wireAdminListener){
+	public WireConfig(WireAdminImpl wireAdminListener){
 		
 		wireAdmin = wireAdminListener;
 	}
@@ -102,14 +104,20 @@ public class WireConfig {
 		
 		String consumer = null;
 		String producer = null;
+		String consumerFilter = null;
+		String producerFilter = null;
 		
 		while( eventType != XmlPullParser.END_TAG) {
 			
 			if(eventType == XmlPullParser.START_TAG ) {
 				if(parser.getName().equals(ConsumerElement)){
-					consumer = parseConsumer(parser);
+					consumer = parseElement(parser);
 				} else if(parser.getName().equals(ProducerElement)){
-					producer = parseProducer(parser);
+					producer = parseElement(parser);
+				} else if ( parser.getName().equals(ConsumerFilter)) {
+					consumerFilter = parseElement(parser);
+				} else if ( parser.getName().equals(ProducerFilter)) {
+					producerFilter = parseElement(parser);
 				}
 			}
 			
@@ -117,24 +125,25 @@ public class WireConfig {
 		}
 		
 		if( consumer != null & producer != null ){
-			
 			wireAdmin.createWire(producer,consumer,null);
 			producer = null;
 			consumer = null;
+		} else {
+			wireAdmin.createWire(producer, producerFilter, consumer, consumerFilter, null);
 		}
 	}
 	
-	private String parseProducer(KXmlParser parser) throws XmlPullParserException, IOException {
+	private String parseElement(KXmlParser parser) throws XmlPullParserException, IOException {
 		
 		int eventType = parser.getEventType();
-		String producer = null;
+		String element = null;
 		
 		eventType = parser.next();
 		while( eventType != XmlPullParser.END_TAG) {
 			
 			if( eventType == XmlPullParser.TEXT) {
-				producer = parser.getText();
-				if(producer.trim().length() == 0) producer = null;
+				element = parser.getText();
+				if(element.trim().length() == 0) element = null;
 			} else if( eventType == XmlPullParser.START_TAG) {
 				// We skip this subtree
 				parser.skipSubTree();
@@ -143,28 +152,8 @@ public class WireConfig {
 			eventType = parser.next();
 		}
 		
-		return producer;
+		return element;
 	}
 	
-	private String parseConsumer(KXmlParser parser) throws XmlPullParserException, IOException {
-		
-		int eventType = parser.getEventType();
-		String consumer = null;
-		
-		eventType = parser.next();
-		while( eventType != XmlPullParser.END_TAG) {
-			
-			if( eventType == XmlPullParser.TEXT) {
-				consumer = parser.getText();
-				if(consumer.trim().length() == 0) consumer = null;
-			} else if( eventType == XmlPullParser.START_TAG) {
-				// We skip this subtree
-				parser.skipSubTree();
-				// SkipSubTree position us on the corresponding end tag
-			}
-			eventType = parser.next();
-		}
-		
-		return consumer;
-	}
+	
 }
