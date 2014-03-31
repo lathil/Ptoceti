@@ -113,12 +113,12 @@ public class ModbusDriverFactory implements org.osgi.service.cm.ManagedServiceFa
 	
 		String port = (String) properties.get(ModbusDriver.MODBUS_PORT);
 		String type = (String) properties.get(ModbusDriver.MODBUS_SLAVE_MASTER);
-		Integer modbusID = (Integer) properties.get(ModbusDriver.MODBUS_ID);
+		Integer modbusID = Integer.valueOf((String)properties.get(ModbusDriver.MODBUS_ID));
 		String encoding = (String) properties.get(ModbusDriver.MODBUS_ENCODING);
-		Integer baudRate = (Integer)  properties.get(ModbusDriver.MODBUS_BAUDRATE);
-		Boolean usesParity = (Boolean) properties.get(ModbusDriver.MODBUS_USESPARITY);
-		Boolean evenParity = (Boolean) properties.get(ModbusDriver.MODBUS_EVENPARITY);
-		Boolean echo = (Boolean) properties.get(ModbusDriver.MODBUS_ECHO);
+		Integer baudRate = Integer.valueOf((String)properties.get(ModbusDriver.MODBUS_BAUDRATE));
+		Boolean usesParity = Boolean.valueOf((String) properties.get(ModbusDriver.MODBUS_USESPARITY));
+		Boolean evenParity = Boolean.valueOf((String) properties.get(ModbusDriver.MODBUS_EVENPARITY));
+		Boolean echo = Boolean.valueOf((String) properties.get(ModbusDriver.MODBUS_ECHO));
 
 		// First check that we have all the configuration data necessary.
 		if((port != null ) && (type != null) && (modbusID != null) && (encoding != null)
