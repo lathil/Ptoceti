@@ -41,6 +41,7 @@ import org.osgi.service.log.LogService;
 public class ClientApplicationHandler  implements ManagedService {
 
 	ServiceRegistration sReg = null;
+	ServiceRegistration appSReg = null;
 	
 	public static final String CLIENTPATH = "com.ptoceti.osgi.obix.backbones.clientpath";
 	public String clientPath = null;
@@ -63,11 +64,18 @@ public class ClientApplicationHandler  implements ManagedService {
 		if (props != null) {
 			
 			clientPath = (String) props.get(CLIENTPATH);
+			// If we have already registered the application , ...
+			if( appSReg != null ) {
+				//.unregister it ..
+				appSReg.unregister();
+				appSReg = null;
+				Activator.log(LogService.LOG_INFO, "Uregister resource /obix under alias " + clientPath);
+			}
 			
 			DefaultResourceMapping resourceMapping = new DefaultResourceMapping();
 			resourceMapping.setAlias( clientPath );
 			resourceMapping.setPath( "/resources" );
-			Activator.bc.registerService( ResourceMapping.class.getName(), resourceMapping, null );
+			appSReg = Activator.bc.registerService( ResourceMapping.class.getName(), resourceMapping, null );
 			
 			Activator.log(LogService.LOG_INFO, "Mapped /obix under alias " + clientPath);
 			
