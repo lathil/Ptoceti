@@ -39,7 +39,9 @@ import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.service.log.LogService;
 
+import java.io.File;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Hashtable;
 import java.util.Dictionary;
@@ -127,10 +129,10 @@ public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFa
 		
 		String compositeIdentity = (String) properties.get(compositeIdentityKey);
 		String portName = (String) properties.get(portNameKey);
-		Integer modbusId = (Integer) properties.get(modbusIdKey);
-		Integer poolingRate = (Integer) properties.get(poolingRateKey);
+		Integer modbusId = Integer.valueOf((String) properties.get(modbusIdKey));
+		Integer poolingRate = Integer.valueOf((String)properties.get(poolingRateKey));
 		String configFilePath = (String)  properties.get(configFilePathKey);
-		Boolean isMock = (Boolean) properties.get(mock);
+		Boolean isMock = Boolean.valueOf((String) properties.get(mock));
 		
 		
 		// We need to check if the servive with the given pid already exist in our collection. This would
@@ -144,7 +146,25 @@ public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFa
 		}
 			
 		try {
-			URL configUrl = Activator.getResourceStream(configFilePath);
+			
+			URL configUrl = null;
+			if( configFilePath.startsWith("file:")){
+				  configFilePath = configFilePath.substring("file:".length());
+				  
+				  File file = new File(configFilePath);
+					if( file.exists() && !file.isDirectory()) {
+						try {
+							configUrl= file.toURI().toURL();
+						} catch (MalformedURLException e) {
+							Activator.log(LogService.LOG_ERROR, "Error creating url for file path: " + configFilePath);
+						}
+					} else {
+						Activator.log(LogService.LOG_ERROR, "Error reading modbusdevice file at: " + file.getAbsolutePath());
+					}
+			  } else {
+				  configUrl = Activator.getResourceStream(configFilePath);
+			  }
+			
 			if (configUrl != null) {
 				InputStream configFileStream = configUrl.openStream();
 				// Create an xml file modbusdevice configuration reader, and

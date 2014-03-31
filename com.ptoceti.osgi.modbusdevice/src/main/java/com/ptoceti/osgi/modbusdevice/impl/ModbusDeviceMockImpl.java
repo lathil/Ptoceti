@@ -225,7 +225,7 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 		
 		protected MockThread(long modbusPoolingRateS) {
 			
-			poolingTimeMill = modbusPoolingRateS *1000;
+			poolingTimeMill = modbusPoolingRateS;
 			myThread = new Thread(this);
 			myThread.start();
 		}
