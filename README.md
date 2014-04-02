@@ -60,13 +60,13 @@ If you want to execute the freshly build bundles for debugging or testing, you c
 ```
 maven pax:run
 ```
-Once the platform successfully launched, the compiled web application is accessible under http://localhost:8080/obix/client/backbones/index.html
-The Osgi console is reachable at http://localhost:8080/system/console
+Once the platform successfully launched, the compiled web application is accessible under **http://localhost:8080/obix/client/backbones/index.html**
+The Osgi console is reachable at **http://localhost:8080/system/console**
 
 If you need to fine tune the launching setup, you can modify the configuration of maven-pax-plugin according to the documention of [Pax Runner](https://ops4j1.jira.com/wiki/display/paxrunner/Pax+Runner)
 
 ### Develop / debug
-If you want to modify the web application and see immediate results without having to do a full recompile, the source folder (com.ptoceti.osgi.obix.backbones/src/main/webapp) is available under > http://localhost:8080/obix/dev/backbones
+If you want to modify the web application and see immediate results without having to do a full recompile, the source folder (com.ptoceti.osgi.obix.backbones/src/main/webapp) is available under **http://localhost:8080/obix/dev/backbones**
 For remote java remote debuging, the port 5005 is available. 
 
 ##License
