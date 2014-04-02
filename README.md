@@ -47,21 +47,30 @@ It will also need an implementation of Osgi Http server such as [Pax Web](https:
 
 ### Build from sources
 
-You'll need maven 3.x installed for compiling and packaging the bundles. For building the Spa project ( com.ptoceti.osgi.obix.backbones ), you'll need node.js, npm and Grunt installed as well.
+You'll need maven 3.x installed for compiling and packaging the bundles. For building the UX project ( com.ptoceti.osgi.obix.backbones ), you'll need node.js, npm and Grunt installed as well.
 Assure that everything is available from the current path and under the shell simply enter
 
-'''
+```
 maven clean install
-'''
+```
 
-If you want to execute the freshly build bundles for debugging or testing, you can launch a full settup using the include maven-pax-plugin by isuing the command
-'''
+### Launch
+If you want to execute the freshly build bundles for debugging or testing, you can launch a full setup using the include maven-pax-plugin by isuing the command:
+
+```
 maven pax:run
-'''
-For remote debuging, the port 5005 is available. The Osgi console is then reachable under http://localhost:8080/system/console/bundles.
+```
+Once the platform successfully launched, the compiled web application is accessible under > http://localhost:8080/obix/client/backbones/index.html
+The Osgi console is reachable under > http://localhost:8080/system/console
+
 If you need to fine tune the launching setup, you can modify the configuration of maven-pax-plugin according to the documention of [Pax Runner](https://ops4j1.jira.com/wiki/display/paxrunner/Pax+Runner)
 
-Once the platform successfully launched, the single page application is accessivle under http://localhost:8080/obix/client/backbones/index.html
+### develop / debug
+If you want to modify the web application and see immediate results without having to do a full recompile, the source folder (com.ptoceti.osgi.obix.backbones/src/main/webapp) is available under > http://localhost:8080/obix/dev/backbones
+For remote java remote debuging, the port 5005 is available. 
+
+#License
+Code released under the [Apache licence]( http://www.apache.org/licenses/)
 
 
 
