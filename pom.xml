@@ -46,7 +46,15 @@
 		<url>https://github.com/lathil/Ptoceti/issues</url>
 		<system>github</system>
 	</issueManagement>
-
+	
+	<developers>
+		<developer>
+		<email>lathil.dev@gmail.com</email>
+		<name>laurent thil</name>
+		<url>https://github.com/lathil</url>
+		<id>lathil</id>
+		</developer>
+	</developers>
 	
 	
 	<distributionManagement>

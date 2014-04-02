@@ -1,7 +1,7 @@
 Ptoceti : an embedable Obix server
 ==================================================
 
-Ptoceti is a set of Osgi bundles to build a Obix (' [Open Building Infomation Xchange]( http://www.obix.org/)') server.
+Ptoceti is a set of Osgi bundles to build a [Obix]( http://www.obix.org/) server.
 
 Ptoceti is build on top of [Osgi](www.osgi.org) R4 and and execute in a jdk 1.7. It needs about 20-30 mb of memory to execute which make it a nice fit for a small form factor Arm computer.
 
@@ -41,7 +41,7 @@ jre or jdk : 1.7
 
 
 To run, it will need an implementation of Osgi R4. I made it execute on a patch of [Felix](/felix.apache.org) and [Knopflerfish](http://www.knopflerfish.org/) bundles.
-It will also need an implementation of Osgi Http server such as [Pax Web](https://github.com/ops4j/org.ops4j.pax.web)
+It will also need an implementation of Osgi Http server that can be provided by  [Pax Web](https://github.com/ops4j/org.ops4j.pax.web) (Jetty or Apache Tomcat)
  
 ##Getting started
 
@@ -60,16 +60,16 @@ If you want to execute the freshly build bundles for debugging or testing, you c
 ```
 maven pax:run
 ```
-Once the platform successfully launched, the compiled web application is accessible under > http://localhost:8080/obix/client/backbones/index.html
-The Osgi console is reachable under > http://localhost:8080/system/console
+Once the platform successfully launched, the compiled web application is accessible under http://localhost:8080/obix/client/backbones/index.html
+The Osgi console is reachable at http://localhost:8080/system/console
 
 If you need to fine tune the launching setup, you can modify the configuration of maven-pax-plugin according to the documention of [Pax Runner](https://ops4j1.jira.com/wiki/display/paxrunner/Pax+Runner)
 
-### develop / debug
+### Develop / debug
 If you want to modify the web application and see immediate results without having to do a full recompile, the source folder (com.ptoceti.osgi.obix.backbones/src/main/webapp) is available under > http://localhost:8080/obix/dev/backbones
 For remote java remote debuging, the port 5005 is available. 
 
-#License
+##License
 Code released under the [Apache licence]( http://www.apache.org/licenses/)
 
 
