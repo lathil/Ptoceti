@@ -29,7 +29,6 @@ package com.ptoceti.osgi.wireadmin.impl;
 
 
 import java.util.Dictionary;
-import java.util.StringTokenizer;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.Filter;
