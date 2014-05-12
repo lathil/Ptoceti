@@ -31,7 +31,6 @@ package com.ptoceti.osgi.obix.resources;
 import org.restlet.resource.Get;
 
 import com.ptoceti.osgi.obix.contract.History;
-import com.ptoceti.osgi.obix.contract.Watch;
 
 public interface HistoryResource {
 

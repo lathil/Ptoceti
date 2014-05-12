@@ -51,7 +51,7 @@ import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
 import com.ptoceti.osgi.obix.resources.HistoryResource;
 
-public class HistoryDomainImpl implements HistoryDomain {
+public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 
 	@Override
 	public History make(Contract of) throws DomainException {
@@ -90,7 +90,7 @@ public class HistoryDomainImpl implements HistoryDomain {
 		return (History)getHistory(uri).getObixObject();
 	}
 
-	protected ObjEntity getHistory( String uri) throws DomainException{
+	private ObjEntity getHistory( String uri) throws DomainException{
 
 		History obixObj = new History();
 		obixObj.setHref(new Uri("href", uri));

@@ -30,7 +30,7 @@ package com.ptoceti.osgi.obix.domain;
 
 import com.ptoceti.osgi.obix.contract.About;
 
-public interface AboutDomain {
+public interface AboutDomain extends BaseDomain{
 
 	public About getAbout();
 }

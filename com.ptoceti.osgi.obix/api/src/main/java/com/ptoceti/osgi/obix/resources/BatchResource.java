@@ -27,11 +27,8 @@ package com.ptoceti.osgi.obix.resources;
  * #L%
  */
 
-
-import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
-import com.ptoceti.osgi.obix.contract.Batch;
 import com.ptoceti.osgi.obix.contract.BatchIn;
 import com.ptoceti.osgi.obix.contract.BatchOut;
 

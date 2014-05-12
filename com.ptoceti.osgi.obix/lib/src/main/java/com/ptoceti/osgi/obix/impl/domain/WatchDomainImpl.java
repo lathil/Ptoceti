@@ -28,6 +28,7 @@ package com.ptoceti.osgi.obix.impl.domain;
  */
 
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -258,7 +259,7 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 	}
 	
 	
-	protected ObjEntity getWatch( String uri) throws DomainException {
+	private ObjEntity getWatch( String uri) throws DomainException {
 
 		Watch obixObj = new Watch();
 		obixObj.setHref(new Uri("href", uri));

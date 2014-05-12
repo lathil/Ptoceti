@@ -1,11 +1,11 @@
-package com.ptoceti.osgi.obix.resources;
+package com.ptoceti.osgi.obix.domain;
 
 /*
  * #%L
  * **********************************************************************
  * ORGANIZATION : ptoceti
- * PROJECT : Obix-Api
- * FILENAME : WatchResource.java
+ * PROJECT : Obix-Lib
+ * FILENAME : BaseDomain.java
  * 
  * This file is part of the Ptoceti project. More information about
  * this project can be found here: http://www.ptoceti.com/
@@ -28,18 +28,11 @@ package com.ptoceti.osgi.obix.resources;
  */
 
 
-import org.restlet.resource.Get;
+import java.sql.Connection;
 
-import com.ptoceti.osgi.obix.contract.Watch;
+public interface BaseDomain {
 
-public interface WatchResource {
+	void setConnection(Connection con);
 	
-	public static final String WATCH_URI = "watchuri";
-	
-	public static String baseuri = "/watch";
-	
-	public static String uri = baseuri + "/{" + WATCH_URI + "}/";
-	
-	@Get
-	public Watch retrieve() throws ResourceException;
+	Connection getConnection();
 }

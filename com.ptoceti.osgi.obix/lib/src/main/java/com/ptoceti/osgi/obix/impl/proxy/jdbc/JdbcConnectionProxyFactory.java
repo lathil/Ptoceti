@@ -1,15 +1,11 @@
-package com.ptoceti.osgi.obix.impl.domain;
-
-import java.sql.Connection;
-
-import com.ptoceti.osgi.obix.domain.BaseDomain;
+package com.ptoceti.osgi.obix.impl.proxy.jdbc;
 
 /*
  * #%L
  * **********************************************************************
  * ORGANIZATION : ptoceti
  * PROJECT : Obix-Lib
- * FILENAME : AbstractDomain.java
+ * FILENAME : JdbcConnectionProxyFactory.java
  * 
  * This file is part of the Ptoceti project. More information about
  * this project can be found here: http://www.ptoceti.com/
@@ -32,21 +28,31 @@ import com.ptoceti.osgi.obix.domain.BaseDomain;
  */
 
 
+import java.lang.reflect.Proxy;
 
-public class AbstractDomain implements BaseDomain{
+import com.ptoceti.osgi.obix.domain.BaseDomain;
 
-	protected Connection connection;
+public class JdbcConnectionProxyFactory<T extends BaseDomain> {
 	
-	@Override
-	public void setConnection(Connection con) {
-		connection = con;
+	
+	@SuppressWarnings("unchecked")
+	public T createProxy ( Class< ? extends T> proxiedClass, Class<T> proxiedinterface ) {
 		
+		T result = null;
+		JdbcConnectionHandler<T> handler;
+		try {
+			handler = new JdbcConnectionHandler<T>(proxiedClass.newInstance());
+			result = (T) Proxy.newProxyInstance( this.getClass().getClassLoader(), new Class[] {proxiedinterface}, handler);
+			//result = (T) Proxy.newProxyInstance( Thread.currentThread().getContextClassLoader(), new Class[] {proxiedinterface}, handler);
+			
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
-
-	@Override
-	public Connection getConnection() {
-		return connection;
-	}
-
-
 }

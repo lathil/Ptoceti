@@ -60,7 +60,7 @@ import com.ptoceti.osgi.obix.impl.entity.RefEntity;
 import com.ptoceti.osgi.obix.impl.entity.RelTimeEntity;
 import com.ptoceti.osgi.obix.impl.entity.StrEntity;
 
-public class ObjDomainImpl implements ObjDomain {
+public class ObjDomainImpl extends AbstractDomain implements ObjDomain {
 
 	
 	public Obj getObixObj(Uri href) throws DomainException {

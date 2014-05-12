@@ -32,7 +32,6 @@ import org.restlet.resource.Post;
 
 import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.contract.WatchIn;
-import com.ptoceti.osgi.obix.contract.WatchOut;
 
 public interface WatchRemoveResource {
 

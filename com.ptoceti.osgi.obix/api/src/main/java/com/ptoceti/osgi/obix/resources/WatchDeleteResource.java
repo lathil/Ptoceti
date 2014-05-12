@@ -31,7 +31,6 @@ package com.ptoceti.osgi.obix.resources;
 import org.restlet.resource.Post;
 
 import com.ptoceti.osgi.obix.contract.Nil;
-import com.ptoceti.osgi.obix.contract.WatchIn;
 
 public interface WatchDeleteResource {
 

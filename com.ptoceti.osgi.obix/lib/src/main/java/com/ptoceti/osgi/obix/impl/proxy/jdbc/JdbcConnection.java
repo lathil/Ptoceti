@@ -1,11 +1,11 @@
-package com.ptoceti.osgi.obix.resources;
+package com.ptoceti.osgi.obix.impl.proxy.jdbc;
 
 /*
  * #%L
  * **********************************************************************
  * ORGANIZATION : ptoceti
- * PROJECT : Obix-Api
- * FILENAME : WatchResource.java
+ * PROJECT : Obix-Lib
+ * FILENAME : JdbcConnection.java
  * 
  * This file is part of the Ptoceti project. More information about
  * this project can be found here: http://www.ptoceti.com/
@@ -28,18 +28,26 @@ package com.ptoceti.osgi.obix.resources;
  */
 
 
-import org.restlet.resource.Get;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import com.ptoceti.osgi.obix.contract.Watch;
+@Retention(RetentionPolicy.RUNTIME )
+@Target(ElementType.METHOD)
+public @interface JdbcConnection {
 
-public interface WatchResource {
+	static enum ConnectionType {
+		/**
+		 * Read only
+		 */
+        RX,
+        /**
+         * Read Write
+         */
+        RWX
+    }
 	
-	public static final String WATCH_URI = "watchuri";
-	
-	public static String baseuri = "/watch";
-	
-	public static String uri = baseuri + "/{" + WATCH_URI + "}/";
-	
-	@Get
-	public Watch retrieve() throws ResourceException;
+	ConnectionType type();
 }
+
