@@ -28,8 +28,6 @@ package com.ptoceti.osgi.obix.object;
  */
 
 
-import java.util.ArrayList;
-
 public class Contract {
 
 	protected Uri[] uris;

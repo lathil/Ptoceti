@@ -30,6 +30,11 @@ package com.ptoceti.osgi.obix.object;
 
 public abstract class Val extends Obj {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1830521557290080909L;
+	
 	protected Object val;
 	
 	public Val() {

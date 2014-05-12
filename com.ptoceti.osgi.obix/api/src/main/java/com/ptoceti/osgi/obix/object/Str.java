@@ -30,6 +30,11 @@ package com.ptoceti.osgi.obix.object;
 
 public class Str extends Val {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3119088030461698870L;
+
 	private static final Contract contract = new Contract("obix:str");
 	
 	protected Integer min;

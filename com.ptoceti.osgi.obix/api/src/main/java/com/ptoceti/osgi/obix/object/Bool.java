@@ -32,6 +32,11 @@ package com.ptoceti.osgi.obix.object;
 
 public class Bool extends Val{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5703560627132064965L;
+
 	private static final Contract contract = new Contract("obix:bool");
 	
 	protected Uri range;

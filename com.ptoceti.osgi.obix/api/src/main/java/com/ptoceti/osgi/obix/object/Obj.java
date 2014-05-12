@@ -29,10 +29,7 @@ package com.ptoceti.osgi.obix.object;
 
 
 import java.io.Serializable;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 
 
@@ -57,7 +54,7 @@ public class Obj  implements Serializable {
 	protected ArrayList<Obj> childrens;
 	
 	public Obj() {
-		setChildrens(new ArrayList());
+		setChildrens(new ArrayList<Obj>());
 	}
 	
 	public Obj(Obj model) {
@@ -77,7 +74,7 @@ public class Obj  implements Serializable {
 	}
 	
 	public Obj(String name){
-		setChildrens(new ArrayList());
+		setChildrens(new ArrayList<Obj>());
 		setName(name);
 	}
 	
@@ -90,11 +87,11 @@ public class Obj  implements Serializable {
 	}
 	
 	public boolean has (String name ){
-		Iterator childIter = childrens.iterator();
+		Iterator<Obj> childIter = childrens.iterator();
 		boolean found = false;
 		if( name != null && name.length() > 0) {
 			while( childIter.hasNext()) {
-				Obj nextObj = (Obj)childIter.next();
+				Obj nextObj = childIter.next();
 				if( (nextObj.getName() != null )&& nextObj.getName().equals(name)) {
 					found = true;
 					break;
@@ -105,9 +102,9 @@ public class Obj  implements Serializable {
 	}
 	
 	public void replace( String name, Obj child) {
-		Iterator childIter = childrens.iterator();
+		Iterator<Obj> childIter = childrens.iterator();
 		while( childIter.hasNext()) {
-			Obj nextObj = (Obj)childIter.next();
+			Obj nextObj = childIter.next();
 			if( nextObj.getName().equals(name)) {
 				int index = childrens.indexOf(nextObj);
 				// be sure child obj got final name
@@ -121,9 +118,9 @@ public class Obj  implements Serializable {
 	public Obj getChildren( String name) {
 		
 		Obj result = null;
-		Iterator childIter = childrens.iterator();
+		Iterator<Obj> childIter = childrens.iterator();
 		while( childIter.hasNext()) {
-			Obj nextObj = (Obj)childIter.next();
+			Obj nextObj = childIter.next();
 			if( nextObj.getName().equals(name)) {
 				result = nextObj;
 				break;

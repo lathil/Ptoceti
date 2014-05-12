@@ -31,6 +31,11 @@ package com.ptoceti.osgi.obix.object;
 
 public class Feed extends Obj {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6282142713591848813L;
+
 	private static final Contract contract = new Contract("obix:feed");
 	
 	protected Contract in;

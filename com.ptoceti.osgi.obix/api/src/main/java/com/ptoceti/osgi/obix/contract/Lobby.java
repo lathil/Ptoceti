@@ -34,7 +34,6 @@ import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Op;
 import com.ptoceti.osgi.obix.object.Obj;
-import com.ptoceti.osgi.obix.object.Str;
 import com.ptoceti.osgi.obix.object.Uri;
 
 public class Lobby extends Obj implements Serializable {

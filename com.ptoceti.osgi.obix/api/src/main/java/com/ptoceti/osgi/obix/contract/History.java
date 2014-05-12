@@ -33,7 +33,6 @@ import java.util.Calendar;
 
 import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.object.Contract;
-import com.ptoceti.osgi.obix.object.Feed;
 import com.ptoceti.osgi.obix.object.Int;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Op;

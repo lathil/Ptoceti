@@ -35,6 +35,11 @@ import com.ptoceti.osgi.obix.object.Obj;
 
 public class Nil extends Obj implements Serializable{
 
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6458662988659798816L;
 	public static final Contract contract = new Contract("obix:Nil");
 	
 	public Nil() {

@@ -27,14 +27,16 @@ package com.ptoceti.osgi.obix.object;
  * #L%
  */
 
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
+
 
 public class Abstime extends Val {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4989961871886264857L;
 
 	private static final Contract contract = new Contract("obix:abstime");
 	

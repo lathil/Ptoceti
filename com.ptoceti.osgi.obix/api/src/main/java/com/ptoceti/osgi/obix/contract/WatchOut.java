@@ -33,7 +33,6 @@ import java.io.Serializable;
 import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.List;
 import com.ptoceti.osgi.obix.object.Obj;
-import com.ptoceti.osgi.obix.object.Uri;
 
 public class WatchOut extends Obj implements Serializable{
 

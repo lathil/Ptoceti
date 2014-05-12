@@ -28,9 +28,12 @@ package com.ptoceti.osgi.obix.object;
  */
 
 
-import java.util.regex.Pattern;
-
 public class Enum extends Val {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 390838246631189012L;
 
 	private static final Contract contract = new Contract("obix:enum");
 	

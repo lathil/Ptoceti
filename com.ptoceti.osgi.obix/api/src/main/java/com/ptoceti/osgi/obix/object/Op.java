@@ -31,6 +31,11 @@ package com.ptoceti.osgi.obix.object;
 
 public class Op extends Obj {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3427772146596982538L;
+	
 	public static final Contract contract = new Contract("obix:Op");
 	
 	public Op() {

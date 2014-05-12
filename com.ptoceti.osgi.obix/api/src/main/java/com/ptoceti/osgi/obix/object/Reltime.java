@@ -28,9 +28,12 @@ package com.ptoceti.osgi.obix.object;
  */
 
 
-import java.util.Date;
-
 public class Reltime extends Val {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4398992355838294392L;
 
 	// private static final String xsduration =
 	// "-?P(?=\\d+|T)(\\d+Y)?(\\d+M)?(\\d+D)?(T(?=\\d+)(\\d+H)?(\\d+M)?(\\d+S)?)?";

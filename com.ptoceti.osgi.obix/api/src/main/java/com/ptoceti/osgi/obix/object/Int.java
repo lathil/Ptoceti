@@ -28,9 +28,12 @@ package com.ptoceti.osgi.obix.object;
  */
 
 
-import java.util.Date;
-
 public class Int extends Val {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 499008084834546740L;
 
 	private static final Contract contract = new Contract("obix:int");
 	

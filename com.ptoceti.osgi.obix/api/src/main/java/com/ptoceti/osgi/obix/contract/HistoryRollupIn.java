@@ -31,7 +31,6 @@ package com.ptoceti.osgi.obix.contract;
 import java.io.Serializable;
 
 import com.ptoceti.osgi.obix.object.Contract;
-import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Reltime;
 
 public class HistoryRollupIn extends HistoryFilter implements Serializable {

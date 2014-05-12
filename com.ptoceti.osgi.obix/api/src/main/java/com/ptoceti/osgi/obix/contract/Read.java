@@ -35,6 +35,11 @@ import com.ptoceti.osgi.obix.object.Uri;
 
 public class Read extends Uri implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2880507343342155968L;
+	
 	public static final Contract contract = new Contract("obix:Read");
 	
 	public Read() {

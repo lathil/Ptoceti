@@ -30,6 +30,11 @@ package com.ptoceti.osgi.obix.object;
 
 public class Real extends Val {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9068900088523384313L;
+
 	private static final Contract contract = new Contract("obix:real");
 	
 	protected Float min;

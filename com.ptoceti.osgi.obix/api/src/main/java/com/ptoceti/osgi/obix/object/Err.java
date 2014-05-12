@@ -30,6 +30,11 @@ package com.ptoceti.osgi.obix.object;
 
 public class Err extends Obj{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6508946559227578324L;
+	
 	private static final Contract contract = new Contract("obix:err");
 	
 	public Err() {
