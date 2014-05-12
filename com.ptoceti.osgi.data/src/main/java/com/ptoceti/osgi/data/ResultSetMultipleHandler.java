@@ -29,7 +29,6 @@ package com.ptoceti.osgi.data;
 
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
 
 public class ResultSetMultipleHandler extends AbstractResultSetMultipleHandler {
 

@@ -30,7 +30,6 @@ package com.ptoceti.osgi.data;
 
 import org.osgi.service.device.Device;
 
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
@@ -46,6 +45,8 @@ public interface JdbcDevice extends Device {
 	public void setJDBCDriver(Driver driver);
 	
 	public boolean setupDatabase(String databasePath, String setupScript );
+	public Connection getConnectionRx();
+	public Connection getConnectionRWx();
 	public Connection getCurrentConnection();
 	public void closeCurrentConnection() throws SQLException;
 	public void commitAndCloseCurrentConnection()  throws SQLException;

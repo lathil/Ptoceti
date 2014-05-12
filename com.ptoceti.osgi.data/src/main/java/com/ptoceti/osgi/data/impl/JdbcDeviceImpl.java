@@ -29,27 +29,16 @@ package com.ptoceti.osgi.data.impl;
 
 
 import org.osgi.framework.Constants;
-import org.osgi.service.device.Device;
 import org.osgi.service.log.LogService;
 
 import com.ptoceti.osgi.data.IResultSetGeneratedKeysHandler;
 import com.ptoceti.osgi.data.IResultSetMultipleHandler;
-import com.ptoceti.osgi.data.JdbcDevice;
 import com.ptoceti.osgi.data.IResultSetSingleHandler;
 import com.ptoceti.osgi.data.JdbcDeviceService;
-import com.ptoceti.osgi.data.ResultSetMultipleHandler;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.PreparedStatement;
@@ -83,7 +72,7 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 				+ jdbcDriver.getClass().getName());
 		
 		// register the class as a managed service.
-		Hashtable properties = new Hashtable();
+		Hashtable<String, String> properties = new Hashtable<String, String>();
 		properties.put( Constants.SERVICE_PID, JdbcDeviceService.class.getName());
 		
 		String[] clazzes = new String[1];
@@ -162,67 +151,85 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 
 		catch (MalformedURLException e) {
 			Activator.log(LogService.LOG_ERROR, e.toString());
-		} catch (IOException e) {
-			Activator.log(LogService.LOG_ERROR, e.toString());
 		}
 
 		return success;
 	}
 
 	public Connection getCurrentConnection() {
-		Connection conn = threadLocalConn.get();
-		
-		if( conn != null ){
-			return conn;
-		}
-		
-		conn = getConnection();
-		threadLocalConn.set(conn);
-		
-		return conn;
+		return threadLocalConn.get();
 	}
 
-	private boolean  taken = false;
-	private synchronized Connection getConnection() {
+	public synchronized Connection getConnectionRx() {
 		
-		while(taken){
-			try {
-				wait();
-			} catch (InterruptedException e) {}
-		}
+		Connection newConn = null;
 		
-		taken = true;
-		Connection conn = null;
+		Properties mergedProps = new Properties();
+		//TODO need to find a way we are using SQLite
+		// this maps to read only in SQLITE open mode flags
+		mergedProps.put("open_mode", (new Integer((int)0x00000001)).toString());
+		//mergedProps.putAll(props);
+		
 		try {
-			conn = jdbcDriver.connect(dbUrl, props);
-			conn.setAutoCommit(false);
+			
+			newConn = jdbcDriver.connect(dbUrl, mergedProps);
+			newConn.setAutoCommit(false);
+			
+			Connection currentConn = threadLocalConn.get();
+			if( currentConn != null && !currentConn.isClosed()){
+				currentConn.close();
+			}
+			
+			threadLocalConn.set(newConn);
+			
 		} catch (SQLException e) {
-			taken = false;
-			Activator.log(LogService.LOG_ERROR, e.toString());
+			//taken = false;
+			Activator.log(LogService.LOG_ERROR, "getConnectionRx: " +  e.toString());
+		} 
+		
+	
+		return newConn;
+	}
+	
+	public synchronized Connection getConnectionRWx() {
+		
+		Connection newConn = null;
+		
+		Properties mergedProps = new Properties();
+		mergedProps.put("open_mode", (new Integer((int)0x00000002)).toString());
+		//mergedProps.putAll(props);
+		
+		try {
+			newConn = jdbcDriver.connect(dbUrl, mergedProps);
+			newConn.setAutoCommit(false);
+			
+			Connection currentConn = threadLocalConn.get();
+			if( currentConn != null && !currentConn.isClosed()){
+				currentConn.close();
+			}
+			
+			threadLocalConn.set(newConn);
+			
+		} catch (SQLException e) {
+			//taken = false;
+			Activator.log(LogService.LOG_ERROR, "getConnectionRWx: " +  e.toString());
 		}
 		
-		return conn;
+	
+		return newConn;
 	}
 	
 	
 	private synchronized void releaseConnection(Connection conn) throws SQLException{
 		
-		while(!taken){
-			try{
-				wait();
-			} catch (InterruptedException e) {}
-		}
-		
-		
 		try {
-			conn.close();
+			if(!conn.isClosed()) {
+				conn.close();
+			}
 		} catch (SQLException e) {
-			Activator.log(LogService.LOG_ERROR, e.toString());
+			Activator.log(LogService.LOG_ERROR, "releaseConnection: " + e.toString());
 			throw e;
 		}
-		
-		taken = false;
-		notifyAll();
 		
 	}
 	
@@ -237,7 +244,7 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 				releaseConnection(conn);
 			}
 		} catch (SQLException e) {
-			Activator.log(LogService.LOG_ERROR, e.toString());
+			Activator.log(LogService.LOG_ERROR, "closeCurrentConnection: " + e.toString());
 			throw e;
 		}
 		threadLocalConn.set(null);
@@ -249,15 +256,14 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 			return;
 		}
 		try {
-			if( !conn.isClosed()){
-				conn.commit();
-				releaseConnection(conn);
-			}
+			conn.commit();
 		} catch (SQLException e) {
-			Activator.log(LogService.LOG_ERROR, e.toString());
+			Activator.log(LogService.LOG_ERROR, "commitAndCloseCurrentConnection: " + e.toString());
 			throw e;
+		} finally {
+			releaseConnection(conn);
+			threadLocalConn.set(null);
 		}
-		threadLocalConn.set(null);
 	}
 	
 	public void rollbackAndCloseCurrentConnection() throws SQLException{
@@ -266,15 +272,14 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 			return;
 		}
 		try {
-			if( !conn.isClosed()){
-				conn.rollback();
-				releaseConnection(conn);
-			}
+			conn.rollback();
 		} catch (SQLException e) {
-			Activator.log(LogService.LOG_ERROR, e.toString());
+			Activator.log(LogService.LOG_ERROR, "rollbackAndCloseCurrentConnection: " + e.toString());
 			throw e;
+		} finally {
+			releaseConnection(conn);
+			threadLocalConn.set(null);
 		}
-		threadLocalConn.set(null);
 	}
 
 	private void setStatementParams(PreparedStatement statement, Object[] params)

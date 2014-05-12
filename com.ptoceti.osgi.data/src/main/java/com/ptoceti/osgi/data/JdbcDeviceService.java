@@ -35,6 +35,8 @@ public abstract class JdbcDeviceService implements JdbcDevice{
 
 	public abstract boolean setupDatabase(String databasePath, String setupScript );
 	
+	public abstract Connection getConnectionRx();
+	public abstract Connection getConnectionRWx();
 	public abstract Connection getCurrentConnection();
 	public abstract void closeCurrentConnection() throws SQLException;
 	public abstract void commitAndCloseCurrentConnection()  throws SQLException;

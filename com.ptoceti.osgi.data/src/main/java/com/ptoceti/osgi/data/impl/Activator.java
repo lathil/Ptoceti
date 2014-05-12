@@ -32,14 +32,12 @@ import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 import org.osgi.service.device.Device;
 //import org.osgi.service.device.Constants;
@@ -95,7 +93,7 @@ public class Activator implements BundleActivator{
 			JdbcDevice device = new JdbcDeviceImpl();
 			
 			// register the class as a managed service.
-			Hashtable properties = new Hashtable();
+			Hashtable<String, Object> properties = new Hashtable<String, Object>();
 			properties.put(org.osgi.service.device.Constants.DEVICE_CATEGORY, JdbcDevice.DEVICE_CATEGORY);
 			properties.put(org.osgi.service.device.Constants.DEVICE_DESCRIPTION,JdbcDevice.DEVICE_DESCRIPTION );
 			properties.put(org.osgi.service.device.Constants.DEVICE_SERIAL, JdbcDeviceImpl.DEVICE_SERIAL);
