@@ -28,29 +28,38 @@ package com.ptoceti.osgi.sqlite;
  */
 
 
-
-import java.util.Properties;
-
 import org.osgi.service.device.Device;
-import org.osgi.service.device.Constants;
 import org.osgi.service.device.Driver;
 import org.osgi.service.log.LogService;
-import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Filter;
 
 import com.ptoceti.osgi.data.JdbcDevice;
 
+/**
+ * A Osgi Driver object to publish an SQLite driver in OSGI space. The Driver will be matche to any device that want an
+ * com.ptoceti.osgi.data.JdbcDevice ( implemented in com.ptoceti.osgi.data bundle ).
+ * 
+ * @author Laurent Thil
+ * @version 1.0
+ *
+ */
 public class SQLiteDriver implements Driver {
 	
-	String spec = "(&"
+	/**
+	 * The filter to match devices
+	 */
+	static final String spec = "(&"
 		+ "(objectclass=" + JdbcDevice.NAME +")"
 		+ "(" + org.osgi.service.device.Constants.DEVICE_CATEGORY + "=" + JdbcDevice.DEVICE_CATEGORY[0] + ")"
 		+ ")";
 	
 	Filter filter;
 	
+	/**
+	 * Creator.
+	 */
 	public SQLiteDriver()
 	{
 		try {
@@ -61,11 +70,9 @@ public class SQLiteDriver implements Driver {
 	}
 
 	/**
-	 * org.osgi.service.device interface method.
-	 * Attach this Driver service to the Device service represented by the provided
-	 * service reference.
+	 * {@inheritDoc}
 	 */
-	public String attach(ServiceReference reference)
+	public String attach( final ServiceReference reference)
 	{
 		new SQLiteJDBC(Activator.bc, reference);
 		// return null to indicate that device was properly attach to the driver
@@ -74,11 +81,9 @@ public class SQLiteDriver implements Driver {
 	}
 	
 	/**
-	 * org.osgi.service.device interface method.
-	 * Check whether this Driver can be attach to the Device service represented by
-	 * the service reference.
+	 * {@inheritDoc}
 	 */
-	public int match(ServiceReference reference)
+	public int match(final ServiceReference reference)
 	{
 		if( filter.match(reference)){
 			return JdbcDevice.MATCH_CLASS;

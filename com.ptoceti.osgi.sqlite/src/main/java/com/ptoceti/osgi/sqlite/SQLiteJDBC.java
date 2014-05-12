@@ -38,6 +38,8 @@ import java.util.logging.Logger;
 import org.sqlite.JDBC;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteConfig.JournalMode;
+import org.sqlite.SQLiteConfig.TransactionMode;
+import org.sqlite.SQLiteOpenMode;
 
 import com.ptoceti.osgi.data.JdbcDevice;
 
@@ -47,14 +49,39 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 import org.osgi.util.tracker.*;
 
+/**
+ * Wrapper for a SQLite java.sql.Driver that extends Osgi's ServiceTracker. Attach te driver to an Osgi Device when this one become available.
+ * 
+ * 
+ * @author Laurent Thil
+ * @version 1.0
+ *
+ */
 public class SQLiteJDBC extends ServiceTracker implements java.sql.Driver{
 
+	/**
+	 * The sqlite jdbc driver
+	 */
 	JDBC sqliteJDBC = null;
 	
-	private static String SQLITE_JDBC_PREFIX = "jdbc:sqlite:";
-	private static String FILE_PREFIX = "file:";
+	/**
+	 * prefix for accessing sqlite driver
+	 */
+	private static final String SQLITE_JDBC_PREFIX = "jdbc:sqlite:";
+	/**
+	 * prefix for accessing file based database
+	 */
+	private static final String FILE_PREFIX = "file:";
 	
-	public SQLiteJDBC(BundleContext bc, ServiceReference ref)
+	/**
+	 * Creator.
+	 * 
+	 * Implements a java.sql.Driver that attach itself to a com.ptoceti.osgi.data.JdbcDevice service.
+	 * 
+	 * @param bc the bundle context
+	 * @param ref the JdbcDevice service reference
+	 */
+	public SQLiteJDBC(final BundleContext bc, final ServiceReference ref)
 	{
 		// we ask the service tracker to track the device service based on it service reference
 		super( bc, ref, null);
@@ -67,7 +94,10 @@ public class SQLiteJDBC extends ServiceTracker implements java.sql.Driver{
 		
 	}
 	
-	public Object addingService(ServiceReference ref) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public Object addingService(final ServiceReference ref) {
 		
 		JdbcDevice jDev = (JdbcDevice) Activator.bc.getService(ref);
 		// we pass this class as the driver to the device.
@@ -75,11 +105,48 @@ public class SQLiteJDBC extends ServiceTracker implements java.sql.Driver{
 		return jDev;
 	}
 	
-	public void removedService(ServiceReference ref, Object service) {
+	/**
+	 * {@inheritDoc}
+	 */
+	public void removedService(final ServiceReference ref, final Object service) {
 		
 		Activator.bc.ungetService(ref);
 	}
 	
+	/**
+	 * Create a connection to the SQLite db
+	 * 
+	 * @param url an url formating string to the sqlte db
+	 * @param info aditional properties for the connection
+	 * @return Connection the jdbc connection
+	 */
+	public Connection connect(final String url, final Properties info) throws SQLException
+	{
+		String sqliteUrl = adaptUrl(url);
+			
+		SQLiteConfig config = new SQLiteConfig(info);
+		config.setJournalMode(JournalMode.WAL);
+		
+		// check if we are in read-write only mode
+		
+		if(( config.getOpenModeFlags() & SQLiteOpenMode.READWRITE.flag) > 0) {
+			config.setTransactionMode(TransactionMode.IMMEDIATE);
+		} else if(( config.getOpenModeFlags() & SQLiteOpenMode.READONLY.flag) > 0) {
+			config.setTransactionMode(TransactionMode.DEFFERED);
+		}
+		
+
+		Connection connection = sqliteJDBC.connect(sqliteUrl, config.toProperties());
+	
+		return new SQLiteConnectionWrapper(connection);
+	}
+	
+	/**
+	 * Strip the file prefix from the url and reformat as an sqlite db url.
+	 * 
+	 * @param url the incoming db url
+	 * @return an sqlite db url
+	 */
 	private String adaptUrl(String url) {
 		
 		String strippedUrl = url;
@@ -91,6 +158,9 @@ public class SQLiteJDBC extends ServiceTracker implements java.sql.Driver{
 		return strippedUrl;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean acceptsURL(String url)
 	{
 		String sqliteUrl = url;
@@ -102,36 +172,38 @@ public class SQLiteJDBC extends ServiceTracker implements java.sql.Driver{
 		
 		return sqliteJDBC.acceptsURL(sqliteUrl);
 	}
-	public Connection connect(String url, Properties info) throws SQLException
-	{
-		String sqliteUrl = adaptUrl(url);
-			
-		SQLiteConfig config = new SQLiteConfig();
-		config.setJournalMode(JournalMode.WAL);
-		Connection connection = sqliteJDBC.connect(sqliteUrl, config.toProperties());
-	
-		return connection;
-	}
+	/**
+	 * {@inheritDoc}
+	 */
 	public int getMajorVersion()
 	{
 		return sqliteJDBC.getMajorVersion();
 	}
+	/**
+	 * {@inheritDoc}
+	 */
 	public int getMinorVersion()
 	{
 		return sqliteJDBC.getMinorVersion();
 	}
+	/**
+	 * {@inheritDoc}
+	 */
 	public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException
 	{
 		return sqliteJDBC.getPropertyInfo(url, info);
 	}
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean jdbcCompliant()
 	{
 		return sqliteJDBC.jdbcCompliant();
 	}
-
-	@Override
+	/**
+	 * {@inheritDoc}
+	 */
 	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

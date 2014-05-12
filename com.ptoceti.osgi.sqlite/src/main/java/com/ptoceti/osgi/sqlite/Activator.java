@@ -37,25 +37,37 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.log.LogService;
 import org.osgi.service.device.Constants;
 import org.osgi.service.device.Driver;
 
 
+/**
+ * Activator class implement the BundleActivator interface. This class load the bundle in the framework.
+ * Task is to register the SQLite Driver as a Driver service into the framework
+ *
+ * @author Laurent Thil
+ * @version 1.0
+ */
+
 public class Activator implements BundleActivator{
 
-//	 a reference to this service bundle context.
+	/**
+	 *  a reference to this service bundle context.
+	 */
 	static BundleContext bc = null;
-	// a reference to the logging service.
+	/**
+	 * a reference to the logging service.
+	 */
 	static LogService logSer;
-	// the name of the logging service in the osgi framework.
+	/**
+	 * the name of the logging service in the osgi framework.
+	 */
 	static private final String logServiceName = org.osgi.service.log.LogService.class.getName();
-	
-	// the service itself.
+	/**
+	 * the service itself.
+	 */
 	private static SQLiteDriver sqliteService;
-	// a reference to the service registration for the Controller object.
-	private ServiceRegistration sReg = null;
 	
 	/**
 	 * Activator creator. Just create a base ObixServiceImpl object instance.
@@ -72,10 +84,10 @@ public class Activator implements BundleActivator{
 	 * logging whithin the bundle.
 	 *
 	 * If the method cannot get a reference to the logging service, a NullPointerException is thrown.
-	 * @param context
+	 * @param context the bundle context
 	 * @throws BundleException
 	 */
-	public void start(BundleContext context) throws BundleException {
+	public void start(final BundleContext context) throws BundleException {
 		
 		Activator.bc = context;
 		
@@ -97,10 +109,10 @@ public class Activator implements BundleActivator{
 			sqliteService = new SQLiteDriver();
 			String[] clazzes = new String[] {Driver.class.getName()};
 			// register the class as a managed service.
-			Hashtable properties = new Hashtable();
+			Hashtable<String, String> properties = new Hashtable<String, String>();
 			properties.put( Constants.DRIVER_ID, "com.ptoceti.osgi.sqlite");
 			// register the driver
-			sReg = Activator.bc.registerService(clazzes, sqliteService, properties );
+			Activator.bc.registerService(clazzes, sqliteService, properties );
 			
 		} catch( Exception e) {
 			throw new BundleException( e.toString() );
@@ -110,23 +122,33 @@ public class Activator implements BundleActivator{
 			
 	}
 	
-	public static String getProperty(String propertyName){
-		
+	/**
+	 * Getter return a bundle property
+	 * 
+	 * @param propertyName the name of the prperty
+	 * @return Sting the property value
+	 */
+	public static String getProperty(final String propertyName){
 		return (String)bc.getProperty(propertyName);
 	}
 	
-	public static String getManifestProperty(String propertyName){
-		
+	/**
+	 * Getter return a property from the bundle manifest
+	 * 
+	 * @param propertyName the name of the property
+	 * @return the property value
+	 */
+	public static String getManifestProperty(final String propertyName){
 		return (String)bc.getBundle().getHeaders().get(propertyName);
 	}
 	
 	/**
-	 * Called by the framework when the bundle is stopped.
+	 * Called by the framework to stop the service
 	 *
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
+	 * @throws BundleException if exception occurs while stopping the service
 	 */
-	public void stop( BundleContext context ) throws BundleException {
+	public void stop( final BundleContext context ) throws BundleException {
 	
 		log(LogService.LOG_INFO, "Stopping");
 		Activator.bc = null;
@@ -139,7 +161,7 @@ public class Activator implements BundleActivator{
 	 * @param logLevel : the level to use when togging this message.
 	 * @param message : the message to log.
 	 */
-	static public void log( int logLevel, String message ) {
+	static public void log(final int logLevel, final String message ) {
 		if( logSer != null )
 			logSer.log( logLevel, message );
 	}
@@ -155,9 +177,11 @@ public class Activator implements BundleActivator{
 		
 		/**
 		 * Unique method of the ServiceListener interface.
+		 * 
+		 * @param event the service event
 		 *
 		 */
-		public void serviceChanged( ServiceEvent event ) {
+		public void serviceChanged( final ServiceEvent event ) {
 			
 				ServiceReference sr = event.getServiceReference();
 				switch(event.getType()) {
