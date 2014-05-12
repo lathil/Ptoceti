@@ -21,7 +21,7 @@ CREATE TABLE "reltime" ("id" INTEGER, "object_id" INTEGER, "min_reltime_id" INTE
 DROP TABLE IF EXISTS "str";
 CREATE TABLE "str" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "min" INTEGER, "max" INTEGER, "value" VARCHAR);
 DROP TABLE IF EXISTS "uri";
-CREATE TABLE "uri" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "value" VARCHAR);
+CREATE TABLE "uri" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "value" VARCHAR, "hash" INTEGER);
 DROP TABLE IF EXISTS "contract";
 CREATE TABLE "contract" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "object_id" INTEGER);
 DROP TABLE IF EXISTS "contracturi";
@@ -42,6 +42,7 @@ CREATE INDEX reltime_object_id_idx ON "reltime"("object_id" ASC);
 CREATE INDEX str_object_id_idx ON "str"("object_id" ASC);
 CREATE INDEX uri_object_id_idx ON "uri"("object_id" ASC);
 CREATE INDEX contract_object_id_idx ON "contract"("object_id" ASC);
+CREATE INDEX uri_hash_idx ON "uri"("hash" ASC);
 
 
 
