@@ -61,7 +61,7 @@ import com.ptoceti.osgi.obix.impl.ObixDataHandler;
 public class ObjEntity extends AbstractEntity {
 
 	private static final String CREATE_OBJ = "insert into object (name, uri_id, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts ) values (?,?,?,?,?,?,?,?,?,?,?)";
-	private static final String SEARCH_OBJ_BY_HREF = "select object.* from object, uri where object.uri_id = uri.id and uri.value=?";
+	private static final String SEARCH_OBJ_BY_HREF = "select object.* from object, uri where object.uri_id = uri.id and uri.hash=?";
 	private static final String SEARCH_OBJ_BY_ID = "select object.* from object where object.id=?";
 	private static final String SEARCH_OBJ_BY_PARENT_ID = "select object.* from object where object.parent_id=?";
 	private static final String SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP = "select object.* from object where object.parent_id=? and created_ts > ? and created_ts <= ?";
@@ -213,7 +213,7 @@ public class ObjEntity extends AbstractEntity {
 	public boolean fetchByHref() throws EntityException {
 
 		ArrayList params = new ArrayList();
-		params.add(getObixObject().getHref().getPath());
+		params.add(getObixObject().getHref().getPath().hashCode());
 
 		query(SEARCH_OBJ_BY_HREF, params.toArray(),
 				new ObjResultSetHandler(this));

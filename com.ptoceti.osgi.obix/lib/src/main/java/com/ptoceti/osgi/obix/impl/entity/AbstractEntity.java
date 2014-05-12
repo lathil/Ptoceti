@@ -40,7 +40,7 @@ import com.ptoceti.osgi.obix.impl.ObixDataHandler;
 public class AbstractEntity {
 
 	private Connection getCurrentConnection() {
-		return ObixDataHandler.getInstance().getConnection();
+		return ObixDataHandler.getInstance().getCurrentConnection();
 	}
 	
 	private JdbcDevice getDevice(){

@@ -46,7 +46,7 @@ public class UriEntity extends ObjEntity implements ValEntity {
 
 	private Integer uriId;
 
-	private static final String CREATE_URI = "insert into uri (object_id, value ) values (?,?)";
+	private static final String CREATE_URI = "insert into uri (object_id, value, hash ) values (?,?,?)";
 	// private static final String SEARCH_INT_BY_HREF =
 	// "select object.* from object, uri where object.uri_id = uri.id and uri.value=?"
 	// ;
@@ -56,7 +56,7 @@ public class UriEntity extends ObjEntity implements ValEntity {
 
 	private static final String DELETE_URI = "delete from uri where uri.id = ?";
 
-	private static final String UPDATE_URI = "update uri set object_id = ?, value = ? where id = ? ";
+	private static final String UPDATE_URI = "update uri set object_id = ?, value = ?, hash = ? where id = ? ";
 
 	private static final String COL_URI_ID = "id";
 	private static final String COL_URI_OBJECT_ID = "object_id";
@@ -84,6 +84,7 @@ public class UriEntity extends ObjEntity implements ValEntity {
 		ArrayList params = new ArrayList();
 		params.add(getId());
 		params.add(((Val) getObixObject()).getVal());
+		params.add(((Val) getObixObject()).getVal().hashCode());
 		update(CREATE_URI, params.toArray(),
 				new UriResultSetGeneratedKeysHandler(this));
 	}
@@ -159,6 +160,7 @@ public class UriEntity extends ObjEntity implements ValEntity {
 		ArrayList params = new ArrayList();
 		params.add(getId());
 		params.add(((Uri) getObixObject()).getVal());
+		params.add(((Uri) getObixObject()).getVal().hashCode());
 		params.add(getUriId());
 
 		update(UPDATE_URI, params.toArray(), null);
