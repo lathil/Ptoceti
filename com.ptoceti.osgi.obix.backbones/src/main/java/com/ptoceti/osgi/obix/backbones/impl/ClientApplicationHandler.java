@@ -30,7 +30,12 @@ package com.ptoceti.osgi.obix.backbones.impl;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import javax.servlet.Filter;
+
+import org.eclipse.jetty.servlets.GzipFilter;
+import org.ops4j.pax.web.extender.whiteboard.ExtenderConstants;
 import org.ops4j.pax.web.extender.whiteboard.ResourceMapping;
+import org.ops4j.pax.web.extender.whiteboard.runtime.DefaultFilterMapping;
 import org.ops4j.pax.web.extender.whiteboard.runtime.DefaultResourceMapping;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
@@ -78,6 +83,27 @@ public class ClientApplicationHandler  implements ManagedService {
 			appSReg = Activator.bc.registerService( ResourceMapping.class.getName(), resourceMapping, null );
 			
 			Activator.log(LogService.LOG_INFO, "Mapped /obix under alias " + clientPath);
+			
+			// the filter path must englobe all resources under the root application path
+			String filterPath;
+			if( clientPath.endsWith("/*")){
+				filterPath =  clientPath;
+			} else if (clientPath.endsWith("/")){
+				filterPath = clientPath.concat("*");
+			} else {
+				filterPath = clientPath.concat("/*");
+			}
+			
+			Dictionary<String, Object> filterProps = new Hashtable<String, Object>();
+			String[] urls = {filterPath};
+			
+			filterProps.put("filter-name", "ObixBackbonesGzipFilter");
+			filterProps.put(ExtenderConstants.PROPERTY_URL_PATTERNS, urls);
+			filterProps.put("mimeTypes", "text/html,text/plain,text/xml,application/xhtml+xml,text/css,application/javascript,application/x-javascript,image/svg+xml");
+			// add the gzip filter as osgi service. It will be picked up by Pax-Web Whiteboard.
+			Activator.bc.registerService(Filter.class.getName(), new GzipFilter(), filterProps );
+			
+			Activator.log(LogService.LOG_INFO, "Registered GZip filter under " + filterPath);
 			
 
 		} else {
