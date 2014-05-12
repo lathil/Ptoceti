@@ -29,6 +29,7 @@ package com.ptoceti.osgi.obix.impl.guice;
 
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.ptoceti.osgi.obix.domain.AboutDomain;
 import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
@@ -38,6 +39,7 @@ import com.ptoceti.osgi.obix.impl.domain.AboutDomainImpl;
 import com.ptoceti.osgi.obix.impl.domain.HistoryDomainImpl;
 import com.ptoceti.osgi.obix.impl.domain.ObjDomainImpl;
 import com.ptoceti.osgi.obix.impl.domain.WatchDomainImpl;
+import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnectionProxyFactory;
 
 public class ObixModule extends AbstractModule{
 	
@@ -50,10 +52,29 @@ public class ObixModule extends AbstractModule{
 	protected void configure() {
 		
 		bind(AboutDomain.class).to((Class<? extends AboutDomain>) AboutDomainImpl.class);
-		bind(WatchDomain.class).to((Class<? extends WatchDomain>) WatchDomainImpl.class);
-		bind(ObjDomain.class).to((Class<? extends ObjDomain>) ObjDomainImpl.class );
-		bind(HistoryDomain.class).to((Class<? extends HistoryDomain>) HistoryDomainImpl.class);
+		//bind(WatchDomain.class).to((Class<? extends WatchDomain>) WatchDomainImpl.class);
+		//bind(ObjDomain.class).to((Class<? extends ObjDomain>) ObjDomainImpl.class );
+		// bind(HistoryDomain.class).to((Class<? extends HistoryDomain>) HistoryDomainImpl.class);
 		
 	}
+	
+	@Provides
+	WatchDomain provideWatchDomain(){
+		JdbcConnectionProxyFactory<WatchDomain> factory = new JdbcConnectionProxyFactory<WatchDomain>();
+		return factory.createProxy( WatchDomainImpl.class, WatchDomain.class);
+	}
+	
+	@Provides
+	ObjDomain provideObjDomain() {
+		JdbcConnectionProxyFactory<ObjDomain> factory = new JdbcConnectionProxyFactory<ObjDomain>();
+		return factory.createProxy( ObjDomainImpl.class, ObjDomain.class);
+	}
+	
+	@Provides
+	HistoryDomain provideHistoryDomain() {
+		JdbcConnectionProxyFactory<HistoryDomain> factory = new JdbcConnectionProxyFactory<HistoryDomain>();
+		return factory.createProxy( HistoryDomainImpl.class, HistoryDomain.class);
+	}
+	
 
 }

@@ -41,12 +41,12 @@ public class AbstractServerResource extends ServerResource{
 	
 	@Override
 	public void doRelease() {
-		ObixDataHandler.getInstance().commitTransaction();
+		// Do special treatment here to release resource
 	}
 	
 	@Override
 	public void doCatch(Throwable cause) {
-		ObixDataHandler.getInstance().rollbackTransaction();
+		// Do special treatment here if need to catch special exception
 		super.doCatch(cause);
 	}
 }

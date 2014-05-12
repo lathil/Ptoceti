@@ -41,11 +41,15 @@ import com.ptoceti.osgi.obix.object.Val;
 
 public class EnveloppeHandler {
 
-	@Inject
 	private ObjDomain objDomain;
 	
-	@Inject
 	private HistoryDomain historyDomain;
+	
+	@Inject
+	public EnveloppeHandler(ObjDomain objDomain, HistoryDomain historyDomain) {
+		this.objDomain = objDomain;
+		this.historyDomain = historyDomain;
+	}
 	
 	public void consumeObject(Val obj, String href) {
 		try {

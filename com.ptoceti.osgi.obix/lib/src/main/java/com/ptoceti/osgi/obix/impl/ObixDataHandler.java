@@ -30,6 +30,7 @@ package com.ptoceti.osgi.obix.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import com.ptoceti.osgi.data.JdbcDevice;
 
@@ -56,13 +57,31 @@ public class ObixDataHandler {
 		return instance;
 	}
 	
-	public Connection getConnection() {
+	public Connection getConnectionRx() {
+		if( dataDevice != null){
+			return dataDevice.getConnectionRx();
+		}
+		
+		return null;
+	}
+	
+	public Connection getConnectionRWx() {
+		if( dataDevice != null){
+			return dataDevice.getConnectionRWx();
+		}
+		
+		return null;
+	}
+	
+	public Connection getCurrentConnection() {
 		if( dataDevice != null){
 			return dataDevice.getCurrentConnection();
 		}
 		
 		return null;
 	}
+	
+	
 	
 	public void closeConnection() {
 		if( dataDevice != null){
