@@ -279,7 +279,7 @@
 						<execution>
 							<id>check-license-file-headers</id>
 							<goals>
-								<goal>update-file-header</goal>
+								<goal>check-file-header</goal>
 							</goals>
 							<phase>process-sources</phase>
 							<configuration>
@@ -310,16 +310,20 @@
 							<param>--platform=felix</param>
 							<param>--profiles=config,compendium</param>
 							<param>--log=debug</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-jetty-bundle/1.0.2</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/1.0.12.1</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.confman/pax-confman-propsloader/0.2.3</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-api/1.4</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-service/1.4</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
+							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
+							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-servlets/7.2.2.v20101205</param>
 							<param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param>
 							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
 							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
-							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
-							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/1.0.12.1</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.0.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.0.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.0.0-SNAPSHOT@update</param>
@@ -330,10 +334,6 @@
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.0.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.0.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.0.0-SNAPSHOT@nostart</param>
-							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-jetty-bundle/1.0.2</param>
-							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-api/1.4</param>
-							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-service/1.4</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-servlets/7.2.2.v20101205</param>
 						</provision>
 					</configuration>
 				</plugin>
@@ -364,7 +364,7 @@
 		<module>com.ptoceti.osgi.control</module>
 		<module>com.ptoceti.osgi.modbus</module>
 		<module>com.ptoceti.osgi.modbusdevice</module>
-		<module>com.ptoceti.osgi.obix.</module>
+		<module>com.ptoceti.osgi.obix</module>
 		<module>com.ptoceti.osgi.obix.backbones</module>
 		<module>com.ptoceti.osgi.rxtx</module>
 		<module>com.ptoceti.osgi.sqlite</module>
