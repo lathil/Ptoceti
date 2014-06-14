@@ -29,6 +29,8 @@ package com.ptoceti.osgi.modbusdevice.impl;
 
 import com.ptoceti.osgi.control.Reference;
 
+import com.ptoceti.osgi.control.UnitUtils;
+
 import java.util.Vector;
 
 public class ModbusReference extends ModbusData {
@@ -66,7 +68,7 @@ private String dataExpression = null;
 	
 		int data = reader.read( adress, length);
 		
-		Reference reference = new Reference((double) data, getUnit(dataExpression));
+		Reference reference = new Reference((double) data, UnitUtils.getUnit(dataExpression));
 		
 		return reference;
 		

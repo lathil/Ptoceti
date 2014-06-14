@@ -29,7 +29,6 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * #L%
  */
 
-import com.ptoceti.osgi.modbus.ModbusDriver;
 import com.ptoceti.osgi.modbusdevice.ModbusDevice;
 import com.ptoceti.osgi.modbusdevice.impl.Activator;
 import com.ptoceti.osgi.modbusdevice.impl.ModbusDeviceConfig;
@@ -129,10 +128,13 @@ public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFa
 		
 		String compositeIdentity = (String) properties.get(compositeIdentityKey);
 		String portName = (String) properties.get(portNameKey);
-		Integer modbusId = Integer.valueOf((String) properties.get(modbusIdKey));
-		Integer poolingRate = Integer.valueOf((String)properties.get(poolingRateKey));
+		Object id = properties.get(modbusIdKey);
+		Integer modbusId = id instanceof Integer ? (Integer) id : Integer.parseInt(id.toString());
+		Object rate = properties.get(poolingRateKey);
+		Integer poolingRate = rate instanceof Integer ? (Integer) rate: Integer.parseInt(rate.toString());
 		String configFilePath = (String)  properties.get(configFilePathKey);
-		Boolean isMock = Boolean.valueOf((String) properties.get(mock));
+		Object mck = properties.get(mock);
+		Boolean isMock = mck instanceof Boolean ? (Boolean) mck : Boolean.parseBoolean(mck != null ? mck.toString(): "false");
 		
 		
 		// We need to check if the servive with the given pid already exist in our collection. This would

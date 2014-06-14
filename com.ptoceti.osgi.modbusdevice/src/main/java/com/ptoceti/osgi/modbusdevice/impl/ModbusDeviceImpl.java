@@ -181,11 +181,13 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		 * @param id The identification of the slave device on the modbus network.
 		 */
 		synchronized void update( ModbusDriver mdbDriver, int id ) {
-	
-			int regs[] = mdbDriver.readHoldingRegisters((byte)id, offset, count);
-			if( regs != null && (regs.length == count)) {
-				registers = regs;
-				updateTime = System.currentTimeMillis();
+			// ensure we got a driver
+			if( mdbDriver != null) {
+				int regs[] = mdbDriver.readHoldingRegisters((byte)id, offset, count);
+				if( regs != null && (regs.length == count)) {
+					registers = regs;
+					updateTime = System.currentTimeMillis();
+				}
 			}
 		}
 	}
@@ -247,11 +249,13 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		 * @param id The identification of the slave device on the modbus network.
 		 */
 		synchronized void update( ModbusDriver mdbDriver, int id ) {
-	
-			int regs[] = mdbDriver.readHoldingRegisters((byte)id, offset, count);
-			if( regs != null && (regs.length == count)) {
-				registers = regs;
-				updateTime = System.currentTimeMillis();
+			// ensure we got a driver
+			if( mdbDriver != null) {
+				int regs[] = mdbDriver.readHoldingRegisters((byte)id, offset, count);
+				if( regs != null && (regs.length == count)) {
+					registers = regs;
+					updateTime = System.currentTimeMillis();
+				}
 			}
 		}
 	}
@@ -313,10 +317,13 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		 */
 		synchronized void update( ModbusDriver mdbDriver, int id ) {
 	
-			int regs[] = mdbDriver.readInputRegisters((byte)id, offset, count);
-			if( regs != null && (regs.length == count)) {
-				registers = regs;
-				updateTime = System.currentTimeMillis();
+			// ensure we got a driver
+			if( mdbDriver != null) {
+				int regs[] = mdbDriver.readInputRegisters((byte)id, offset, count);
+				if( regs != null && (regs.length == count)) {
+					registers = regs;
+					updateTime = System.currentTimeMillis();
+				}
 			}
 		}
 	}
@@ -352,7 +359,7 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		public ModbusDriverCommunicator( String modbusPort, int modbusId, int  modbusPoolingRateS ) {
 			this.id = modbusId;
 			this.portName = modbusPort;
-			this.poolingTimeMill = ((long)modbusPoolingRateS) * 1000;
+			this.poolingTimeMill = ((long)modbusPoolingRateS);
 			
 			// We first need to get a reference to the modbus driver service. We try to get this reference dynamically
 			// by constructing a listener that will detect when the modbus driver service appear or disapear.
