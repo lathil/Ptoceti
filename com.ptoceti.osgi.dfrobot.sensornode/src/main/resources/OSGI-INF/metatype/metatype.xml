@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
+	<OCD description="Sensor Node Driver" name="Ptoceti SensorNode driver" id="sensorNodeDriver">
+		<AD name="Port" id="com.ptoceti.osgisensornodedriver.port" required="true" type="String" />
+	    <AD name="Id" id="com.ptoceti.osgi.sensornodedriver.id" required="true" type="String" />
+	    <AD name="Baud rate" id="com.ptoceti.osgi.sensornodedriver.baudrate" required="true" type="Integer" />
+	    <AD name="Uses parity" id="com.ptoceti.osgi.sensornodedriver.usesparity" required="true" type="Boolean" />
+	    <AD name="Even parity" id="com.ptoceti.osgi.sensornodedriver.evenparity" required="true" type="Boolean" />
+	</OCD>
+	<Designate factorypid="com.ptoceti.osgi.dfrobot.sensornode.impl.SensorNodeDriverFactory" pid="com.ptoceti.osgi.dfrobot.sensornode.impl.SensorNodeDriverFactory" bundle="*">
+	   <Object ocdref="sensorNodeDriver"/>
+	</Designate>
+	<OCD description="Sensor Node" name="Ptoceti SensorNode" id="sensorNode">
+		<AD name="Id" id="com.ptoceti.osgi.sensornode.id" required="true" type="String" />
+	    <AD name="Port" id="com.ptoceti.osgi.sensornode.port" required="true" type="String" />
+	    <AD name="Pooling rate" id="com.ptoceti.osgi.sensornode.poolingrate" required="true" type="Integer" />
+	    <AD name="Composite identity" id="com.ptoceti.osgi.sensornode.compositeidentity" required="true" type="String" />
+	    <AD name="Sensor node configuration filepath" id="com.ptoceti.osgi.sensornode.measurement.configfile" required="true" type="String"/>
+	</OCD>
+	<Designate factorypid="com.ptoceti.osgi.dfrobot.sensornode.impl.SensorNodeFactory" pid="com.ptoceti.osgi.dfrobot.sensornode.impl.SensorNodeFactory" bundle="*">
+	   <Object ocdref="sensorNode"/>
+	</Designate>
+</MetaData>
