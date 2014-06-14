@@ -40,7 +40,6 @@ import org.restlet.engine.resource.VariantInfo;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.Resource;
-import org.restlet.resource.UniformResource;
 import org.w3c.dom.Document;
 
 public class XMLConverter extends ConverterHelper {
@@ -83,7 +82,7 @@ public class XMLConverter extends ConverterHelper {
 	}
 
 	@Override
-	public float score(Object source, Variant target, UniformResource resource) {
+	public float score(Object source, Variant target, Resource resource) {
 		 float result = -1.0F;
 
 	        if (source instanceof XMLRepresentation<?>) {
@@ -105,7 +104,7 @@ public class XMLConverter extends ConverterHelper {
 
 	@Override
 	public <T> float score(Representation source, Class<T> target,
-			UniformResource resource) {
+			Resource resource) {
 		 float result = -1.0F;
 
 	        if (source instanceof XMLRepresentation<?>) {
@@ -124,7 +123,7 @@ public class XMLConverter extends ConverterHelper {
 
 	@Override
 	public <T> T toObject(Representation source, Class<T> target,
-			UniformResource resource) throws IOException {
+			Resource resource) throws IOException {
 		 Object result = null;
 
 	        // The source for the Jackson conversion
@@ -151,7 +150,7 @@ public class XMLConverter extends ConverterHelper {
 
 	@Override
 	public Representation toRepresentation(Object source, Variant target,
-			UniformResource resource) throws IOException {
+			Resource resource) throws IOException {
 		Representation result = null;
 
         if (source instanceof XMLRepresentation) {
@@ -172,12 +171,12 @@ public class XMLConverter extends ConverterHelper {
         return result;
 	}
 
-	 protected <T> XMLRepresentation<T> create(MediaType mediaType, T source, UniformResource resource) {
+	 protected <T> XMLRepresentation<T> create(MediaType mediaType, T source, Resource resource) {
 	        return new XMLRepresentation<T>(mediaType, source, resource);
 	 }
 	        
     protected <T> XMLRepresentation<T> create(Representation source,
-            Class<T> objectClass, UniformResource resource) {
+            Class<T> objectClass, Resource resource) {
         return new XMLRepresentation<T>(source, objectClass, resource);
 	}
 }

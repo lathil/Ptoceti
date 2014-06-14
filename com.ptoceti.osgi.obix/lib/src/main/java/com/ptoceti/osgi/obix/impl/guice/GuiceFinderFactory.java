@@ -46,7 +46,7 @@ public class GuiceFinderFactory  {
 		
 	}
 	
-	public Finder getFinder(Class<?> targetClass, Context context, Logger logger){
+	public Finder getFinder(Class<?  extends ServerResource> targetClass, Context context, Logger logger){
 		
 		GuiceFinder finder = GuiceFinder.createGuiceFinder(targetClass, context, logger);
 		finder.setInjector(GuiceContext.Instance.getInjector());

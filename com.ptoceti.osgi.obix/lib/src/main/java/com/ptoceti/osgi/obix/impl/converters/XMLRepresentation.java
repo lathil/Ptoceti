@@ -35,7 +35,7 @@ import org.osgi.service.log.LogService;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
-import org.restlet.resource.UniformResource;
+import org.restlet.resource.Resource;
 
 import com.ptoceti.osgi.obix.impl.Activator;
 import com.ptoceti.osgi.obix.object.Obj;
@@ -51,10 +51,10 @@ public class XMLRepresentation<T> extends WriterRepresentation {
     /** The JSON representation to parse. */
     private Representation obixRepresentation;
     
-    private UniformResource resource;
+    private Resource resource;
 
     
-    public XMLRepresentation(MediaType mediaType, T object, UniformResource resource) {
+    public XMLRepresentation(MediaType mediaType, T object, Resource resource) {
         super(mediaType);
         this.object = object;
         this.objectClass = (Class<T>) ((object == null) ? null : object
@@ -65,7 +65,7 @@ public class XMLRepresentation<T> extends WriterRepresentation {
     }
     
     public XMLRepresentation(Representation representation,
-            Class<T> objectClass, UniformResource resource) {
+            Class<T> objectClass, Resource resource) {
         super(representation.getMediaType());
         this.object = null;
         this.objectClass = objectClass;

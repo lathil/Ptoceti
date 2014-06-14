@@ -33,8 +33,11 @@ import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.data.Form;
 import org.restlet.data.Method;
+import org.restlet.engine.header.Header;
+import org.restlet.engine.header.HeaderConstants;
 import org.restlet.representation.EmptyRepresentation;
 import org.restlet.routing.Filter;
+import org.restlet.util.Series;
 
 /**
  * 
@@ -53,18 +56,18 @@ public class OriginServerFilter extends Filter {
 	@Override
 	protected int beforeHandle(Request request, Response response) {
 		
-		Form requestHeaders = (Form) request.getAttributes().get(HTTP_HEADERS_KEY);
+		Series<Header> requestHeaders = (Series<Header>) request.getAttributes().get(HeaderConstants.ATTRIBUTE_HEADERS);
 		// indication of the domain from where the request is made, if present
 		String origin = requestHeaders.getFirstValue(ORIGIN, true);
 		// get hold of responses headers
-		Form responseHeaders = (Form) response.getAttributes().get(HTTP_HEADERS_KEY);
+		Series<Header> responseHeaders = (Series<Header>) response.getAttributes().get(HeaderConstants.ATTRIBUTE_HEADERS);
 		
 		if (Method.OPTIONS.equals(request.getMethod())) {
 			// the browser is sending a pre-flight resquest, asking whether it is allowed
 			// to request the resource
 			if (responseHeaders == null) {
-				responseHeaders = new Form();
-				response.getAttributes().put(HTTP_HEADERS_KEY,responseHeaders);
+				responseHeaders = new Series<Header>(Header.class);
+				response.getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS,responseHeaders);
 			}
 			
 			// tell we allow GET,POST,DELETE and OPTIONS from everywhere
@@ -82,8 +85,8 @@ public class OriginServerFilter extends Filter {
 				// it is a simple CORS request or a request made after a successull preflight CORS request
 				// we respond in the same way.
 				if (responseHeaders == null) {
-					responseHeaders = new Form();
-					response.getAttributes().put(HTTP_HEADERS_KEY,responseHeaders);
+					responseHeaders = new Series<Header>(Header.class);
+					response.getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS,responseHeaders);
 				}
 				
 				responseHeaders.add("Access-Control-Allow-Origin", origin);

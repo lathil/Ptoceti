@@ -36,7 +36,7 @@ import org.restlet.engine.converter.ConverterHelper;
 import org.restlet.engine.resource.VariantInfo;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
-import org.restlet.resource.UniformResource;
+import org.restlet.resource.Resource;
 
 public class JSonConverter extends ConverterHelper{
 
@@ -68,7 +68,7 @@ public class JSonConverter extends ConverterHelper{
 	}
 
 	@Override
-	public float score(Object source, Variant target, UniformResource arg2) {
+	public float score(Object source, Variant target, Resource arg2) {
 		float result = -1.0F;
 
         if (source instanceof JSonRepresentation<?>) {
@@ -88,7 +88,7 @@ public class JSonConverter extends ConverterHelper{
 
 	@Override
 	public <T> float score(Representation source, Class<T> target,
-			UniformResource resource) {
+			Resource resource) {
 		 float result = -1.0F;
 
 	        if (source instanceof JSonRepresentation<?>) {
@@ -105,7 +105,7 @@ public class JSonConverter extends ConverterHelper{
 
 	@Override
 	public <T> T toObject(Representation source, Class<T> target,
-			UniformResource resource) throws IOException {
+			Resource resource) throws IOException {
 		 Object result = null;
 
 	        // The source for the Jackson conversion
@@ -131,7 +131,7 @@ public class JSonConverter extends ConverterHelper{
 
 	@Override
 	public Representation toRepresentation(Object source, Variant target,
-			UniformResource resource) throws IOException {
+			Resource resource) throws IOException {
 		Representation result = null;
 
         if (source instanceof JSonRepresentation) {
@@ -152,12 +152,13 @@ public class JSonConverter extends ConverterHelper{
         return result;
 	}
 
-	 protected <T> JSonRepresentation<T> create(MediaType mediaType, T source, UniformResource resource) {
+	 protected <T> JSonRepresentation<T> create(MediaType mediaType, T source, Resource resource) {
 	        return new JSonRepresentation<T>(mediaType, source, resource);
 	 }
 	        
     protected <T> JSonRepresentation<T> create(Representation source,
-            Class<T> objectClass, UniformResource resource) {
+            Class<T> objectClass, Resource resource) {
         return new JSonRepresentation<T>(source, objectClass, resource);
 	}
+
 }

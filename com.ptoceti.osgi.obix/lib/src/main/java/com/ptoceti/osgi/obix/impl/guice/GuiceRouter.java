@@ -45,7 +45,7 @@ public class GuiceRouter extends Router {
 	}
 	
 	@Override
-	public Finder createFinder(Class<?> targetClass) {
+	public Finder createFinder(Class<? extends org.restlet.resource.ServerResource> targetClass) {
 		
 		Finder finder = finderFactory.getFinder(targetClass, getContext(), getLogger());
 		

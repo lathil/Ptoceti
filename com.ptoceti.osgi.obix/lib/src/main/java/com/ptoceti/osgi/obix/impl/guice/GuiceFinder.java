@@ -34,17 +34,15 @@ import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.resource.Finder;
-import org.restlet.resource.Handler;
 import org.restlet.resource.ServerResource;
 
 import com.google.inject.Injector;
-import com.google.inject.Key;
 
 public class GuiceFinder extends Finder {
 
 	private Injector injector;
 
-	public static GuiceFinder createGuiceFinder(Class<?> targetClass, Context context, Logger logger) {
+	public static GuiceFinder createGuiceFinder(Class<? extends ServerResource> targetClass, Context context, Logger logger) {
 		return (GuiceFinder)GuiceFinder.createFinder( targetClass, GuiceFinder.class, context, logger);
 	}
 	
@@ -74,7 +72,7 @@ public class GuiceFinder extends Finder {
      *            The target handler class. It must be either a subclass of
      *            {@link Handler} or of {@link ServerResource}.
      */
-    public GuiceFinder(Context context, Class<?> targetClass) {
+    public GuiceFinder(Context context, Class<? extends ServerResource> targetClass) {
         super(context, targetClass);
     }
     

@@ -35,7 +35,7 @@ import org.osgi.service.log.LogService;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
-import org.restlet.resource.UniformResource;
+import org.restlet.resource.Resource;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -102,13 +102,13 @@ public class JSonRepresentation<T> extends WriterRepresentation  {
     /** The JSON representation to parse. */
     private Representation jsonRepresentation;
     
-    private UniformResource resource;
+    private Resource resource;
     
     private ObjectMapper objectMapper;
 
 
     
-    public JSonRepresentation(MediaType mediaType, T object, UniformResource resource) {
+    public JSonRepresentation(MediaType mediaType, T object, Resource resource) {
         super(mediaType);
         this.object = object;
         this.objectClass = (Class<T>) ((object == null) ? null : object.getClass());
@@ -117,7 +117,7 @@ public class JSonRepresentation<T> extends WriterRepresentation  {
         //this.objectMapper = null;
     }
     
-    public JSonRepresentation(Representation representation, Class<T> objectClass, UniformResource resource) {
+    public JSonRepresentation(Representation representation, Class<T> objectClass, Resource resource) {
         super(representation.getMediaType());
         this.object = null;
         this.objectClass = objectClass;

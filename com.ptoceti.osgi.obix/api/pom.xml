@@ -89,10 +89,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.restlet.jee</groupId>
+			<groupId>org.restlet.osgi</groupId>
 			<artifactId>org.restlet</artifactId>
 		</dependency>
-
 	</dependencies>
 
 </project>
