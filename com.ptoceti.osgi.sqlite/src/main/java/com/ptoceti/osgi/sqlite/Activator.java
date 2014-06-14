@@ -28,6 +28,17 @@
  */
 
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Hashtable;
 
 import org.osgi.framework.BundleActivator;
@@ -40,6 +51,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 import org.osgi.service.device.Constants;
 import org.osgi.service.device.Driver;
+import org.sqlite.OSInfo;
+
 
 
 /**
@@ -119,7 +132,93 @@ public class Activator implements BundleActivator{
 		}
 			
 		log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
+		
+		loadLibrairies(context);
 			
+	}
+	
+	/**
+	 * Xerial sqlite-jdbc only taken account of sqlite libraries packed in it own jar. No easy way to add additional through osgi natural
+	 * native libray mecanisme.
+	 * 
+	 * Provide here way to add libraries included in resource foldar
+	 * @param context the bundle context
+	 */
+	private void loadLibrairies(final BundleContext context){
+		// get library folder name from os + arch
+		String libraryResourcePath = OSInfo.getNativeLibFolderPathForCurrentOS();
+		
+		String sqliteNativeLibraryName = System.mapLibraryName("sqlitejdbc");
+        if (sqliteNativeLibraryName != null && sqliteNativeLibraryName.endsWith("dylib")) {
+        	sqliteNativeLibraryName = sqliteNativeLibraryName.replace("dylib", "jnilib");
+        }
+        
+        // check if the resource folder exist in the bundle
+        URL libUrl = context.getBundle().getEntry("/" + libraryResourcePath + "/" + sqliteNativeLibraryName);
+        if( libUrl != null) {
+        	
+        	String fullPath = libUrl.toExternalForm();
+        	log(LogService.LOG_INFO, "Bundle sqlite libray dected for os/arch: " + fullPath); 
+        	 
+        	// extract the file name.
+        	String targetFileName = "sqlite-" + getName() + "-" + getVersion() + "-" + OSInfo.getArchName() + "-" + sqliteNativeLibraryName;
+        	// temporary library folder
+            String tempFolder = new File(System.getProperty("java.io.tmpdir")).getAbsolutePath();
+            
+            Boolean loaded = false;
+            
+            try {
+   	            File extractedLibFile = new File(tempFolder, targetFileName);
+	            if( extractedLibFile.exists()){
+	            	
+	            	 String md5sum1 = md5sum(libUrl.openStream());
+	                 String md5sum2 = md5sum(new FileInputStream(extractedLibFile));
+	
+	                 if (md5sum1.equals(md5sum2)) {
+	                     loaded = true;
+	                 }
+	                 else {
+	                     // remove old native library file
+	                     boolean deletionSucceeded = extractedLibFile.delete();
+	                     if (!deletionSucceeded) {
+	                         throw new IOException("failed to remove existing native library file: " + extractedLibFile.getAbsolutePath());
+	                     }
+	                 }
+	            }
+	        	
+	            // extract file from bundle resource to temp folder
+	            if( !loaded){
+	            	FileOutputStream writer = new FileOutputStream(extractedLibFile);
+	            	InputStream reader = libUrl.openStream();
+	            	 byte[] buffer = new byte[1024];
+	                 int bytesRead = 0;
+	                 while ((bytesRead = reader.read(buffer)) != -1) {
+	                     writer.write(buffer, 0, bytesRead);
+	                 }
+	
+	                 writer.close();
+	                 reader.close();
+	                 
+	                 if (!System.getProperty("os.name").contains("Windows")) {
+	                     try {
+	                         Runtime.getRuntime().exec(new String[] { "chmod", "755", extractedLibFile.getAbsolutePath() })
+	                                 .waitFor();
+	                     }
+	                     catch (Throwable e) {}
+	                 }
+	            }
+	        	
+	            // indicate to xserial jdbc to load this library
+	        	System.setProperty("org.sqlite.lib.path", tempFolder);
+	            System.setProperty("org.sqlite.lib.name", targetFileName);
+	            
+	            log(LogService.LOG_INFO, "Recorded sqlite library at: " + tempFolder + "/" + targetFileName); 
+	            
+            } catch (IOException ex) {
+            	 log(LogService.LOG_ERROR, "Error while attempting to extract bundle's local sqlite library. ex: " + ex.toString()); 
+            }
+        	
+        }
 	}
 	
 	/**
@@ -196,4 +295,40 @@ public class Activator implements BundleActivator{
 				}
 		}
 	}
+	
+	protected String getVersion() {
+		return Activator.getManifestProperty(org.osgi.framework.Constants.BUNDLE_VERSION);
+	}
+	
+	protected String getName(){
+		return getManifestProperty(org.osgi.framework.Constants.BUNDLE_NAME);
+	}
+	
+	 /**
+     * Computes the MD5 value of the input stream.
+     * @param input InputStream.
+     * @return Encrypted string for the InputStream.
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     */
+    static String md5sum(InputStream input) throws IOException {
+        BufferedInputStream in = new BufferedInputStream(input);
+
+        try {
+            MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+            DigestInputStream digestInputStream = new DigestInputStream(in, digest);
+            for (; digestInputStream.read() >= 0;) {
+
+            }
+            ByteArrayOutputStream md5out = new ByteArrayOutputStream();
+            md5out.write(digest.digest());
+            return md5out.toString();
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("MD5 algorithm is not available: " + e);
+        }
+        finally {
+            in.close();
+        }
+    }
 }
