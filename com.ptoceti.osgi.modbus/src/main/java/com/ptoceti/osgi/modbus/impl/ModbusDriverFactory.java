@@ -113,12 +113,19 @@ public class ModbusDriverFactory implements org.osgi.service.cm.ManagedServiceFa
 	
 		String port = (String) properties.get(ModbusDriver.MODBUS_PORT);
 		String type = (String) properties.get(ModbusDriver.MODBUS_SLAVE_MASTER);
-		Integer modbusID = Integer.valueOf((String)properties.get(ModbusDriver.MODBUS_ID));
+		Object id = properties.get(ModbusDriver.MODBUS_ID);
+		Integer modbusID = id instanceof Integer ? (Integer) id: Integer.parseInt(id.toString());
 		String encoding = (String) properties.get(ModbusDriver.MODBUS_ENCODING);
-		Integer baudRate = Integer.valueOf((String)properties.get(ModbusDriver.MODBUS_BAUDRATE));
-		Boolean usesParity = Boolean.valueOf((String) properties.get(ModbusDriver.MODBUS_USESPARITY));
-		Boolean evenParity = Boolean.valueOf((String) properties.get(ModbusDriver.MODBUS_EVENPARITY));
-		Boolean echo = Boolean.valueOf((String) properties.get(ModbusDriver.MODBUS_ECHO));
+		Object rate = properties.get(ModbusDriver.MODBUS_BAUDRATE);
+		Integer baudRate = rate instanceof Integer ? (Integer) rate: Integer.parseInt(rate.toString());
+		
+		final Object up = properties.get(ModbusDriver.MODBUS_USESPARITY);
+		final Boolean usesParity = up instanceof Boolean ? (Boolean) up: Boolean.parseBoolean(up != null ? up.toString(): "false");
+		final Object ep =  properties.get(ModbusDriver.MODBUS_EVENPARITY);
+		final Boolean evenParity = ep instanceof Boolean ? (Boolean) ep: Boolean.parseBoolean(ep != null ? ep.toString(): "false");
+		
+		final Object ec = properties.get(ModbusDriver.MODBUS_ECHO);
+		Boolean echo = ec instanceof Boolean ? (Boolean) ec : Boolean.parseBoolean(ec != null ? ec.toString(): "false");
 
 		// First check that we have all the configuration data necessary.
 		if((port != null ) && (type != null) && (modbusID != null) && (encoding != null)

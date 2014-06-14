@@ -173,34 +173,39 @@ public class ModbusSerialASCIIConnection extends ModbusSerialConnection implemen
 			ModbusUtils.writeHex(lrc, bytesOutHex);
 			
 			Activator.log(LogService.LOG_DEBUG, "Sending frame: " + bytesOutHex.toString());
+			
+			if( outStream != null){
 
-			outStream.write( FRAME_START); // write start of frame byte in hex
-			outStream.write( bytesOutHex.toByteArray());
-			outStream.write( FRAME_END_1 ); // add CR
-			outStream.write( FRAME_END_2 ); // add LF
-			outStream.flush(); // be sure everything in the buffer is send.
-			// update statistics counter
-			incrementFrameSentCounter();
-			// wait for incoming response.
-			try {
-				if( usesEcho ) {
-					if ( hasNewFrame == false ) wait( 10 );
+				outStream.write( FRAME_START); // write start of frame byte in hex
+				outStream.write( bytesOutHex.toByteArray());
+				outStream.write( FRAME_END_1 ); // add CR
+				outStream.write( FRAME_END_2 ); // add LF
+				outStream.flush(); // be sure everything in the buffer is send.
+				// update statistics counter
+				incrementFrameSentCounter();
+				// wait for incoming response.
+				try {
+					if( usesEcho ) {
+						if ( hasNewFrame == false ) wait( 10 );
+						if ( hasNewFrame == true ) {
+							Activator.log(LogService.LOG_DEBUG, "Received echo frame:" + ModbusUtils.writeHex( bytesIn.toByteArray()));
+						}
+						else { 
+							Activator.log(LogService.LOG_DEBUG, "Missing echo frame.");
+							return response;
+						}
+					}
+					if ( hasNewFrame == false ) wait( 1000 );
 					if ( hasNewFrame == true ) {
-						Activator.log(LogService.LOG_DEBUG, "Received echo frame:" + ModbusUtils.writeHex( bytesIn.toByteArray()));
+						// and ask the embedded response message to parse the raw response to a ModbusMessageResponse.
+						ModbusMessageResponse respMessage = msg.getResponseMessage();
+						// if parsing was successfull, we can return the response message.
+						if( respMessage.readFrom( new ByteArrayInputStream(bytesIn.toByteArray())) == true ) response = respMessage;
 					}
-					else { 
-						Activator.log(LogService.LOG_DEBUG, "Missing echo frame.");
-						return response;
-					}
-				}
-				if ( hasNewFrame == false ) wait( 1000 );
-				if ( hasNewFrame == true ) {
-					// and ask the embedded response message to parse the raw response to a ModbusMessageResponse.
-					ModbusMessageResponse respMessage = msg.getResponseMessage();
-					// if parsing was successfull, we can return the response message.
-					if( respMessage.readFrom( new ByteArrayInputStream(bytesIn.toByteArray())) == true ) response = respMessage;
-				}
-			} catch (InterruptedException e) {}
+				} catch (InterruptedException e) {}
+			} else {
+				Activator.log(LogService.LOG_DEBUG, "Port output stream not open");
+			}
 			
 		} catch (IOException e) {
 			// if we could not send the message, update the appropriate statistic counter.
