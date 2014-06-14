@@ -36,14 +36,15 @@
 		<dependency>
 			<groupId>org.ops4j.pax.web</groupId>
 			<artifactId>pax-web-extender-whiteboard</artifactId>
-			<version>1.0.12.1</version>
+			<version>${pax-web.version}</version>
 		</dependency>
 		
 		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlets</artifactId>
-			<version>7.2.2.v20101205</version>
+			<groupId>org.ops4j.pax.web</groupId>
+			<artifactId>pax-web-jetty-bundle</artifactId>
+			<version>${pax-web.version}</version>
 		</dependency>
+		
 		
 	</dependencies>
 	<build>
