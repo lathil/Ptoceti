@@ -34,6 +34,9 @@
 		<pom.organization.name>Ptoceti</pom.organization.name>
 		<pom.organization.url>www.ptoceti.com</pom.organization.url>
 		<bundles.configuration.location>../configurations</bundles.configuration.location>
+		
+		<restlet.version>2.2.1</restlet.version>
+		<pax-web.version>2.1.6</pax-web.version>
 	</properties>
 
 	<scm>
@@ -306,21 +309,28 @@
 					<configuration>
 						<provision>
 							<param>--vmOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</param>
+							<param>--bootDelegation=com.sun.net.httpserver</param>
 							<param>--usePersistedState=false</param>
 							<param>--platform=felix</param>
-							<param>--profiles=config,compendium</param>
+							<param>--profiles=compendium</param>
 							<param>--log=debug</param>
-							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-jetty-bundle/1.0.2</param>
-							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/1.0.12.1</param>
+							<param>--felix.webconsole.loglevel=1</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-jetty-bundle/${pax-web.version}</param>
+							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/${pax-web.version}</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.confman/pax-confman-propsloader/0.2.3</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-api/1.4</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-service/1.4</param>
+							
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0</param>
+							
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.8.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
+							
 							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-servlets/7.2.2.v20101205</param>
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet/${restlet.version}</param>
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.servlet/${restlet.version}</param>
 							<param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param>
 							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
 							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
@@ -329,6 +339,7 @@
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.0.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.0.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.dfrobot.sensornode/1.0.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.0.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.0.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.0.0-SNAPSHOT@update</param>
@@ -370,5 +381,6 @@
 		<module>com.ptoceti.osgi.sqlite</module>
 		<module>com.ptoceti.osgi.wireadmin</module>
 		<module>com.ptoceti.osgi.pi</module>
+		<module>com.ptoceti.osgi.dfrobot.sensornode</module>
 	</modules>
 </project>
