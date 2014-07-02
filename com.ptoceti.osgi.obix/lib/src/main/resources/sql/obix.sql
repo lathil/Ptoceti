@@ -1,3 +1,4 @@
+PRAGMA page_size=4096;
 DROP TABLE IF EXISTS "abstime";
 CREATE TABLE "abstime" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL , "object_id" INTEGER, "min_abstime_id" INTEGER, "max_abstime_id" INTEGER, "value" INTEGER);
 DROP TABLE IF EXISTS "bool";
@@ -43,6 +44,8 @@ CREATE INDEX str_object_id_idx ON "str"("object_id" ASC);
 CREATE INDEX uri_object_id_idx ON "uri"("object_id" ASC);
 CREATE INDEX contract_object_id_idx ON "contract"("object_id" ASC);
 CREATE INDEX uri_hash_idx ON "uri"("hash" ASC);
+PRAGMA journal_mode=WAL;
+
 
 
 

@@ -104,9 +104,6 @@ public class JSonRepresentation<T> extends WriterRepresentation  {
     
     private Resource resource;
     
-    private ObjectMapper objectMapper;
-
-
     
     public JSonRepresentation(MediaType mediaType, T object, Resource resource) {
         super(mediaType);
@@ -131,33 +128,7 @@ public class JSonRepresentation<T> extends WriterRepresentation  {
 		// TODO Auto-generated constructor stub
 	}
 	
-	protected ObjectMapper getObjectMapper() {
-		if( objectMapper == null) { 
-			JsonFactory factory = new JsonFactory();
-			factory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
-			
-			
-			objectMapper =  new ObjectMapper(factory);
-			
-			/**
-			objectMapper.configure(MapperFeature.AUTO_DETECT_FIELDS, true);
-			objectMapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
-			objectMapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
-			objectMapper.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
-			
-			
-			objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC);
-			**/
-			
-			objectMapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
-			objectMapper.addMixInAnnotations(Contract.class, ContractMixIn.class);
-			objectMapper.addMixInAnnotations(Obj.class, ObjMixIn.class);
-			
-			
-		}
-		
-		return objectMapper;
-	}
+	
 
 	@Override
 	public void write(Writer writer) throws IOException {
@@ -165,7 +136,7 @@ public class JSonRepresentation<T> extends WriterRepresentation  {
 			this.jsonRepresentation.write(writer);
 		else if (this.object != null) 
 			try {
-				getObjectMapper().writeValue(writer, this.object);
+				ObjectMapperFactory.configure().writeValue(writer, this.object);
 			} catch( Exception e){
 				Activator.log(LogService.LOG_ERROR, "Erreur serializing json representation: " + e.getMessage());
 				e.printStackTrace();
@@ -180,7 +151,7 @@ public class JSonRepresentation<T> extends WriterRepresentation  {
 	            result = this.object;
 	        } else if (this.jsonRepresentation != null) {
 	            try {
-	            	result = getObjectMapper().readValue(this.jsonRepresentation.getStream(), this.objectClass);
+	            	result = ObjectMapperFactory.configure().readValue(this.jsonRepresentation.getStream(), this.objectClass);
 	            	
 	            } catch (Exception e) {
 	                Activator.log(LogService.LOG_ERROR, "Erreur deserializing json representation: " + e.getMessage());
@@ -203,65 +174,5 @@ public class JSonRepresentation<T> extends WriterRepresentation  {
 	        this.objectClass = objectClass;
 	 }
 
-	 @JsonAutoDetect(fieldVisibility=Visibility.PROTECTED_AND_PUBLIC, getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
-	 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property="type")
-	 @JsonSubTypes({
-	 	@Type(value=Abstime.class, name="abstime"),
-	 	@Type(value=Bool.class, name="bool"),
-	 	@Type(value=Enum.class, name="enum"),
-	 	@Type(value=Err.class, name="err"),
-	 	@Type(value=Feed.class, name="feed"),
-	 	@Type(value=Int.class, name="int"),
-	 	@Type(value=List.class, name="list"),
-	 	@Type(value=Op.class, name="op"),
-	 	@Type(value=Real.class, name="real"),
-	 	@Type(value=Ref.class, name="ref"),
-	 	@Type(value=Reltime.class, name="reltime"),
-	 	@Type(value=Str.class, name="str"),
-	 	@Type(value=Uri.class, name="uri"),
-	 	@Type(value=Obj.class, name="obj"),
-	 	
-	 	@Type(value=About.class, name="about"),
-	 	@Type(value=Batch.class, name="batch"),
-	 	@Type(value=BatchIn.class, name="batchin"),
-	 	@Type(value=BatchOut.class, name="batchout"),
-	 	@Type(value=Dimension.class, name="dimension"),
-	 	@Type(value=Lobby.class, name="lobby"),
-	 	@Type(value=Nil.class, name="nil"),
-	 	@Type(value=Point.class, name="point"),
-	 	@Type(value=Read.class, name="read"),
-	 	@Type(value=Unit.class, name="unit"),
-	 	@Type(value=Watch.class, name="watch"),
-	 	@Type(value=WatchIn.class, name="watchin"),
-	 	@Type(value=WatchInItem.class, name="watchinitem"),
-	 	@Type(value=WatchOut.class, name="watchout"),
-	 	@Type(value=WatchService.class, name="watchservice"),
-	 	@Type(value=WritablePoint.class, name="writablepoint"),
-	 	@Type(value=Write.class, name="write"),
-	 	@Type(value=WritePoint.class, name="writepoint"),
-	 	@Type(value=WritePointIn.class, name="writepointin"),
-	 	@Type(value=History.class,name="history"),
-	 	@Type(value=HistoryRecord.class,name="historyrecord"),
-	 	@Type(value=HistoryFilter.class,name="historyfilter"),
-	 	@Type(value=HistoryQueryOut.class,name="historyqueryout"),
-	 	@Type(value=HistoryRollupIn.class,name="historyrollupin"),
-	 	@Type(value=HistoryRollupOut.class,name="historyrollupout"),
-	 	@Type(value=HistoryRollupRecord.class,name="historyrolluprecord"),
-	 	
-	 	@Type(value=MonitoredPoint.class, name="monitoredpoint")
-	 })
-	 
 	
-	 public abstract class ObjMixIn {
-
-		 @JsonProperty("val") public abstract String encodeVal();
-
-		 @JsonProperty("val") public abstract void decodeVal(String value);
-		 
-	 }
-	 
-	 @JsonAutoDetect(fieldVisibility=Visibility.PROTECTED_AND_PUBLIC, getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
-	 public abstract class ContractMixIn {
-		 
-	 }
 }

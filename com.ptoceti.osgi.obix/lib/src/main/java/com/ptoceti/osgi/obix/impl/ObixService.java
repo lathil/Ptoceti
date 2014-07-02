@@ -31,7 +31,6 @@ import com.ptoceti.osgi.obix.impl.guice.GuiceContext;
 import com.ptoceti.osgi.obix.impl.resources.server.ObixServlet;
 
 import com.ptoceti.osgi.data.JdbcDevice;
-import com.ptoceti.osgi.data.JdbcDeviceService;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -136,7 +135,7 @@ public class ObixService  implements ManagedService {
 		// We need to get a reference to a data service. We need to get this
 		// reference dynamically by constructing
 		// a listener that will detect when the dataservice appear and disapear.
-		String dataServiceFilter = "(objectclass=" + JdbcDeviceService.class.getName()
+		String dataServiceFilter = "(objectclass=" + JdbcDevice.class.getName()
 				+ ")";
 		try {
 			dataDeviceLst = new DataDeviceListener(this);
@@ -144,7 +143,7 @@ public class ObixService  implements ManagedService {
 			// in case the service is already registered, we send a REGISTER
 			// event to the listener.
 			ServiceReference srDataSrv[] = Activator.bc.getServiceReferences(
-					JdbcDeviceService.class.getName(), null);
+					JdbcDevice.class.getName(), null);
 			if (srDataSrv != null) {
 				dataDeviceLst.serviceChanged(new ServiceEvent(
 						ServiceEvent.REGISTERED, srDataSrv[0]));

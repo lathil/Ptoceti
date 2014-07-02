@@ -61,12 +61,13 @@ public class WatchServerResource extends AbstractServerResource implements Watch
 		Watch watch = null;
 		try {
 			watch = watchDomain.retrieve(watchUri);
-			
-			watch.getAdd().setHref(new Uri("uri", watchUri + WatchAddServerResource.baseuri));
-			watch.getRemove().setHref(new Uri("uri", watchUri + WatchRemoveServerResource.baseuri));
-			watch.getDelete().setHref(new Uri("uri", watchUri +WatchDeleteServerResource.baseuri));
-			watch.getPoolChanges().setHref(new Uri("uri", watchUri + WatchPoolChangesServerResource.baseuri));
-			watch.getPoolRefresh().setHref(new Uri("uri", watchUri + WatchPoolRefreshServerResource.baseuri));
+			if( watch != null ) {
+				watch.getAdd().setHref(new Uri("uri", watchUri + WatchAddServerResource.baseuri));
+				watch.getRemove().setHref(new Uri("uri", watchUri + WatchRemoveServerResource.baseuri));
+				watch.getDelete().setHref(new Uri("uri", watchUri +WatchDeleteServerResource.baseuri));
+				watch.getPoolChanges().setHref(new Uri("uri", watchUri + WatchPoolChangesServerResource.baseuri));
+				watch.getPoolRefresh().setHref(new Uri("uri", watchUri + WatchPoolRefreshServerResource.baseuri));
+			}
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".retrieve", ex);
 		}
