@@ -1,33 +1,5 @@
 package com.ptoceti.osgi.sqlite;
 
-/*
- * #%L
- * **********************************************************************
- * ORGANIZATION : ptoceti
- * PROJECT : SQLite
- * FILENAME : SQLiteJDBC.java
- * 
- * This file is part of the Ptoceti project. More information about
- * this project can be found here: http://www.ptoceti.com/
- * **********************************************************************
- * %%
- * Copyright (C) 2013 - 2014 ptoceti
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-
 import java.sql.Connection;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
@@ -35,29 +7,13 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import org.osgi.service.log.LogService;
 import org.sqlite.JDBC;
 import org.sqlite.SQLiteConfig;
-import org.sqlite.SQLiteConfig.JournalMode;
-import org.sqlite.SQLiteConfig.TransactionMode;
 import org.sqlite.SQLiteOpenMode;
+import org.sqlite.SQLiteConfig.TransactionMode;
 
-import com.ptoceti.osgi.data.JdbcDevice;
-
-
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
-import org.osgi.util.tracker.*;
-
-/**
- * Wrapper for a SQLite java.sql.Driver that extends Osgi's ServiceTracker. Attach te driver to an Osgi Device when this one become available.
- * 
- * 
- * @author Laurent Thil
- * @version 1.0
- *
- */
-public class SQLiteJDBC extends ServiceTracker implements java.sql.Driver{
+public class SQLiteJDBC implements java.sql.Driver{
 
 	/**
 	 * The sqlite jdbc driver
@@ -81,37 +37,14 @@ public class SQLiteJDBC extends ServiceTracker implements java.sql.Driver{
 	 * @param bc the bundle context
 	 * @param ref the JdbcDevice service reference
 	 */
-	public SQLiteJDBC(final BundleContext bc, final ServiceReference ref)
+	public SQLiteJDBC()
 	{
-		// we ask the service tracker to track the device service based on it service reference
-		super( bc, ref, null);
 		sqliteJDBC = new JDBC();
-		// begin to track the service now
-		open();
-		
 		Activator.log(LogService.LOG_INFO, "Sqlite major version: " + this.getMajorVersion() + ", minor version: " + this.getMinorVersion() +
 				" , compliant: " + new Boolean(sqliteJDBC.jdbcCompliant()).toString());
 		
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public Object addingService(final ServiceReference ref) {
-		
-		JdbcDevice jDev = (JdbcDevice) Activator.bc.getService(ref);
-		// we pass this class as the driver to the device.
-		jDev.setJDBCDriver(this);
-		return jDev;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public void removedService(final ServiceReference ref, final Object service) {
-		
-		Activator.bc.ungetService(ref);
-	}
 	
 	/**
 	 * Create a connection to the SQLite db
@@ -125,7 +58,9 @@ public class SQLiteJDBC extends ServiceTracker implements java.sql.Driver{
 		String sqliteUrl = adaptUrl(url);
 			
 		SQLiteConfig config = new SQLiteConfig(info);
-		config.setJournalMode(JournalMode.WAL);
+		//config.setPageSize(4096);
+		//config.setJournalMode(JournalMode.WAL);
+		config.setSharedCache(true);
 		
 		// check if we are in read-write only mode
 		

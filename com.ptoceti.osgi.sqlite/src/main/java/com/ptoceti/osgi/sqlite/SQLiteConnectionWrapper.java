@@ -136,10 +136,11 @@ public class SQLiteConnectionWrapper implements Connection {
 				wrappedConnection.commit();
 				break;
 			} catch (SQLException ex) {
-				Activator.log(LogService.LOG_DEBUG, "commit:" + ex.getMessage()
-						+ ", " + ex.getCause());
+				Activator.log(LogService.LOG_DEBUG, "commit:" + ex.getMessage() + ", " + ex.getCause());
 				if (ex.getErrorCode() == SQLiteErrorCode.SQLITE_BUSY.code) {
 					continue;
+				} else if ( ex.getMessage().trim().equals("cannot commit - no transaction is active")){
+					return;
 				}
 
 				throw ex;
@@ -404,14 +405,32 @@ public class SQLiteConnectionWrapper implements Connection {
 	 * {@inheritDoc}
 	 */
 	public void rollback() throws SQLException {
-		wrappedConnection.rollback();
+		try {
+			wrappedConnection.rollback();
+		} catch (SQLException ex ) {
+			Activator.log(LogService.LOG_DEBUG, "rollback;:" + ex.getMessage() + ", " + ex.getCause());
+			if ( ex.getMessage().trim().equals("cannot rollback - no transaction is active")){
+				return;
+			}
+			
+			throw ex;
+		}
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void rollback(Savepoint arg0) throws SQLException {
-		wrappedConnection.rollback(arg0);
+		try {
+			wrappedConnection.rollback(arg0);
+		} catch (SQLException ex ) {
+			Activator.log(LogService.LOG_DEBUG, "rollback;:" + ex.getMessage() + ", " + ex.getCause());
+			if ( ex.getMessage() == "cannot rollback - no transaction is active"){
+				return;
+			}
+			
+			throw ex;
+		}
 	}
 
 	/**

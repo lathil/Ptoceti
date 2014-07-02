@@ -48,9 +48,8 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.jdbc.DataSourceFactory;
 import org.osgi.service.log.LogService;
-import org.osgi.service.device.Constants;
-import org.osgi.service.device.Driver;
 import org.sqlite.OSInfo;
 
 
@@ -77,10 +76,16 @@ public class Activator implements BundleActivator{
 	 * the name of the logging service in the osgi framework.
 	 */
 	static private final String logServiceName = org.osgi.service.log.LogService.class.getName();
+	
 	/**
-	 * the service itself.
+	 * The service instance
 	 */
-	private static SQLiteDriver sqliteService;
+	private static SQLiteDataSourceFactory sqliDataSourceFactory;
+	
+	/**
+	 * The driver instance
+	 */
+	private static SQLiteJDBC sqliteJDBC;
 	
 	/**
 	 * Activator creator. Just create a base ObixServiceImpl object instance.
@@ -119,13 +124,19 @@ public class Activator implements BundleActivator{
 		}
 			
 		try {
-			sqliteService = new SQLiteDriver();
-			String[] clazzes = new String[] {Driver.class.getName()};
-			// register the class as a managed service.
-			Hashtable<String, String> properties = new Hashtable<String, String>();
-			properties.put( Constants.DRIVER_ID, "com.ptoceti.osgi.sqlite");
-			// register the driver
-			Activator.bc.registerService(clazzes, sqliteService, properties );
+			// load libraies if needed befor registering the driver.
+			loadLibrairies(context);
+			
+			sqliteJDBC = new SQLiteJDBC();
+			
+			String[] dataSourceFactoryClazzes = new String[] {DataSourceFactory.class.getName()};
+			Hashtable<String, String> dataSourcesProperties = new Hashtable<String, String>();
+			dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_CLASS, com.ptoceti.osgi.sqlite.SQLiteJDBC.class.getName());
+			//dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_NAME, );
+			dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_VERSION, String.valueOf(sqliteJDBC.getMajorVersion()).concat(".").concat(String.valueOf(sqliteJDBC.getMinorVersion())));
+			// register the data source factory
+			sqliDataSourceFactory = new SQLiteDataSourceFactory();
+			Activator.bc.registerService(dataSourceFactoryClazzes, sqliDataSourceFactory, dataSourcesProperties );
 			
 		} catch( Exception e) {
 			throw new BundleException( e.toString() );
@@ -133,7 +144,7 @@ public class Activator implements BundleActivator{
 			
 		log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
 		
-		loadLibrairies(context);
+		
 			
 	}
 	
@@ -331,4 +342,8 @@ public class Activator implements BundleActivator{
             in.close();
         }
     }
+
+	protected static SQLiteJDBC getSqliteJDBC() {
+		return sqliteJDBC;
+	}
 }
