@@ -37,6 +37,7 @@
 		
 		<restlet.version>2.2.1</restlet.version>
 		<pax-web.version>2.1.6</pax-web.version>
+		<osgi.version>4.2.0</osgi.version>
 	</properties>
 
 	<scm>
@@ -324,14 +325,19 @@
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.packageadmin/1.0.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.obr/1.0.0</param>
 							
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.8.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.fileinstall/3.2.8</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.deploymentadmin/0.9.6</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.dependencymanager/3.1.0</param>
 							
 							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
 							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet/${restlet.version}</param>
 							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.servlet/${restlet.version}</param>
-							<param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param>
+							<!-- <param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param> -->
 							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
 							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.0.0-SNAPSHOT@update</param>
@@ -358,13 +364,19 @@
 			<dependency>
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.core</artifactId>
-				<version>4.1.0</version>
+				<version>${osgi.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.compendium</artifactId>
-				<version>4.0.0</version>
+				<version>${osgi.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.enterprise</artifactId>
+				<version>${osgi.version}</version>
 			</dependency>
 
 		</dependencies>
