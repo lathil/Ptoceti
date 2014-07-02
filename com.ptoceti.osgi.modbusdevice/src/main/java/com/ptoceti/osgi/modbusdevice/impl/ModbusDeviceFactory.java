@@ -65,7 +65,7 @@ import java.util.Enumeration;
 public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFactory {
 
 	// the hashtable contain the references to all ModbusDevice instances created.
-	Hashtable modbusDevServices;
+	Hashtable<String, ModbusDevice> modbusDevServices;
 	// a reference to the service registration for the ModbusDeviceFactory.
 	ServiceRegistration modbusDevFactoryReg = null;
 	
@@ -87,7 +87,7 @@ public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFa
 	 */
 	public ModbusDeviceFactory() throws Exception {
 		// create a new hastable that will contain references to all the ModbusDevice modules.
-		modbusDevServices = new Hashtable();
+		modbusDevServices = new Hashtable<String, ModbusDevice>();
 		// register the class as a service factory.
 		Hashtable properties = new Hashtable();
 		properties.put( Constants.SERVICE_PID, "com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory");
@@ -108,8 +108,8 @@ public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFa
 		// Unregister the factory first ..
 		modbusDevFactoryReg.unregister();
 		// .. second, stop all the ModbusDevice services.
-		for( Enumeration mdbServs = modbusDevServices.elements(); mdbServs.hasMoreElements(); ) {
-			ModbusDevice mdbDev= (ModbusDevice) mdbServs.nextElement();
+		for( Enumeration<ModbusDevice> mdbServs = modbusDevServices.elements(); mdbServs.hasMoreElements(); ) {
+			ModbusDevice mdbDev = mdbServs.nextElement();
 			mdbDev.stop();
 		}
 		
@@ -204,7 +204,7 @@ public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFa
 	 */
 	public void deleted(String pid ) {
 		
-		ModbusDevice modbusDevSer = ( ModbusDevice) modbusDevServices.get( pid );
+		ModbusDevice modbusDevSer = modbusDevServices.get( pid );
 		// simple precaution, we first check that we effectively got an instance with this pid
 		if ( modbusDevSer != null ) {
 			// then we got rid of it.

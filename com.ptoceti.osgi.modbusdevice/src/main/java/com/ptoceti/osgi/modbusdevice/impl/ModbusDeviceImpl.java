@@ -386,7 +386,7 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 			return this.portName;
 		}
 		
-		public void disconnect(){
+		synchronized public void disconnect(){
 			disconnect = true;
 		}
 		
@@ -399,7 +399,7 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		 *
 		 */
 		public void run() {
-			while(!disconnect){
+			while(!getDisconnect()){
 				if(modbusDr != null ) {
 					((MeasurementDataBuffer)modbusMDataBuffer).update(modbusDr, id);
 					((ReferenceDataBuffer)modbusRDataBuffer).update(modbusDr, id);
@@ -412,6 +412,10 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 					break;
 				}
 			}
+		}
+		
+		synchronized public boolean getDisconnect(){
+			return disconnect;
 		}
 		
 		/**

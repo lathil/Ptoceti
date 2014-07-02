@@ -230,7 +230,7 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 			myThread.start();
 		}
 
-		public void disconnect(){
+		synchronized public void disconnect(){
 			disconnect = true;
 		}
 		
@@ -243,6 +243,10 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 					break;
 				}
 			}
+		}
+		
+		synchronized public boolean getDisconnect(){
+			return disconnect;
 		}
 	}
 }

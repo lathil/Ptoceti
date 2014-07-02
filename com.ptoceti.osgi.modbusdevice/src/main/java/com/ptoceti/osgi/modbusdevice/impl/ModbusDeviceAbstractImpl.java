@@ -185,12 +185,14 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 	public void producersConnected(Wire[] wires ) {
 		
 		if( wires == null){
-			synchronized(this.producerWires)
-			{
-				for (int i = 0; i< this.producerWires.length; i++) {
-					Activator.log( LogService.LOG_INFO, "Wire PID:"
-					+ this.producerWires[i].getProperties().get(WireConstants.WIREADMIN_PID)
-					+ " disconnected.");
+			if( this.producerWires != null){
+				synchronized(this.producerWires)
+				{
+					for (int i = 0; i< this.producerWires.length; i++) {
+						Activator.log( LogService.LOG_INFO, "Wire PID:"
+						+ this.producerWires[i].getProperties().get(WireConstants.WIREADMIN_PID)
+						+ " disconnected.");
+					}
 				}
 				this.producerWires = null;
 			}
@@ -243,14 +245,16 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 		// simply remember the whole collection. Discard any previous.
 		
 		if( wires == null){
-			synchronized(this.consumerWires)
-			{
-				for (int i = 0; i< this.consumerWires.length; i++) {
-					Activator.log( LogService.LOG_INFO, "Wire PID:"
-					+ this.consumerWires[i].getProperties().get(WireConstants.WIREADMIN_PID)
-					+ " disconnected.");
+			if( this.consumerWires != null) {
+				synchronized(this.consumerWires)
+				{
+					for (int i = 0; i< this.consumerWires.length; i++) {
+						Activator.log( LogService.LOG_INFO, "Wire PID:"
+						+ this.consumerWires[i].getProperties().get(WireConstants.WIREADMIN_PID)
+						+ " disconnected.");
+					}
 				}
-				this.producerWires = null;
+				this.consumerWires = null;
 			}
 		} else if( this.consumerWires == null ) {
 			this.consumerWires = wires;
