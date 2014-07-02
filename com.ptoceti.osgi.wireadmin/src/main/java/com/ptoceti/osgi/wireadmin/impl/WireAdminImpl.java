@@ -274,7 +274,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 				  }
 			  }
 		  } catch (java.io.IOException e) {
-			  Activator.log(LogService.LOG_INFO, "Configuration file: " + configFile + " could not be found.");
+			  Activator.log(LogService.LOG_ERROR, "Configuration file: " + configFile + " could not be found.");
 		  }
 		}
 	}
@@ -382,7 +382,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 			try { // set ourselved as listener to the register / unregister event from this service
 				Activator.bc.addServiceListener( producerSerListener, this.getProducerPidFilter() );
 			} catch ( InvalidSyntaxException e ) {
-				Activator.log(LogService.LOG_INFO, "Error in filter string while registering LogServiceListener." + e.toString());
+				Activator.log(LogService.LOG_ERROR, "Error in filter string while registering LogServiceListener." + e.toString());
 				return(null);
 			}
 		}
@@ -409,7 +409,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 			try { // set ourselved as listener to the register / unregister event from this service
 				Activator.bc.addServiceListener( consumerSerListener, this.getConsumerPidFilter() );
 			} catch ( InvalidSyntaxException e ) {
-				Activator.log(LogService.LOG_INFO, "Error in filter string while registering LogServiceListener." + e.toString());
+				Activator.log(LogService.LOG_ERROR, "Error in filter string while registering LogServiceListener." + e.toString());
 				return(null);
 			}
 		}
@@ -474,9 +474,14 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 					}
 				}
 			
-				Activator.bc.addServiceListener( consumerSerListener, disConWire.getConsumerFilter().toString() );
+				final String consumerFilterString = disConWire.getConsumerFilter().toString();
+				if(! consumerListenerList.contains(consumerFilterString)) {
+					consumerListenerList.add(consumerFilterString);
+					
+					Activator.bc.addServiceListener( consumerSerListener,  this.getConsumerPidFilter()  );
+				}
 			} catch ( InvalidSyntaxException e ) {
-				Activator.log(LogService.LOG_INFO, "Error in filter string while adding consumer service listener." + e.toString());
+				Activator.log(LogService.LOG_ERROR, "Error in filter string while adding consumer service listener." + e.toString());
 				return(null);
 			}
 		}
@@ -492,9 +497,16 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 					}
 				}
 				
+				final String producerFilterString = disConWire.getProducerFilter().toString();
+				if(! producerListenerList.contains(producerFilterString)) {
+					producerListenerList.add(producerFilterString);
+					
+					Activator.bc.addServiceListener( producerSerListener,  this.getProducerPidFilter()  );
+				}
+				
 				Activator.bc.addServiceListener( producerSerListener, disConWire.getProducerFilter().toString() );
 			} catch ( InvalidSyntaxException e ) {
-				Activator.log(LogService.LOG_INFO, "Error in filter string while adding producer service listener." + e.toString());
+				Activator.log(LogService.LOG_ERROR, "Error in filter string while adding producer service listener." + e.toString());
 				return(null);
 			}
 		}
@@ -721,8 +733,12 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 		
 		String result = "";
 		
-		for(int i=0; i < producerListenerList.size(); i++ ) {
-			result = result + "(" + Constants.SERVICE_PID + "=" + (String)producerListenerList.get(i) + ")";
+		for(String filterPath : producerListenerList) {
+			if(filterPath.startsWith("(") && filterPath.endsWith(")") ){
+				result = result + filterPath;
+			} else {
+				result = result + "(" + Constants.SERVICE_PID + "=" + filterPath + ")";
+			}
 		}
 		
 		if( producerListenerList.size() > 1) {
@@ -736,8 +752,12 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	
 		String result = "";
 		
-		for(int i=0; i < consumerListenerList.size(); i++ ) {
-			result = result + "(" + Constants.SERVICE_PID + "=" + (String)consumerListenerList.get(i) + ")";
+		for(String filterPath : consumerListenerList) {
+			if(filterPath.startsWith("(") && filterPath.endsWith(")") ){
+				result = result + filterPath;
+			} else {
+				result = result + "(" + Constants.SERVICE_PID + "=" + filterPath + ")";
+			}
 		}
 		
 		if( consumerListenerList.size() > 1) {

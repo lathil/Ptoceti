@@ -56,9 +56,6 @@ public class DisconnectedWire {
 	
 	
 	public DisconnectedWire(String producerPID, String producerFilter, String consumerPID, String consumerFilter, Dictionary properties) {
-		
-		Activator.log(LogService.LOG_DEBUG, "Recording wire config for consumerPID:" + consumerPID +  " ,consumerFilter:" + consumerFilter +
-					" producerPID:" + producerPID + " ,producerFilter:" + producerFilter);
 				
 		this.setProducerPID(producerPID);
 		StringBuffer producerBuffFilter = new StringBuffer();
@@ -98,12 +95,7 @@ public class DisconnectedWire {
 			}
 		}
 		
-		
-		
 		this.setProperties(properties);
-		
-		Activator.log(LogService.LOG_DEBUG, "Created filters for wires. Producer: " +  ( this.getProducerFilter() != null ? this.getProducerFilter().toString() : ( producerPID != null ? producerPID : "" )) + 
-				", Consumer: " + (this.getConsumerFilter() != null ? this.getConsumerFilter().toString() : ( consumerPID != null ? consumerPID : "")));
 	}
 	
 	public boolean producerMatches(ServiceReference sReg) {
