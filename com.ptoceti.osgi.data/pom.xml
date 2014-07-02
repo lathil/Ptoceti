@@ -68,7 +68,7 @@
 				<configuration>
 					<instructions>
 						<Export-Package>${pom.artifactId}</Export-Package>
-						<Private-Package>${pom.artifactId}.impl</Private-Package>
+						<Private-Package>${pom.artifactId}.impl, biz.source_code.miniConnectionPoolManager</Private-Package>
 						<Bundle-Activator>${pom.artifactId}.impl.Activator</Bundle-Activator>
 					</instructions>
 				</configuration>
@@ -87,6 +87,11 @@
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.enterprise</artifactId>
 		</dependency>
 
 	</dependencies>

@@ -38,6 +38,7 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.jdbc.DataSourceFactory;
 import org.osgi.service.log.LogService;
 import org.osgi.service.device.Device;
 //import org.osgi.service.device.Constants;
@@ -55,6 +56,8 @@ public class Activator implements BundleActivator{
 	static private final String logServiceName = org.osgi.service.log.LogService.class.getName();
 	// a reference to the service registration for the Controller object.
 	ServiceRegistration sReg = null;
+	// the DataSource factory service
+	private DataSourceFactory dataSourceFactory;
 	
 	public Activator()
 	{
@@ -75,10 +78,10 @@ public class Activator implements BundleActivator{
 		Activator.bc = context;
 			
 		// we construct a listener to detect if the log service appear or disapear.
-		String filter = "(objectclass=" + logServiceName + ")";
+		String logFilter = "(objectclass=" + logServiceName + ")";
 		ServiceListener logServiceListener = new LogServiceListener();
 		try {
-			bc.addServiceListener( logServiceListener, filter);
+			bc.addServiceListener( logServiceListener, logFilter);
 			// in case the service is already registered, we send a REGISTERED event to its listener.
 			ServiceReference srLog = bc.getServiceReference( logServiceName );
 			if( srLog != null ) {
@@ -87,29 +90,33 @@ public class Activator implements BundleActivator{
 		} catch ( InvalidSyntaxException e ) {
 			throw new BundleException("Error in filter string while registering LogServiceListener." + e.toString());
 		}
-			
+		
+		String dataSourceFactFilter = "(&(objectclass=" + DataSourceFactory.class.getName() + ")(" +
+				DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=com.ptoceti.osgi.sqlite.SQLiteJDBC))";
+		ServiceListener dataSourceFactoryServiceListener = new DataSourceFactoryServiceListener();
 		try {
-			// setup a device implementation
-			JdbcDevice device = new JdbcDeviceImpl();
-			
-			// register the class as a managed service.
-			Hashtable<String, Object> properties = new Hashtable<String, Object>();
-			properties.put(org.osgi.service.device.Constants.DEVICE_CATEGORY, JdbcDevice.DEVICE_CATEGORY);
-			properties.put(org.osgi.service.device.Constants.DEVICE_DESCRIPTION,JdbcDevice.DEVICE_DESCRIPTION );
-			properties.put(org.osgi.service.device.Constants.DEVICE_SERIAL, JdbcDeviceImpl.DEVICE_SERIAL);
-			
-			String[] clazzes = new String[2];
-			clazzes[0] = Device.class.getName();
-			clazzes[1] = JdbcDevice.class.getName();
-					
-			sReg = Activator.bc.registerService(clazzes, device, properties );		
-			
-		} catch( Exception e) {
-			throw new BundleException( e.toString() );
+			bc.addServiceListener( dataSourceFactoryServiceListener, dataSourceFactFilter);
+			// in case the service is already registered, we send a REGISTERED event to its listener.
+			ServiceReference srLog = bc.getServiceReference( DataSourceFactory.class.getName() );
+			if( srLog != null ) {
+				dataSourceFactoryServiceListener.serviceChanged(new ServiceEvent( ServiceEvent.REGISTERED, srLog ));
+			}
+		} catch ( InvalidSyntaxException e ) {
+			throw new BundleException("Error in filter string while registering DataSourceFactory ServiceListener." + e.toString());
 		}
 			
-		log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
-			
+	}
+	
+	private void registerService() {
+		
+		JdbcDevice device = new JdbcDeviceImpl(dataSourceFactory);
+		
+		// register the class as a managed service.
+		String[] clazzes = new String[]{JdbcDevice.class.getName()};
+		Hashtable<String, Object> properties = new Hashtable<String, Object>();
+		sReg = Activator.bc.registerService(clazzes, device, properties );		
+		
+		log(LogService.LOG_INFO, "Registering service " + JdbcDevice.class.getName());
 	}
 	
 	public static String getProperty(String propertyName){
@@ -145,12 +152,20 @@ public class Activator implements BundleActivator{
 		if( logSer != null )
 			logSer.log( logLevel, message );
 	}
-		
+	
 	/**
-	 * Internel listener class that receives framework event when the log service is registered
-	 * in the the framework and when it is being removed from it. The framework is a dynamic place
-	 * and it is important to note when services appear and disappear.
-	 * This inner class update the outer class reference to the log service in concordance.
+	 * Getter
+	 * @return the datasource factory service
+	 */
+	public DataSourceFactory getDataSourceFactory() {
+		return dataSourceFactory;
+	}
+
+
+	/**
+	 * Listen to registration and unregistration of the log service
+	 * 
+	 * @author LATHIL
 	 *
 	 */
 	private class LogServiceListener implements ServiceListener {
@@ -165,6 +180,9 @@ public class Activator implements BundleActivator{
 				switch(event.getType()) {
 					case ServiceEvent.REGISTERED: {
 						logSer = (LogService) bc.getService(sr);
+						if( getDataSourceFactory() != null && logSer != null ){
+							registerService();
+						}
 					}
 					break;
 					case ServiceEvent.UNREGISTERING: {
@@ -175,4 +193,31 @@ public class Activator implements BundleActivator{
 		}
 	}
 
+	/**
+	 * Listen to registration and unregistration of the data source factory service
+	 * 
+	 * @author LATHIL
+	 *
+	 */
+	private class DataSourceFactoryServiceListener implements ServiceListener {
+
+		@Override
+		public void serviceChanged(ServiceEvent event) {
+			ServiceReference sr = event.getServiceReference();
+			switch(event.getType()) {
+				case ServiceEvent.REGISTERED: {
+					dataSourceFactory = ((DataSourceFactory) bc.getService(sr));
+					if( getDataSourceFactory() != null && logSer != null ){
+						registerService();
+					}
+				}
+				break;
+				case ServiceEvent.UNREGISTERING: {
+					dataSourceFactory = null;
+				}
+				break;
+			}
+		}
+		
+	}
 }

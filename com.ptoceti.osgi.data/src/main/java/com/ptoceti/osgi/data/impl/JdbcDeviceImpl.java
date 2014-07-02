@@ -28,13 +28,15 @@ package com.ptoceti.osgi.data.impl;
  */
 
 
-import org.osgi.framework.Constants;
+import org.osgi.service.jdbc.DataSourceFactory;
 import org.osgi.service.log.LogService;
+
+import biz.source_code.miniConnectionPoolManager.MiniConnectionPoolManager;
 
 import com.ptoceti.osgi.data.IResultSetGeneratedKeysHandler;
 import com.ptoceti.osgi.data.IResultSetMultipleHandler;
 import com.ptoceti.osgi.data.IResultSetSingleHandler;
-import com.ptoceti.osgi.data.JdbcDeviceService;
+import com.ptoceti.osgi.data.JdbcDevice;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,36 +51,97 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Hashtable;
 import java.util.Properties;
 
-public class JdbcDeviceImpl extends JdbcDeviceService {
+import javax.sql.ConnectionPoolDataSource;
+import javax.sql.DataSource;
+
+
+public class JdbcDeviceImpl implements JdbcDevice {
 
 	public static final String DEVICE_SERIAL = "1.00";
 
-	private Driver jdbcDriver;
+	/**
+	 * read only data source
+	 */
+	DataSource rdDataSource;
+	
+	/**
+	 * read / write data source;
+	 */
+	DataSource rwDataSource;
+	
+	/**
+	 * Pooled read only data source
+	 */
+	ConnectionPoolDataSource rdPooledDataSource;
+	MiniConnectionPoolManager rPooledManager;
+	
+	/**
+	 * Pooled read / write data source;
+	 */
+	ConnectionPoolDataSource rwPooledDataSource;
+	MiniConnectionPoolManager rwPooledManager;
+	
+	/**
+	 * the datasourcefactory service
+	 */
+	DataSourceFactory dataSourceFactory;
+	
 	private String dbUrl;
 	private Properties props = new Properties();
 	
 	private ThreadLocal<Connection>  threadLocalConn = new ThreadLocal<Connection>();
 
-	public void noDriverFound() {
-		Activator.log(LogService.LOG_INFO, "No driver found.");
+	/**
+	 * constructor
+	 */
+	public JdbcDeviceImpl(DataSourceFactory dataSourceFactory){
+		this.dataSourceFactory = dataSourceFactory;
 	}
+	
 
-	public void setJDBCDriver(Driver driver) {
-		jdbcDriver = driver;
-		Activator.log(LogService.LOG_INFO, "Jdbc driver attached: "
-				+ jdbcDriver.getClass().getName());
+	protected void configurePooledConnectionDataSource(){
+	
+		try {
+			Properties rdprops = new Properties();
+			rdprops.put(DataSourceFactory.JDBC_URL, dbUrl);
+			//TODO need to find a way we are using SQLite
+			// this maps to read only in SQLITE open mode flags
+			rdprops.put("open_mode", (new Integer((int)0x00000001)).toString());
+			rdPooledDataSource = dataSourceFactory.createConnectionPoolDataSource(rdprops);
+			rPooledManager = new  MiniConnectionPoolManager(rdPooledDataSource, 5);
+			
+			Properties rwprops = new Properties();
+			rwprops.put(DataSourceFactory.JDBC_URL, dbUrl);
+			rwprops.put("open_mode", (new Integer((int)0x00000002)).toString());
+			rwPooledDataSource = dataSourceFactory.createConnectionPoolDataSource(rwprops); 
+			rwPooledManager = new  MiniConnectionPoolManager(rwPooledDataSource, 5);
+			
+		} catch (SQLException e) {
+			Activator.log(LogService.LOG_ERROR, "Error creating datasource " + e.toString());
+		}
 		
-		// register the class as a managed service.
-		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put( Constants.SERVICE_PID, JdbcDeviceService.class.getName());
+	}
+	
+	protected void configureDataSource(){
 		
-		String[] clazzes = new String[1];
-		clazzes[0] = JdbcDeviceService.class.getName();
-				
-		Activator.bc.registerService(clazzes, this, properties );		
+		try {
+			Properties rdprops = new Properties();
+			rdprops.put(DataSourceFactory.JDBC_URL, dbUrl);
+			//TODO need to find a way we are using SQLite
+			// this maps to read only in SQLITE open mode flags
+			rdprops.put("open_mode", (new Integer((int)0x00000001)).toString());
+			rdDataSource = dataSourceFactory.createDataSource(rdprops);
+			
+			Properties rwprops = new Properties();
+			rwprops.put(DataSourceFactory.JDBC_URL, dbUrl);
+			rwprops.put("open_mode", (new Integer((int)0x00000002)).toString());
+			rwDataSource = dataSourceFactory.createDataSource(rwprops); 
+			
+		} catch (SQLException e) {
+			Activator.log(LogService.LOG_ERROR, "Error creating datasource " + e.toString());
+		}
 	}
 
 	public boolean setupDatabase(String databasePath, String setupScript) {
@@ -89,6 +152,9 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 		try {
 			
 			Activator.log(LogService.LOG_INFO, "Verifying database file at " + databasePath);
+			
+			Properties driverProps = new Properties();
+			Driver jdbcDriver = dataSourceFactory.createDriver(props);
 			
 			// take in input a pathname, not an uri
 			File file = new File(databasePath);
@@ -106,6 +172,7 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 						con.close();
 						success = true;
 						initializeDb = false;
+						configurePooledConnectionDataSource();
 					} else {
 						file.delete();
 						initializeDb = true;
@@ -136,6 +203,8 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 						this.update(conn, setupScript, null);
 						conn.commit();
 						conn.close();
+						
+						configurePooledConnectionDataSource();
 					}
 
 				} catch (IOException e) {
@@ -151,6 +220,8 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 
 		catch (MalformedURLException e) {
 			Activator.log(LogService.LOG_ERROR, e.toString());
+		} catch (SQLException e) {
+			Activator.log(LogService.LOG_ERROR, "Error creating JDBC driver: " + e.toString());
 		}
 
 		return success;
@@ -164,15 +235,9 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 		
 		Connection newConn = null;
 		
-		Properties mergedProps = new Properties();
-		//TODO need to find a way we are using SQLite
-		// this maps to read only in SQLITE open mode flags
-		mergedProps.put("open_mode", (new Integer((int)0x00000001)).toString());
-		//mergedProps.putAll(props);
-		
 		try {
 			
-			newConn = jdbcDriver.connect(dbUrl, mergedProps);
+			newConn = rPooledManager.getConnection();
 			newConn.setAutoCommit(false);
 			
 			Connection currentConn = threadLocalConn.get();
@@ -195,12 +260,8 @@ public class JdbcDeviceImpl extends JdbcDeviceService {
 		
 		Connection newConn = null;
 		
-		Properties mergedProps = new Properties();
-		mergedProps.put("open_mode", (new Integer((int)0x00000002)).toString());
-		//mergedProps.putAll(props);
-		
 		try {
-			newConn = jdbcDriver.connect(dbUrl, mergedProps);
+			newConn = rwPooledManager.getConnection();
 			newConn.setAutoCommit(false);
 			
 			Connection currentConn = threadLocalConn.get();

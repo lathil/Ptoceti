@@ -28,21 +28,17 @@ package com.ptoceti.osgi.data;
  */
 
 
-import org.osgi.service.device.Device;
-
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 
-public interface JdbcDevice extends Device {
+public interface JdbcDevice  {
 	
 	public static final String NAME = JdbcDevice.class.getName();
 	public static final String[] DEVICE_CATEGORY= {"JDBC"};
 	public static final String DEVICE_DESCRIPTION="JDBC Device";
 	
 	public static final int MATCH_CLASS = 10;
-
-	public void setJDBCDriver(Driver driver);
 	
 	public boolean setupDatabase(String databasePath, String setupScript );
 	public Connection getConnectionRx();
