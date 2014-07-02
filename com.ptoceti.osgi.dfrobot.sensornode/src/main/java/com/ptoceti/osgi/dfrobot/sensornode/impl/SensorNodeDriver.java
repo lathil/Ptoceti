@@ -1,6 +1,7 @@
 package com.ptoceti.osgi.dfrobot.sensornode.impl;
 
 import gnu.io.CommPortIdentifier;
+import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
@@ -135,7 +136,7 @@ public class SensorNodeDriver implements SerialPortEventListener {
 		
 		try {
 			final CommPortIdentifier portID = CommPortIdentifier.getPortIdentifier(port);
-			if( portID.getPortType() == CommPortIdentifier.PORT_SERIAL) {
+			if( portID != null && ( portID.getPortType() == CommPortIdentifier.PORT_SERIAL)) {
 				// if this is the port we want,
 				if( portID.getName().equals( port )) { 
 					// try to get hold of this port. If not successfull within 1 second, throws an exception.
@@ -153,12 +154,17 @@ public class SensorNodeDriver implements SerialPortEventListener {
 					// get hold of the inputs and outputs streams.
 					inStream = serialPort.getInputStream();
 					outStream = serialPort.getOutputStream();
+				} else {
+					throw new Exception("Port obtained not same as port requested: " + port + " / " + portID.getName());
 				}
+			} else {
+				throw new Exception("Port not a serial port: " + portID.toString());
 			}
 		} catch ( PortInUseException e) { throw new Exception("Port " + port + " is already in use."); }
 		catch (UnsupportedCommOperationException e) { throw new Exception("Port does not support this operation."); }
 		catch (TooManyListenersException e) { throw new Exception("Could not create listener on port: " + port + "."); }
 		catch (IOException e) { throw new Exception("Could not open input or output streams on port: " + port + "."); }
+		catch (NoSuchPortException e ){throw new Exception("Port unknow: " + port + ". ");}
 	}
 	
 	/**
@@ -176,7 +182,7 @@ public class SensorNodeDriver implements SerialPortEventListener {
 		
 		sReg = Activator.bc.registerService( clazzes, this, props );
 		
-		Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName());
+		Activator.log(LogService.LOG_INFO, "SensorNodeDriver strated on port:  " + this.port);
 		
 	}
 	

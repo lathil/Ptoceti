@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
 	<OCD description="Sensor Node Driver" name="Ptoceti SensorNode driver" id="sensorNodeDriver">
-		<AD name="Port" id="com.ptoceti.osgisensornodedriver.port" required="true" type="String" />
+		<AD name="Port" id="com.ptoceti.osgi.sensornodedriver.port" required="true" type="String" />
 	    <AD name="Id" id="com.ptoceti.osgi.sensornodedriver.id" required="true" type="String" />
 	    <AD name="Baud rate" id="com.ptoceti.osgi.sensornodedriver.baudrate" required="true" type="Integer" />
 	    <AD name="Uses parity" id="com.ptoceti.osgi.sensornodedriver.usesparity" required="true" type="Boolean" />

@@ -93,9 +93,11 @@ public class SensorNodeDriverFactory implements org.osgi.service.cm.ManagedServi
 					driver.start();
 				}
 			} catch ( Exception ex) {
-				Activator.log(LogService.LOG_INFO, "Could not create SensorNodeDriver.");
+				Activator.log(LogService.LOG_INFO, "Could not create SensorNodeDriver: " + ex.getMessage());
 			}
 			
+		} else {
+			Activator.log(LogService.LOG_ERROR, "SensorNodeDriverFactory: incorects parameters for factory.");
 		}
 	}
 

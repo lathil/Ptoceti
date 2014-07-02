@@ -189,13 +189,16 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 	public void consumersConnected(Wire[] wires) {
 		// simply remember the whole collection. Discard any previous.
 		if( wires == null){
-			synchronized(this.consumerWires)
-			{
-				for (int i = 0; i< this.consumerWires.length; i++) {
-					Activator.log( LogService.LOG_INFO, "Wire PID:"
-					+ this.consumerWires[i].getProperties().get(WireConstants.WIREADMIN_PID)
-					+ " disconnected.");
+			if( this.consumerWires != null) {
+				synchronized(this.consumerWires)
+				{
+					for (int i = 0; i< this.consumerWires.length; i++) {
+						Activator.log( LogService.LOG_INFO, "Wire PID:"
+						+ this.consumerWires[i].getProperties().get(WireConstants.WIREADMIN_PID)
+						+ " disconnected.");
+					}
 				}
+				this.consumerWires = null;
 			}
 		} else if( this.consumerWires == null ) {
 			this.consumerWires = wires;
