@@ -36,18 +36,15 @@ import java.util.List;
 import com.ptoceti.osgi.data.ResultSetGeneratedKeysHandler;
 import com.ptoceti.osgi.data.ResultSetMultipleHandler;
 import com.ptoceti.osgi.obix.object.Contract;
-import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.impl.entity.ObjEntity.ObjResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.obix.impl.entity.ObjEntity.ObjResultSetMultipleHandler;
-import com.ptoceti.osgi.obix.impl.entity.UriEntity.UriResultSetMultipleHandler;
+
 
 public class ContractEntity extends AbstractEntity  {
 
 	private static final String CREATE_CONTRACT = "insert into contract ( object_id) values (?)";
 	private static final String CREATE_CONTRACTURI = "insert into contracturi (contract_id, uri_id) values (?,?) ";
 	
-	private static final String SEARCH_CONTRACT_BY_URI = "select contract.* from contract, contracturi, uri where contract.id = contracturi.contract_id and contracturi.uri_id = uri.id and uri.value=?";
+	private static final String SEARCH_CONTRACT_BY_URI = "select contract.* from contract, contracturi, object where contract.id = contracturi.contract_id and contracturi.uri_id = object.id and object.value_text=?";
 		
 	//private static final String SEARCH_CONTRACT_BY_URI = "select distinct contracturi.* from contracturi, uri where  contracturi.uri_id = uri.id and uri.value=?";
 	
@@ -72,60 +69,76 @@ public class ContractEntity extends AbstractEntity  {
 		this.setObixContract(obixContract);
 	}
 	
+	/**
+	 * Create the contract and its uris
+	 * @throws EntityException
+	 */
 	public void create() throws EntityException {
 		
-		ArrayList params = new ArrayList();
-		params.add(null);
+		// create the contract
+		List<Object> params = new ArrayList<Object>();
+		params.add(null); // need to insert at least a value, fake here
 		update(CREATE_CONTRACT, params.toArray(), new ContractResultSetGeneratedKeysHandler(this));
-		
+		// then for each of its uris
 		Uri[] uris = getObixContract().getUris();
-		
 		for( int i = 0; i < uris.length; i++) {
-			
+			// create each one
 			UriEntity uriEntity = new UriEntity( uris[i]);
 			uriEntity.create();
-			
-			ArrayList params2 = new ArrayList();
+			// and create a link from it to the contract
+			List<Object> params2 = new ArrayList<Object>();
 			params2.add(contractid);
-			params2.add(uriEntity.getUriId());
+			params2.add(uriEntity.getId());
 			update(CREATE_CONTRACTURI, params2.toArray(),null);
 		}
 		
 	}
 	
+	/**
+	 * Delete the contract and uris that compose it.
+	 * @throws EntityException
+	 */
 	public void delete() throws EntityException {
 		
 		UriEntity uriEntity = new UriEntity( new Uri());
 		
-		List uriList = uriEntity.searchUriByContractID(this.getContractid());
+		// fetch all uri object in the table object
+		List<UriEntity> uriList = uriEntity.searchUriByContractID(this.getContractid());
 		for( int i = 0; i < uriList.size(); i++) {
-			UriEntity nextUriEntity = (UriEntity) uriList.get(i);
+			UriEntity nextUriEntity = uriList.get(i);
+			// delete the uri
 			nextUriEntity.delete();
-			
-			ArrayList params = new ArrayList();
+			// and delete the link to the uri in the table contracturi
+			List<Object> params = new ArrayList<Object>();
 			params.add(this.getContractid());
-			params.add(nextUriEntity.getUriId());
+			params.add(nextUriEntity.getId());
 			update(DELETE_CONTRACTURI, params.toArray(), null);
 		}
 		
-		
-		ArrayList params = new ArrayList();
+		// finish by removing the contract itself.
+		List<Object> params = new ArrayList<Object>();
 		params.add(this.getContractid());
 		update(DELETE_CONTRACT, params.toArray(), null);
 		
 	}
 	
+	/**
+	 * Load contract data from database
+	 * @throws EntityException
+	 */
 	public void fetch() throws EntityException {
 		
 		UriEntity uriEntity = new UriEntity( new Uri());
-		List uriEntityist = uriEntity.searchUriByContractID(this.getContractid());
+		// load all uri belonging to this contract
+		List<UriEntity> uriEntityist = uriEntity.searchUriByContractID(this.getContractid());
 		
 		if( getObixContract() == null) setObixContract(new Contract());
-		List uriList = new ArrayList();
-		Iterator uriEntityIter = uriEntityist.iterator();
+		List<Uri> uriList = new ArrayList<Uri>();
+		Iterator<UriEntity> uriEntityIter = uriEntityist.iterator();
 		while(uriEntityIter.hasNext()) {
+			// for each get Uri from UriEntity
 			UriEntity nextUriEntity = (UriEntity)uriEntityIter.next();
-			uriList.add(nextUriEntity.getObixObject());
+			uriList.add((Uri)nextUriEntity.getObixObject());
 		}
 		
 		getObixContract().setUris((Uri[])uriList.toArray(new Uri[uriList.size()]));
@@ -133,10 +146,10 @@ public class ContractEntity extends AbstractEntity  {
 	}
 	
 	
-	public List searchContractByUri(String uripath) throws EntityException {
+	public List<ContractEntity> searchContractByUri(String uripath) throws EntityException {
 		
-		ArrayList contractList = new ArrayList();
-		ArrayList params = new ArrayList();
+		List<ContractEntity> contractList = new ArrayList<ContractEntity>();
+		List<Object> params = new ArrayList<Object>();
 		params.add(uripath);
 		queryMultiple(SEARCH_CONTRACT_BY_URI, params.toArray(), new ContractResultSetMultipleRowHandler(contractList));
 		
@@ -161,10 +174,10 @@ public class ContractEntity extends AbstractEntity  {
 
 	public class ContractResultSetMultipleRowHandler extends ResultSetMultipleHandler {
 		
-		private List entityList;
+		private List<ContractEntity> entityList;
 		private ContractEntity entity;
 		
-		public ContractResultSetMultipleRowHandler( List entityList){
+		public ContractResultSetMultipleRowHandler( List<ContractEntity> entityList){
 			this.entityList = entityList;
 		}
 		

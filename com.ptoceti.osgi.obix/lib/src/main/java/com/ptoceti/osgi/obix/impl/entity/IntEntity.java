@@ -32,38 +32,21 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ptoceti.osgi.data.ResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.data.ResultSetSingleHandler;
 import com.ptoceti.osgi.obix.object.Int;
-import com.ptoceti.osgi.obix.object.Real;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.impl.entity.ObjEntity.ObjResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.obix.impl.entity.ObjEntity.ObjResultSetHandler;
-import com.ptoceti.osgi.obix.impl.entity.ObjEntity.ObjResultSetMultipleHandler;
-import com.ptoceti.osgi.obix.impl.entity.RealEntity.ObjRealResultSetMultipleHandler;
+
 
 public class IntEntity extends ObjEntity implements ValEntity {
 
-	private static final String CREATE_INT = "insert into int (object_id, min, max, unit_uri_id, value ) values (?,?,?,?,?)";
-	private static final String DELETE_INT = "delete from int where int.id=?";
-	// private static final String SEARCH_INT_BY_HREF =
-	// "select object.* from object, uri where object.uri_id = uri.id and uri.value=?";
-	private static final String SEARCH_INT_BY_OBJECT_ID = "select int.* from int where int.object_id=?";
+	private static final String SEARCH_INT_BY_HREF = "select object.* from object where object.type_id=7 and object.uri_hash=?";
+	private static final String CREATE_INT = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, min, max, unit, value_int ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String DELETE_INT = "delete from object where id=?";
 
-	private static final String SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP = "select object.*, int.id as int_id, int.min, int.max, int.value, int.unit_uri_id  from object, int  where object.id = int.object_id and object.parent_id=? and object.created_ts > ? and object.created_ts <= ?";
+	private static final String SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP = "select object.* from object  where object.type_id=7 and object.parent_id = ? and object.created_ts > ? and object.created_ts <= ?";
 
-	private static final String UPDATE_INT = "update int set object_id = ?, min = ?, max = ?, unit_uri_id = ?, value = ? where id = ? ";
+	private static final String UPDATE_INT = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, min = ?, max = ?, unit = ?, value_int = ? where id = ? ";
 
-	private static final String COL_INT_ID = "id";
-	private static final String COL_OBJ_INT_ID = "int_id";
-	private static final String COL_INT_OBJECT_ID = "object_id";
-	private static final String COL_INT_MIN = "min";
-	private static final String COL_INT_MAX = "max";
-	private static final String COL_INT_VALUE = "value";
-	private static final String COL_INT_UNIT_URI_ID = "unit_uri_id";
 
-	private Integer intid;
-	private Integer unitUriId;
 
 	public IntEntity(){
 		super(EntityType.Int);
@@ -71,7 +54,7 @@ public class IntEntity extends ObjEntity implements ValEntity {
 	
 	public IntEntity(ObjEntity entObj) throws EntityException {
 		super(entObj);
-		fetchDetailsById();
+		fetchByObjectId();
 	}
 
 	public IntEntity(Int obixInt) {
@@ -81,139 +64,116 @@ public class IntEntity extends ObjEntity implements ValEntity {
 
 	public void create() throws EntityException {
 
-		super.create();
 
-		ArrayList params = new ArrayList();
-		params.add(getId());
+		List<Object> params = getCreateParam();
 		params.add(((Int) getObixObject()).getMin());
 		params.add(((Int) getObixObject()).getMax());
 
 		Uri unitUri = ((Int) getObixObject()).getUnit();
 		if (unitUri != null) {
-			UriEntity uriEntity = new UriEntity(unitUri);
-			uriEntity.create();
-			setUnitUriId(uriEntity.getUriId());
+			params.add(unitUri.getVal());
+		} else {
+			params.add(null);
 		}
 
-		params.add(getUnitUriId());
 		params.add(((Int) getObixObject()).getVal());
-		update(CREATE_INT, params.toArray(),
-				new IntResultSetGeneratedKeysHandler(this));
+		update(CREATE_INT, params.toArray(), new IntResultSetGeneratedKeysHandler(this));
 	}
 
 	public void delete() throws EntityException {
 
-		super.delete();
-
-		if (getIntid() != null) {
+		deleteReferences();
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getId());
+		update(DELETE_INT, params.toArray(), null);
+	}
+	
+	@Override
+	protected void deleteReferences() throws EntityException{
+		super.deleteReferences();
+		
+		if (getId() != null) {
 			UriEntity uriEntity = new UriEntity(new Uri());
-			uriEntity.setId(getIntid());
+			uriEntity.setId(getId());
 			uriEntity.delete();
 		}
+	}
+	
+	public void update() throws EntityException {
 
-		ArrayList params = new ArrayList();
-		params.add(getIntid());
-		update(DELETE_INT, params.toArray(), null);
+		List<Object> params = getUpdateParam();
+		params.add(((Int) getObixObject()).getMin());
+		params.add(((Int) getObixObject()).getMax());
+		Uri unitUri = ((Int) getObixObject()).getUnit();
+		if (unitUri != null) {
+			params.add(unitUri.getVal());
+		} else {
+			params.add(null);
+		}
+		params.add(((Int) getObixObject()).getVal());
+		params.add(getId());
+
+		update(UPDATE_INT, params.toArray(), null);
 	}
 
 	public boolean fetchByHref() throws EntityException {
-
 		boolean found = super.fetchByHref();
-		if (found) {
-			ArrayList params = new ArrayList();
-			params.add(getId());
-
-			query(SEARCH_INT_BY_OBJECT_ID, params.toArray(),
-					new IntResultSetHandler(this));
+		if( found){
+			fetchDetails();
 		}
 		return found;
 	}
+	@Override
+	protected void doQueryByHref(List<Object> params) throws EntityException{
+		query(SEARCH_INT_BY_HREF, params.toArray(), new IntResultSetHandler(this));
+	}
 
 	public boolean fetchByObjectId() throws EntityException {
-
 		boolean found = super.fetchByObjectId();
-		if( found )fetchDetailsById();
+		if( found) {
+			fetchDetails();
+		}
 		return found;
-
+	}
+	@Override
+	protected void doQueryByObjectId(List<Object> params) throws EntityException {
+		query(SEARCH_OBJ_BY_ID, params.toArray(), new IntResultSetHandler(this));
 	}
 
-	public void fetchDetailsById() throws EntityException {
-		ArrayList params = new ArrayList();
-		params.add(getId());
-
-		query(SEARCH_INT_BY_OBJECT_ID, params.toArray(),
-				new IntResultSetHandler(this));
-	}
-
-	public List fetchByParentIdFilterByTimestamsp(int parentId, long millisFrom, long millisTo) throws EntityException  {
+	public List<IntEntity> fetchByParentIdFilterByTimestamsp(int parentId, long millisFrom, long millisTo) throws EntityException  {
 		
-		ArrayList params = new ArrayList();
+		List<Object> params = new ArrayList<Object>();
 		params.add(parentId);
 		params.add(millisFrom);
 		params.add(millisTo);
 
-		ArrayList childsList = new ArrayList();
+		List<IntEntity> childsList = new ArrayList<IntEntity>();
 
 		queryMultiple(SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP, params.toArray(),
 				new ObjIntResultSetMultipleHandler(childsList));
 
 		return childsList;
 	}
-
-	public void update() throws EntityException {
-
-		super.update();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
-		params.add(((Int) getObixObject()).getMin());
-		params.add(((Int) getObixObject()).getMax());
-		params.add(getUnitUriId());
-		params.add(((Int) getObixObject()).getVal());
-		params.add(getIntid());
-
-		update(UPDATE_INT, params.toArray(), null);
-	}
-
-	public void setIntid(Integer intid) {
-		this.intid = intid;
-	}
-
-	public Integer getIntid() {
-		return intid;
-	}
-
-	public void setUnitUriId(Integer unitUriId) {
-		this.unitUriId = unitUriId;
-	}
-
-	public Integer getUnitUriId() {
-		return unitUriId;
-	}
 	
-	public class ObjIntResultSetMultipleHandler extends ObjResultSetMultipleHandler {
+	public void fetchDetails() throws EntityException {
+		if( getObj_uri() != null){
+			Uri href = new Uri("", getObj_uri());
+			getObixObject().setHref(href);
+		}
+		if( getUnit() != null && !getUnit().isEmpty()){
+			Uri unit = new Uri("", getUnit());
+			((Int)getObixObject()).setUnit(unit);
+		}
+		setDetailsfetched(true);
+	}
 
-		public ObjIntResultSetMultipleHandler(List entityList) {
+
+	
+	public class ObjIntResultSetMultipleHandler extends ObjResultSetMultipleHandler<IntEntity> {
+
+		public ObjIntResultSetMultipleHandler(List<IntEntity> entityList) {
 			super(entityList);
 	
-		}
-		
-		@Override
-		public void getRowAsBean(ResultSet rs) throws Exception {
-			super.getRowAsBean(rs);
-			
-			Integer id = getInteger(rs, COL_OBJ_INT_ID);
-			if (id != null)
-				((IntEntity)entity).setIntid(id);
-
-			((Int) entity.getObixObject()).setMax(getInteger(rs, COL_INT_MAX));
-			((Int) entity.getObixObject()).setMin(getInteger(rs, COL_INT_MIN));
-			((Int) entity.getObixObject()).setVal(getInteger(rs, COL_INT_VALUE));
-
-			((IntEntity)entity).setUnitUriId(getInteger(rs, COL_INT_UNIT_URI_ID));
-			
-			entity.setDetailsfetched(true);
-			
 		}
 		
 		@Override
@@ -223,45 +183,23 @@ public class IntEntity extends ObjEntity implements ValEntity {
 		}
 	}
 
-	public class IntResultSetHandler extends ResultSetSingleHandler {
-
-		private IntEntity entity;
+	public class IntResultSetHandler extends ObjResultSetHandler<IntEntity> {
 
 		public IntResultSetHandler(IntEntity entity) {
-			this.entity = entity;
+			super(entity);
 		}
 
 		public void getRowAsBean(ResultSet rs) throws Exception {
 
-			Integer id = getInteger(rs, COL_INT_ID);
-			if (id != null)
-				entity.setIntid(id);
-
-			((Int) entity.getObixObject()).setMax(getInteger(rs, COL_INT_MAX));
-			((Int) entity.getObixObject()).setMin(getInteger(rs, COL_INT_MIN));
-			((Int) entity.getObixObject())
-					.setVal(getInteger(rs, COL_INT_VALUE));
-
-			entity.setUnitUriId(getInteger(rs, COL_INT_UNIT_URI_ID));
-			
-			entity.setDetailsfetched(true);
-			
-			entity.setDetailsfetched(true);
-
+			super.getRowAsBean(rs);
 		}
 	}
 
-	public class IntResultSetGeneratedKeysHandler extends
-			ResultSetGeneratedKeysHandler {
-
-		private IntEntity entity;
+	public class IntResultSetGeneratedKeysHandler extends ObjResultSetGeneratedKeysHandler<IntEntity> {
 
 		public IntResultSetGeneratedKeysHandler(IntEntity entity) {
-			this.entity = entity;
-		}
-
-		public void getRowsKey(ResultSet rs) throws Exception {
-			entity.setIntid(getRowID(rs));
+			super(entity);
 		}
 	}
+	
 }

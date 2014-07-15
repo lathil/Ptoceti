@@ -59,12 +59,12 @@ public class WatchPoolChangesServerResource extends AbstractServerResource imple
 		String watchUri = WatchResource.baseuri.concat("/").concat((String)getRequest().getAttributes().get(WatchResource.WATCH_URI)).concat("/");
 		try {
 			
-			Long start = Calendar.getInstance().getTimeInMillis();
+			//Long start = Calendar.getInstance().getTimeInMillis();
 			WatchOut result =  watchDomain.poolChanges(watchUri);
 			
-			Long end = Calendar.getInstance().getTimeInMillis();
+			//Long end = Calendar.getInstance().getTimeInMillis();
 			
-			Activator.log(LogService.LOG_DEBUG, "WatchPoolChangesServerResource poolChanges time: " +  Long.valueOf(end - start) + " ms ");
+			//.log(LogService.LOG_DEBUG, "WatchPoolChangesServerResource poolChanges time: " +  Long.valueOf(end - start) + " ms ");
 			
 			return result;
 		} catch( DomainException ex) {

@@ -91,8 +91,10 @@ public class JdbcDeviceImpl implements JdbcDevice {
 	private String dbUrl;
 	private Properties props = new Properties();
 	
-	private ThreadLocal<Connection>  threadLocalConn = new ThreadLocal<Connection>();
+	private ThreadLocal<ThreadConnection>  threadLocalConn = new ThreadLocal<ThreadConnection>();
 
+	private Object writeAccesLock = new Object();
+	private int writeAccessCount = 0;
 	/**
 	 * constructor
 	 */
@@ -172,6 +174,7 @@ public class JdbcDeviceImpl implements JdbcDevice {
 						con.close();
 						success = true;
 						initializeDb = false;
+						//configureDataSource();
 						configurePooledConnectionDataSource();
 					} else {
 						file.delete();
@@ -201,7 +204,8 @@ public class JdbcDeviceImpl implements JdbcDevice {
 					Connection conn = jdbcDriver.connect(dbUrl, props);
 					if( conn != null){
 						this.update(conn, setupScript, null);
-						conn.commit();
+						// Connection from driver are in autocommit mode by default
+						//conn.commit();
 						conn.close();
 						
 						configurePooledConnectionDataSource();
@@ -228,7 +232,7 @@ public class JdbcDeviceImpl implements JdbcDevice {
 	}
 
 	public Connection getCurrentConnection() {
-		return threadLocalConn.get();
+		return threadLocalConn.get().getConnection();
 	}
 
 	public synchronized Connection getConnectionRx() {
@@ -240,18 +244,12 @@ public class JdbcDeviceImpl implements JdbcDevice {
 			newConn = rPooledManager.getConnection();
 			newConn.setAutoCommit(false);
 			
-			Connection currentConn = threadLocalConn.get();
-			if( currentConn != null && !currentConn.isClosed()){
-				currentConn.close();
-			}
-			
-			threadLocalConn.set(newConn);
+			//Activator.log(LogService.LOG_DEBUG, "getConnectionRx: activeconnections: " + Integer.toString(rPooledManager.getActiveConnections()) + " inactiveconnection: " + Integer.toString(rPooledManager.getInactiveConnections()));
+			threadLocalConn.set(new ThreadConnection(newConn, false));
 			
 		} catch (SQLException e) {
-			//taken = false;
 			Activator.log(LogService.LOG_ERROR, "getConnectionRx: " +  e.toString());
 		} 
-		
 	
 		return newConn;
 	}
@@ -264,19 +262,14 @@ public class JdbcDeviceImpl implements JdbcDevice {
 			newConn = rwPooledManager.getConnection();
 			newConn.setAutoCommit(false);
 			
-			Connection currentConn = threadLocalConn.get();
-			if( currentConn != null && !currentConn.isClosed()){
-				currentConn.close();
-			}
+			//Activator.log(LogService.LOG_DEBUG, "getConnectionRWx: activeconnections: " + Integer.toString(rwPooledManager.getActiveConnections()) + " inactiveconnection: " + Integer.toString(rwPooledManager.getInactiveConnections()));
 			
-			threadLocalConn.set(newConn);
+			threadLocalConn.set(new ThreadConnection(newConn, true));
 			
 		} catch (SQLException e) {
-			//taken = false;
 			Activator.log(LogService.LOG_ERROR, "getConnectionRWx: " +  e.toString());
 		}
-		
-	
+
 		return newConn;
 	}
 	
@@ -296,7 +289,7 @@ public class JdbcDeviceImpl implements JdbcDevice {
 	
 	
 	public void closeCurrentConnection() throws SQLException{
-		Connection conn = threadLocalConn.get();
+		Connection conn = threadLocalConn.get().getConnection();
 		if( conn == null){
 			return;
 		}
@@ -312,12 +305,36 @@ public class JdbcDeviceImpl implements JdbcDevice {
 	}
 	
 	public void commitAndCloseCurrentConnection()  throws SQLException{
-		Connection conn = threadLocalConn.get();
+		ThreadConnection thConn = threadLocalConn.get();
+		Connection conn = thConn.getConnection();
 		if( conn == null ) {
 			return;
 		}
 		try {
 			conn.commit();
+			
+			/**
+			if( !thConn.isRw()){
+				int writeCount = getWriteAccessCount();
+				if( writeCount >= 10) {
+					Statement smt =null;
+					ResultSet rs= null;
+					try {
+						smt = conn.createStatement();
+						rs = smt.executeQuery("PRAGMA wal_checkpoint(RESTART);");
+						Activator.log(LogService.LOG_DEBUG, "1: " + rs.getInt(1) +  "  2: " + rs.getInt(2) +  "  3: " + rs.getInt(3));
+					} catch (SQLException ex) {
+						Activator.log(LogService.LOG_DEBUG, ex.toString());
+					} finally {
+						if( rs != null) rs.close();
+						if( smt != null)smt.close();
+					}
+					resetWriteAccessCount();
+				}
+			} 
+			**/
+			conn.setAutoCommit(true);
+			
 		} catch (SQLException e) {
 			Activator.log(LogService.LOG_ERROR, "commitAndCloseCurrentConnection: " + e.toString());
 			throw e;
@@ -328,12 +345,15 @@ public class JdbcDeviceImpl implements JdbcDevice {
 	}
 	
 	public void rollbackAndCloseCurrentConnection() throws SQLException{
-		Connection conn = threadLocalConn.get();
+		ThreadConnection thConn = threadLocalConn.get();
+		Connection conn = thConn.getConnection();
 		if( conn == null ) {
 			return;
 		}
 		try {
 			conn.rollback();
+			
+			conn.setAutoCommit(true);
 		} catch (SQLException e) {
 			Activator.log(LogService.LOG_ERROR, "rollbackAndCloseCurrentConnection: " + e.toString());
 			throw e;
@@ -423,6 +443,7 @@ public class JdbcDeviceImpl implements JdbcDevice {
 			} catch (Exception ex) {
 				Activator.log(LogService.LOG_ERROR,"Error excuting statement: " + ex.toString());
 			} finally {
+				statement.close();
 				rs.close();
 			}
 		} catch (SQLException ex) {
@@ -455,6 +476,7 @@ public class JdbcDeviceImpl implements JdbcDevice {
 			} catch (Exception ex) {
 				Activator.log(LogService.LOG_ERROR,"Error excuting statement: " + ex.toString());
 			} finally {
+				statement.close();
 				rs.close();
 			}
 		} catch (SQLException ex) {
@@ -497,10 +519,13 @@ public class JdbcDeviceImpl implements JdbcDevice {
 				
 				try {
 					if( handler != null) {
-						handler.getRowsKey(statement.getGeneratedKeys());
+						ResultSet rs = statement.getGeneratedKeys();
+						handler.getRowsKey(rs);
+						rs.close();
 					}
 				} catch ( Exception ex)  {
-					
+					Activator.log(LogService.LOG_ERROR,
+							"Error excuting statement: " + ex.toString());
 				}
 				
 			} catch (SQLException ex) {
@@ -531,4 +556,26 @@ public class JdbcDeviceImpl implements JdbcDevice {
 		return updatedRows;
 	}
 
+	class ThreadConnection {
+		private Connection connection;
+		private boolean isRw;
+		
+		ThreadConnection(Connection connection, boolean rw){
+			this.connection = connection;
+			this.isRw = rw;
+		}
+		
+		Connection getConnection() {
+			return connection;
+		}
+		void setConnection(Connection connection) {
+			this.connection = connection;
+		}
+		boolean isRw() {
+			return isRw;
+		}
+		void setRw(boolean isRw) {
+			this.isRw = isRw;
+		}
+	}
 }

@@ -29,5 +29,6 @@ package com.ptoceti.osgi.obix.impl.entity;
 
 
 public interface ValEntity {
-	void fetchDetailsById() throws EntityException ;
+
+	public void fetchDetails() throws EntityException;
 }

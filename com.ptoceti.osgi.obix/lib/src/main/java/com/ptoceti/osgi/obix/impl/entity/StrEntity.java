@@ -30,32 +30,19 @@ package com.ptoceti.osgi.obix.impl.entity;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
-import com.ptoceti.osgi.data.ResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.data.ResultSetSingleHandler;
-import com.ptoceti.osgi.obix.object.Obj;
-import com.ptoceti.osgi.obix.object.Real;
 import com.ptoceti.osgi.obix.object.Str;
-import com.ptoceti.osgi.obix.impl.entity.RealEntity.RealResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.obix.impl.entity.RealEntity.RealResultSetHandler;
+import com.ptoceti.osgi.obix.object.Uri;
 
 public class StrEntity extends ObjEntity implements ValEntity {
 
-	private static final String CREATE_STR = "insert into str (object_id, min, max, value ) values (?,?,?,?)";
-	// private static final String SEARCH_INT_BY_HREF =
-	// "select object.* from object, uri where object.uri_id = uri.id and uri.value=?"
-	// ;
-	private static final String SEARCH_STR_BY_OBJECT_ID = "select str.* from str where str.object_id=?";
+	private static final String SEARCH_STR_BY_HREF = "select object.* from object where object.type_id=12 and object.uri_hash=?";
+	private static final String CREATE_STR = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, min, max, value_text ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String DELETE_STR = "delete from object where id=?";
 
-	private static final String UPDATE_STR = "update str set object_id = ?, min = ?, max = ?, value = ? where id = ? ";
+	private static final String UPDATE_STR = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, min = ?, max = ?, value_text = ? where id = ? ";
 
-	private static final String COL_STR_ID = "id";
-	private static final String COL_STR_OBJECT_ID = "object_id";
-	private static final String COL_STR_MIN = "min";
-	private static final String COL_STR_MAX = "max";
-	private static final String COL_STR_VALUE = "value";
-
-	private Integer strid;
 
 	public StrEntity() {
 		super(EntityType.Str);
@@ -63,7 +50,7 @@ public class StrEntity extends ObjEntity implements ValEntity {
 	
 	public StrEntity(ObjEntity entObj) throws EntityException {
 		super(entObj);
-		fetchDetailsById();
+		fetchByObjectId();
 	}
 
 	public StrEntity(Str obixObj) {
@@ -73,102 +60,79 @@ public class StrEntity extends ObjEntity implements ValEntity {
 
 	public void create() throws EntityException {
 
-		super.create();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
-		params.add(((Real) getObixObject()).getMin());
-		params.add(((Real) getObixObject()).getMax());
-		params.add(((Real) getObixObject()).getVal());
-
-		update(CREATE_STR, params.toArray(),
-				new StrResultSetGeneratedKeysHandler(this));
+		List<Object> params = getCreateParam();
+		params.add(((Str) getObixObject()).getMin());
+		params.add(((Str) getObixObject()).getMax());
+		params.add(((Str) getObixObject()).getVal());
+		update(CREATE_STR, params.toArray(), new StrResultSetGeneratedKeysHandler(this));
 	}
 
-	public boolean fetchByHref() throws EntityException {
+	public void delete() throws EntityException {
 
-		boolean found = super.fetchByHref();
-		if (found) {
-			ArrayList params = new ArrayList();
-			params.add(getId());
-
-			query(SEARCH_STR_BY_OBJECT_ID, params.toArray(),
-					new StrResultSetHandler(this));
+		deleteReferences();
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getId());
+		update(DELETE_STR, params.toArray(), null);
+	}
+	@Override
+	protected void deleteReferences() throws EntityException{
+		super.deleteReferences();
+		
+		if (getId() != null) {
+			UriEntity uriEntity = new UriEntity(new Uri());
+			uriEntity.setId(getId());
+			uriEntity.delete();
 		}
-		return found;
 	}
-
-	public boolean fetchByObjectId() throws EntityException {
-
-		boolean found = super.fetchByObjectId();
-		if (found)
-			fetchDetailsById();
-		return found;
-	}
-
-	public void fetchDetailsById() throws EntityException {
-		ArrayList params = new ArrayList();
-		params.add(getId());
-
-		query(SEARCH_STR_BY_OBJECT_ID, params.toArray(),
-				new StrResultSetHandler(this));
-	}
-
+	
 	public void update() throws EntityException {
-
-		super.update();
-
-		ArrayList params = new ArrayList();
+		List<Object> params = getUpdateParam();
+		params.add(((Str) getObixObject()).getMin());
+		params.add(((Str) getObixObject()).getMax());
+		params.add(((Str) getObixObject()).getVal());
 		params.add(getId());
-		params.add(((Real) getObixObject()).getMin());
-		params.add(((Real) getObixObject()).getMax());
-		params.add(((Real) getObixObject()).getVal());
-		params.add(getStrid());
-
 		update(UPDATE_STR, params.toArray(), null);
 	}
 
-	public void setStrid(Integer strid) {
-		this.strid = strid;
+	 
+	public boolean fetchByHref() throws EntityException {
+		return super.fetchByHref();
+	}
+	@Override
+	protected void doQueryByHref(List<Object> params) throws EntityException{
+		query(SEARCH_STR_BY_HREF, params.toArray(), new StrResultSetHandler(this));
 	}
 
-	public Integer getStrid() {
-		return strid;
+	public boolean fetchByObjectId() throws EntityException {
+		return super.fetchByObjectId();
+	}
+	@Override
+	protected void doQueryByObjectId(List<Object> params) throws EntityException {
+		query(SEARCH_OBJ_BY_ID, params.toArray(), new StrResultSetHandler(this));
 	}
 
-	public class StrResultSetHandler extends ResultSetSingleHandler {
+	public void fetchDetails() throws EntityException{
+		if( getObj_uri() != null){
+			Uri href = new Uri("", getObj_uri());
+			getObixObject().setHref(href);
+		}
+		setDetailsfetched(true);
+	}
 
-		private StrEntity entity;
+	public class StrResultSetHandler extends ObjResultSetHandler<StrEntity> {
 
 		public StrResultSetHandler(StrEntity entity) {
-			this.entity = entity;
+			super(entity);
 		}
 
 		public void getRowAsBean(ResultSet rs) throws Exception {
-
-			Integer id = getInteger(rs, COL_STR_ID);
-			if (id != null)
-				entity.setStrid(id);
-
-			((Str) entity.getObixObject()).setMax(getInteger(rs, COL_STR_MAX));
-			((Str) entity.getObixObject()).setMin(getInteger(rs, COL_STR_MIN));
-			((Str) entity.getObixObject()).setVal(getString(rs, COL_STR_VALUE));
-			
-			entity.setDetailsfetched(true);
+			super.getRowAsBean(rs);
 		}
 	}
 
-	public class StrResultSetGeneratedKeysHandler extends
-			ResultSetGeneratedKeysHandler {
-
-		private StrEntity entity;
-
+	public class StrResultSetGeneratedKeysHandler extends ObjResultSetGeneratedKeysHandler<StrEntity> {
 		public StrResultSetGeneratedKeysHandler(StrEntity entity) {
-			this.entity = entity;
-		}
-
-		public void getRowsKey(ResultSet rs) throws Exception {
-			entity.setStrid(getRowID(rs));
+			super(entity);
 		}
 	}
 

@@ -30,34 +30,20 @@ package com.ptoceti.osgi.obix.impl.entity;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
-import com.ptoceti.osgi.data.ResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.data.ResultSetSingleHandler;
-import com.ptoceti.osgi.obix.object.Bool;
 import com.ptoceti.osgi.obix.object.Enum;
-import com.ptoceti.osgi.obix.object.Int;
-import com.ptoceti.osgi.obix.object.Real;
-import com.ptoceti.osgi.obix.object.Str;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.impl.entity.EnumEntity.EnumResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.obix.impl.entity.EnumEntity.EnumResultSetHandler;
+
 
 public class EnumEntity extends ObjEntity {
+	private static final String SEARCH_ENUM_BY_HREF = "select object.* from object where object.type_id=5 and object.uri_hash=?";
+	private static final String CREATE_ENUM = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, value_text, range_uri_id ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String DELETE_ENUM = "delete from object where id=?";
 
-	private Integer enumid;
-	private Integer rangeUriId;
 
-	private static final String CREATE_ENUM = "insert into enum (object_id, value, range_uri_id ) values (?,?,?,?)";
-	private static final String DELETE_ENUM = "delete from enum where enum_id=?";
-	
-	private static final String SEARCH_ENUM_BY_OBJECT_ID = "select enum.* from enum where enum.object_id=?";
+	private static final String UPDATE_ENUM = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, value_text = ?, range_uri_id = ? where id = ? ";
 
-	private static final String UPDATE_ENUM = "update enum set object_id = ?, value = ?, range_uri_id = ? where id = ? ";
-
-	private static final String COL_ENUM_ID = "id";
-	private static final String COL_ENUM_OBJECT_ID = "object_id";
-	private static final String COL_ENUM_VALUE = "value";
-	private static final String COL_ENUM_RANGE_URI_ID = "range_uri_id";
 
 	public EnumEntity() {
 		super(EntityType.Enum);
@@ -65,7 +51,7 @@ public class EnumEntity extends ObjEntity {
 	
 	public EnumEntity(ObjEntity entObj) throws EntityException {
 		super(entObj);
-		fetchDetailsById();
+		fetchByObjectId();
 	}
 	
 	public EnumEntity(Enum obixObj) {
@@ -73,27 +59,16 @@ public class EnumEntity extends ObjEntity {
 		setObjtype(EntityType.Enum);
 	}
 
-	public void setEnumid(Integer enumid) {
-		this.enumid = enumid;
-	}
-
-	public Integer getEnumid() {
-		return enumid;
-	}
-
 	public void create() throws EntityException {
 
-		super.create();
+		List<Object> params = getCreateParam();
+		params.add(((com.ptoceti.osgi.obix.object.Enum)getObixObject()).getVal());
 		
-		ArrayList params = new ArrayList();
-		params.add(getId());
-		params.add(((Int)getObixObject()).getVal());
-		
-		Uri rangeUri = ((Enum)getObixObject()).getRange();
+		Uri rangeUri = ((com.ptoceti.osgi.obix.object.Enum)getObixObject()).getRange();
 		if (rangeUri != null) {
 			UriEntity uriEntity = new UriEntity(rangeUri);
 			uriEntity.create();
-			setRangeUriId(uriEntity.getUriId());
+			setRangeUriId(uriEntity.getId());
 		}
 		
 		params.add(getRangeUriId());
@@ -102,102 +77,87 @@ public class EnumEntity extends ObjEntity {
 	
 	public void delete() throws EntityException {
 		
-		super.delete();
-		
-		if (getEnumid() != null) {
-			UriEntity uriEntity = new UriEntity(new Uri());
-			uriEntity.setId(getEnumid());
-			uriEntity.delete();
-		}
-		
-		ArrayList params = new ArrayList();
-		params.add(getEnumid());
+		deleteReferences();
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getId());
 		update(DELETE_ENUM, params.toArray(), null);
 	}
 	
-	public boolean fetchByHref() throws EntityException {
-
-		boolean found = super.fetchByHref();
-		if( found) {
-		ArrayList params = new ArrayList();
-		params.add(getId());
-
-		query(SEARCH_ENUM_BY_OBJECT_ID, params.toArray(),
-				new EnumResultSetHandler(this));
+	@Override
+	protected void deleteReferences() throws EntityException{
+		super.deleteReferences();
 		
+		if (getId() != null) {
+			UriEntity uriEntity = new UriEntity(new Uri());
+			uriEntity.setId(getId());
+			uriEntity.delete();
 		}
-		return found;
-	}
-
-	public boolean fetchByObjectId() throws EntityException {
-
-		boolean found = super.fetchByObjectId();
-		if( found) fetchDetailsById();
-		return found;
 	}
 	
-	private void fetchDetailsById() throws EntityException {
-		ArrayList params = new ArrayList();
-		params.add(getId());
-
-		query(SEARCH_ENUM_BY_OBJECT_ID, params.toArray(),
-				new EnumResultSetHandler(this));
-	}
-
 	public void update() throws EntityException {
 
-		super.update();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
-		params.add(((Real) getObixObject()).getVal());
+		List<Object> params = getUpdateParam();
+		params.add(((com.ptoceti.osgi.obix.object.Enum) getObixObject()).getVal());
 		params.add(getRangeUriId());
-		params.add(getEnumid());
 
 		update(UPDATE_ENUM, params.toArray(), null);
 	}
-
-	public void setRangeUriId(Integer rangeUriId) {
-		this.rangeUriId = rangeUriId;
+	 
+	public boolean fetchByHref() throws EntityException {
+		boolean found =  super.fetchByHref();
+		if( found) {
+			fetchDetails();
+		}
+		return found;
+	}
+	
+	@Override
+	protected void doQueryByHref(java.util.List<Object> params) throws EntityException{
+		query(SEARCH_ENUM_BY_HREF, params.toArray(), new EnumResultSetHandler(this));
 	}
 
-	public Integer getRangeUriId() {
-		return rangeUriId;
+	public boolean fetchByObjectId() throws EntityException {
+		boolean found = super.fetchByObjectId();
+		if( found) {
+			fetchDetails();
+		}
+		return found;
+	}
+	
+	@Override
+	protected void doQueryByObjectId(java.util.List<Object> params) throws EntityException {
+		query(SEARCH_OBJ_BY_ID, params.toArray(), new EnumResultSetHandler(this));
 	}
 
-	public class EnumResultSetHandler extends ResultSetSingleHandler {
+	public void fetchDetails() throws EntityException {
+		if( getObj_uri() != null){
+			Uri href = new Uri("", getObj_uri());
+			getObixObject().setHref(href);
+		}
+		
+		if(getRangeUriId() != null) {
+			UriEntity uriEntity = new UriEntity(new Uri());
+			uriEntity.setId(getRangeUriId());
+			if( uriEntity.fetchByObjectId()){
+				((Enum)getObixObject()).setRange((Uri)uriEntity.getObixObject());
+			}
+		}
+		setDetailsfetched(true);
+	}
 
-		private EnumEntity entity;
-
+	public class EnumResultSetHandler extends ObjResultSetHandler<EnumEntity> {
 		public EnumResultSetHandler(EnumEntity entity) {
-			this.entity = entity;
+			super(entity);
 		}
 
 		public void getRowAsBean(ResultSet rs) throws Exception {
-
-			Integer id = getInteger(rs, COL_ENUM_ID);
-			if (id != null)
-				entity.setEnumid(id);
-
-			((Str) entity.getObixObject())
-					.setVal(getString(rs, COL_ENUM_VALUE));
-			
-			entity.setRangeUriId( getInteger(rs, COL_ENUM_RANGE_URI_ID));
-			entity.setDetailsfetched(true);
+			super.getRowAsBean(rs);
 		}
 	}
 
-	public class EnumResultSetGeneratedKeysHandler extends
-			ResultSetGeneratedKeysHandler {
-
-		private EnumEntity entity;
-
+	public class EnumResultSetGeneratedKeysHandler extends ObjResultSetGeneratedKeysHandler<EnumEntity> {
 		public EnumResultSetGeneratedKeysHandler(EnumEntity entity) {
-			this.entity = entity;
-		}
-
-		public void getRowsKey(ResultSet rs) throws Exception {
-			entity.setEnumid(getRowID(rs));
+			super(entity);
 		}
 	}
 }

@@ -30,32 +30,23 @@ package com.ptoceti.osgi.obix.impl.entity;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
-import com.ptoceti.osgi.data.ResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.data.ResultSetSingleHandler;
 import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.impl.entity.RelTimeEntity.RelTimeResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.obix.impl.entity.RelTimeEntity.RelTimeResultSetHandler;
+
 
 public class RelTimeEntity extends ObjEntity implements ValEntity {
 
-	private static final String CREATE_RELTIME = "insert into reltime (object_id, min_reltime_id, max_reltime_id, value ) values (?,?,?,?)";
-	// private static final String SEARCH_INT_BY_HREF =
-	// "select object.* from object, uri where object.uri_id = uri.id and uri.value=?"
-	// ;
-	private static final String DELETE_RELTIME = "delete from reltime where reltime.id=?";
-	private static final String SEARCH_RELTIME_BY_OBJECT_ID = "select reltime.* from reltime where reltime.object_id=?";
+	private static final String SEARCH_RELTIME_BY_HREF = "select object.* from object where object.type_id=11 and object.uri_hash=?";
+	
+	private static final String CREATE_RELTIME = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, min, max, value_int ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	
+	private static final String DELETE_RELTIME = "delete from object where id=?";
+	//private static final String SEARCH_RELTIME_BY_OBJECT_ID = "select reltime.* from reltime where reltime.object_id=?";
 
-	private static final String UPDATE_RELTIME = "update reltime set object_id = ?, min_reltime_id = ?, max_reltime_id = ?, value = ? where id = ? ";
+	private static final String UPDATE_RELTIME = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, min = ?, max = ?, value_int = ? where id = ? ";
 
-	private static final String COL_RELTIME_ID = "id";
-	private static final String COL_RELTIME_OBJECT_ID = "object_id";
-	private static final String COL_RELTIME_MIN_ID = "min_reltime_id";
-	private static final String COL_RELTIME_MAX_ID = "max_reltime_id";
-	private static final String COL_RELTIME_VALUE = "value";
-
-	private Integer RelTimeId;
 
 	public RelTimeEntity() {
 		super(EntityType.RelTime);
@@ -63,7 +54,7 @@ public class RelTimeEntity extends ObjEntity implements ValEntity {
 	
 	public RelTimeEntity(ObjEntity entObj) throws EntityException {
 		super(entObj);
-		fetchDetailsById();
+		fetchByObjectId();
 	}
 
 	public RelTimeEntity(Reltime obixObj) {
@@ -72,122 +63,87 @@ public class RelTimeEntity extends ObjEntity implements ValEntity {
 	}
 
 	public void create() throws EntityException {
-
-		super.create();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
+		List<Object> params = getCreateParam();
 		params.add(((Reltime) getObixObject()).getMin());
 		params.add(((Reltime) getObixObject()).getMax());
 		params.add(((Reltime) getObixObject()).getVal());
-		update(CREATE_RELTIME, params.toArray(),
-				new RelTimeResultSetGeneratedKeysHandler(this));
+		update(CREATE_RELTIME, params.toArray(), new RelTimeResultSetGeneratedKeysHandler(this));
 	}
 
 	public void delete() throws EntityException {
-
-		super.delete();
-
-		if (getRelTimeId() != null) {
-			UriEntity uriEntity = new UriEntity(new Uri());
-			uriEntity.setId(getRelTimeId());
-			uriEntity.delete();
-		}
-
-		ArrayList params = new ArrayList();
-		params.add(getRelTimeId());
+		deleteReferences();
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getId());
 		update(DELETE_RELTIME, params.toArray(), null);
 	}
-
-	public boolean fetchByHref() throws EntityException {
-
-		boolean found = super.fetchByHref();
-		if (found) {
-			ArrayList params = new ArrayList();
-			params.add(getId());
-
-			query(SEARCH_RELTIME_BY_OBJECT_ID,
-					params.toArray(), new RelTimeResultSetHandler(this));
+	
+	@Override
+	protected void deleteReferences() throws EntityException{
+		super.deleteReferences();
+		
+		if (getId() != null) {
+			UriEntity uriEntity = new UriEntity(new Uri());
+			uriEntity.setId(getId());
+			uriEntity.delete();
 		}
-		return found;
 	}
-
-	public boolean fetchByObjectId() throws EntityException {
-
-		boolean found = super.fetchByObjectId();
-		if (found)
-			fetchDetailsById();
-		return found;
-
-	}
-
-	public void fetchDetailsById() throws EntityException {
-		ArrayList params = new ArrayList();
-		params.add(getId());
-
-		query(SEARCH_RELTIME_BY_OBJECT_ID, params.toArray(),
-				new RelTimeResultSetHandler(this));
-	}
-
+	
 	public void update() throws EntityException {
 
-		super.update();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
+		List<Object> params = getUpdateParam();
 		params.add(((Reltime) getObixObject()).getMin());
 		params.add(((Reltime) getObixObject()).getMax());
 		params.add(((Reltime) getObixObject()).getVal());
-		params.add(getRelTimeId());
+		params.add(getId());
 
 		update(UPDATE_RELTIME, params.toArray(), null);
 	}
 
-	public void setRelTimeId(Integer RelTimeId) {
-		this.RelTimeId = RelTimeId;
+	public boolean fetchByHref() throws EntityException {
+		return super.fetchByHref();
+	}
+	@Override
+	protected void doQueryByHref(List<Object> params) throws EntityException{
+		query(SEARCH_RELTIME_BY_HREF, params.toArray(), new RelTimeResultSetHandler(this));
 	}
 
-	public Integer getRelTimeId() {
-		return RelTimeId;
+	public boolean fetchByObjectId() throws EntityException {
+		return super.fetchByObjectId();
+	}
+	@Override
+	protected void doQueryByObjectId(List<Object> params) throws EntityException {
+		query(SEARCH_OBJ_BY_ID, params.toArray(), new RelTimeResultSetHandler(this));
 	}
 
-	public class RelTimeResultSetHandler extends ResultSetSingleHandler {
-
-		private RelTimeEntity entity;
+	public void fetchDetails() throws EntityException{
+		if( getObj_uri() != null){
+			Uri href = new Uri("", getObj_uri());
+			getObixObject().setHref(href);
+		}
+		setDetailsfetched(true);
+	}
+	
+	public class RelTimeResultSetHandler extends ObjResultSetHandler<RelTimeEntity> {
 
 		public RelTimeResultSetHandler(RelTimeEntity entity) {
-			this.entity = entity;
+			super(entity);
 		}
 
 		public void getRowAsBean(ResultSet rs) throws Exception {
-
-			Integer id = getInteger(rs, COL_RELTIME_ID);
-			if (id != null)
-				entity.setRelTimeId(id);
-
+			super.getRowAsBean(rs);
 			// ((Reltime)entity.getObixObject()).setMax( getInteger(rs,
 			// COL_INT_MAX));
 			// ((Reltime)entity.getObixObject()).setMin( getInteger(rs,
 			// COL_INT_MIN));
-			((Reltime) entity.getObixObject()).setVal(getLong(rs,
-					COL_RELTIME_VALUE));
 			
-			entity.setDetailsfetched(true);
-
+			
 		}
 	}
 
-	public class RelTimeResultSetGeneratedKeysHandler extends
-			ResultSetGeneratedKeysHandler {
-
-		private RelTimeEntity entity;
-
+	public class RelTimeResultSetGeneratedKeysHandler extends ObjResultSetGeneratedKeysHandler<RelTimeEntity> {
 		public RelTimeResultSetGeneratedKeysHandler(RelTimeEntity entity) {
-			this.entity = entity;
-		}
-
-		public void getRowsKey(ResultSet rs) throws Exception {
-			entity.setRelTimeId(getRowID(rs));
+			super(entity);
 		}
 	}
+	
 }

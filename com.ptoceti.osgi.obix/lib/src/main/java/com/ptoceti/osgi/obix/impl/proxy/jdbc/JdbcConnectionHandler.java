@@ -53,7 +53,6 @@ public class JdbcConnectionHandler<T extends BaseDomain> implements InvocationHa
 		boolean hasConnection = false;
 		Object result = null;
 		
-		try {
 			
 			if( method.isAnnotationPresent(JdbcConnection.class)){
 				
@@ -69,26 +68,27 @@ public class JdbcConnectionHandler<T extends BaseDomain> implements InvocationHa
 						proxiedObject.setConnection( ObixDataHandler.getInstance().getConnectionRx());
 				}
 				
-				result =  method.invoke(proxiedObject, params);
-				
-				switch( connType) {
-					case RX:
-						ObixDataHandler.getInstance().closeConnection();
-						break;
-					case RWX:
-						ObixDataHandler.getInstance().commitTransaction();
-						break;
-					default:	
-						ObixDataHandler.getInstance().closeConnection();
+				try {
+					result =  method.invoke(proxiedObject, params);
+					
+					switch( connType) {
+						case RX:
+							ObixDataHandler.getInstance().commitTransaction();
+							break;
+						case RWX:
+							ObixDataHandler.getInstance().commitTransaction();
+							break;
+						default:	
+							ObixDataHandler.getInstance().closeConnection();
+					}
+				} catch (InvocationTargetException ex) {
+					// catch exception thrown by method
+					//if( ex.getCause() instanceof EntityException && hasConnection){
+						ObixDataHandler.getInstance().rollbackTransaction();
+					//}
+					
 				}
 			}
-		} catch (InvocationTargetException ex) {
-			// catch exception thrown by method
-			if( ex.getCause() instanceof EntityException && hasConnection){
-				ObixDataHandler.getInstance().rollbackTransaction();
-			}
-			
-		}
 		
 		return result;
 	}

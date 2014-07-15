@@ -30,36 +30,22 @@ package com.ptoceti.osgi.obix.impl.entity;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 
-import com.ptoceti.osgi.data.ResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.data.ResultSetSingleHandler;
 import com.ptoceti.osgi.obix.object.Abstime;
-import com.ptoceti.osgi.obix.object.Int;
-import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.impl.entity.IntEntity.IntResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.obix.impl.entity.IntEntity.IntResultSetHandler;
+
 
 public class AbsTimeEntity extends ObjEntity implements ValEntity {
+	
+	private static final String SEARCH_ABSTIME_BY_HREF = "select object.* from object where object.type_id=2 and object.uri_hash=?";
 
-	private static final String CREATE_ABSTIME = "insert into abstime (object_id, min_abstime_id, max_abstime_id, value ) values (?,?,?,?)";
-	// private static final String SEARCH_INT_BY_HREF =
-	// "select object.* from object, uri where object.uri_id = uri.id and uri.value=?"
-	// ;
-	private static final String DELETE_ABSTIME = "delete from abstime where abstime.id=?";
-	private static final String SEARCH_ABSTIME_BY_OBJECT_ID = "select abstime.* from abstime where abstime.object_id=?";
-	private static final String SEARCH_ABSTIME_BY_PARENT_ID = "select abstime.* from abstime, object where abstime.object_id = object.id qnd object.parent_id=?";
+	private static final String CREATE_ABSTIME = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, min, max, value_int ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	
+	private static final String DELETE_ABSTIME = "delete from object where id=?";
 
-	private static final String UPDATE_ABSTIME = "update abstime set object_id = ?, min_abstime_id = ?, max_abstime_id = ?, value = ? where id = ? ";
-
-	private static final String COL_ABSTIME_ID = "id";
-	private static final String COL_ABSTIME_OBJECT_ID = "object_id";
-	private static final String COL_ABSTIME_MIN_ID = "min_abstime_id";
-	private static final String COL_ABSTIME_MAX_ID = "max_abstime_id";
-	private static final String COL_ABSTIME_VALUE = "value";
-
-	private Integer absTimeId;
+	private static final String UPDATE_ABSTIME = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, min = ?, max = ?, value_int = ? where id = ? ";
+ 
 	
 	public AbsTimeEntity(){
 		super(EntityType.AbsTime);
@@ -67,136 +53,95 @@ public class AbsTimeEntity extends ObjEntity implements ValEntity {
 
 	public AbsTimeEntity(ObjEntity entObj) throws EntityException {
 		super(entObj);
-		fetchDetailsById();
+		fetchByObjectId();
 	}
 
 	public AbsTimeEntity(Abstime obixObj) {
 		super(obixObj);
-
 		setObjtype(EntityType.AbsTime);
 	}
 
 	public void create() throws EntityException {
 
-		super.create();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
+		List<Object> params = getCreateParam();
 		params.add(((Abstime) getObixObject()).getMin());
 		params.add(((Abstime) getObixObject()).getMax());
 		params.add(((Abstime) getObixObject()).getVal());
-		update(CREATE_ABSTIME, params.toArray(),
-				new AbsTimeResultSetGeneratedKeysHandler(this));
+		update(CREATE_ABSTIME, params.toArray(), new AbsTimeResultSetGeneratedKeysHandler(this));
 	}
 
 	public void delete() throws EntityException {
 
-		super.delete();
-
-		if (getAbsTimeId() != null) {
-			UriEntity uriEntity = new UriEntity(new Uri());
-			uriEntity.setId(getAbsTimeId());
-			uriEntity.delete();
-		}
-
-		ArrayList params = new ArrayList();
-		params.add(getAbsTimeId());
+		deleteReferences();
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getId());
 		update(DELETE_ABSTIME, params.toArray(), null);
 	}
-
-	public boolean fetchByHref() throws EntityException {
-
-		if (super.fetchByHref() == true) {
-
-			ArrayList params = new ArrayList();
-			params.add(getId());
-
-			query(SEARCH_ABSTIME_BY_OBJECT_ID,
-					params.toArray(), new AbsTimeResultSetHandler(this));
-			return true;
+	
+	@Override
+	protected void deleteReferences() throws EntityException{
+		super.deleteReferences();
+		
+		if (getId() != null) {
+			UriEntity uriEntity = new UriEntity(new Uri());
+			uriEntity.setId(getId());
+			uriEntity.delete();
 		}
-
-		return false;
 	}
-
-	public boolean fetchByObjectId() throws EntityException {
-
-		if (super.fetchByObjectId() == true) {
-			fetchDetailsById();
-			return true;
-		}
-
-		return false;
-	}
-
-	public void fetchDetailsById() throws EntityException {
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
-
-		query(SEARCH_ABSTIME_BY_OBJECT_ID, params.toArray(),
-				new AbsTimeResultSetHandler(this));
-	}
-
+	
 	public void update() throws EntityException {
 
-		super.update();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
+		List<Object> params = getUpdateParam();
 		params.add(((Abstime) getObixObject()).getMin());
 		params.add(((Abstime) getObixObject()).getMax());
 		params.add(((Abstime) getObixObject()).getVal());
-		params.add(getAbsTimeId());
+		params.add(getId());
 
 		update(UPDATE_ABSTIME, params.toArray(), null);
 	}
 
-	public void setAbsTimeId(Integer absTimeId) {
-		this.absTimeId = absTimeId;
+	public boolean fetchByHref() throws EntityException {
+		return super.fetchByHref();
+	}
+	
+	@Override
+	protected void doQueryByHref(List<Object> params) throws EntityException{
+		query(SEARCH_ABSTIME_BY_HREF, params.toArray(), new AbsTimeResultSetHandler(this));
 	}
 
-	public Integer getAbsTimeId() {
-		return absTimeId;
+	public boolean fetchByObjectId() throws EntityException {
+		return super.fetchByObjectId();
 	}
-
-	public class AbsTimeResultSetHandler extends ResultSetSingleHandler {
-
-		private AbsTimeEntity entity;
+	@Override
+	protected void doQueryByObjectId(List<Object> params) throws EntityException {
+		query(SEARCH_OBJ_BY_ID, params.toArray(), new AbsTimeResultSetHandler(this));
+	}
+	
+	public void fetchDetails() throws EntityException{
+		if( getObj_uri() != null){
+			Uri href = new Uri("", getObj_uri());
+			getObixObject().setHref(href);
+		}
+		
+		setDetailsfetched(true);
+	}
+	
+	public class AbsTimeResultSetHandler extends ObjResultSetHandler<AbsTimeEntity> {
 
 		public AbsTimeResultSetHandler(AbsTimeEntity entity) {
-			this.entity = entity;
+			super(entity);
 		}
 
 		public void getRowAsBean(ResultSet rs) throws Exception {
-
-			Integer id = getInteger(rs, COL_ABSTIME_ID);
-			if (id != null)
-				entity.setAbsTimeId(id);
-
-			// ((Abstime)entity.getObixObject()).setMax( getInteger(rs,
-			// COL_INT_MAX));
-			// ((Abstime)entity.getObixObject()).setMin( getInteger(rs,
-			// COL_INT_MIN));
-			((Abstime) entity.getObixObject()).setVal(getDate(rs,
-					COL_ABSTIME_VALUE));
-			
-			entity.setDetailsfetched(true);
-
+			super.getRowAsBean(rs);
 		}
 	}
 
-	public class AbsTimeResultSetGeneratedKeysHandler extends
-			ResultSetGeneratedKeysHandler {
-
-		private AbsTimeEntity entity;
+	public class AbsTimeResultSetGeneratedKeysHandler extends ObjResultSetGeneratedKeysHandler<AbsTimeEntity> {
 
 		public AbsTimeResultSetGeneratedKeysHandler(AbsTimeEntity entity) {
-			this.entity = entity;
-		}
-
-		public void getRowsKey(ResultSet rs) throws Exception {
-			entity.setAbsTimeId(getRowID(rs));
+			super(entity);
 		}
 	}
+	
 }

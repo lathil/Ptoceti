@@ -32,39 +32,24 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ptoceti.osgi.data.ResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.data.ResultSetSingleHandler;
 import com.ptoceti.osgi.obix.object.Int;
-import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Real;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.impl.entity.IntEntity.IntResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.obix.impl.entity.IntEntity.IntResultSetHandler;
-import com.ptoceti.osgi.obix.impl.entity.ObjEntity.ObjResultSetMultipleHandler;
+
 
 public class RealEntity extends ObjEntity implements ValEntity {
 
-	private Integer realid;
-	private Integer unitUriId;
-
-	private static final String CREATE_REAL = "insert into real (object_id, min, max, unit_uri_id, value, precision ) values (?,?,?,?,?,?)";
-	private static final String DELETE_REAL = "delete from real where real.id=?";
-
-	private static final String SEARCH_REAL_BY_OBJECT_ID = "select real.* from real where real.object_id=?";
 	
-	private static final String SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP = "select object.*, real.id as real_id, real.min, real.max, real.value, real.unit_uri_id, real.precision  from object, real  where object.id = real.object_id and object.parent_id=? and object.created_ts > ? and object.created_ts <= ?";
+	private static final String SEARCH_REAL_BY_HREF = "select object.* from object where object.type_id=9 and object.uri_hash=?";
+	private static final String CREATE_REAL = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, min_real, max_real, unit, value_real, precision ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
+	private static final String DELETE_REAL = "delete from object where id=?";
+	
+	private static final String SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP = "select object.* from object  where object.type_id=9 and object.parent_id = ? and object.created_ts > ? and object.created_ts <= ?";
 
-	private static final String UPDATE_REAL = "update real set object_id = ?, min = ?, max = ?, unit_uri_id = ?, value = ?, precision = ? where id = ? ";
+	private static final String UPDATE_REAL = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, min_real = ?, max_real = ?, unit = ?, value_real = ?, precision = ? where id = ? ";
 
-	private static final String COL_REAL_ID = "id";
-	private static final String COL_OBJ_REAL_ID = "real_id";
-	private static final String COL_REAL_OBJECT_ID = "object_id";
-	private static final String COL_REAL_MIN = "min";
-	private static final String COL_REAL_MAX = "max";
-	private static final String COL_REAL_VALUE = "value";
-	private static final String COL_REAL_UNIT_URI_ID = "unit_uri_id";
-	private static final String COL_REAL_PRECISION = "precision";
+	
 
 	public RealEntity() {
 		super(EntityType.Real);
@@ -72,7 +57,7 @@ public class RealEntity extends ObjEntity implements ValEntity {
 	
 	public RealEntity(ObjEntity entObj) throws EntityException {
 		super(entObj);
-		fetchDetailsById();
+		fetchByObjectId();
 	}
 
 	public RealEntity(Real obixReal) {
@@ -82,88 +67,91 @@ public class RealEntity extends ObjEntity implements ValEntity {
 
 	public void create() throws EntityException {
 
-		super.create();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
+		List<Object> params = getCreateParam();
 		params.add(((Real) getObixObject()).getMin());
 		params.add(((Real) getObixObject()).getMax());
 
 		Uri unitUri = ((Real) getObixObject()).getUnit();
 		if (unitUri != null) {
-			UriEntity uriEntity = new UriEntity(unitUri);
-			uriEntity.create();
-			setUnitUriId(uriEntity.getUriId());
+			params.add(unitUri.getVal());
+		} else {
+			params.add(null);
 		}
 
-		params.add(getUnitUriId());
 		params.add(((Real) getObixObject()).getVal());
 		params.add(((Real) getObixObject()).getPrecision());
 
-		update(CREATE_REAL, params.toArray(),
-				new RealResultSetGeneratedKeysHandler(this));
+		update(CREATE_REAL, params.toArray(), new RealResultSetGeneratedKeysHandler(this));
 	}
 
 	public void delete() throws EntityException {
-
-		super.delete();
-
-		if (getRealid() != null) {
+		deleteReferences();
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getId());
+		update(DELETE_REAL, params.toArray(), null);
+	}
+	
+	@Override
+	protected void deleteReferences() throws EntityException{
+		super.deleteReferences();
+		
+		if (getId() != null) {
 			UriEntity uriEntity = new UriEntity(new Uri());
-			uriEntity.setId(getRealid());
+			uriEntity.setId(getId());
 			uriEntity.delete();
 		}
+	}
+	
+	public void update() throws EntityException {
 
-		ArrayList params = new ArrayList();
-		params.add(getRealid());
-		update(DELETE_REAL, params.toArray(), null);
+		List<Object> params = getUpdateParam();
+		params.add(((Real) getObixObject()).getMin());
+		params.add(((Real) getObixObject()).getMax());
+		Uri unitUri = ((Real) getObixObject()).getUnit();
+		if (unitUri != null) {
+			params.add(unitUri.getVal());
+		} else {
+			params.add(null);
+		}
+		params.add(((Real) getObixObject()).getVal());
+		params.add(((Real) getObixObject()).getPrecision());
+		params.add(getId());
+
+		update(UPDATE_REAL, params.toArray(), null);
 	}
 
 	public boolean fetchByHref() throws EntityException {
-
 		boolean found = super.fetchByHref();
-		if (found) {
-			ArrayList params = new ArrayList();
-			params.add(getId());
-
-			query(SEARCH_REAL_BY_OBJECT_ID, params.toArray(),
-					new RealResultSetHandler(this));
+		if( found){
+			fetchDetails();
 		}
 		return found;
+	}
+	@Override
+	protected void doQueryByHref(List<Object> params) throws EntityException{
+		query(SEARCH_REAL_BY_HREF, params.toArray(), new RealResultSetHandler(this));
 	}
 
 	public boolean fetchByObjectId() throws EntityException {
-
 		boolean found = super.fetchByObjectId();
-		if (found)
-			fetchDetailsById();
-
-		return found;
-
-	}
-
-	public void fetchDetailsById() throws EntityException {
-		ArrayList params = new ArrayList();
-		params.add(getId());
-
-		query(SEARCH_REAL_BY_OBJECT_ID, params.toArray(),
-				new RealResultSetHandler(this));
-		
-		UriEntity uriEntity = new UriEntity( new Uri());
-		uriEntity.setUriId(getUnitUriId());
-		if(uriEntity.fetchById()){
-			((Real)getObixObject()).setUnit((Uri)uriEntity.getObixObject());
+		if( found){
+			fetchDetails();
 		}
+		return found;
+	}
+	@Override
+	protected void doQueryByObjectId(List<Object> params) throws EntityException {
+		query(SEARCH_OBJ_BY_ID, params.toArray(), new RealResultSetHandler(this));
 	}
 
-	public List fetchByParentIdFilterByTimestamsp(int parentId, long millisFrom, long millisTo) throws EntityException  {
+	public List<RealEntity> fetchByParentIdFilterByTimestamsp(int parentId, long millisFrom, long millisTo) throws EntityException  {
 		
-		ArrayList params = new ArrayList();
+		List<Object> params = new ArrayList<Object>();
 		params.add(parentId);
 		params.add(millisFrom);
 		params.add(millisTo);
 
-		ArrayList childsList = new ArrayList();
+		List<RealEntity> childsList = new ArrayList<RealEntity>();
 
 		queryMultiple(SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP, params.toArray(),
 				new ObjRealResultSetMultipleHandler(childsList));
@@ -171,63 +159,23 @@ public class RealEntity extends ObjEntity implements ValEntity {
 		return childsList;
 	}
 	
-	
-	public void update() throws EntityException {
-
-		super.update();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
-		params.add(((Real) getObixObject()).getMin());
-		params.add(((Real) getObixObject()).getMax());
-		params.add(getUnitUriId());
-		params.add(((Real) getObixObject()).getVal());
-		params.add(((Real) getObixObject()).getPrecision());
-		params.add(getRealid());
-
-		update(UPDATE_REAL, params.toArray(), null);
-	}
-
-	public void setRealid(Integer realid) {
-		this.realid = realid;
-	}
-
-	public Integer getRealid() {
-		return realid;
-	}
-
-	public void setUnitUriId(Integer unitUriId) {
-		this.unitUriId = unitUriId;
-	}
-
-	public Integer getUnitUriId() {
-		return unitUriId;
-	}
-	
-	public class ObjRealResultSetMultipleHandler extends ObjResultSetMultipleHandler {
-
-		public ObjRealResultSetMultipleHandler(List entityList) {
-			super(entityList);
-	
+	public void fetchDetails() throws EntityException {
+		if( getObj_uri() != null){
+			Uri href = new Uri("", getObj_uri());
+			getObixObject().setHref(href);
 		}
 		
-		@Override
-		public void getRowAsBean(ResultSet rs) throws Exception {
-			super.getRowAsBean(rs);
-			
-			Integer id = getInteger(rs, COL_OBJ_REAL_ID);
-			if (id != null) ((RealEntity)entity).setRealid(id);
+		if( getUnit() != null && !getUnit().isEmpty()){
+			Uri unit = new Uri("", getUnit());
+			((Real)getObixObject()).setUnit(unit);
+		}
+	}
+	
 
-			((Real) entity.getObixObject()).setMax(getFloat(rs, COL_REAL_MAX));
-			((Real) entity.getObixObject()).setMin(getFloat(rs, COL_REAL_MIN));
-			((Real) entity.getObixObject()).setVal(getDouble(rs, COL_REAL_VALUE));
-			((Real) entity.getObixObject()).setPrecision(getInteger(rs,
-					COL_REAL_PRECISION));
+	public class ObjRealResultSetMultipleHandler extends ObjResultSetMultipleHandler<RealEntity> {
 
-			((RealEntity)entity).setUnitUriId(getInteger(rs, COL_REAL_UNIT_URI_ID));
-			
-			entity.setDetailsfetched(true);
-			
+		public ObjRealResultSetMultipleHandler(List<RealEntity> entityList) {
+			super(entityList);
 		}
 		
 		@Override
@@ -237,44 +185,22 @@ public class RealEntity extends ObjEntity implements ValEntity {
 		}
 	}
 
-	public class RealResultSetHandler extends ResultSetSingleHandler {
-
-		private RealEntity entity;
+	public class RealResultSetHandler extends ObjResultSetHandler<RealEntity> {
 
 		public RealResultSetHandler(RealEntity entity) {
-			this.entity = entity;
+			super(entity);
 		}
 
 		public void getRowAsBean(ResultSet rs) throws Exception {
-
-			Integer id = getInteger(rs, COL_REAL_ID);
-			if (id != null)
-				entity.setRealid(id);
-
-			((Real) entity.getObixObject()).setMax(getFloat(rs, COL_REAL_MAX));
-			((Real) entity.getObixObject()).setMin(getFloat(rs, COL_REAL_MIN));
-			((Real) entity.getObixObject()).setVal(getDouble(rs, COL_REAL_VALUE));
-			((Real) entity.getObixObject()).setPrecision(getInteger(rs,
-					COL_REAL_PRECISION));
-
-			entity.setUnitUriId(getInteger(rs, COL_REAL_UNIT_URI_ID));
-			
+			super.getRowAsBean(rs);
 			entity.setDetailsfetched(true);
-
 		}
 	}
 
-	public class RealResultSetGeneratedKeysHandler extends
-			ResultSetGeneratedKeysHandler {
-
-		private RealEntity entity;
-
+	public class RealResultSetGeneratedKeysHandler extends ObjResultSetGeneratedKeysHandler<RealEntity> {
 		public RealResultSetGeneratedKeysHandler(RealEntity entity) {
-			this.entity = entity;
-		}
-
-		public void getRowsKey(ResultSet rs) throws Exception {
-			entity.setRealid(getRowID(rs));
+			super(entity);
 		}
 	}
+	
 }

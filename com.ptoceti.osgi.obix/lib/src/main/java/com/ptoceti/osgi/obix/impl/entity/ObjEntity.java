@@ -60,9 +60,9 @@ import com.ptoceti.osgi.obix.impl.ObixDataHandler;
 
 public class ObjEntity extends AbstractEntity {
 
-	private static final String CREATE_OBJ = "insert into object (name, uri_id, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts ) values (?,?,?,?,?,?,?,?,?,?,?)";
-	private static final String SEARCH_OBJ_BY_HREF = "select object.* from object, uri where object.uri_id = uri.id and uri.hash=?";
-	private static final String SEARCH_OBJ_BY_ID = "select object.* from object where object.id=?";
+	private static final String CREATE_OBJ = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts ) values (?,?,?,?,?,?,?,?,?,?,?,?)";
+	protected static final String SEARCH_OBJ_BY_HREF = "select object.* from object where object.uri_hash=?";
+	protected static final String SEARCH_OBJ_BY_ID = "select object.* from object where object.id=?";
 	private static final String SEARCH_OBJ_BY_PARENT_ID = "select object.* from object where object.parent_id=?";
 	private static final String SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP = "select object.* from object where object.parent_id=? and created_ts > ? and created_ts <= ?";
 	private static final String SEARCH_OBJ_BY_CONTRACT_ID = "select object.* from object where object.contract_id = ?";
@@ -73,7 +73,8 @@ public class ObjEntity extends AbstractEntity {
 
 	private static final String COL_OBJ_ID = "id";
 	private static final String COL_OBJ_NAME = "name";
-	private static final String COL_OBJ_URI_ID = "uri_id";
+	private static final String COL_OBJ_URI = "uri";
+	private static final String COL_OBJ_URI_HASH = "uri_hash";
 	private static final String COL_OBJ_CONTRACT_ID = "contract_id";
 	private static final String COL_OBJ_ISNULL = "isnullable";
 	private static final String COL_OBJ_ICON_ID = "icon_id";
@@ -85,21 +86,46 @@ public class ObjEntity extends AbstractEntity {
 	private static final String COL_OBJ_PARENT_ID = "parent_id";
 	private static final String COL_CREATE_TS = "created_ts";
 	private static final String COL_MODIFIED_TS = "modified_ts";
+	
+	protected static final String COL_OBJ_VALUE_INT = "value_int";
+	protected static final String COL_OBJ_VALUE_TEXT = "value_text";
+	protected static final String COL_OBJ_VALUE_BOOL = "value_bool";
+	protected static final String COL_OBJ_VALUE_REAL = "value_real";
+	
+	protected static final String COL_OBJ_MIN = "min";
+	protected static final String COL_OBJ_MAX = "max";
+	protected static final String COL_OBJ_MIN_REAL = "min_real";
+	protected static final String COL_OBJ_MAX_REAL = "max_real";
+	
+	protected static final String COL_OBJ_PRECISION = "precision";
+	
+	
+	protected static final String COL_OBJ_RANGE_URI_ID = "range_uri_id";
+	protected static final String COL_OBJ_UNIT = "unit";
+	protected static final String COL_OBJ_IN_CONTRACT_ID = "in_contract_id";
+	protected static final String COL_OBJ_OF_CONTRACT_ID = "of_contract_id";
+
+
 
 	private Obj obixObject;
-
-	private Integer objid;
-
-	private Integer obj_contract_id;
-	private Integer obj_uri_id;
-	private Integer parent_id;
 	
+	protected Integer objid;
+	private String obj_uri;
+	private Integer obj_contract_id;
+	private EntityType objtype = EntityType.Obj;
+	private Integer parent_id;
 	private Date creationDate;
 	private Date modificationDate;
+	private Integer rangeUriId;
+	private String unit;
+	private Integer inContractId;
+	private Integer ofContractId;
+	
 
-	private List childs;
+	
+	private List<ObjEntity> childs;
 
-	private EntityType objtype = EntityType.Obj;
+	
 
 	private boolean fetched = false;
 	
@@ -117,7 +143,7 @@ public class ObjEntity extends AbstractEntity {
 		setObjtype(entObj.getObjtype());
 
 		setObj_contract_id(entObj.getObj_contract_id());
-		setObj_uri_id(entObj.getObj_uri_id());
+		setObj_uri(entObj.getObj_uri());
 		setParent_id(entObj.getParent_id());
 		
 		setCreationDate(entObj.getCreationDate());
@@ -130,21 +156,43 @@ public class ObjEntity extends AbstractEntity {
 
 	public ObjEntity(Obj obixObj) {
 		setObixObject(obixObj);
+		setObjtype(EntityType.Obj);
 	}
 
+	/**
+	 * Create a simple obix object in the database
+	 * @throws EntityException
+	 */
 	public void create() throws EntityException{
 
-		ArrayList params = new ArrayList();
-		params.add(getObixObject().getName());
+		update(CREATE_OBJ, getCreateParam().toArray(), new ObjResultSetGeneratedKeysHandler<ObjEntity>(this));
 
+		Iterator<Obj> objIter = obixObject.getChildrens().iterator();
+		while (objIter.hasNext()) {
+			Obj obixObj =  objIter.next();
+			if( !(obixObj.getIs()!= null && obixObj.getIs().containsContract(Op.contract)))
+				addChildren(obixObj);
+		}
+	}
+
+	/**
+	 * Create common parameters for creation a object
+	 * @return List<Object>  a list of parameterers for the sql query
+	 * @throws EntityException
+	 */
+	protected List<Object> getCreateParam() throws EntityException{
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getObixObject().getName());
+		
 		Uri hrefUri = getObixObject().getHref();
 		if (hrefUri != null) {
-			UriEntity uriEntity = new UriEntity(hrefUri);
-			uriEntity.create();
-			setObj_uri_id(uriEntity.getUriId());
+			params.add(getObixObject().getHref().getVal());
+			params.add(hrefUri.getVal().hashCode());
+		} else {
+			params.add(null);
+			params.add(null);
 		}
 
-		params.add(getObj_uri_id());
 
 		Contract isContract = getObixObject().getIs();
 		if (isContract != null) {
@@ -167,25 +215,30 @@ public class ObjEntity extends AbstractEntity {
 		params.add(getObjtype().getIdent());
 		params.add(getParent_id());
 		params.add(Calendar.getInstance().getTime());
+		
+		return params;
 
-		update(CREATE_OBJ, params.toArray(),
-				new ObjResultSetGeneratedKeysHandler(this));
-
-		Iterator objIter = obixObject.getChildrens().iterator();
-		while (objIter.hasNext()) {
-			Obj obixObj = (Obj) objIter.next();
-			if( !(obixObj.getIs()!= null && obixObj.getIs().containsContract(Op.contract)))
-				addChildren(obixObj);
-		}
 	}
-
+	
+	/**
+	 * Delete the matching obix object.
+	 * @throws EntityException
+	 */
 	public void delete() throws EntityException {
 
-		if (getObj_uri_id() != null) {
-			UriEntity uriEntity = new UriEntity(new Uri());
-			uriEntity.setId(this.getObj_uri_id());
-			uriEntity.delete();
-		}
+		deleteReferences();
+
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(this.getId());
+		update(DELETE_OBJ, params.toArray(), null);
+
+	}
+	
+	/**
+	 * remove all objects that are linked to this one.
+	 * @throws EntityException
+	 */
+	protected void deleteReferences() throws EntityException{
 
 		if (getObj_contract_id() != null) {
 			ContractEntity contractEntity = new ContractEntity(new Contract());
@@ -193,39 +246,58 @@ public class ObjEntity extends AbstractEntity {
 			contractEntity.delete();
 		}
 
-		List childs = this.getChilds();
-		Iterator childIter = childs.iterator();
+		List<ObjEntity> childs = this.getChilds();
+		Iterator<ObjEntity> childIter = childs.iterator();
 		while (childIter.hasNext()) {
-			ObjEntity rootentity = (ObjEntity) childIter.next();
-
+			ObjEntity rootentity =  childIter.next();
 			ObjEntity descentity = subClassToType( rootentity);
-			
 			if (descentity != null)
 				descentity.delete();
 		}
-
-		ArrayList params = new ArrayList();
-		params.add(this.getId());
-		update(DELETE_OBJ, params.toArray(), null);
-
 	}
 
+	/**
+	 * Update in database the matching obix object
+	 * @throws EntityException
+	 */
+	public void update() throws EntityException {
+		List<Object> params = getUpdateParam();
+		params.add(getId());
+		update(UPDATE_OBJ, params.toArray(), null);
+
+	}
+	
+	/**
+	 * Create a list of common parameters for update
+	 * @return a list of common parameters to update
+	 * @throws EntityException
+	 */
+	public List<Object> getUpdateParam() throws EntityException{
+		
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getObixObject().getName());
+		params.add(getObixObject().getIsNull());
+		params.add(getObixObject().getDisplayName());
+		params.add(getObixObject().getDisplay());
+		params.add(getObixObject().getWritable());
+		
+		if( getObixObject().getStatus() != null ){
+			params.add(getObixObject().getStatus().getId());
+		} else params.add(null);
+		
+		params.add(Calendar.getInstance().getTime());
+		
+		return params;
+	}
+	
 	public boolean fetchByHref() throws EntityException {
 
-		ArrayList params = new ArrayList();
+		ArrayList<Object> params = new ArrayList<Object>();
 		params.add(getObixObject().getHref().getPath().hashCode());
 
-		query(SEARCH_OBJ_BY_HREF, params.toArray(),
-				new ObjResultSetHandler(this));
-
+		doQueryByHref(params);
+		
 		if (this.isFetched()) {
-			if( getObj_uri_id() != null){
-				UriEntity uriEntity = new UriEntity(new Uri());
-				uriEntity.setUriId(getObj_uri_id());
-				uriEntity.fetchById();
-				getObixObject().setHref(((Uri)uriEntity.getObixObject()));
-			}
-			
 			if (getObj_contract_id() != null) {
 				ContractEntity contractEntity = new ContractEntity(getObj_contract_id());
 				contractEntity.fetch();
@@ -235,6 +307,10 @@ public class ObjEntity extends AbstractEntity {
 		}
 
 		return false;
+	}
+	
+	protected void doQueryByHref(List<Object> params) throws EntityException{
+		query(SEARCH_OBJ_BY_HREF, params.toArray(), new ObjResultSetHandler<ObjEntity>(this));
 	}
 	
 	public static ObjEntity fetchByHref(ObjEntity objEnt) throws EntityException {
@@ -248,7 +324,7 @@ public class ObjEntity extends AbstractEntity {
 				// re-map it according to it type to the right obj (Int, Real, ... )
 				resultObjEntity = objEnt.subClassToType( objEnt);
 				if( resultObjEntity instanceof ValEntity) {
-					((ValEntity)resultObjEntity).fetchDetailsById();
+					((ValEntity)resultObjEntity).fetchDetails();
 				}
 			} else {
 				resultObjEntity = objEnt;
@@ -260,22 +336,12 @@ public class ObjEntity extends AbstractEntity {
 
 	public boolean fetchByObjectId() throws EntityException {
 
-		boolean found = false;
-
-		ArrayList params = new ArrayList();
+		ArrayList<Object> params = new ArrayList<Object>();
 		params.add(getId());
 
-		query(SEARCH_OBJ_BY_ID, params.toArray(),
-				new ObjResultSetHandler(this));
+		doQueryByObjectId(params);
 
 		if (isFetched()) {
-			if( getObj_uri_id() != null){
-				UriEntity uriEntity = new UriEntity(new Uri());
-				uriEntity.setUriId(getObj_uri_id());
-				uriEntity.fetchById();
-				getObixObject().setHref(((Uri)uriEntity.getObixObject()));
-			}
-			
 			if (getObj_contract_id() != null) {
 				ContractEntity contractEntity = new ContractEntity(getObj_contract_id());
 				contractEntity.fetch();
@@ -287,30 +353,33 @@ public class ObjEntity extends AbstractEntity {
 		return false;
 	}
 	
-	public List fetchByContract () throws EntityException {
+	protected void doQueryByObjectId(List<Object> params) throws EntityException {
+		query(SEARCH_OBJ_BY_ID, params.toArray(), new ObjResultSetHandler<ObjEntity>(this));
+	}
+	
+	public List<ObjEntity> fetchByContract () throws EntityException {
 		
 		boolean found = false;
 		
-		ArrayList objs = new ArrayList();
+		List<ObjEntity> objs = new ArrayList<ObjEntity>();
 		
 		ContractEntity contractEntity = new ContractEntity(obixObject.getIs());
-		List contractEntityList = contractEntity.searchContractByUri(contractEntity.getObixContract().getUris()[0].getPath());
+		List<ContractEntity> contractEntityList = contractEntity.searchContractByUri(contractEntity.getObixContract().getUris()[0].getPath());
 
 		if( contractEntityList != null && contractEntityList.size() > 0) {
 			
-			ArrayList fetchedObj = new ArrayList();
+			//ArrayList fetchedObj = new ArrayList();
 			
-			Iterator iter = contractEntityList.iterator();
+			Iterator<ContractEntity> iter = contractEntityList.iterator();
 			while( iter.hasNext()){
 				
 				ObjEntity objEnt = new ObjEntity(new Obj());
 				ContractEntity contractEnt = (ContractEntity)iter.next();
 				
 				
-				ArrayList params = new ArrayList();
+				List<Object> params = new ArrayList<Object>();
 				params.add(contractEnt.getContractid());
-				query(SEARCH_OBJ_BY_CONTRACT_ID, params.toArray(),
-						new ObjResultSetHandler(objEnt));
+				query(SEARCH_OBJ_BY_CONTRACT_ID, params.toArray(), new ObjResultSetHandler(objEnt));
 				
 				// Obj could be of any obix type.
 				if(!objEnt.getObjtype().equals(EntityType.Obj)) {
@@ -318,18 +387,11 @@ public class ObjEntity extends AbstractEntity {
 					ObjEntity subentity = subClassToType( objEnt);
 					if( subentity != null) objEnt = subentity;
 					if( subentity instanceof ValEntity) {
-						((ValEntity)subentity).fetchDetailsById();
+						((ValEntity)subentity).fetchDetails();
 					}
 				}
 				
 				if (objEnt.isFetched()) {
-					
-					if( objEnt.getObj_uri_id() != null){
-						UriEntity nextUriEntity = new UriEntity(new Uri());
-						nextUriEntity.setUriId(objEnt.getObj_uri_id());
-						nextUriEntity.fetchById();
-						objEnt.getObixObject().setHref(((Uri)nextUriEntity.getObixObject()));
-					}
 					
 					if (objEnt.getObj_contract_id() != null) {
 						ContractEntity nextContractEntity = new ContractEntity(objEnt.getObj_contract_id());
@@ -360,13 +422,6 @@ public class ObjEntity extends AbstractEntity {
 		for( int i = 0; i < childsList.size();i++){
 			ObjEntity objEnt = (ObjEntity)childsList.get(i);
 			
-			if( objEnt.getObj_uri_id() != null){
-				UriEntity uriEntity = new UriEntity(new Uri());
-				uriEntity.setUriId(objEnt.getObj_uri_id());
-				uriEntity.fetchById();
-				objEnt.getObixObject().setHref(((Uri)uriEntity.getObixObject()));
-			}
-			
 			if (objEnt.getObj_contract_id() != null) {
 				ContractEntity contractEntity = new ContractEntity(objEnt.getObj_contract_id());
 				contractEntity.fetch();
@@ -377,7 +432,7 @@ public class ObjEntity extends AbstractEntity {
 				// re-map it according to it type to the right obj (Int, Real, ... )
 				ObjEntity resultObjEntity = objEnt.subClassToType( objEnt);
 				if( resultObjEntity instanceof ValEntity) {
-					((ValEntity)resultObjEntity).fetchDetailsById();
+					((ValEntity)resultObjEntity).fetchDetails();
 				}
 				childsList.set(i, resultObjEntity);
 			}
@@ -418,13 +473,6 @@ public class ObjEntity extends AbstractEntity {
 		for( int i = 0; i < childsList.size();i++){
 			ObjEntity objEnt = (ObjEntity)childsList.get(i);
 			
-			if( objEnt.getObj_uri_id() != null){
-				UriEntity uriEntity = new UriEntity(new Uri());
-				uriEntity.setUriId(objEnt.getObj_uri_id());
-				uriEntity.fetchById();
-				objEnt.getObixObject().setHref(((Uri)uriEntity.getObixObject()));
-			}
-			
 			if (objEnt.getObj_contract_id() != null) {
 				ContractEntity contractEntity = new ContractEntity(objEnt.getObj_contract_id());
 				contractEntity.fetch();
@@ -435,7 +483,7 @@ public class ObjEntity extends AbstractEntity {
 				// re-map it according to it type to the right obj (Int, Real, ... )
 				ObjEntity resultObjEntity = objEnt.subClassToType( objEnt);
 				if( resultObjEntity instanceof ValEntity) {
-					((ValEntity)resultObjEntity).fetchDetailsById();
+					((ValEntity)resultObjEntity).fetchDetails();
 				}
 				childsList.set(i, resultObjEntity);
 			}
@@ -444,27 +492,7 @@ public class ObjEntity extends AbstractEntity {
 		setChilds(childsList);
 	}
 
-	public void update() throws EntityException {
-
-		ArrayList params = new ArrayList();
-		params.add(getObixObject().getName());
-		params.add(getObixObject().getIsNull());
-		params.add(getObixObject().getDisplayName());
-		params.add(getObixObject().getDisplay());
-		params.add(getObixObject().getWritable());
-		
-		if( getObixObject().getStatus() != null ){
-			params.add(getObixObject().getStatus().getId());
-		} else params.add(null);
-		
-		params.add(Calendar.getInstance().getTime());
-		
-		params.add(getId());
-		
-
-		update(UPDATE_OBJ, params.toArray(), null);
-
-	}
+	
 
 	public void setId(Integer id) {
 		this.objid = id;
@@ -473,7 +501,16 @@ public class ObjEntity extends AbstractEntity {
 	public Integer getId() {
 		return objid;
 	}
+	
+	public void setObj_uri(String obj_uri) {
+		this.obj_uri = obj_uri;
+	}
 
+	public String getObj_uri() {
+		return obj_uri;
+	}
+	
+	
 	public void setObj_contract_id(Integer obj_contract_id) {
 		this.obj_contract_id = obj_contract_id;
 	}
@@ -482,14 +519,85 @@ public class ObjEntity extends AbstractEntity {
 		return obj_contract_id;
 	}
 
-	public void setObj_uri_id(Integer obj_uri_id) {
-		this.obj_uri_id = obj_uri_id;
+	
+
+	public void setObjtype(EntityType objtype) {
+		this.objtype = objtype;
 	}
 
-	public Integer getObj_uri_id() {
-		return obj_uri_id;
+	public EntityType getObjtype() {
+		return objtype;
+	}
+	
+	public void setParent_id(Integer parent_id) {
+		this.parent_id = parent_id;
 	}
 
+	public Integer getParent_id() {
+		return parent_id;
+	}
+
+	/**
+	 * @param creationDate the creationDate to set
+	 */
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	/**
+	 * @return the creationDate
+	 */
+	public Date getCreationDate() {
+		return creationDate;
+	}
+	
+	/**
+	 * @param modificationDate the modificationDate to set
+	 */
+	public void setModificationDate(Date modificationDate) {
+		this.modificationDate = modificationDate;
+	}
+
+	/**
+	 * @return the modificationDate
+	 */
+	public Date getModificationDate() {
+		return modificationDate;
+	}
+	
+	public void setRangeUriId(Integer rangeUriId) {
+		this.rangeUriId = rangeUriId;
+	}
+
+	public Integer getRangeUriId() {
+		return rangeUriId;
+	}
+	
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+
+	public String getUnit() {
+		return unit;
+	}
+	
+	public void setInContractId(Integer inContractId) {
+		this.inContractId = inContractId;
+	}
+
+	public Integer getInContractId() {
+		return inContractId;
+	}
+	
+	public void setOfContractId(Integer ofContractId) {
+		this.ofContractId = ofContractId;
+	}
+
+	public Integer getOfContractId() {
+		return ofContractId;
+	}
+	
 	public void setObixObject(Obj obixObject) {
 		this.obixObject = obixObject;
 	}
@@ -497,7 +605,50 @@ public class ObjEntity extends AbstractEntity {
 	public Obj getObixObject() {
 		return obixObject;
 	}
+	
 
+	public void setChilds(List<ObjEntity> childs) {
+		this.childs = childs;
+	}
+
+	public List<ObjEntity> getChilds() {
+		if (childs == null)
+			childs = new ArrayList<ObjEntity >();
+		return childs;
+	}
+
+	public ObjEntity getChildByName( String name){
+		
+		List childList = getChilds();
+		
+		for(int i = 0; i < childList.size(); i++){
+			ObjEntity child = (ObjEntity)childList.get(i);
+			if( child.getObixObject().getName().equals(name)){
+				return child;
+			}
+		}
+		
+		return null;
+	}
+	
+	
+	protected void setFetched(boolean fetched) {
+		this.fetched = fetched;
+	}
+
+	protected boolean isFetched() {
+		return fetched;
+	}
+	
+
+	public boolean isDetailsfetched() {
+		return detailsfetched;
+	}
+
+	public void setDetailsfetched(boolean detailsfetched) {
+		this.detailsfetched = detailsfetched;
+	}
+	
 	public void addChildren(Obj obixObj) throws EntityException {
 
 		ObjEntity child = null;
@@ -538,55 +689,6 @@ public class ObjEntity extends AbstractEntity {
 		}
 
 	}
-
-	public void setParent_id(Integer parent_id) {
-		this.parent_id = parent_id;
-	}
-
-	public Integer getParent_id() {
-		return parent_id;
-	}
-
-	public void setObjtype(EntityType objtype) {
-		this.objtype = objtype;
-	}
-
-	public EntityType getObjtype() {
-		return objtype;
-	}
-
-	public void setChilds(List childs) {
-		this.childs = childs;
-	}
-
-	public List getChilds() {
-		if (childs == null)
-			childs = new ArrayList();
-		return childs;
-	}
-
-	public ObjEntity getChildByName( String name){
-		
-		List childList = getChilds();
-		
-		for(int i = 0; i < childList.size(); i++){
-			ObjEntity child = (ObjEntity)childList.get(i);
-			if( child.getObixObject().getName().equals(name)){
-				return child;
-			}
-		}
-		
-		return null;
-	}
-	
-	
-	protected void setFetched(boolean fetched) {
-		this.fetched = fetched;
-	}
-
-	protected boolean isFetched() {
-		return fetched;
-	}
 	
 	public Obj subClassObjToType(ObjEntity rootentity) {
 		
@@ -620,6 +722,7 @@ public class ObjEntity extends AbstractEntity {
 		
 		return subObj;
 	}
+	
 
 	public ObjEntity subClassToType(ObjEntity rootentity) throws EntityException  {
 		
@@ -627,75 +730,58 @@ public class ObjEntity extends AbstractEntity {
 		
 		EntityType entType = rootentity.getObjtype();
 		if (entType.equals(EntityType.AbsTime))
-			subObjEntity = new AbsTimeEntity(rootentity);
+			subObjEntity = new AbsTimeEntity();
 		else if (entType.equals(EntityType.Bool))
-			subObjEntity = new BoolEntity(rootentity);
+			subObjEntity = new BoolEntity();
 		else if (entType.equals(EntityType.Enum))
-			subObjEntity = new EnumEntity(rootentity);
+			subObjEntity = new EnumEntity();
 		else if (entType.equals(EntityType.Feed))
-			subObjEntity = new FeedEntity(rootentity);
+			subObjEntity = new FeedEntity();
 		else if (entType.equals(EntityType.Int))
-			subObjEntity = new IntEntity(rootentity);
+			subObjEntity = new IntEntity();
 		else if (entType.equals(EntityType.List))
-			subObjEntity = new ListEntity(rootentity);
+			subObjEntity = new ListEntity();
 		else if (entType.equals(EntityType.Real))
-			subObjEntity = new RealEntity(rootentity);
+			subObjEntity = new RealEntity();
 		
 		else if (entType.equals(EntityType.Ref))
-			subObjEntity = new RefEntity(rootentity);
+			subObjEntity = new RefEntity();
 		
 		else if (entType.equals(EntityType.RelTime))
-			subObjEntity = new RelTimeEntity(rootentity);
+			subObjEntity = new RelTimeEntity();
 		else if (entType.equals(EntityType.Str))
-			subObjEntity = new StrEntity(rootentity);
+			subObjEntity = new StrEntity();
 		else if (entType.equals(EntityType.Uri))
-			subObjEntity = new UriEntity(rootentity);
+			subObjEntity = new UriEntity();
 		
+		if( subObjEntity != null){
+			subObjEntity.copyFields(rootentity);
+		}
 		return subObjEntity;
 	}
-
-	/**
-	 * @param creationDate the creationDate to set
-	 */
-	public void setCreationDate(Date creationDate) {
-		this.creationDate = creationDate;
+	
+	public void copyFields(ObjEntity rootObject){
+		
+		objid = rootObject.getId();
+		obj_uri = rootObject.getObj_uri();
+		obj_contract_id = rootObject.getObj_contract_id();
+		objtype = rootObject.getObjtype();
+		parent_id = rootObject.getParent_id();
+		creationDate = rootObject.getCreationDate();
+		modificationDate = rootObject.getModificationDate();
+		rangeUriId = rootObject.getRangeUriId();
+		unit = rootObject.getUnit();
+		inContractId = rootObject.getInContractId();
+		ofContractId = rootObject.getOfContractId();
+		obixObject = rootObject.getObixObject();
 	}
 
-	/**
-	 * @return the creationDate
-	 */
-	public Date getCreationDate() {
-		return creationDate;
-	}
+	public class ObjResultSetMultipleHandler<T extends ObjEntity> extends ResultSetMultipleHandler {
 
-	/**
-	 * @param modificationDate the modificationDate to set
-	 */
-	public void setModificationDate(Date modificationDate) {
-		this.modificationDate = modificationDate;
-	}
+		private List<T> entityList;
+		protected T entity;
 
-	/**
-	 * @return the modificationDate
-	 */
-	public Date getModificationDate() {
-		return modificationDate;
-	}
-
-	public boolean isDetailsfetched() {
-		return detailsfetched;
-	}
-
-	public void setDetailsfetched(boolean detailsfetched) {
-		this.detailsfetched = detailsfetched;
-	}
-
-	public class ObjResultSetMultipleHandler extends ResultSetMultipleHandler {
-
-		private List entityList;
-		protected ObjEntity entity;
-
-		public ObjResultSetMultipleHandler(List entityList) {
+		public ObjResultSetMultipleHandler(List<T> entityList) {
 			this.entityList = entityList;
 		}
 
@@ -704,28 +790,92 @@ public class ObjEntity extends AbstractEntity {
 			Integer id = getInteger(rs, COL_OBJ_ID);
 			if (id != null)
 				entity.setId(id);
+			
+			entity.setObj_uri(getString(rs, COL_OBJ_URI));
+			if( entity.getObj_uri() != null){
+				Uri href = new Uri("", entity.getObj_uri());
+				entity.getObixObject().setHref(href);
+			}
+			
+			entity.setObj_contract_id(getInteger(rs, COL_OBJ_CONTRACT_ID));
+			//entity.setObjtype(EntityType.getEnum(getInteger(rs, COL_OBJ_TYPE_ID)));
+			entity.setParent_id(getInteger(rs, COL_OBJ_PARENT_ID));
+			entity.setCreationDate(getDate(rs, COL_CREATE_TS));
+			entity.setModificationDate(getDate(rs, COL_MODIFIED_TS));
 
+			entity.setRangeUriId(getInteger(rs, COL_OBJ_RANGE_URI_ID));
+			entity.setUnit(getString(rs, COL_OBJ_UNIT));
+			
+			entity.setInContractId(getInteger(rs, COL_OBJ_IN_CONTRACT_ID));
+			entity.setOfContractId(getInteger(rs, COL_OBJ_OF_CONTRACT_ID));
+			
+			EntityType fetchType = EntityType.getEnum( getInteger(rs, COL_OBJ_TYPE_ID));
+			if( entity.getObjtype() != fetchType){
+				
+				entity.setObjtype(fetchType);
+				entity.setObixObject(subClassObjToType(entity));
+			}
+			
+			
+			
 			entity.getObixObject().setName(getString(rs, COL_OBJ_NAME));
-			entity.getObixObject().setDisplayName(
-					getString(rs, COL_OBJ_DISPLAYNAME));
+			entity.getObixObject().setDisplayName(getString(rs, COL_OBJ_DISPLAYNAME));
 			entity.getObixObject().setDisplay(getString(rs, COL_OBJ_DISPLAY));
 			entity.getObixObject().setIsNull(getBoolean(rs, COL_OBJ_ISNULL));
-			entity.getObixObject()
-					.setWritable(getBoolean(rs, COL_OBJ_WRITABLE));
+			entity.getObixObject().setWritable(getBoolean(rs, COL_OBJ_WRITABLE));
 			
 			Integer statusId = getInteger(rs, COL_OBJ_STATUS_ID);
 			if( statusId != null) {
 				entity.getObixObject().setStatus(Status.getStatusFromId(statusId.intValue()));
 			}
-
-			entity.setObj_contract_id(getInteger(rs, COL_OBJ_CONTRACT_ID));
-			entity.setObj_uri_id(getInteger(rs, COL_OBJ_URI_ID));
-			entity.setObjtype(EntityType
-					.getEnum(getInteger(rs, COL_OBJ_TYPE_ID)));
-			entity.setParent_id(getInteger(rs, COL_OBJ_PARENT_ID));
 			
-			entity.setCreationDate(getDate(rs, COL_CREATE_TS));
-			entity.setModificationDate(getDate(rs, COL_MODIFIED_TS));
+			switch(fetchType.getIdent().intValue()){
+				case 2 : // abstime
+					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_INT));
+					break;
+				case 3 : //boolean
+					((Str) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_BOOL));
+					break;
+				case 5: //enum
+					((com.ptoceti.osgi.obix.object.Enum)entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT));
+					break;
+				case 6: //feed
+					break;
+				case 7: // int
+					((Int) entity.getObixObject()).setMax(getInteger(rs, COL_OBJ_MAX));
+					((Int) entity.getObixObject()).setMin(getInteger(rs, COL_OBJ_MIN));
+					((Int) entity.getObixObject()).setVal(getInteger(rs, COL_OBJ_VALUE_INT));
+					if( entity.getUnit() != null && !entity.getUnit().isEmpty()){
+						Uri unit = new Uri("", entity.getUnit());
+						((Int)entity.getObixObject()).setUnit(unit);
+					}
+					break;
+				case 8: //list
+					((com.ptoceti.osgi.obix.object.List)entity.getObixObject()).setMax( getInteger(rs, COL_OBJ_MAX));
+					((com.ptoceti.osgi.obix.object.List)entity.getObixObject()).setMin( getInteger(rs, COL_OBJ_MIN));
+					break;
+				case 9: //real
+					((Real) entity.getObixObject()).setMax(getFloat(rs, COL_OBJ_MAX_REAL));
+					((Real) entity.getObixObject()).setMin(getFloat(rs, COL_OBJ_MIN_REAL));
+					((Real) entity.getObixObject()).setVal(getDouble(rs, COL_OBJ_VALUE_REAL));
+					((Real) entity.getObixObject()).setPrecision(getInteger(rs, COL_OBJ_PRECISION));
+					if( entity.getUnit() != null && !entity.getUnit().isEmpty()){
+						Uri unit = new Uri("", entity.getUnit());
+						((Real)entity.getObixObject()).setUnit(unit);
+					}
+					break;
+				case 11: //realtime
+					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));
+					break;
+				case 12: //str
+					((Str) entity.getObixObject()).setMax(getInteger(rs, COL_OBJ_MAX));
+					((Str) entity.getObixObject()).setMin(getInteger(rs, COL_OBJ_MIN));
+					((Str) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT));
+					break;
+				case 13: // uri
+					((Uri) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT)); 
+					break;
+			}
 
 			entity.setFetched(true);
 		}
@@ -740,56 +890,122 @@ public class ObjEntity extends AbstractEntity {
 
 		public void getNextBean() {
 			Obj obixObj = new Obj();
-			entity = new ObjEntity(obixObj);
+			entity = (T) new  ObjEntity(obixObj);
 		}
 	}
+	
 
-	public class ObjResultSetHandler extends ResultSetSingleHandler {
+	public class ObjResultSetHandler<T extends ObjEntity> extends ResultSetSingleHandler {
 
-		private ObjEntity entity;
+		protected T entity;
 
-		public ObjResultSetHandler(ObjEntity entity) {
+		public ObjResultSetHandler(T entity) {
 			this.entity = entity;
 		}
 
 		public void getRowAsBean(ResultSet rs) throws Exception {
-
+	
 			Integer id = getInteger(rs, COL_OBJ_ID);
 			if (id != null)
 				entity.setId(id);
+			
+			entity.setObj_uri(getString(rs, COL_OBJ_URI));
+			if( entity.getObj_uri() != null){
+				Uri href = new Uri("", entity.getObj_uri());
+				entity.getObixObject().setHref(href);
+			}
+			
+			entity.setObj_contract_id(getInteger(rs, COL_OBJ_CONTRACT_ID));
+			//entity.setObjtype(EntityType.getEnum(getInteger(rs, COL_OBJ_TYPE_ID)));
+			entity.setParent_id(getInteger(rs, COL_OBJ_PARENT_ID));
+			entity.setCreationDate(getDate(rs, COL_CREATE_TS));
+			entity.setModificationDate(getDate(rs, COL_MODIFIED_TS));
 
+			entity.setRangeUriId(getInteger(rs, COL_OBJ_RANGE_URI_ID));
+			entity.setUnit(getString(rs, COL_OBJ_UNIT));
+			entity.setInContractId(getInteger(rs, COL_OBJ_IN_CONTRACT_ID));
+			entity.setOfContractId(getInteger(rs, COL_OBJ_OF_CONTRACT_ID));
+			
+			EntityType fetchType = EntityType.getEnum( getInteger(rs, COL_OBJ_TYPE_ID));
+			if( entity.getObjtype() != fetchType){
+				entity.setObjtype(fetchType);
+				entity.setObixObject(subClassObjToType(entity));
+			}
+			
+		
+			
 			entity.getObixObject().setName(getString(rs, COL_OBJ_NAME));
-			entity.getObixObject().setDisplayName(
-					getString(rs, COL_OBJ_DISPLAYNAME));
+			entity.getObixObject().setDisplayName(getString(rs, COL_OBJ_DISPLAYNAME));
 			entity.getObixObject().setDisplay(getString(rs, COL_OBJ_DISPLAY));
 			entity.getObixObject().setIsNull(getBoolean(rs, COL_OBJ_ISNULL));
-			entity.getObixObject()
-					.setWritable(getBoolean(rs, COL_OBJ_WRITABLE));
+			entity.getObixObject().setWritable(getBoolean(rs, COL_OBJ_WRITABLE));
 			
 			Integer statusId = getInteger(rs, COL_OBJ_STATUS_ID);
 			if( statusId != null) {
 				entity.getObixObject().setStatus(Status.getStatusFromId(statusId.intValue()));
 			}
-
-			entity.setObj_contract_id(getInteger(rs, COL_OBJ_CONTRACT_ID));
-			entity.setObj_uri_id(getInteger(rs, COL_OBJ_URI_ID));
-			entity.setObjtype(EntityType
-					.getEnum(getInteger(rs, COL_OBJ_TYPE_ID)));
-			entity.setParent_id(getInteger(rs, COL_OBJ_PARENT_ID));
 			
-			entity.setCreationDate(getDate(rs, COL_CREATE_TS));
-			entity.setModificationDate(getDate(rs, COL_MODIFIED_TS));
+			switch(fetchType.getIdent().intValue()){
+				case 2 : // abstime
+					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_INT));
+					break;
+				case 3 : //boolean
+					((Str) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_BOOL));
+					break;
+				case 5: //enum
+					((com.ptoceti.osgi.obix.object.Enum)entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT));
+					break;
+				case 6: //feed
+					break;
+				case 7: // int
+					((Int) entity.getObixObject()).setMax(getInteger(rs, COL_OBJ_MAX));
+					((Int) entity.getObixObject()).setMin(getInteger(rs, COL_OBJ_MIN));
+					((Int) entity.getObixObject()).setVal(getInteger(rs, COL_OBJ_VALUE_INT));
+					if( entity.getUnit() != null && !entity.getUnit().isEmpty()){
+						Uri unit = new Uri("", entity.getUnit());
+						((Int)entity.getObixObject()).setUnit(unit);
+					}
+					break;
+				case 8: //list
+					((com.ptoceti.osgi.obix.object.List)entity.getObixObject()).setMax( getInteger(rs, COL_OBJ_MAX));
+					((com.ptoceti.osgi.obix.object.List)entity.getObixObject()).setMin( getInteger(rs, COL_OBJ_MIN));
+					break;
+				case 9: //real
+					((Real) entity.getObixObject()).setMax(getFloat(rs, COL_OBJ_MAX_REAL));
+					((Real) entity.getObixObject()).setMin(getFloat(rs, COL_OBJ_MIN_REAL));
+					((Real) entity.getObixObject()).setVal(getDouble(rs, COL_OBJ_VALUE_REAL));
+					((Real) entity.getObixObject()).setPrecision(getInteger(rs, COL_OBJ_PRECISION));
+					if( entity.getUnit() != null && !entity.getUnit().isEmpty()){
+						Uri unit = new Uri("", entity.getUnit());
+						((Real)entity.getObixObject()).setUnit(unit);
+					}
+					break;
+				case 11: //realtime
+					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));
+					break;
+				case 12: //str
+					((Str) entity.getObixObject()).setMax(getInteger(rs, COL_OBJ_MAX));
+					((Str) entity.getObixObject()).setMin(getInteger(rs, COL_OBJ_MIN));
+					((Str) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT));
+					break;
+				case 13: // uri
+					((Uri) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT)); 
+					break;
+			}
 
 			entity.setFetched(true);
 		}
 	}
+	
+		
+		
+		
 
-	public class ObjResultSetGeneratedKeysHandler extends
-			ResultSetGeneratedKeysHandler {
+	public class ObjResultSetGeneratedKeysHandler<T extends ObjEntity> extends ResultSetGeneratedKeysHandler {
 
-		private ObjEntity entity;
+		private T entity;
 
-		public ObjResultSetGeneratedKeysHandler(ObjEntity entity) {
+		public ObjResultSetGeneratedKeysHandler(T entity) {
 			this.entity = entity;
 		}
 
@@ -797,4 +1013,5 @@ public class ObjEntity extends AbstractEntity {
 			entity.setId(getRowID(rs));
 		}
 	}
+	
 }

@@ -58,11 +58,10 @@ public class SQLiteJDBC implements java.sql.Driver{
 		String sqliteUrl = adaptUrl(url);
 			
 		SQLiteConfig config = new SQLiteConfig(info);
-		//config.setPageSize(4096);
-		//config.setJournalMode(JournalMode.WAL);
+	
+		//SQLiteConfig newConfig = new SQLiteConfig();
 		config.setSharedCache(true);
 		
-		// check if we are in read-write only mode
 		
 		if(( config.getOpenModeFlags() & SQLiteOpenMode.READWRITE.flag) > 0) {
 			config.setTransactionMode(TransactionMode.IMMEDIATE);
@@ -70,7 +69,6 @@ public class SQLiteJDBC implements java.sql.Driver{
 			config.setTransactionMode(TransactionMode.DEFFERED);
 		}
 		
-
 		Connection connection = sqliteJDBC.connect(sqliteUrl, config.toProperties());
 	
 		return new SQLiteConnectionWrapper(connection);

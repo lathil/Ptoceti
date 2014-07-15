@@ -118,7 +118,7 @@ public class XMLEncoder {
 
 			if (obixObj.getName() != null) serializer.attribute(null, ObixNames.NAME, obixObj.getName());
 
-			if (obixObj.getHref() != null) {
+			if (obixObj.getHref() != null && obixObj.getHref().getVal() != null) {
 				if( objectStack == 0)
 					serializer.attribute(null, ObixNames.HREF, rootUrl.concat(obixObj.getHref().getVal().toString()));
 				else

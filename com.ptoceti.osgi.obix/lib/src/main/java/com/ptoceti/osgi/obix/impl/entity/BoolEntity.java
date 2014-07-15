@@ -30,34 +30,21 @@ package com.ptoceti.osgi.obix.impl.entity;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
 
-import com.ptoceti.osgi.data.ResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.data.ResultSetSingleHandler;
 import com.ptoceti.osgi.obix.object.Bool;
-import com.ptoceti.osgi.obix.object.Int;
-import com.ptoceti.osgi.obix.object.Obj;
-import com.ptoceti.osgi.obix.object.Real;
-import com.ptoceti.osgi.obix.object.Str;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.impl.entity.IntEntity.IntResultSetGeneratedKeysHandler;
-import com.ptoceti.osgi.obix.impl.entity.RealEntity.RealResultSetHandler;
+
 
 public class BoolEntity extends ObjEntity implements ValEntity {
 
-	private Integer boolid;
-	private Integer rangeUriId;
+	private static final String SEARCH_BOOL_BY_HREF = "select object.* from object where object.type_id=3 and object.uri_hash=?";
+	
+	private static final String CREATE_BOOL = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, value_bool, range_uri_id ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	
+	private static final String DELETE_BOOL = "delete from object where id=?";
 
-	private static final String CREATE_BOOL = "insert into bool (object_id, value, range_uri_id ) values (?,?,?,?)";
-	private static final String DELETE_BOOL = "delete from bool where bool.id=?";
-
-	private static final String SEARCH_BOOL_BY_OBJECT_ID = "select bool.* from bool where bool.object_id=?";
-
-	private static final String UPDATE_BOOL = "update bool set object_id = ?, value = ?, range_uri_id = ? where id = ? ";
-
-	private static final String COL_BOOL_ID = "id";
-	private static final String COL_BOOL_OBJECT_ID = "object_id";
-	private static final String COL_BOOL_VALUE = "value";
-	private static final String COL_BOOL_RANGE_URI_ID = "range_uri_id";
+	private static final String UPDATE_BOOL = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, value_bool = ?, range_uri_id = ? where id = ? ";
 
 	public BoolEntity(){
 		super(EntityType.Bool);
@@ -65,7 +52,7 @@ public class BoolEntity extends ObjEntity implements ValEntity {
 	
 	public BoolEntity(ObjEntity entObj) throws EntityException {
 		super(entObj);
-		fetchDetailsById();
+		fetchByObjectId();
 	}
 
 	public BoolEntity(Bool obixObj) {
@@ -73,132 +60,107 @@ public class BoolEntity extends ObjEntity implements ValEntity {
 		setObjtype(EntityType.Bool);
 	}
 
-	public void setBoolid(Integer boolid) {
-		this.boolid = boolid;
-	}
-
-	public Integer getBoolid() {
-		return boolid;
-	}
 
 	public void create() throws EntityException {
 
-		super.create();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
-		params.add(((Int) getObixObject()).getVal());
+		List<Object> params = getCreateParam();
+		params.add(((Bool) getObixObject()).getVal());
 
 		Uri rangeUri = ((Bool) getObixObject()).getRange();
 		if (rangeUri != null) {
 			UriEntity uriEntity = new UriEntity(rangeUri);
 			uriEntity.create();
-			setRangeUriId(uriEntity.getUriId());
+			setRangeUriId(uriEntity.getId());
 		}
 
 		params.add(getRangeUriId());
-		update(CREATE_BOOL, params.toArray(),
-				new BoolResultSetGeneratedKeysHandler(this));
+		update(CREATE_BOOL, params.toArray(), new BoolResultSetGeneratedKeysHandler(this));
 	}
 
 	public void delete() throws EntityException {
 
-		super.delete();
-
-		if (getBoolid() != null) {
-			UriEntity uriEntity = new UriEntity(new Uri());
-			uriEntity.setId(getBoolid());
-			uriEntity.delete();
-		}
-
-		ArrayList params = new ArrayList();
-		params.add(getBoolid());
+		deleteReferences();
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getId());
 		update(DELETE_BOOL, params.toArray(), null);
 	}
-
-	public boolean fetchByHref() throws EntityException {
-
-		boolean found = super.fetchByHref();
-
-		if (found) {
-			ArrayList params = new ArrayList();
-			params.add(getId());
-
-			query(SEARCH_BOOL_BY_OBJECT_ID, params.toArray(),
-					new BoolResultSetHandler(this));
+	
+	@Override
+	protected void deleteReferences() throws EntityException{
+		super.deleteReferences();
+		
+		if (getId() != null) {
+			UriEntity uriEntity = new UriEntity(new Uri());
+			uriEntity.setId(getId());
+			uriEntity.delete();
 		}
-		return found;
 	}
-
-	public boolean fetchByObjectId() throws EntityException {
-
-		boolean found = super.fetchByObjectId();
-		if( found) fetchDetailsById();
-		return found;
-	}
-
-	public void fetchDetailsById() throws EntityException {
-		ArrayList params = new ArrayList();
-		params.add(getId());
-
-		query(SEARCH_BOOL_BY_OBJECT_ID, params.toArray(),
-				new BoolResultSetHandler(this));
-	}
-
+	
 	public void update() throws EntityException {
 
-		super.update();
-
-		ArrayList params = new ArrayList();
-		params.add(getId());
-		params.add(((Real) getObixObject()).getVal());
+		List<Object> params = getUpdateParam();
+		params.add(((Bool) getObixObject()).getVal());
 		params.add(getRangeUriId());
-		params.add(getBoolid());
+		params.add(getId());
 
 		update(UPDATE_BOOL, params.toArray(), null);
 	}
 
-	public void setRangeUriId(Integer rangeUriId) {
-		this.rangeUriId = rangeUriId;
+	public boolean fetchByHref() throws EntityException {
+		boolean found = super.fetchByHref();
+		if( found ){
+			fetchDetails();
+		}
+		return found;
 	}
 
-	public Integer getRangeUriId() {
-		return rangeUriId;
+	@Override
+	protected void doQueryByHref(List<Object> params) throws EntityException{
+		query(SEARCH_BOOL_BY_HREF, params.toArray(), new BoolResultSetHandler(this));
+	}
+	public boolean fetchByObjectId() throws EntityException {
+		boolean found = super.fetchByObjectId();
+		if( found ){
+			fetchDetails();
+		}
+		return found;
+	}
+	@Override
+	protected void doQueryByObjectId(List<Object> params) throws EntityException {
+		query(SEARCH_OBJ_BY_ID, params.toArray(), new BoolResultSetHandler(this));
+	}
+	
+	public void fetchDetails() throws EntityException {
+		if( getObj_uri() != null){
+			Uri href = new Uri("", getObj_uri());
+			getObixObject().setHref(href);
+		}
+		if(getRangeUriId() != null) {
+			UriEntity uriEntity = new UriEntity(new Uri());
+			uriEntity.setId(getRangeUriId());
+			if( uriEntity.fetchByObjectId()){
+				((Bool)getObixObject()).setRange((Uri)uriEntity.getObixObject());
+			}
+		}
+		setDetailsfetched(true);
 	}
 
-	public class BoolResultSetHandler extends ResultSetSingleHandler {
-
-		private BoolEntity entity;
+	public class BoolResultSetHandler extends ObjResultSetHandler<BoolEntity> {
 
 		public BoolResultSetHandler(BoolEntity entity) {
-			this.entity = entity;
+			super(entity);
 		}
 
 		public void getRowAsBean(ResultSet rs) throws Exception {
-
-			Integer id = getInteger(rs, COL_BOOL_ID);
-			if (id != null)
-				entity.setBoolid(id);
-
-			((Str) entity.getObixObject())
-					.setVal(getString(rs, COL_BOOL_VALUE));
-
-			entity.setRangeUriId(getInteger(rs, COL_BOOL_RANGE_URI_ID));
-			entity.setDetailsfetched(true);
+			super.getRowAsBean(rs);
 		}
 	}
 
-	public class BoolResultSetGeneratedKeysHandler extends
-			ResultSetGeneratedKeysHandler {
-
-		private BoolEntity entity;
+	public class BoolResultSetGeneratedKeysHandler extends ObjResultSetGeneratedKeysHandler<BoolEntity> {
 
 		public BoolResultSetGeneratedKeysHandler(BoolEntity entity) {
-			this.entity = entity;
-		}
-
-		public void getRowsKey(ResultSet rs) throws Exception {
-			entity.setBoolid(getRowID(rs));
+			super(entity);
 		}
 	}
+	
 }

@@ -124,7 +124,7 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 			ObjEntity recordsList = historyEntity.getChildByName("historyrecords");
 			ObjEntity end = historyEntity.getChildByName("end");
 			ObjEntity count = historyEntity.getChildByName("count");
-			
+
 			if( recordsList.getObjtype().equals(EntityType.List) ){
 				// simply add the sample as history record. creation date will be the timestamp
 				recordsList.addChildren(value);
@@ -133,11 +133,14 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 				count.update();
 				((Abstime)end.getObixObject()).setVal(new Date());
 				end.update();
+				
+				
 			}
 			
 		} catch(EntityException ex) {
 			throw new DomainException("Exception in " + this.getClass().getName() + ".addRecord", ex);
 		}
+		
 		
 	}
 

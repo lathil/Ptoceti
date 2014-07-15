@@ -237,7 +237,9 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 
 	public Watch retrieve(String uri) throws DomainException {
 
-		return (Watch)getWatch(uri).getObixObject();
+		ObjEntity watchEntity = getWatch(uri);
+		if( watchEntity != null) return (Watch)getWatch(uri).getObixObject();
+		else return null;
 	}
 	
 	

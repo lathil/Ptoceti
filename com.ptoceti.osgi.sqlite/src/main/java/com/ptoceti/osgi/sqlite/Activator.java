@@ -109,6 +109,17 @@ public class Activator implements BundleActivator{
 		
 		Activator.bc = context;
 		
+		try {
+			// load libraies if needed befor registering the driver.
+			loadLibrairies(context);
+			
+			sqliteJDBC = new SQLiteJDBC();
+		
+			
+		} catch( Exception e) {
+			throw new BundleException( e.toString() );
+		}
+		
 		// we construct a listener to detect if the log service appear or disapear.
 		String filter = "(objectclass=" + logServiceName + ")";
 		ServiceListener logServiceListener = new LogServiceListener();
@@ -123,29 +134,24 @@ public class Activator implements BundleActivator{
 			throw new BundleException("Error in filter string while registering LogServiceListener." + e.toString());
 		}
 			
-		try {
-			// load libraies if needed befor registering the driver.
-			loadLibrairies(context);
-			
-			sqliteJDBC = new SQLiteJDBC();
-			
-			String[] dataSourceFactoryClazzes = new String[] {DataSourceFactory.class.getName()};
-			Hashtable<String, String> dataSourcesProperties = new Hashtable<String, String>();
-			dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_CLASS, com.ptoceti.osgi.sqlite.SQLiteJDBC.class.getName());
-			//dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_NAME, );
-			dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_VERSION, String.valueOf(sqliteJDBC.getMajorVersion()).concat(".").concat(String.valueOf(sqliteJDBC.getMinorVersion())));
-			// register the data source factory
-			sqliDataSourceFactory = new SQLiteDataSourceFactory();
-			Activator.bc.registerService(dataSourceFactoryClazzes, sqliDataSourceFactory, dataSourcesProperties );
-			
-		} catch( Exception e) {
-			throw new BundleException( e.toString() );
-		}
+		
 			
 		log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
 		
 		
 			
+	}
+	
+	private void registerService() {
+		
+		String[] dataSourceFactoryClazzes = new String[] {DataSourceFactory.class.getName()};
+		Hashtable<String, String> dataSourcesProperties = new Hashtable<String, String>();
+		dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_CLASS, com.ptoceti.osgi.sqlite.SQLiteJDBC.class.getName());
+		//dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_NAME, );
+		dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_VERSION, String.valueOf(sqliteJDBC.getMajorVersion()).concat(".").concat(String.valueOf(sqliteJDBC.getMinorVersion())));
+		// register the data source factory
+		sqliDataSourceFactory = new SQLiteDataSourceFactory();
+		Activator.bc.registerService(dataSourceFactoryClazzes, sqliDataSourceFactory, dataSourcesProperties );
 	}
 	
 	/**
@@ -297,6 +303,7 @@ public class Activator implements BundleActivator{
 				switch(event.getType()) {
 					case ServiceEvent.REGISTERED: {
 						logSer = (LogService) bc.getService(sr);
+						registerService();
 					}
 					break;
 					case ServiceEvent.UNREGISTERING: {

@@ -28,8 +28,6 @@ package com.ptoceti.osgi.obix.impl.entity;
  */
 
 
-import java.lang.Enum;
-
 public enum EntityType {
 
 	Obj( 1, "Obj"),
