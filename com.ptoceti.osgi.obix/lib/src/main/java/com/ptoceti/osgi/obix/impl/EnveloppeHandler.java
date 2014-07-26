@@ -95,9 +95,8 @@ public class EnveloppeHandler {
 				objDomain.createUpdateObixObj(obj);
 			}
 			
-			ObixDataHandler.getInstance().commitTransaction();
 		} catch (Exception ex ) {
-			ObixDataHandler.getInstance().rollbackTransaction();
+			
 		}
 	}
 }

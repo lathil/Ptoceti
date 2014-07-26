@@ -28,7 +28,8 @@ package com.ptoceti.osgi.obix.impl;
  */
 
 import com.ptoceti.osgi.obix.impl.guice.GuiceContext;
-import com.ptoceti.osgi.obix.impl.resources.server.ObixServlet;
+import com.ptoceti.osgi.obix.restlet.ObixServlet;
+import com.ptoceti.osgi.obix.restlet.ObixRestComponent;
 
 import com.ptoceti.osgi.data.JdbcDevice;
 
@@ -71,6 +72,7 @@ public class ObixService  implements ManagedService {
 	ServiceRegistration sReg = null;
 
 	public static final String SERVICEPATH = "com.ptoceti.osgi.obixservice.servletpath";
+	public static final String SERVICEPORT = "com.ptoceti.osgi.obixservice.servletport";
 	public static final String RESOURCEPATH = "com.ptoceti.osgi.obixservice.resourcepath";
 	public static final String DATABASEPATH = "com.ptoceti.osgi.obixservice.databasepath";
 	public static final String EXTERNALRESOURCEPATH = "com.ptoceti.osgi.obixservice.externalresourcepath";
@@ -80,8 +82,10 @@ public class ObixService  implements ManagedService {
 	// The data service listener
 	private DataDeviceListener dataDeviceLst;
 	
-	// the path under which the servlet is accessible.
+	// the path under which the service is accessible.
 	private String obixServletPath;
+	// the port used for the service rest
+	private Integer obixServletPort;
 	// the path under which the resouces are accessibles.
 	private String obixResourcesPath;
 	// the path to the resources themselves.
@@ -92,7 +96,7 @@ public class ObixService  implements ManagedService {
 	private boolean databaseInitialised = false;
 
 	// Le service Rest Obix
-	private ObixServlet obixRestService;
+	private ObixRestComponent obixRestService;
 	
 	private ObixHttpHandler obixHttpHandler;
 	
@@ -103,6 +107,7 @@ public class ObixService  implements ManagedService {
 	// Default creator. Don't do nothing at this point.
 	public ObixService() {
 
+		obixRestService = new ObixRestComponent();
 	}
 
 	/**
@@ -180,6 +185,8 @@ public class ObixService  implements ManagedService {
 	public void stop() {
 		// Unregister the factory first ..
 		sReg.unregister();
+		
+		stopServlet();
 
 		Activator.log(LogService.LOG_INFO, "Unregistered "
 				+ this.getClass().getName());
@@ -202,13 +209,15 @@ public class ObixService  implements ManagedService {
 			obixResourcesPath = (String) props.get(RESOURCEPATH);
 			databasePath = (String) props.get(DATABASEPATH);
 			obixExternalResourcesPath = (String) props.get(EXTERNALRESOURCEPATH);
+			
+			Object port = props.get(SERVICEPORT);
+			obixServletPort = port instanceof Integer ? (Integer) port : Integer.parseInt(port.toString());
 
 			startServlet();
 			startDatabase();
 
 		} else {
 			stopServlet();
-
 		}
 	}
 
@@ -331,13 +340,14 @@ public class ObixService  implements ManagedService {
 				&& (this.obixResourcesPath != null)) {
 
 			try {
-				HttpContext defaultContext = obixHttpHandler
-						.getHttpService().createDefaultHttpContext();
+				HttpContext defaultContext = obixHttpHandler.getHttpService().createDefaultHttpContext();
 				Hashtable initParams = new Hashtable();
 
 				if (!obixServletPath.startsWith("/")) obixServletPath = "/" + obixServletPath;
-				if( obixRestService == null) obixRestService = new ObixServlet();
-				obixHttpHandler.getHttpService().registerServlet( obixServletPath, obixRestService, null, defaultContext);
+				obixRestService.start(obixServletPath, obixServletPort);
+				
+				
+				//obixHttpHandler.getHttpService().registerServlet( obixServletPath, obixRestService, null, defaultContext);
 				
 				if (!obixResourcesPath.startsWith("/")) obixResourcesPath = "/" + obixResourcesPath;
 				
@@ -350,14 +360,16 @@ public class ObixService  implements ManagedService {
 						obixResourcesPath, obixExternalResourcesPath, defaultContext);
 
 				Activator.log(LogService.LOG_INFO,
-						"Registered servlet under alias: " + obixServletPath);
+						"Registered servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
 				Activator.log(LogService.LOG_INFO,
 						"Registered resources under alias: " + obixResourcesPath);
 				Activator.log(LogService.LOG_INFO,
 						"Registered external resources under alias: " + obixExternalResourcesPath);
 
 			} catch (NamespaceException ne) {
-			} catch (ServletException se) {
+				Activator.log(LogService.LOG_ERROR, "Error stating rest service: " + ne.toString());
+			} catch (Exception e) {
+				Activator.log(LogService.LOG_ERROR, "Error stating rest service: " +  e.toString());
 			}
 
 		}
@@ -367,10 +379,12 @@ public class ObixService  implements ManagedService {
 		if ((obixServletPath != null)
 				&& (obixHttpHandler.getHttpService() != null)) {
 			try {
+				obixRestService.stop();
 				obixHttpHandler.getHttpService().unregister(obixServletPath);
-				obixHttpHandler.getHttpService().unregister(
-						obixResourcesPath);
+				obixHttpHandler.getHttpService().unregister(obixResourcesPath);
 			} catch (IllegalArgumentException ne) {
+			} catch (Exception e) {
+				Activator.log(LogService.LOG_ERROR, "Error stating rest service: " +  e.toString());
 			}
 		}
 		// We discard the initialisation parametres dictionary.

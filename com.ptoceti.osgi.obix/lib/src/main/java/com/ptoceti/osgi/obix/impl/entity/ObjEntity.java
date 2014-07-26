@@ -31,16 +31,13 @@ package com.ptoceti.osgi.obix.impl.entity;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import com.ptoceti.osgi.data.ResultSetGeneratedKeysHandler;
 import com.ptoceti.osgi.data.ResultSetMultipleHandler;
 import com.ptoceti.osgi.data.ResultSetSingleHandler;
-import com.ptoceti.osgi.obix.constants.ObixNames;
 import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.object.Bool;
 import com.ptoceti.osgi.obix.object.Contract;
@@ -56,12 +53,12 @@ import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Status;
 import com.ptoceti.osgi.obix.object.Str;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.impl.ObixDataHandler;
 
 public class ObjEntity extends AbstractEntity {
 
 	private static final String CREATE_OBJ = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts ) values (?,?,?,?,?,?,?,?,?,?,?,?)";
 	protected static final String SEARCH_OBJ_BY_HREF = "select object.* from object where object.uri_hash=?";
+	protected static final String SEARCH_OBJS_BY_HREFS = "select object.* from object where object.uri_hash in (?)";
 	protected static final String SEARCH_OBJ_BY_ID = "select object.* from object where object.id=?";
 	private static final String SEARCH_OBJ_BY_PARENT_ID = "select object.* from object where object.parent_id=?";
 	private static final String SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP = "select object.* from object where object.parent_id=? and created_ts > ? and created_ts <= ?";
@@ -71,21 +68,23 @@ public class ObjEntity extends AbstractEntity {
 
 	private static final String UPDATE_OBJ = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ? where id = ? ";
 
-	private static final String COL_OBJ_ID = "id";
-	private static final String COL_OBJ_NAME = "name";
-	private static final String COL_OBJ_URI = "uri";
-	private static final String COL_OBJ_URI_HASH = "uri_hash";
-	private static final String COL_OBJ_CONTRACT_ID = "contract_id";
-	private static final String COL_OBJ_ISNULL = "isnullable";
-	private static final String COL_OBJ_ICON_ID = "icon_id";
-	private static final String COL_OBJ_DISPLAYNAME = "displayname";
-	private static final String COL_OBJ_DISPLAY = "display";
-	private static final String COL_OBJ_WRITABLE = "writable";
-	private static final String COL_OBJ_STATUS_ID = "status_id";
-	private static final String COL_OBJ_TYPE_ID = "type_id";
-	private static final String COL_OBJ_PARENT_ID = "parent_id";
-	private static final String COL_CREATE_TS = "created_ts";
-	private static final String COL_MODIFIED_TS = "modified_ts";
+	private static final String UPDATE_OBJS_UPDATE_TS = "update object set modified_ts = ? where id in ( ? )";
+	
+	protected static final String COL_OBJ_ID = "id";
+	protected static final String COL_OBJ_NAME = "name";
+	protected static final String COL_OBJ_URI = "uri";
+	protected static final String COL_OBJ_URI_HASH = "uri_hash";
+	protected static final String COL_OBJ_CONTRACT_ID = "contract_id";
+	protected static final String COL_OBJ_ISNULL = "isnullable";
+	protected static final String COL_OBJ_ICON_ID = "icon_id";
+	protected static final String COL_OBJ_DISPLAYNAME = "displayname";
+	protected static final String COL_OBJ_DISPLAY = "display";
+	protected static final String COL_OBJ_WRITABLE = "writable";
+	protected static final String COL_OBJ_STATUS_ID = "status_id";
+	protected static final String COL_OBJ_TYPE_ID = "type_id";
+	protected static final String COL_OBJ_PARENT_ID = "parent_id";
+	protected static final String COL_CREATE_TS = "created_ts";
+	protected static final String COL_MODIFIED_TS = "modified_ts";
 	
 	protected static final String COL_OBJ_VALUE_INT = "value_int";
 	protected static final String COL_OBJ_VALUE_TEXT = "value_text";
@@ -290,6 +289,23 @@ public class ObjEntity extends AbstractEntity {
 		return params;
 	}
 	
+	public void updateModTimeStamp(List<ObjEntity> objEntities) throws EntityException {  
+		
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(Calendar.getInstance().getTime());
+		
+		for(ObjEntity objEntity : objEntities){
+			params.add(Integer.valueOf( objEntity.getId()));
+		}
+				
+		String query = UPDATE_OBJS_UPDATE_TS;
+		if( params.size() > 2) {
+			query = query.replace( "( ? )", "(" .concat(( new String(new char[params.size() -2 ]).replace("\0", "?,")).concat("?"))).concat(" )");
+		}
+		
+		update(query, params.toArray(), null);
+	}
+	
 	public boolean fetchByHref() throws EntityException {
 
 		ArrayList<Object> params = new ArrayList<Object>();
@@ -311,6 +327,45 @@ public class ObjEntity extends AbstractEntity {
 	
 	protected void doQueryByHref(List<Object> params) throws EntityException{
 		query(SEARCH_OBJ_BY_HREF, params.toArray(), new ObjResultSetHandler<ObjEntity>(this));
+	}
+	
+	public List<ObjEntity> fetchByHrefs(List<Uri> uris) throws EntityException{
+		
+		List<ObjEntity> results = new ArrayList<ObjEntity>();
+		
+		ArrayList<Object> params = new ArrayList<Object>();
+		
+		for(Uri uri : uris){
+			params.add(Integer.valueOf(uri.getPath().hashCode()));
+		}
+				
+		String query = SEARCH_OBJS_BY_HREFS;
+		if( params.size() > 1) {
+			query = query.replace( "?", ( new String(new char[params.size() -1 ]).replace("\0", "?,")).concat("?"));
+		}
+		
+		queryMultiple(query, params.toArray(), new ObjResultSetMultipleHandler(results));
+		
+		for( int i = 0; i < results.size();i++){
+			ObjEntity objEnt = (ObjEntity)results.get(i);
+
+			if (objEnt.getObj_contract_id() != null) {
+				ContractEntity contractEntity = new ContractEntity(objEnt.getObj_contract_id());
+				contractEntity.fetch();
+				objEnt.getObixObject().setIs(contractEntity.getObixContract());
+			}
+			
+			if(!objEnt.getObjtype().equals(EntityType.Obj) && !objEnt.isDetailsfetched()) {
+				// re-map it according to it type to the right obj (Int, Real, ... )
+				ObjEntity resultObjEntity = objEnt.subClassToType( objEnt);
+				if( resultObjEntity instanceof ValEntity) {
+					((ValEntity)resultObjEntity).fetchDetails();
+				}
+				results.set(i, resultObjEntity);
+			}
+		}
+		
+		return results; 
 	}
 	
 	public static ObjEntity fetchByHref(ObjEntity objEnt) throws EntityException {
@@ -619,10 +674,10 @@ public class ObjEntity extends AbstractEntity {
 
 	public ObjEntity getChildByName( String name){
 		
-		List childList = getChilds();
+		List<ObjEntity> childList = getChilds();
 		
 		for(int i = 0; i < childList.size(); i++){
-			ObjEntity child = (ObjEntity)childList.get(i);
+			ObjEntity child = childList.get(i);
 			if( child.getObixObject().getName().equals(name)){
 				return child;
 			}

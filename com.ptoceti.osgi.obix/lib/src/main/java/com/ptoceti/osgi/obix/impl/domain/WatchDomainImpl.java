@@ -151,6 +151,24 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 			if( watch != null){
 				// parse each child of the watch
 				List<ObjEntity> childs = watch.getChilds();
+				
+				List<Uri> uris = new ArrayList<Uri>();
+				for( ObjEntity uriEnt : childs){
+					// filter for uri, as there is also the lease object
+					if( uriEnt instanceof UriEntity){
+						uris.add((Uri)uriEnt.getObixObject());
+					}
+				}
+				
+				List<ObjEntity> monitoredObjs = null;
+				// get all objects identified by the watch's href uris
+				if( uris.size() > 0){
+					ObjEntity fetchObj = new ObjEntity(new Obj());
+					monitoredObjs = fetchObj.fetchByHrefs(uris);
+				}
+				
+				List<ObjEntity> updatedUris = new ArrayList<ObjEntity>();
+				
 				for( ObjEntity uriEnt : childs){
 					// filter for uri, as there is also the lease object
 					if( uriEnt instanceof UriEntity){
@@ -162,31 +180,40 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 						
 						Obj watchedObj = new Obj();
 						watchedObj.setHref(watchedUri);
-						ObjEntity watchObjEnt = new ObjEntity(watchedObj);
-						watchObjEnt = ObjEntity.fetchByHref(watchObjEnt);
-						if( watchObjEnt != null){
-							watchObjEnt.fetchChildrens();
-							for( ObjEntity childEntity : (List<ObjEntity>) watchObjEnt.getChilds()){
-								// check if one of the child object has been modified ( only check one )
-								if( childEntity.getModificationDate() != null && childEntity.getModificationDate().after(timestamp) && !isModified ){
+						
+						for( ObjEntity watchObjEnt : monitoredObjs ){
+							if( watchObjEnt.getObj_uri().equals(watchedUri.getPath())){
+	
+								watchObjEnt.fetchChildrens();
+								for( ObjEntity childEntity : (List<ObjEntity>) watchObjEnt.getChilds()){
+									// check if one of the child object has been modified ( only check one )
+									if( childEntity.getModificationDate() != null && childEntity.getModificationDate().after(timestamp) && !isModified ){
+										// add the updated object to the list
+										watchOut.getValuesList().addChildren(watchObjEnt.getObixObject());
+										// update the uri to mark the last modification time;
+										updatedUris.add(uriEnt);
+										// yes
+										isModified = true;
+									}
+									watchObjEnt.getObixObject().addChildren(childEntity.getObixObject());
+								}
+								// if the object exists and it has been modified since last update of the watched uri .. ( and none of the childs has been modified)
+								if( watchObjEnt.getModificationDate() != null &&  watchObjEnt.getModificationDate().after(timestamp) && !isModified){
 									// add the updated object to the list
 									watchOut.getValuesList().addChildren(watchObjEnt.getObixObject());
 									// update the uri to mark the last modification time;
-									uriEnt.update();
-									// yes
-									isModified = true;
+									updatedUris.add(uriEnt);
 								}
-								watchObjEnt.getObixObject().addChildren(childEntity.getObixObject());
-							}
-							// if the object exists and it has been modified since last update of the watched uri .. ( and none of the childs has been modified)
-							if( watchObjEnt.getModificationDate() != null &&  watchObjEnt.getModificationDate().after(timestamp) && !isModified){
-								// add the updated object to the list
-								watchOut.getValuesList().addChildren(watchObjEnt.getObixObject());
-								// update the uri to mark the last modification time;
-								uriEnt.update();
+								
+								break;
 							}
 						}
 					}
+				}
+				
+				if(updatedUris.size() > 0){
+					ObjEntity obj = new ObjEntity(new Obj());
+					obj.updateModTimeStamp(updatedUris);
 				}
 			}
 		} catch(EntityException ex) {
@@ -204,28 +231,49 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 			if( watch != null){
 				// parse each child of the watch
 				List<ObjEntity> childs = watch.getChilds();
+				
+				List<Uri> uris = new ArrayList<Uri>();
+				for( ObjEntity uriEnt : childs){
+					// filter for uri, as there is also the lease object
+					if( uriEnt instanceof UriEntity){
+						uris.add((Uri)uriEnt.getObixObject());
+					}
+				}
+				
+				List<ObjEntity> monitoredObjs = null;
+				// get all objects identified by the watch's href uris
+				if( uris.size() > 0){
+					ObjEntity fetchObj = new ObjEntity(new Obj());
+					monitoredObjs = fetchObj.fetchByHrefs(uris);
+				}
+				
+				List<ObjEntity> updatedUris = new ArrayList<ObjEntity>();
+				
 				for( ObjEntity uriEnt : childs){
 					// filter for uri, as there is also the lease object
 					if( uriEnt instanceof UriEntity){
 						// uri represent an object to watch for
 						Uri watchedUri = (Uri)uriEnt.getObixObject();
 						
-						Obj searchedObj = new Obj();
-						searchedObj.setHref(watchedUri);
-						ObjEntity searchObjEnt = new ObjEntity(searchedObj);
-						searchObjEnt = ObjEntity.fetchByHref(searchObjEnt);
-						// if the object exists ...
-						if(searchObjEnt != null){
-							searchObjEnt.fetchChildrens();
-							for( ObjEntity entity : (List<ObjEntity>) searchObjEnt.getChilds()){
-								searchObjEnt.getObixObject().addChildren(entity.getObixObject());
+						for( ObjEntity watchObjEnt : monitoredObjs ){
+							if( watchObjEnt.getObj_uri().equals(watchedUri.getPath())){
+								watchObjEnt.fetchChildrens();
+								for( ObjEntity entity : (List<ObjEntity>) watchObjEnt.getChilds()){
+									watchObjEnt.getObixObject().addChildren(entity.getObixObject());
+								}
+								// add the updated object to the list
+								watchOut.getValuesList().addChildren(watchObjEnt.getObixObject());
+								// update the uri to mark the last modification time;
+								updatedUris.add(uriEnt);
+								break;
 							}
-							// add the updated object to the list
-							watchOut.getValuesList().addChildren(searchObjEnt.getObixObject());
-							// update the uri to mark the last modification time;
-							uriEnt.update();
 						}
 					}
+				}
+				
+				if(updatedUris.size() > 0){
+					ObjEntity obj = new ObjEntity(new Obj());
+					obj.updateModTimeStamp(updatedUris);
 				}
 			}
 		} catch(EntityException ex) {

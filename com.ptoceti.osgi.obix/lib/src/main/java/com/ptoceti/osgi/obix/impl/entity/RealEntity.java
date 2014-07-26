@@ -32,7 +32,6 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ptoceti.osgi.obix.object.Int;
 import com.ptoceti.osgi.obix.object.Real;
 import com.ptoceti.osgi.obix.object.Uri;
 
