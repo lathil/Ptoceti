@@ -41,6 +41,7 @@ import com.ptoceti.osgi.data.JdbcDevice;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.PreparedStatement;
@@ -49,12 +50,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 
 import javax.sql.ConnectionPoolDataSource;
 import javax.sql.DataSource;
+import javax.sql.rowset.serial.SerialArray;
 
 
 public class JdbcDeviceImpl implements JdbcDevice {
@@ -366,6 +369,9 @@ public class JdbcDeviceImpl implements JdbcDevice {
 	private void setStatementParams(PreparedStatement statement, Object[] params)
 			throws SQLException {
 
+		ThreadConnection thConn = threadLocalConn.get();
+		Connection conn = thConn.getConnection();
+		
 		if (params != null) {
 			for (int i = 0; i < params.length; i++) {
 				Object obj = params[i];
