@@ -12,8 +12,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.TooManyListenersException;
 
 import org.osgi.framework.ServiceRegistration;
@@ -101,10 +103,6 @@ public class SensorNodeDriver implements SerialPortEventListener {
 	 */
 	ByteArrayOutputStream bytesIn = new ByteArrayOutputStream();
 	/**
-	 * flag to indicate that a new frame has arrived.
-	 */
-	boolean hasNewFrame = false;
-	/**
 	 * flag to indicate that a special "start of frame" first byte has been received.
 	 */
 	boolean foundFrameStart1 = false;
@@ -116,7 +114,8 @@ public class SensorNodeDriver implements SerialPortEventListener {
 	/**
 	 * contents buffer of the sensor node response for any command.
 	 */
-	byte[] response;
+	
+	ResponseSynchronizer responseSync;
 	
 	
 	/**
@@ -134,6 +133,8 @@ public class SensorNodeDriver implements SerialPortEventListener {
 		this.id = id;
 		this.port = port;
 		
+		responseSync = new ResponseSynchronizer();
+		
 		try {
 			final CommPortIdentifier portID = CommPortIdentifier.getPortIdentifier(port);
 			if( portID != null && ( portID.getPortType() == CommPortIdentifier.PORT_SERIAL)) {
@@ -143,14 +144,17 @@ public class SensorNodeDriver implements SerialPortEventListener {
 					serialPort = (SerialPort) portID.open( this.getClass().getName(), (int)1000 );
 					// if the parity bit is not used, the  port is configured to send two stop bits.
 					if( usesParity == true )
-						serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_7,
+						serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_8,
 							SerialPort.STOPBITS_1, ( evenParity ? SerialPort.PARITY_EVEN : SerialPort.PARITY_ODD ));
 					else
-						serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_7,
-							SerialPort.STOPBITS_2, SerialPort.PARITY_NONE);
+						serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_8,
+							SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+					serialPort.setInputBufferSize(64);
+					serialPort.disableReceiveThreshold();
 					// set itself to listen to data available events.
 					serialPort.addEventListener(this);
 					serialPort.notifyOnDataAvailable(true);
+					serialPort.enableReceiveTimeout(1000);
 					// get hold of the inputs and outputs streams.
 					inStream = serialPort.getInputStream();
 					outStream = serialPort.getOutputStream();
@@ -191,6 +195,12 @@ public class SensorNodeDriver implements SerialPortEventListener {
 	 */
 	public void stop(){
 		sReg.unregister();
+		serialPort.removeEventListener();
+		try {
+			inStream.close();
+			outStream.close();
+		} catch (IOException e) {
+		}
 		
 		serialPort.close();
 		inStream = null;
@@ -206,12 +216,15 @@ public class SensorNodeDriver implements SerialPortEventListener {
 	 * @param nodeId the idnet of the node
 	 * @return Integer[] a array of 10  integer words that represent all of the node value data.
 	 */
-	public synchronized int[] getAllValues(final Integer nodeId){
+	public synchronized Integer[] getAllValues(final Integer nodeId){
 		
-		int[] result = new int[0];
+		Integer[] result = new Integer[0];
 		
 		try {
 		
+			foundFrameStart1 = false;
+			foundFrameStart2 = false;
+			
 			bytesOut.reset();
 			bytesOut.write(FRAME_START_1);
 			bytesOut.write(FRAME_START_2);
@@ -225,16 +238,11 @@ public class SensorNodeDriver implements SerialPortEventListener {
 			outStream.write( bytesOut.toByteArray());
 			outStream.flush();
 			
-			if ( hasNewFrame == false ) wait( 1000 );
-			if ( hasNewFrame == true ) {
-				result = checkNewIncomingMessage();
-				hasNewFrame = false;
-			}
+			result = responseSync.getresponse();
+			
 		} catch (IOException ex) {
 			Activator.log(LogService.LOG_DEBUG, "Error sending frame");
-		} catch (InterruptedException e) {
-			Activator.log(LogService.LOG_DEBUG, "Error waiting for response");
-		}
+		} 
 		
 		return result;
 	}
@@ -243,39 +251,23 @@ public class SensorNodeDriver implements SerialPortEventListener {
 	 * Check an incoming data frame from a node and return its values as an array of integers.
 	 * @return an array of integers that represents the retuend data
 	 */
-	private synchronized int[] checkNewIncomingMessage() {
+	private void checkNewIncomingMessage() {
 		byte[] buff = bytesIn.toByteArray();
-		byte calculatedLrc = SensorNodeDriverUtils.calculateLRC(buff, buff.length - 2);
+		byte calculatedLrc = SensorNodeDriverUtils.calculateLRC(buff, buff.length - 1);
 		
-		int[] result = null;
+		List<Integer> result = new ArrayList<Integer>();
 		// Check if check sum are equals
 		if( calculatedLrc == buff[buff.length -1]) {
 			
-			response = buff;
-			bytesIn.reset();
-			hasNewFrame = true;
-			foundFrameStart1 = false;
-			foundFrameStart2 = false;
+			int nbBytes = buff[3];
 			
-			
-			result = new int[ buff[3] / 2];
-			
-			for(int i = 0, j=0 ; i <( buff[3] / 2); i = i+2, j++ ){
-				int wordValue = ( buff[4 + i ] << 8 + buff[4 + i + 1]);
-				result[j] =  wordValue;
+			for(int i = 0, j=0 ; i < nbBytes; i = i+2, j++ ){
+				int wordValue = ( buff[5 + i ] << 8 + buff[5 + i + 1]);
+				result.add(Integer.valueOf(wordValue));
 			}
-					
-			notify();
-		} else {
-			bytesIn.reset();
-			hasNewFrame = false;
-			foundFrameStart1 = false;
-			foundFrameStart2 = false;
-			
-			notify();
-		}
+		} 
 		
-		return result;
+		responseSync.setResponse(result.toArray(new Integer[result.size()]));
 	}
 
 	/**
@@ -292,41 +284,101 @@ public class SensorNodeDriver implements SerialPortEventListener {
 		// have received on the serial port.
 		if( event.getEventType() == SerialPortEvent.DATA_AVAILABLE ) {
 			try {
-			while (inStream.available() > 0 ) {
+
+			if (inStream.available() > 0 ) {
 					// we are working on every received byte ( there may be more than one byte on the input
 					// stream ). We also do no want to block the current thread by attempting a read() with
 					// no available bytes.
 					
-					inByte = inStream.read();
-					// if we receive a start of frame byte, flag it and reset the hex buffer.
-					if( inByte == FRAME_START_1 ) {
-						foundFrameStart1 = true;
-					}
-					else if( inByte == FRAME_START_2 && foundFrameStart1) {
-						foundFrameStart2 = true;
-						bytesIn.reset();
-					}
-					// this is just a norma byte, so if we received the start of frame, but not yet the end
-					// of frame char, we just record it.
-					else if(( foundFrameStart2 == true )) {
-						if( bytesIn.size() < 3) {
-							// first thre bytes contains device adress, frame lenght, command word
-							bytesIn.write(inByte);
-						} else {
-							if( bytesIn.size() < (bytesIn.toByteArray())[1] + 3) {
+					while((inByte = inStream.read()) > -1) {
+						// if we receive a start of frame byte, flag it and reset the hex buffer.
+						if( !foundFrameStart1 && inByte == FRAME_START_1 ) {
+							foundFrameStart1 = true;
+						}
+						else if(!foundFrameStart2 && inByte == FRAME_START_2 && foundFrameStart1) {
+							foundFrameStart2 = true;
+							bytesIn.reset();
+							// need to write start frame bytes in buffer as checksum is calculated with them
+							bytesIn.write(FRAME_START_1);
+							bytesIn.write(FRAME_START_2);
+						}
+						// this is just a norma byte, so if we received the start of frame, but not yet the end
+						// of frame char, we just record it.
+						else if(( foundFrameStart2 == true )) {
+							if( bytesIn.size() < 5) {
+								// first thre bytes contains device adress, frame lenght, command word
 								bytesIn.write(inByte);
 							} else {
-								// we are on the end of frame. last byte is SUM
-								bytesIn.write(inByte);
-								checkNewIncomingMessage();
+								if( bytesIn.size() < (bytesIn.toByteArray())[3] + 5) {
+									bytesIn.write(inByte);
+								} else {
+									// we are on the end of frame. last byte is SUM
+									bytesIn.write(inByte);
+									checkNewIncomingMessage();
+									bytesIn.reset();
+									foundFrameStart1 = false;
+									foundFrameStart2 = false;
+									break;
+								}
 							}
 						}
 					}
-						
 				}
 				
-			} catch (IOException e ) {}
+			} catch (IOException e ) {
+				Activator.log(LogService.LOG_ERROR, "Error reading char from serial input stream: " + e); 
+			}
 		}
+		
+	}
+	
+	/**
+	 * Class to synchronize access to the response of the sensor node, if there was one. 
+	 * @author LATHIL
+	 *
+	 */
+	protected class ResponseSynchronizer {
+		 boolean hasNewResponse;
+		 Integer[] newResponse;
+		 
+		 ResponseSynchronizer(){
+			 hasNewResponse = false;
+		 }
+		 
+		 /**
+		  * Consumer access to response. Wait a maximum time for the response of the sensor node ( currently 2 sec ).
+		  * 
+		  * @return an array of int if the response has been received, null otherwise
+		  */
+		 synchronized Integer[] getresponse(){
+			 
+			try {
+				if( !hasNewResponse){
+					// wait max 2sec
+					wait(2000);
+				}
+				
+				if( hasNewResponse){
+					hasNewResponse= false;
+					return newResponse;
+				}
+				
+			} catch (InterruptedException e) {
+				Activator.log(LogService.LOG_DEBUG, "No response received from sensor node. Waited max time elapse.");
+			}
+			
+			return null;
+		 }
+		 
+		 /**
+		  * Producer method. Set the response and notify waiting consumer that response has arived.
+		  * @param response
+		  */
+		 synchronized void setResponse(Integer[] response){
+			 newResponse = response.clone();
+			 hasNewResponse = true;
+			 notifyAll();
+		 }
 		
 	}
 }

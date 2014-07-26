@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -84,7 +85,16 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 		this.poolRate = rate;
 		this.sensorDatas = sensorDatas;
 		
-		String[] producerScopes = new String[0];
+		List<String> scopes = new ArrayList<String>();
+		
+		for( int i = 0; i < sensorDatas.length; i++) {
+			String scope = sensorDatas[i].getScope();
+			if(! scopes.contains(scope)){
+				scopes.add(scope);
+			}
+		}
+		
+		String[] producerScopes = scopes.toArray(new String[scopes.size()]);
 		
 		// Then we need to register our service into the framework.
 		// We put here the name of the services interfaces under which to register this service.
@@ -264,14 +274,15 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 	public void run() {
 		while(!disconnect){
 			if(sensorNodeDriver != null ) {
-				int[] datas = sensorNodeDriver.getAllValues(id); 
-				for(int i = 0; i < datas.length; i ++){
-					
-					Date now = Calendar.getInstance().getTime();
-					double value = (sensorDatas[i].getScale().doubleValue() * (double)datas[i]) + sensorDatas[i].getOffset().doubleValue();
-					sensorDatas[i].setValue(new Measurement(value, 0, UnitUtils.getUnit(sensorDatas[i].getUnit()), now.getTime()));
+				Integer[] datas = sensorNodeDriver.getAllValues(id); 
+				if( datas != null) {
+					for(int i = 0; i < datas.length && i < sensorDatas.length; i ++){
+						
+						Date now = Calendar.getInstance().getTime();
+						double value = (sensorDatas[i].getScale().doubleValue() * datas[i].doubleValue()) + sensorDatas[i].getOffset().doubleValue();
+						sensorDatas[i].setValue(new Measurement(value, 0, UnitUtils.getUnit(sensorDatas[i].getUnit()), now.getTime()));
+					}
 				}
-				 
 				refreshWires();
 			}
 			try {
