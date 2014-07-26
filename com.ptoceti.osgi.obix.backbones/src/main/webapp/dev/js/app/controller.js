@@ -72,7 +72,10 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 			ventAggr.trigger("controller:startApp");
 			
 			this.lobby.fetch({
-				success : this.lobbyLoaded
+				success : this.lobbyLoaded,
+				error : _.bind(function(model, response){
+					console.log('Error loading lobby');
+				}, this)
 			});
 			
 		},
