@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import org.osgi.service.log.LogService;
 import org.sqlite.JDBC;
 import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteConfig.SynchronousMode;
 import org.sqlite.SQLiteOpenMode;
 import org.sqlite.SQLiteConfig.TransactionMode;
 
@@ -61,6 +62,7 @@ public class SQLiteJDBC implements java.sql.Driver{
 	
 		//SQLiteConfig newConfig = new SQLiteConfig();
 		config.setSharedCache(true);
+		config.setSynchronous(SynchronousMode.NORMAL);
 		
 		
 		if(( config.getOpenModeFlags() & SQLiteOpenMode.READWRITE.flag) > 0) {
