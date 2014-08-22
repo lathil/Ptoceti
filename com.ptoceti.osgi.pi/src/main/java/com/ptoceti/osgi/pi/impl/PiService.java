@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Timer;
@@ -48,12 +49,12 @@ import org.osgi.service.wireadmin.Envelope;
 import org.osgi.service.wireadmin.Producer;
 import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireConstants;
-import org.osgi.util.measurement.Measurement;
 import org.osgi.util.measurement.State;
-import org.osgi.util.measurement.Unit;
 
 import com.pi4j.system.SystemInfo;
 import com.pi4j.temperature.TemperatureConversion;
+import com.ptoceti.osgi.control.ExtendedUnit;
+import com.ptoceti.osgi.control.Measure;
 import com.ptoceti.osgi.pi.impl.Activator;
 
 public class PiService implements ManagedService, Consumer, Producer{
@@ -79,26 +80,23 @@ public class PiService implements ManagedService, Consumer, Producer{
 	// a reference to the service registration for the Controller object.
 	ServiceRegistration sReg = null;
 	
-	// The wiresObject hashtable keep track of all obix objects created in
-	// relation
-	// with the Measurements or State received through a wire.
-	private Hashtable wiresObjects = new Hashtable();
 	// The list of wires this consumer service is connected to. This list is
 	// usefull
 	// if the service decide to poll the wires or one in particular.
 	private Wire producerWires[] = null;
 	// The list of wires this producer service is connected to.
 	private Wire consumerWires[] = null;
+	// keep track of all prvious values sent to avoid sending non-changed values
+	private HashMap<Object, Envelope> lastEnvelopes = new HashMap<Object,Envelope>();
 	
-	private long refreshRate = 1000;
 	private Timer refreshTimer = new Timer();
 	private TimerTask pushWiresThread = null;
 		
 	public PiService() {
 		
 		// The type of objects that can be accepted through the wire.
-		Class[] flavors = new Class[] { Envelope[].class, Envelope.class,
-				Measurement.class, State.class, };
+		Class<?>[] flavors = new Class[] { Envelope[].class, Envelope.class,
+				Measure.class, State.class, };
 		// The scopes of measurements that this consumer is able to consume from
 		// the wire.
 		String[] producerScopes = new String[] { PISYSTEMSCOPE };
@@ -110,7 +108,7 @@ public class PiService implements ManagedService, Consumer, Producer{
 		
 		String[] clazzes = new String[] { ManagedService.class.getName(), Producer.class.getName(),Consumer.class.getName() };
 		// register the class as a managed service.
-		Hashtable properties = new Hashtable();
+		Hashtable<String, Object> properties = new Hashtable<String,Object>();
 		properties.put(Constants.SERVICE_PID, this.getClass().getName());
 		properties.put(WireConstants.WIREADMIN_CONSUMER_SCOPE, consumerScopes);
 		properties.put(WireConstants.WIREADMIN_CONSUMER_COMPOSITE,composites);
@@ -170,12 +168,15 @@ public class PiService implements ManagedService, Consumer, Producer{
 				for( int i = 0; i < consumerWires.length; i++ ) {
 					Wire wire = consumerWires[i];
 					// Get the Consumer service flavors. Accessible from the Wire's getFlavors() method.
-					Class flavors[] = wire.getFlavors();
-					if( flavors != null ) {
+					Class<?> flavors[] = wire.getFlavors();
+					// .. but check that the wire scope is within that of the wire.
+					if( flavors != null && wire.hasScope(PISYSTEMSCOPE)) {
 						List<Envelope> systemInfos = getSystemInfo();
 						for( Envelope envelope : systemInfos){
-							// .. but check that the wire scope is within that of the wire.
-							if( wire.hasScope(PISYSTEMSCOPE)) {
+							boolean knownEnveloppe = lastEnvelopes.containsKey(envelope.getIdentification());
+							if(( !knownEnveloppe) || ( knownEnveloppe &&
+									((Measure)lastEnvelopes.get(envelope.getIdentification()).getValue()).getValue() != ((Measure)envelope.getValue()).getValue())){
+
 								// if the Enveloppe type is included in the Consumer properties, we send it i to it.
 								for(int k = 0; k < flavors.length; k++){
 									if( flavors[k].isInstance(envelope)) {
@@ -183,6 +184,7 @@ public class PiService implements ManagedService, Consumer, Producer{
 										break;
 									}
 								}
+								lastEnvelopes.put(envelope.getIdentification(), envelope);
 							}
 						}
 					}
@@ -219,17 +221,16 @@ public class PiService implements ManagedService, Consumer, Producer{
 		
 		try {
 			long timeStamp = Calendar.getInstance().getTime().getTime();
-			result.add(new BasicEnvelope(new Measurement((Double.valueOf(SystemInfo.getBogoMIPS())).doubleValue(),0,null,timeStamp),SYSTEMINFOMIPS,PISYSTEMSCOPE));
-			result.add(new BasicEnvelope(new Measurement((Double.valueOf(SystemInfo.getClockFrequencyArm())).doubleValue(),0,Unit.Hz,timeStamp),SYSTEMINFOCLOCKARM,PISYSTEMSCOPE));
-			result.add(new BasicEnvelope(new Measurement((Double.valueOf(SystemInfo.getClockFrequencyCore())).doubleValue(),0,Unit.Hz,timeStamp),SYSTEMINFOCLOCKCORE,PISYSTEMSCOPE));
+			result.add(new BasicEnvelope(new Measure((Double.valueOf(SystemInfo.getBogoMIPS())).doubleValue(),0,null,timeStamp),SYSTEMINFOMIPS,PISYSTEMSCOPE));
+			result.add(new BasicEnvelope(new Measure((Double.valueOf(SystemInfo.getClockFrequencyArm())).doubleValue(),0.0,ExtendedUnit.Hz,timeStamp),SYSTEMINFOCLOCKARM,PISYSTEMSCOPE));
+			result.add(new BasicEnvelope(new Measure((Double.valueOf(SystemInfo.getClockFrequencyCore())).doubleValue(),0.0,ExtendedUnit.Hz,timeStamp),SYSTEMINFOCLOCKCORE,PISYSTEMSCOPE));
 			
-			double cpuTempK = TemperatureConversion.convertCelsiusToKelvin((Double.valueOf(SystemInfo.getCpuTemperature())).doubleValue());
-			result.add(new BasicEnvelope(new Measurement(cpuTempK,0,Unit.K,timeStamp),SYSTEMINFOCPUTEMP,PISYSTEMSCOPE));
+			result.add(new BasicEnvelope(new Measure((Double.valueOf(SystemInfo.getCpuTemperature())).doubleValue(),0,ExtendedUnit.celsius,timeStamp),SYSTEMINFOCPUTEMP,PISYSTEMSCOPE));
 			
-			result.add(new BasicEnvelope(new Measurement((Double.valueOf(SystemInfo.getCpuVoltage())).doubleValue(),0,Unit.V,timeStamp),SYSTEMINFOCPUVOLT,PISYSTEMSCOPE));
-			result.add(new BasicEnvelope(new Measurement((Double.valueOf(SystemInfo.getMemoryVoltageSDRam_C())).doubleValue(),0,Unit.V,timeStamp),SYSTEMINFOMSDRAMCVOLT,PISYSTEMSCOPE));
-			result.add(new BasicEnvelope(new Measurement((Double.valueOf(SystemInfo.getMemoryVoltageSDRam_I())).doubleValue(),0,Unit.V,timeStamp),SYSTEMINFOMSDRAMIVOLT,PISYSTEMSCOPE));
-			result.add(new BasicEnvelope(new Measurement((Double.valueOf(SystemInfo.getMemoryVoltageSDRam_P())).doubleValue(),0,Unit.V,timeStamp),SYSTEMINFOMSDRAMPVOLT,PISYSTEMSCOPE));
+			result.add(new BasicEnvelope(new Measure((Double.valueOf(SystemInfo.getCpuVoltage())).doubleValue(),0,ExtendedUnit.V,timeStamp),SYSTEMINFOCPUVOLT,PISYSTEMSCOPE));
+			result.add(new BasicEnvelope(new Measure((Double.valueOf(SystemInfo.getMemoryVoltageSDRam_C())).doubleValue(),0,ExtendedUnit.V,timeStamp),SYSTEMINFOMSDRAMCVOLT,PISYSTEMSCOPE));
+			result.add(new BasicEnvelope(new Measure((Double.valueOf(SystemInfo.getMemoryVoltageSDRam_I())).doubleValue(),0,ExtendedUnit.V,timeStamp),SYSTEMINFOMSDRAMIVOLT,PISYSTEMSCOPE));
+			result.add(new BasicEnvelope(new Measure((Double.valueOf(SystemInfo.getMemoryVoltageSDRam_P())).doubleValue(),0,ExtendedUnit.V,timeStamp),SYSTEMINFOMSDRAMPVOLT,PISYSTEMSCOPE));
 		} catch (IOException e) {
 			Activator.log(LogService.LOG_ERROR, "Error accessing pi's internal: " + e.getMessage());
 		} catch (InterruptedException e) {
@@ -346,11 +347,8 @@ public class PiService implements ManagedService, Consumer, Producer{
 	private class PushThread extends TimerTask {
 
 		@Override
-		public void run() {
-			
-			Activator.log(LogService.LOG_INFO, "Refresh Thread updatings wires.");			
+		public void run() {		
 			refreshWires();
-			
 		}
 	}
 }
