@@ -29,11 +29,11 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * #L%
  */
 
-import org.osgi.util.measurement.Measurement;
-
-import com.ptoceti.osgi.control.UnitUtils;
 
 import java.util.Vector;
+
+import com.ptoceti.osgi.control.ExtendedUnit;
+import com.ptoceti.osgi.control.Measure;
 
 /**
  * ModbusMeasurement class
@@ -79,7 +79,7 @@ public class ModbusMeasurement extends ModbusData{
 	public Object getValue() {
 	
 		int data = reader.read( adress, length);
-		Measurement measurement = new Measurement((double) data, 0.0, UnitUtils.getUnit(dataExpression), reader.getLastUpdateTime());
+		Measure measurement = new Measure((double) data, 0.0, ExtendedUnit.findUnit(dataExpression), reader.getLastUpdateTime());
 		
 		return measurement;
 		

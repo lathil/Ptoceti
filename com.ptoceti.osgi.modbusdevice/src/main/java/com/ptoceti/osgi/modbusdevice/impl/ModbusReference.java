@@ -27,9 +27,9 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * #L%
  */
 
+import com.ptoceti.osgi.control.ExtendedUnit;
 import com.ptoceti.osgi.control.Reference;
 
-import com.ptoceti.osgi.control.UnitUtils;
 
 import java.util.Vector;
 
@@ -68,7 +68,7 @@ private String dataExpression = null;
 	
 		int data = reader.read( adress, length);
 		
-		Reference reference = new Reference((double) data, UnitUtils.getUnit(dataExpression));
+		Reference reference = new Reference((double) data, ExtendedUnit.findUnit(dataExpression));
 		
 		return reference;
 		

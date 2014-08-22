@@ -29,7 +29,6 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * #L%
  */
 
-import org.osgi.util.measurement.Unit;
 
 
 /**

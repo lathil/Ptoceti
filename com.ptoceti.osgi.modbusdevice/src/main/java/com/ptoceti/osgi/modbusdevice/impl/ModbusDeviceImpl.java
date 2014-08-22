@@ -29,25 +29,15 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * #L%
  */
 
-import com.ptoceti.osgi.modbusdevice.ModbusDevice;
 import com.ptoceti.osgi.modbus.ModbusDriver;
 
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.log.LogService;
-import org.osgi.service.wireadmin.Producer;
-import org.osgi.service.wireadmin.Consumer;
-import org.osgi.service.wireadmin.Wire;
-import org.osgi.service.wireadmin.WireConstants;
-import org.osgi.service.wireadmin.Envelope;
-import org.osgi.service.wireadmin.BasicEnvelope;
 
-import java.util.Hashtable;
-import java.util.Dictionary;
 import java.util.ArrayList;
 
 /**
