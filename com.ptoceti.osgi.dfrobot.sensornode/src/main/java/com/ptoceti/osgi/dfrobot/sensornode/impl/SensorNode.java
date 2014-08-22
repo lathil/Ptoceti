@@ -20,9 +20,11 @@ import org.osgi.service.wireadmin.Envelope;
 import org.osgi.service.wireadmin.Producer;
 import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireConstants;
-import org.osgi.util.measurement.Measurement;
+import org.osgi.util.measurement.State;
 
-import com.ptoceti.osgi.control.UnitUtils;
+import com.ptoceti.osgi.control.ExtendedUnit;
+import com.ptoceti.osgi.control.Measure;
+import com.ptoceti.osgi.control.StatusCode;
 
 public class SensorNode implements Producer, ServiceListener, Runnable {
 
@@ -46,7 +48,6 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 	 * The url to the config files for the measurements
 	 */
 	public static final String SENSORNODE_MEASUREMENT_CONFIGFILE = "com.ptoceti.osgi.sensornode.measurement.configfile";
-	
 	
 	/**
 	 * The id of the sensor node on the RS-485 bus
@@ -87,6 +88,7 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 		
 		List<String> scopes = new ArrayList<String>();
 		
+		
 		for( int i = 0; i < sensorDatas.length; i++) {
 			String scope = sensorDatas[i].getScope();
 			if(! scopes.contains(scope)){
@@ -109,7 +111,7 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 		};
 		
 		// The type of objects that will be returned through the wire.
-		Class[] flavors = new Class[] {
+		Class<?>[] flavors = new Class[] {
 			Envelope.class
 		};
 		
@@ -165,7 +167,7 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 	public Object polled(Wire wire) {
 		
 		if( wire != null ) {
-			ArrayList envelopeList = new ArrayList();
+			List<BasicEnvelope> envelopeList = new ArrayList<BasicEnvelope>();
 			
 			// Because the service is a composite Producer, we must pass in review each value and see if its scope marches
 			// that of the  wire.
@@ -276,11 +278,12 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 			if(sensorNodeDriver != null ) {
 				Integer[] datas = sensorNodeDriver.getAllValues(id); 
 				if( datas != null) {
-					for(int i = 0; i < datas.length && i < sensorDatas.length; i ++){
-						
-						Date now = Calendar.getInstance().getTime();
-						double value = (sensorDatas[i].getScale().doubleValue() * datas[i].doubleValue()) + sensorDatas[i].getOffset().doubleValue();
-						sensorDatas[i].setValue(new Measurement(value, 0, UnitUtils.getUnit(sensorDatas[i].getUnit()), now.getTime()));
+					// the config of contentdata drive the data to use
+					for( SensorData sensorData : sensorDatas){
+						int dataIndex = sensorData.getId().intValue();
+						if( dataIndex >= 0 && dataIndex < datas.length){
+							sensorData.setValue(new Integer(datas[dataIndex]));
+						}
 					}
 				}
 				refreshWires();
@@ -292,6 +295,18 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 			}
 		}
 		
+	}
+	
+	protected int getSensorStatus(){
+		for( int j = 0; j < sensorDatas.length; j++ ) {
+			// Try to update the wire with in every ModbusData value in our collection ..
+			SensorData sensorData = ((SensorData)sensorDatas[j]);
+			if( sensorData.getId().intValue() == 3 && sensorData.getValue() != null){
+				return sensorData.getValue().intValue();
+			}
+		}
+		
+		return 0;
 	}
 	
 	/**
@@ -311,23 +326,36 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 				for( int i = 0; i < consumerWires.length; i++ ) {
 					Wire wire = consumerWires[i];
 					// Get the Consumer service flavors. Accessible from the Wire's getFlavors() method.
-					Class flavors[] = wire.getFlavors();
+					Class<?> flavors[] = wire.getFlavors();
 					
 					if( flavors != null ) {
 						SensorData sensorData = null;
 						for( int j = 0; j < sensorDatas.length; j++ ) {
 							// Try to update the wire with in every ModbusData value in our collection ..
 							sensorData = ((SensorData)sensorDatas[j]);
-							// .. but check that the wire scope is within that of the wire.
-							if( wire.hasScope( sensorData.getScope())) {
-								Envelope enValue = new BasicEnvelope( sensorData.getValue(), sensorData.getIdentification(), sensorData .getScope());
-								// if the Enveloppe type is included in the Consumer properties, we send it i to it.
-								for(int k = 0; k < flavors.length; k++){
-									if( flavors[k].isInstance(enValue)) {
-										wire.update( enValue );
-										break;
+							
+							if( sensorData.getValue() != null && (( sensorData.getLastValue() != null && sensorData.getLastValue() != sensorData.getValue()) || ( sensorData.getLastValue() == null))){
+								// .. but check that the wire scope is within that of the wire.
+								if( wire.hasScope( sensorData.getScope())) {
+									int sensorDataId = sensorData.getId().intValue();
+									if( sensorDataId != 0 && sensorDataId != 3)
+									{
+										Date now = Calendar.getInstance().getTime();
+										double value = (sensorData.getScale().doubleValue() * sensorData.getValue().doubleValue()) + sensorData.getOffset().doubleValue();
+										Measure measure = new Measure(value, 0, ExtendedUnit.findUnit(sensorData.getUnit()), now.getTime());
+										measure.setStatus(StatusCode.getStatusFromId(getSensorStatus()));
+										Envelope enValue = new BasicEnvelope( measure, sensorData.getIdentification(), sensorData .getScope());
+										// if the Enveloppe type is included in the Consumer properties, we send it i to it.
+										for(int k = 0; k < flavors.length; k++){
+											if( flavors[k].isInstance(enValue)) {
+												wire.update( enValue );
+												break;
+											}
+										}
 									}
 								}
+								// remember last value
+								sensorData.setLastValue(sensorData.getValue());
 							}
 						}
 					}

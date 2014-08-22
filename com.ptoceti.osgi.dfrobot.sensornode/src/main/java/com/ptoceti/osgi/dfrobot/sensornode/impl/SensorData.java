@@ -1,7 +1,5 @@
  package com.ptoceti.osgi.dfrobot.sensornode.impl;
 
-import org.osgi.util.measurement.Measurement;
-
 public class SensorData {
 
 	private Integer id;
@@ -10,11 +8,13 @@ public class SensorData {
 	
 	private String scope;
 	
-	private Measurement value;
+	private Integer value;
 	
-	private Integer scale;
+	private Integer lastValue;
 	
-	private Integer offset;
+	private Double scale;
+	
+	private Double offset;
 	
 	private String unit;
 
@@ -36,27 +36,27 @@ public class SensorData {
 		this.identification = identification;
 	}
 
-	public Measurement getValue() {
+	public Integer getValue() {
 		return value;
 	}
 	
-	public void setValue(Measurement value) {
+	public void setValue(Integer value) {
 		this.value = value;
 	}
 
-	public Integer getScale() {
+	public Double getScale() {
 		return scale;
 	}
 
-	public void setScale(Integer scale) {
+	public void setScale(Double scale) {
 		this.scale = scale;
 	}
 
-	public Integer getOffset() {
+	public Double getOffset() {
 		return offset;
 	}
 
-	public void setOffset(Integer offset) {
+	public void setOffset(Double offset) {
 		this.offset = offset;
 	}
 
@@ -74,6 +74,14 @@ public class SensorData {
 
 	public void setUnit(String unit) {
 		this.unit = unit;
+	}
+
+	public Integer getLastValue() {
+		return lastValue;
+	}
+
+	public void setLastValue(Integer lastValue) {
+		this.lastValue = lastValue;
 	}
 
 

@@ -12,6 +12,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -179,14 +181,14 @@ public class SensorNodeDriver implements SerialPortEventListener {
 				SensorNodeDriver.class.getName()
 		};
 			
-		Dictionary props = new Hashtable();
+		Dictionary<String, Object> props = new Hashtable<String, Object>();
 		props.put( org.osgi.framework.Constants.SERVICE_PID, SensorNodeDriver.class.getName());
 		props.put( org.osgi.framework.Constants.SERVICE_DESCRIPTION, "SensorNodeDriver service implements a Device interface.");
 		props.put( SensorNodeDriver.SENSORNODE_PORT, this.port);
 		
 		sReg = Activator.bc.registerService( clazzes, this, props );
 		
-		Activator.log(LogService.LOG_INFO, "SensorNodeDriver strated on port:  " + this.port);
+		Activator.log(LogService.LOG_INFO, "SensorNodeDriver started on port:  " + this.port);
 		
 	}
 	
@@ -196,12 +198,6 @@ public class SensorNodeDriver implements SerialPortEventListener {
 	public void stop(){
 		sReg.unregister();
 		serialPort.removeEventListener();
-		try {
-			inStream.close();
-			outStream.close();
-		} catch (IOException e) {
-		}
-		
 		serialPort.close();
 		inStream = null;
 		outStream = null;
@@ -233,8 +229,6 @@ public class SensorNodeDriver implements SerialPortEventListener {
 			bytesOut.write(CHECK_ALL_COMMAND);
 			bytesOut.write(SensorNodeDriverUtils.calculateLRC(bytesOut.toByteArray(), bytesOut.size())); // CRC
 			
-			Activator.log(LogService.LOG_DEBUG, "Sending frame to sensor node: " + SensorNodeDriverUtils.writeHex(bytesOut.toByteArray()));
-			
 			outStream.write( bytesOut.toByteArray());
 			outStream.flush();
 			
@@ -261,9 +255,15 @@ public class SensorNodeDriver implements SerialPortEventListener {
 			
 			int nbBytes = buff[3];
 			
-			for(int i = 0, j=0 ; i < nbBytes; i = i+2, j++ ){
-				int wordValue = ( buff[5 + i ] << 8 + buff[5 + i + 1]);
-				result.add(Integer.valueOf(wordValue));
+			for(int i = 0 ; i < nbBytes; i = i+2){
+				ByteBuffer bbuff = ByteBuffer.allocate(2);
+				bbuff.order(ByteOrder.BIG_ENDIAN);
+				bbuff.put(0, buff[5 + i ]);
+				bbuff.put(1, buff[5 + i + 1]);
+				//bbuff.flip();
+				result.add((int)bbuff.getShort());
+				//int wordValue = ( (((int)buff[5 + i ]) << 8 ) + ((int)buff[5 + i + 1]));
+				//result.add(Integer.valueOf(wordValue));
 			}
 		} 
 		

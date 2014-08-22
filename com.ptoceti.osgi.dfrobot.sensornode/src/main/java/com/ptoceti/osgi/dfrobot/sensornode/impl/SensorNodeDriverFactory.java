@@ -56,6 +56,18 @@ public class SensorNodeDriverFactory implements org.osgi.service.cm.ManagedServi
 	public String getName() {
 		return this.getName();
 	}
+	
+	/**
+	 * Called when the main bundles is stopped
+	 */
+	public void stop(){
+		
+		for(SensorNodeDriver driver : sensorNodeDrivers.values()){
+			driver.stop();
+			sensorNodeDrivers.remove(driver);
+		}
+		
+	}
 
 	/**
 	 * Called by the framework configuration admin with configuration required to build a new SensorNodedriver.

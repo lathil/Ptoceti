@@ -96,6 +96,10 @@ public class Activator implements BundleActivator {
 	public void stop(BundleContext context) throws Exception {
 		
 		log(LogService.LOG_INFO, "Stopping");
+		
+		sensorNodeFactory.stop();
+		driverFactory.stop();
+		
 		Activator.bc = null;
 	}
 

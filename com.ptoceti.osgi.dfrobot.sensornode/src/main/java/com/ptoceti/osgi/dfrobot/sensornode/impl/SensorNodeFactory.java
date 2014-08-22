@@ -1,6 +1,7 @@
 package com.ptoceti.osgi.dfrobot.sensornode.impl;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
@@ -29,6 +30,11 @@ public class SensorNodeFactory implements org.osgi.service.cm.ManagedServiceFact
 	 *  a reference to the service registration for the SensorNodeFactory.
 	 */
 	ServiceRegistration sensorNodesFactoryReg = null;
+	/**
+	 * The default config for data entries that are not configurable/
+	 */
+	public static final String STANDARD_CONFIG_FILE = "/config/sensordevice.xml";
+	
 
 	/**
 	 * Register the class instance as a ManagedServiceFactory.
@@ -45,6 +51,17 @@ public class SensorNodeFactory implements org.osgi.service.cm.ManagedServiceFact
 			+ " as " + ManagedServiceFactory.class.getName());
 	}
 	
+	/**
+	 * Called when the main bundles is stopped
+	 */
+	public void stop(){
+		
+		for(SensorNode node : sensorNodes.values()){
+			node.stop();
+			sensorNodes.remove(node);
+		}
+		
+	}
 	
 	/**
 	 * Called by the framework configuration admin with configuration required to build a new SensorNoder.
@@ -73,8 +90,20 @@ public class SensorNodeFactory implements org.osgi.service.cm.ManagedServiceFact
 			}
 			
 			try {
-				SensorData[] sensorDatas = ( new SensorNodeConfig(sensorNodeConfigFile)).initialiseDataFromConfigFile();
-				sensorNode = new SensorNode( pid, sensorNodeId, sensorPort, sensorPoolinRate, sensorCompositIdentity, sensorDatas);
+				// Load defaut config for inputs that are not optionals
+				URL defaultConfigurl = Activator.bc.getBundle().getEntry(STANDARD_CONFIG_FILE);
+				List<SensorData> defaultSensorDatas = ( new SensorNodeConfig(defaultConfigurl)).initialiseDataFromConfigFile();
+				// add user defined configurations
+				if( sensorNodeConfigFile != null && sensorNodeConfigFile.length() > 0){
+					List<SensorData> extraSensorDatas = ( new SensorNodeConfig(sensorNodeConfigFile)).initialiseDataFromConfigFile();
+					for( SensorData data : extraSensorDatas){
+						if( data.getId() > 3 && data.getId() < 10){
+							defaultSensorDatas.add(data);
+						}
+					}
+				}
+				
+				sensorNode = new SensorNode( pid, sensorNodeId, sensorPort, sensorPoolinRate, sensorCompositIdentity, defaultSensorDatas.toArray(new SensorData[defaultSensorDatas.size()]));
 				sensorNodes.put(pid, sensorNode);
 			
 			} catch (XmlPullParserException e) {

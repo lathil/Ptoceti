@@ -16,9 +16,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 public class SensorNodeConfig {
 
-	public static final String MeasurementsElement = "Measurements";
-	public static final String MeasurementElement = "Measurement";
-	public static final String MeasurementIdElement = "MeasurementId";
+	public static final String ContentDatasElement = "ContentDatas";
+	public static final String ContentDataElement = "ContentData";
+	public static final String DataIdElement = "DataId";
 	public static final String IdentificationElement = "Identification";
 	public static final String ScopeElement = "Scope";
 	public static final String UnitElement = "Unit";
@@ -30,6 +30,10 @@ public class SensorNodeConfig {
 	 */
 	URL configUrl = null;
 
+	public SensorNodeConfig(URL configFileUrl){
+		configUrl = configFileUrl;
+	}
+	
 	public SensorNodeConfig(String configFilePath) {
 
 		if (configFilePath.startsWith("file:")) {
@@ -51,8 +55,8 @@ public class SensorNodeConfig {
 
 	}
 	
-	public SensorData[] initialiseDataFromConfigFile() throws XmlPullParserException, IOException{
-		SensorData[] sensorNodes = null;
+	public List<SensorData> initialiseDataFromConfigFile() throws XmlPullParserException, IOException{
+		List<SensorData> sensorNodes = null;
 		
 		if (configUrl != null) {
 			InputStream configFileStream = configUrl.openStream();
@@ -64,9 +68,9 @@ public class SensorNodeConfig {
 		return sensorNodes;
 	}
 	
-	private SensorData[] parse(InputStream configFileStream) throws XmlPullParserException, IOException{
+	private List<SensorData> parse(InputStream configFileStream) throws XmlPullParserException, IOException{
 		
-		SensorData[] sensorNodes = null;
+		List<SensorData> sensorNodes = null;
 		KXmlParser parser = new KXmlParser();
 		
 		// We set to null the encoding type. The parser should then dected it from the file stream.
@@ -76,7 +80,7 @@ public class SensorNodeConfig {
 		while( eventType != XmlPullParser.END_DOCUMENT) {
 		
 			if( eventType == XmlPullParser.START_TAG){
-				if( parser.getName().equals( MeasurementsElement)) {
+				if( parser.getName().equals( ContentDatasElement)) {
 					// We move to the next element inside the Wires element
 					parser.next();
 					sensorNodes = parseMeasurementsElement(parser);
@@ -91,7 +95,7 @@ public class SensorNodeConfig {
 		return sensorNodes;
 	}
 	
-	private SensorData[] parseMeasurementsElement(KXmlParser parser) throws XmlPullParserException, IOException {
+	private List<SensorData> parseMeasurementsElement(KXmlParser parser) throws XmlPullParserException, IOException {
 		
 		List<SensorData> sensorDatas = new ArrayList<SensorData>();
 		
@@ -99,7 +103,7 @@ public class SensorNodeConfig {
 		while( eventType != XmlPullParser.END_TAG) {
 			
 			if(eventType == XmlPullParser.START_TAG) {
-				if (parser.getName().equals(MeasurementElement)) {
+				if (parser.getName().equals(ContentDataElement)) {
 					sensorDatas.add(this.parseMeasurementElement(parser));
 				}
 			}
@@ -107,7 +111,7 @@ public class SensorNodeConfig {
 			eventType = parser.next();
 		}
 		
-		return sensorDatas.toArray(new SensorData[sensorDatas.size()]);
+		return sensorDatas;
 	}
 	
 	private SensorData parseMeasurementElement(KXmlParser parser) throws XmlPullParserException, IOException {
@@ -118,7 +122,7 @@ public class SensorNodeConfig {
 		while( eventType != XmlPullParser.END_TAG) {
 			
 			if(eventType == XmlPullParser.START_TAG) {
-				if (parser.getName().equals(MeasurementIdElement)) {
+				if (parser.getName().equals(DataIdElement)) {
 					sensorData.setId(Integer.valueOf(parseGetText(parser)));
 				} else if (parser.getName().equals(IdentificationElement)) {
 					sensorData.setIdentification(parseGetText(parser));
@@ -127,9 +131,9 @@ public class SensorNodeConfig {
 				} else if (parser.getName().equals(UnitElement)) {
 					sensorData.setUnit(parseGetText(parser));
 				} else if (parser.getName().equals(ScalingElement)) {
-					sensorData.setScale(Integer.valueOf(parseGetText(parser)));
+					sensorData.setScale(Double.valueOf(parseGetText(parser)));
 				} else if (parser.getName().equals(OffsetElement)) {
-					sensorData.setOffset(Integer.valueOf(parseGetText(parser)));	
+					sensorData.setOffset(Double.valueOf(parseGetText(parser)));	
 				}
 			}
 			

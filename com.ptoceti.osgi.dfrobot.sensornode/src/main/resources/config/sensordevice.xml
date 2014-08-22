@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<ContentDatas>
+		<ContentData>
+			<DataId>0</DataId>
+			<Identification>mode</Identification>
+			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
+		</ContentData>
+		<ContentData>
+			<DataId>1</DataId>
+			<Identification>humidity</Identification>
+			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
+			<Unit>percent</Unit>
+			<Scale>0.1</Scale>
+			<Offset>0</Offset>
+		</ContentData>
+		<ContentData>
+			<DataId>2</DataId>
+			<Identification>temperature</Identification>
+			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
+			<Unit>celsius</Unit>
+			<Scale>0.1</Scale>
+			<Offset>0</Offset>
+		</ContentData>
+		<ContentData>
+			<DataId>3</DataId>
+			<Identification>status</Identification>
+			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
+		</ContentData>
+</ContentDatas>
+		
+		
