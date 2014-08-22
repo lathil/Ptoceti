@@ -1,77 +1,39 @@
 <?xml version="1.0"?>
-<Measurements>
-		<Measurement>
-			<MeasurementId>1</MeasurementId>
+<ContentDatas>
+		<ContentData>
+			<DataId>0</DataId>
 			<Identification>mode</Identification>
 			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
-			<Unit>K</Unit>
-			<Scale>1</Scale>
-			<Offset>0</Offset>
-		</Measurement>
-		<Measurement>
-			<MeasurementId>2</MeasurementId>
+		</ContentData>
+		<ContentData>
+			<DataId>1</DataId>
 			<Identification>humidity</Identification>
 			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
-			<Unit>K</Unit>
-			<Scale>1</Scale>
+			<Unit>percent</Unit>
+			<Scale>0.1</Scale>
 			<Offset>0</Offset>
-		</Measurement>
-		<Measurement>
-			<MeasurementId>3</MeasurementId>
+		</ContentData>
+		<ContentData>
+			<DataId>2</DataId>
 			<Identification>temperature</Identification>
 			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
-			<Unit>K</Unit>
-			<Scale>1</Scale>
+			<Unit>celsius</Unit>
+			<Scale>0.1</Scale>
 			<Offset>0</Offset>
-		</Measurement>
-		<Measurement>
-			<MeasurementId>4</MeasurementId>
+		</ContentData>
+		<ContentData>
+			<DataId>3</DataId>
 			<Identification>status</Identification>
 			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
-			<Unit>K</Unit>
-			<Scale>1</Scale>
-			<Offset>0</Offset>
-		</Measurement>
-			<Measurement>
-			<MeasurementId>5</MeasurementId>
+		</ContentData>
+		<ContentData>
+			<DataId>4</DataId>
 			<Identification>ana1</Identification>
 			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
 			<Unit>K</Unit>
 			<Scale>1</Scale>
 			<Offset>0</Offset>
-		</Measurement>
-			<Measurement>
-			<MeasurementId>6</MeasurementId>
-			<Identification>ana2</Identification>
-			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
-			<Unit>K</Unit>
-			<Scale>1</Scale>
-			<Offset>0</Offset>
-		</Measurement>
-			<Measurement>
-			<MeasurementId>8</MeasurementId>
-			<Identification>ana3</Identification>
-			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
-			<Unit>K</Unit>
-			<Scale>1</Scale>
-			<Offset>0</Offset>
-		</Measurement>
-			<Measurement>
-			<MeasurementId>9</MeasurementId>
-			<Identification>ana4</Identification>
-			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
-			<Unit>K</Unit>
-			<Scale>1</Scale>
-			<Offset>0</Offset>
-		</Measurement>
-			<Measurement>
-			<MeasurementId>10</MeasurementId>
-			<Identification>ana5</Identification>
-			<Scope>com.ptoceti.osgi.dfrobot.node</Scope>
-			<Unit>K</Unit>
-			<Scale>1</Scale>
-			<Offset>0</Offset>
-		</Measurement>
-</Measurements>
+		</ContentData>
+</ContentDatas>
 		
 		
