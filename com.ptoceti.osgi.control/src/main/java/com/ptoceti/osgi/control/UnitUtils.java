@@ -32,6 +32,7 @@ public class UnitUtils {
 	public static final String UNIT_V = "V";
 	public static final String UNIT_W = "W";
 	public static final String UNIT_Wb = "Wb";
+	public static final String UNIT_Unity = "unity";
 	
 	private static final int UNIT_A_Index = 0;
 	private static final int UNIT_C_Index = 1;
@@ -61,11 +62,13 @@ public class UnitUtils {
 	private static final int UNIT_V_Index = 25;
 	private static final int UNIT_W_Index = 26;
 	private static final int UNIT_Wb_Index = 27;
+	private static final int UNIT_Unity_Index = 28;
 
 
 	private static String units[] = { UNIT_A, UNIT_C, UNIT_cd, UNIT_F, UNIT_Gy, UNIT_Hz, UNIT_J, UNIT_K, UNIT_kat, UNIT_kg, UNIT_lx, UNIT_m, UNIT_m_s,
-		UNIT_m_s2, UNIT_m2, UNIT_m3, UNIT_mol, UNIT_N, UNIT_Ohm, UNIT_Pa, UNIT_rad, UNIT_s, UNIT_S, UNIT_T, UNIT_unity, UNIT_V, UNIT_W, UNIT_Wb };
+		UNIT_m_s2, UNIT_m2, UNIT_m3, UNIT_mol, UNIT_N, UNIT_Ohm, UNIT_Pa, UNIT_rad, UNIT_s, UNIT_S, UNIT_T, UNIT_unity, UNIT_V, UNIT_W, UNIT_Wb, UNIT_Unity };
 		
+	
 	public static Unit getUnit(String unitName) {
 		
 		Unit result = null;
@@ -164,6 +167,9 @@ public class UnitUtils {
 					break;
 				case UNIT_Wb_Index:
 					result = Unit.cd;
+					break;
+				case UNIT_Unity_Index:
+					result = Unit.unity;
 					break;
 				default :
 					result = null;

@@ -27,15 +27,14 @@ package com.ptoceti.osgi.control;
  * #L%
  */
 
-import org.osgi.util.measurement.*;
 
 
 public class Reference {
 	
 	private double value;
-	private Unit unit;
+	private ExtendedUnit unit;
 	
-	public Reference(double value, Unit unit){
+	public Reference(double value, ExtendedUnit unit){
 		
 	}
 
@@ -43,7 +42,7 @@ public class Reference {
 		return value;
 	}
 	
-	public Unit getUnit(){
+	public ExtendedUnit getUnit(){
 		return unit;
 	}
 }
