@@ -29,8 +29,6 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 
 import org.restlet.resource.ServerResource;
 
-import com.ptoceti.osgi.obix.impl.ObixDataHandler;
-import com.ptoceti.osgi.obix.resources.ResourceException;
 
 public class AbstractServerResource extends ServerResource{
 

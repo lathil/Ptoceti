@@ -28,19 +28,16 @@ package com.ptoceti.osgi.obix.impl.domain;
  */
 
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.ptoceti.osgi.obix.contract.Point;
 import com.ptoceti.osgi.obix.contract.Watch;
 import com.ptoceti.osgi.obix.contract.WatchIn;
 import com.ptoceti.osgi.obix.contract.WatchOut;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
-import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Err;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Reltime;
@@ -75,6 +72,10 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 						}
 						
 						if( objEnt != null){
+							objEnt.fetchChildrens();
+							for( ObjEntity entity : (List<ObjEntity>) objEnt.getChilds()){
+								objEnt.getObixObject().addChildren(entity.getObixObject());
+							}
 							watchOut.getValuesList().addChildren(objEnt.getObixObject());
 						} else {
 							Err errorObj = new Err();

@@ -34,46 +34,74 @@ import com.ptoceti.osgi.obix.domain.AboutDomain;
 import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
-import com.ptoceti.osgi.obix.impl.ObixDataHandler;
 import com.ptoceti.osgi.obix.impl.domain.AboutDomainImpl;
 import com.ptoceti.osgi.obix.impl.domain.HistoryDomainImpl;
 import com.ptoceti.osgi.obix.impl.domain.ObjDomainImpl;
 import com.ptoceti.osgi.obix.impl.domain.WatchDomainImpl;
 import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnectionProxyFactory;
 
+/**
+ * Configuration module for Guice.
+ * 
+ * @author LATHIL
+ *
+ */
 public class ObixModule extends AbstractModule{
+	/**
+	 * factory for WatchDomain JdbcConnection proxys
+	 */
+	JdbcConnectionProxyFactory<WatchDomain> watchProxyFactory;
+	/**
+	 * factory for ObjDomain JdbcConnection proxys
+	 */
+	JdbcConnectionProxyFactory<ObjDomain> objProxyFactory;
+	/**
+	 * factory for HistoryDomain JdbcConnection proxys
+	 */
+	JdbcConnectionProxyFactory<HistoryDomain> historyProxyFactory;
 	
+	/**
+	 * Constructor
+	 * 
+	 */
 	public ObixModule() {
+		watchProxyFactory = new JdbcConnectionProxyFactory<WatchDomain>();
+		objProxyFactory = new JdbcConnectionProxyFactory<ObjDomain>();
+		historyProxyFactory = new JdbcConnectionProxyFactory<HistoryDomain>();
 		
 	}
 	
-	@SuppressWarnings("unchecked")
+	/**
+	 * Configure bindings.
+	 */
 	@Override
 	protected void configure() {
-		
 		bind(AboutDomain.class).to((Class<? extends AboutDomain>) AboutDomainImpl.class);
-		//bind(WatchDomain.class).to((Class<? extends WatchDomain>) WatchDomainImpl.class);
-		//bind(ObjDomain.class).to((Class<? extends ObjDomain>) ObjDomainImpl.class );
-		// bind(HistoryDomain.class).to((Class<? extends HistoryDomain>) HistoryDomainImpl.class);
-		
 	}
 	
+	/**
+	 * Provide WatchDomain implementation
+	 * @return
+	 */
 	@Provides
 	WatchDomain provideWatchDomain(){
-		JdbcConnectionProxyFactory<WatchDomain> factory = new JdbcConnectionProxyFactory<WatchDomain>();
-		return factory.createProxy( WatchDomainImpl.class, WatchDomain.class);
+		return watchProxyFactory.createProxy( WatchDomainImpl.class, WatchDomain.class);
 	}
-	
+	/**
+	 * Provide ObjDomain implementation
+	 * @return
+	 */
 	@Provides
 	ObjDomain provideObjDomain() {
-		JdbcConnectionProxyFactory<ObjDomain> factory = new JdbcConnectionProxyFactory<ObjDomain>();
-		return factory.createProxy( ObjDomainImpl.class, ObjDomain.class);
+		return objProxyFactory.createProxy( ObjDomainImpl.class, ObjDomain.class);
 	}
-	
+	/**
+	 * Provide HistoryDomain implementation
+	 * @return
+	 */
 	@Provides
 	HistoryDomain provideHistoryDomain() {
-		JdbcConnectionProxyFactory<HistoryDomain> factory = new JdbcConnectionProxyFactory<HistoryDomain>();
-		return factory.createProxy( HistoryDomainImpl.class, HistoryDomain.class);
+		return historyProxyFactory.createProxy( HistoryDomainImpl.class, HistoryDomain.class);
 	}
 	
 

@@ -30,11 +30,28 @@ package com.ptoceti.osgi.obix.impl.proxy.jdbc;
 
 import java.lang.reflect.Proxy;
 
-import com.ptoceti.osgi.obix.domain.BaseDomain;
+import org.osgi.service.log.LogService;
 
+import com.ptoceti.osgi.obix.domain.BaseDomain;
+import com.ptoceti.osgi.obix.impl.Activator;
+
+/**
+ * Factory to create JdbcConnectionHandler proxy around a BaseDomain object
+ * @author LATHIL
+ *
+ * @param <T> the type of BaseDomain object the the proxy to create should be proxying.
+ */
 public class JdbcConnectionProxyFactory<T extends BaseDomain> {
 	
 	
+	/**
+	 * 
+	 * Install a JdbcConnectionHandler proxy around a BaseDomain object.
+	 * 
+	 * @param proxiedClass the class of the desired object the proxy should be wrapped around.
+	 * @param proxiedinterface the interface of the desired object the proxy should be wrapped around
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public T createProxy ( Class< ? extends T> proxiedClass, Class<T> proxiedinterface ) {
 		
@@ -46,11 +63,9 @@ public class JdbcConnectionProxyFactory<T extends BaseDomain> {
 			//result = (T) Proxy.newProxyInstance( Thread.currentThread().getContextClassLoader(), new Class[] {proxiedinterface}, handler);
 			
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.log(LogService.LOG_ERROR, "Error creating JdbcConnectionHandler proxy: " + e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Activator.log(LogService.LOG_ERROR, "Error creating JdbcConnectionHandler proxy: " + e);
 		}
 		
 		return result;

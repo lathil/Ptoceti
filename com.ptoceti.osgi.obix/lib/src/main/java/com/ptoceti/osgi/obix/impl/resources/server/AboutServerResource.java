@@ -33,7 +33,6 @@ import com.ptoceti.osgi.obix.contract.About;
 import com.ptoceti.osgi.obix.domain.AboutDomain;
 
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.AboutResource;

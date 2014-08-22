@@ -32,7 +32,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.HistoryFilter;

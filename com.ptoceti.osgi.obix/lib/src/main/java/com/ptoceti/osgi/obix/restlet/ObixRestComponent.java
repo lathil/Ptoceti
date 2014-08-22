@@ -32,17 +32,37 @@ import com.ptoceti.osgi.obix.impl.resources.server.WatchServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.WatchServiceServerResource;
 
 /**
- * A Restlet Component that wrap up all resources and serves through the local http server.
+ * A Restlet Container that wrap up all resources and serves through the local http server.
  * 
  * @author LATHIL
  *
  */
 public class ObixRestComponent {
 
+	/**
+	 * Jetty parameter key name for type of connector
+	 */
 	private static final String JETTY_HTTP_CONNECTOR_TYPE = "type";
+	/**
+	 * Jetty parameter value for connector type non blocking io
+	 */
 	private static final String JETTY_HTTP_CONNECTOR_TYPE_NIO = "1";
+	/**
+	 * Jetty parameter value for connector type blocking /  non blocking io
+	 */
+	@SuppressWarnings("unused")
 	private static final String JETTY_HTTP_CONNECTOR_TYPE_BNIO = "2";
+	/**
+	 * Jetty parameter value for connector type blocking io
+	 */
+	@SuppressWarnings("unused")
 	private static final String JETTY_HTTP_CONNECTOR_TYPE_BIO = "3";
+	
+	/**
+	 * Jetty connector parameters for max threads service request.
+	 */
+	@SuppressWarnings("unused")
+	private static final String MAX_THREADS = "maxThreads";
 	
 	/**
 	 * Main component that wrapp the application, server connector and filters
@@ -105,6 +125,7 @@ public class ObixRestComponent {
 		
 		Server server = component.getServers().add(Protocol.HTTP, port.intValue());
 		server.getContext().getParameters().add(JETTY_HTTP_CONNECTOR_TYPE, JETTY_HTTP_CONNECTOR_TYPE_NIO);
+		server.getContext().getParameters().add(MAX_THREADS, Integer.toString(5));
 		component.getDefaultHost().attach(path, application);
 		
 		component.start();

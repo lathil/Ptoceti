@@ -33,6 +33,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Annotation JdbcConnection. Allows to indicate the type of connection desired: RX for read only and RWD for read / write transaction.
+ * @author LATHIL
+ *
+ */
 @Retention(RetentionPolicy.RUNTIME )
 @Target(ElementType.METHOD)
 public @interface JdbcConnection {

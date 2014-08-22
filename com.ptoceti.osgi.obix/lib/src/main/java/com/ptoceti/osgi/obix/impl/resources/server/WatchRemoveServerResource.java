@@ -29,7 +29,6 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 
 
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.Nil;
@@ -37,7 +36,6 @@ import com.ptoceti.osgi.obix.contract.WatchIn;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
 import com.ptoceti.osgi.obix.resources.ResourceException;
-import com.ptoceti.osgi.obix.resources.WatchAddResource;
 import com.ptoceti.osgi.obix.resources.WatchRemoveResource;
 import com.ptoceti.osgi.obix.resources.WatchResource;
 

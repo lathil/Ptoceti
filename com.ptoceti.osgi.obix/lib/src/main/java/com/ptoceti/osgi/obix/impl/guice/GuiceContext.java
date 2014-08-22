@@ -31,16 +31,34 @@ package com.ptoceti.osgi.obix.impl.guice;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
+/**
+ * A singleton guice context with its injector configured.
+ * 
+ * @author LATHIL
+ *
+ */
 public class GuiceContext {
 	
+	/**
+	 * The singleton instance
+	 */
 	public static GuiceContext Instance = new GuiceContext();
-	
+	/**
+	 * The guice injector configured from ObixModule
+	 */
 	private Injector injector;
 	
+	/**
+	 * Constructor. Create the singleton.
+	 */
 	private GuiceContext() {
 		injector = Guice.createInjector( new ObixModule());
 	}
 	
+	/**
+	 * Property accessor return the configured injector.
+	 * @return
+	 */
 	public Injector getInjector(){
 		return injector;
 	}

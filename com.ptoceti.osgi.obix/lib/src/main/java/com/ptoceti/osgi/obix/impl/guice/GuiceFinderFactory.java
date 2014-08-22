@@ -34,18 +34,23 @@ import org.restlet.Context;
 import org.restlet.resource.Finder;
 import org.restlet.resource.ServerResource;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.Module;
-
+/**
+ * A Factory to create GuiceFinder instances configured with GuiceContext injector.
+ * 
+ * @author LATHIL
+ *
+ */
 public class GuiceFinderFactory  {
 	
-	public GuiceFinderFactory() {
-		
-	}
 	
+	/**
+	 * Create a GuiceFinder for the provided server resource.
+	 * 
+	 * @param targetClass the server resource class to be injected by guice
+	 * @param context the restlet current context
+	 * @param logger current logger
+	 * @return a configured finder.
+	 */
 	public Finder getFinder(Class<?  extends ServerResource> targetClass, Context context, Logger logger){
 		
 		GuiceFinder finder = GuiceFinder.createGuiceFinder(targetClass, context, logger);

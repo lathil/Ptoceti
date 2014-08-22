@@ -31,7 +31,6 @@ import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.History;
 import com.ptoceti.osgi.obix.contract.Point;
 import com.ptoceti.osgi.obix.custom.contract.MonitoredPoint;
-import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 import com.ptoceti.osgi.obix.object.Obj;

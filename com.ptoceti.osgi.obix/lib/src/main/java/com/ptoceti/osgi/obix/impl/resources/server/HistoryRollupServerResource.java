@@ -31,11 +31,9 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 import java.util.List;
 
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import com.google.inject.Inject;
-import com.ptoceti.osgi.obix.contract.HistoryQueryOut;
-import com.ptoceti.osgi.obix.contract.HistoryRecord;
+
 import com.ptoceti.osgi.obix.contract.HistoryRollupIn;
 import com.ptoceti.osgi.obix.contract.HistoryRollupOut;
 import com.ptoceti.osgi.obix.contract.HistoryRollupRecord;

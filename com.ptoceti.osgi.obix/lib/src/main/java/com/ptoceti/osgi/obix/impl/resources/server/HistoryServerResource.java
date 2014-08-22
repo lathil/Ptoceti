@@ -29,17 +29,14 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 
 
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.History;
-import com.ptoceti.osgi.obix.contract.Watch;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.HistoryResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
-import com.ptoceti.osgi.obix.resources.WatchResource;
 
 public class HistoryServerResource extends AbstractServerResource implements HistoryResource{
 

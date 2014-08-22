@@ -27,8 +27,6 @@ package com.ptoceti.osgi.obix.impl;
  * #L%
  */
 
-import com.ptoceti.osgi.obix.impl.guice.GuiceContext;
-import com.ptoceti.osgi.obix.restlet.ObixServlet;
 import com.ptoceti.osgi.obix.restlet.ObixRestComponent;
 
 import com.ptoceti.osgi.data.JdbcDevice;
@@ -43,7 +41,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Dictionary;
 
-import javax.servlet.ServletException;
 
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;

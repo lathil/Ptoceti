@@ -31,7 +31,6 @@ package com.ptoceti.osgi.obix.restlet;
 import org.restlet.Context;
 import org.restlet.Request;
 import org.restlet.Response;
-import org.restlet.data.Form;
 import org.restlet.data.Method;
 import org.restlet.engine.header.Header;
 import org.restlet.engine.header.HeaderConstants;
@@ -56,10 +55,12 @@ public class OriginServerFilter extends Filter {
 	@Override
 	protected int beforeHandle(Request request, Response response) {
 		
+		@SuppressWarnings("unchecked")
 		Series<Header> requestHeaders = (Series<Header>) request.getAttributes().get(HeaderConstants.ATTRIBUTE_HEADERS);
 		// indication of the domain from where the request is made, if present
 		String origin = requestHeaders.getFirstValue(ORIGIN, true);
 		// get hold of responses headers
+		@SuppressWarnings("unchecked")
 		Series<Header> responseHeaders = (Series<Header>) response.getAttributes().get(HeaderConstants.ATTRIBUTE_HEADERS);
 		
 		if (Method.OPTIONS.equals(request.getMethod())) {

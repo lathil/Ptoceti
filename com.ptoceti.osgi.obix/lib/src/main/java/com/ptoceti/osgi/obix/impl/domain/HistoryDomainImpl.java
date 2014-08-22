@@ -118,7 +118,6 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 		
 		ObjEntity historyEntity = getHistory(uri);
 		
-		List childList = historyEntity.getChilds();
 		try {
 			
 			ObjEntity recordsList = historyEntity.getChildByName("historyrecords");
@@ -133,8 +132,6 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 				count.update();
 				((Abstime)end.getObixObject()).setVal(new Date());
 				end.update();
-				
-				
 			}
 			
 		} catch(EntityException ex) {
@@ -149,7 +146,7 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 		List<HistoryRollupRecord> result = new ArrayList<HistoryRollupRecord>();
 		ObjEntity historyEntity = getHistory(uri);
 		
-		List childList = historyEntity.getChilds();
+		List<ObjEntity> childList = historyEntity.getChilds();
 		
 		long recordsLimit = ((Integer)limit.getVal()).longValue();
 		try {
@@ -178,7 +175,7 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 					double avg = 0;
 					double sum = 0;
 					
-					List childObjEntity = recordsList.getChilds();
+					List<ObjEntity> childObjEntity = recordsList.getChilds();
 					
 					int count = childObjEntity.size();
 					boolean hasSample = false;
@@ -238,7 +235,7 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 		List<HistoryRecord> result = new ArrayList<HistoryRecord>();
 		ObjEntity historyEntity = getHistory(uri);
 		
-		List childList = historyEntity.getChilds();
+		List<ObjEntity> childList = historyEntity.getChilds();
 		try {
 			for(int i = 0; i < childList.size(); i++){
 				ObjEntity child = (ObjEntity)childList.get(i);
@@ -246,7 +243,7 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 					
 					 child.fetchChildrensFilterByTimeStamp( ((Date)from.getVal()).getTime(), ((Date)to.getVal()).getTime());
 					 
-					 List childObjEntity = child.getChilds();
+					 List<ObjEntity> childObjEntity = child.getChilds();
 					 float step = ( childObjEntity.size() < ((Integer)limit.getVal()).intValue() ? ((Integer)limit.getVal()).floatValue() : ((float)childObjEntity.size() / ((Integer)limit.getVal()).floatValue()));
 					 float nextStep = 0;
 					 for( int j = 0; i < childObjEntity.size(); j = (int)((float)i + nextStep)){

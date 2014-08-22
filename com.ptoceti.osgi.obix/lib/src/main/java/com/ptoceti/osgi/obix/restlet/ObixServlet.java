@@ -47,7 +47,6 @@ import org.restlet.routing.Variable;
 import org.restlet.Application;
 import org.restlet.Context;
 
-import com.google.inject.AbstractModule;
 import com.ptoceti.osgi.obix.impl.converters.JSonConverter;
 import com.ptoceti.osgi.obix.impl.converters.XMLConverter;
 import com.ptoceti.osgi.obix.impl.guice.GuiceFinderFactory;

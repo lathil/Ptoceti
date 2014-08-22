@@ -30,10 +30,8 @@ package com.ptoceti.osgi.obix.impl.domain;
 
 import java.util.Calendar;
 
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 
-import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.About;
 import com.ptoceti.osgi.obix.domain.AboutDomain;
 import com.ptoceti.osgi.obix.object.Abstime;

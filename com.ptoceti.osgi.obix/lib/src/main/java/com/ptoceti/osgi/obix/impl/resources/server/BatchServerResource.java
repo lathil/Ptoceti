@@ -31,7 +31,6 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 import java.util.ArrayList;
 
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.BatchIn;

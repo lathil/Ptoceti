@@ -31,26 +31,42 @@ package com.ptoceti.osgi.obix.impl.proxy.jdbc;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
 import com.ptoceti.osgi.obix.domain.BaseDomain;
 import com.ptoceti.osgi.obix.impl.ObixDataHandler;
-import com.ptoceti.osgi.obix.impl.entity.EntityException;
 import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnection.ConnectionType;
 
+/**
+ * Handler that implement a proxy around a BaseDomain class. For each invoked method of the proxied class, chek if a JdbcConnection annotation is present.
+ * If present create a connection of the type indicated by the annotation on the thread local before invoking the proxied method. On return of the proxied
+ * method, commit and close the connection on the thread local.
+ * 
+ * @author LATHIL
+ *
+ * @param <T> the type of proxied class that the handle should be build around.
+ */
 public class JdbcConnectionHandler<T extends BaseDomain> implements InvocationHandler {
 
+	/**
+	 * The proxied object
+	 */
 	private T proxiedObject;
 	
+	/**
+	 * Constructor. 
+	 * @param proxiedClass the proxied object
+	 */
 	public JdbcConnectionHandler( T proxiedClass) {
 		this.proxiedObject = proxiedClass;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] params)
 			throws Throwable {
 		
-		boolean hasConnection = false;
 		Object result = null;
 		
 			

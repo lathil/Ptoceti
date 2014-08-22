@@ -38,6 +38,12 @@ import org.restlet.resource.ServerResource;
 
 import com.google.inject.Injector;
 
+/**
+ * A Finder to create ServerResource instances with injectables dependancies resolved.
+ * 
+ * @author LATHIL
+ *
+ */
 public class GuiceFinder extends Finder {
 
 	private Injector injector;
@@ -56,8 +62,7 @@ public class GuiceFinder extends Finder {
     /**
      * Constructor.
      * 
-     * @param context
-     *            The context.
+     * @param context The context.
      */
     public GuiceFinder(Context context) {
         super(context);
@@ -66,16 +71,20 @@ public class GuiceFinder extends Finder {
     /**
      * Constructor.
      * 
-     * @param context
-     *            The context.
-     * @param targetClass
-     *            The target handler class. It must be either a subclass of
-     *            {@link Handler} or of {@link ServerResource}.
+     * @param context The context.
+     * @param targetClass The target handler class. It must be either a subclass of {@link Handler} or of {@link ServerResource}.
      */
     public GuiceFinder(Context context, Class<? extends ServerResource> targetClass) {
         super(context, targetClass);
     }
     
+    /**
+     * Create an instance of the desired ServerResource, and inject dependencies.
+     * 
+     * @param targetClass the desired class for the ServerResource
+     * @param request the current restlet request
+     * @param response the current restlet response
+     */
 	@Override
 	public ServerResource create(Class<? extends ServerResource> targetClass,
 			Request request, Response response) {
@@ -88,10 +97,17 @@ public class GuiceFinder extends Finder {
 		return result;
 	}
 
+	/**
+	 * Setter
+	 * @param injector the guice injector.
+	 */
 	public void setInjector(Injector injector) {
 		this.injector = injector;
 	}
-
+	/**
+	 * Getter
+	 * @return the guice inector.
+	 */
 	public Injector getInjector() {
 		return injector;
 	}

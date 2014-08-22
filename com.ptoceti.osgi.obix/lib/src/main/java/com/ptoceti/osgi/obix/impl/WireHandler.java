@@ -32,21 +32,14 @@ import java.util.Hashtable;
 import java.util.regex.PatternSyntaxException;
 
 import com.google.inject.Inject;
-import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Int;
-import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Real;
-import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Status;
 import com.ptoceti.osgi.obix.object.Str;
-import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
 import com.ptoceti.osgi.obix.resources.ObjResource;
-import com.ptoceti.osgi.obix.contract.History;
 import com.ptoceti.osgi.obix.contract.Point;
 import com.ptoceti.osgi.obix.contract.Unit;
-import com.ptoceti.osgi.obix.contract.WritablePoint;
-import com.ptoceti.osgi.obix.custom.contract.MonitoredPoint;
 import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 
@@ -58,10 +51,11 @@ import org.osgi.service.wireadmin.Envelope;
 import org.osgi.service.wireadmin.Producer;
 import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireConstants;
-import org.osgi.util.measurement.Measurement;
 import org.osgi.util.measurement.State;
 
+import com.ptoceti.osgi.control.Measure;
 import com.ptoceti.osgi.control.Reference;
+import com.ptoceti.osgi.control.StatusCode;
 
 import com.ptoceti.osgi.obix.impl.guice.GuiceContext;
 import com.ptoceti.osgi.obix.impl.transverse.UnitConverter;
@@ -99,7 +93,7 @@ public class WireHandler implements Consumer, Producer {
 				Consumer.class.getName() };
 		// The type of objects that can be accepted through the wire.
 		Class[] flavors = new Class[] { Envelope[].class, Envelope.class,
-				Measurement.class, State.class, };
+				Measure.class, State.class, };
 		// The scopes of measurements that this consumer is able to consume from
 		// the wire.
 		String[] scopes = new String[] { SCOPE };
@@ -385,19 +379,18 @@ public class WireHandler implements Consumer, Producer {
 	private Val mapWireObject(Object object, String name) {
 
 		Val obj = null;
-		if (object instanceof Measurement) {
-			Real obixReal = new Real(name, ((Measurement) object).getValue());
+		if (object instanceof Measure) {
+			Real obixReal = new Real(name, ((Measure) object).getValue());
 			obixReal.setIs(Point.contract);
-			Unit unit = UnitConverter.mapFromOsgi(((Measurement) object)
-					.getUnit());
+			Unit unit = UnitConverter.mapFromOsgi(((Measure) object).getUnit());
 			obixReal.setUnit(unit.getHref());
-			obixReal.setStatus(Status.OK);
+			StatusCode statusCode = ((Measure)object).getStatus();
+			obixReal.setStatus(statusCode ==  StatusCode.OK ? Status.OK : Status.FAULT);
 			obj = obixReal;
 		} else if (object instanceof Reference) {
 			Real obixReal = new Real(name, ((Reference) object).getValue());
 			obixReal.setIs(Point.contract);
-			Unit unit = UnitConverter.mapFromOsgi(((Reference) object)
-					.getUnit());
+			Unit unit = UnitConverter.mapFromOsgi(((Reference) object).getUnit());
 			obixReal.setUnit(unit.getHref());
 			obixReal.setStatus(Status.OK);
 			obj = obixReal;

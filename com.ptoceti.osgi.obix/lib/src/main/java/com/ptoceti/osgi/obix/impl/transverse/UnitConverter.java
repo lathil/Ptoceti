@@ -28,68 +28,75 @@ package com.ptoceti.osgi.obix.impl.transverse;
  */
 
 
+import com.ptoceti.osgi.control.ExtendedUnit;
 import com.ptoceti.osgi.obix.contract.Unit;
 
 
 public class UnitConverter {
 
-public static final Unit mapFromOsgi( org.osgi.util.measurement.Unit unit){
+public static final Unit mapFromOsgi( ExtendedUnit unit){
 		
 		Unit result = null;
 		
 		try {
-		if( unit.equals( org.osgi.util.measurement.Unit.m)){
+		if( unit.equals( ExtendedUnit.unity)){
+			result = Unit.unity();
+		} else if( unit.equals( ExtendedUnit.m)){
 			result = Unit.m();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.s)){
+		} else if( unit.equals( ExtendedUnit.s)){
 			result = Unit.s();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.kg)){
+		} else if( unit.equals( ExtendedUnit.kg)){
 			result = Unit.kg();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.K)){
+		} else if( unit.equals( ExtendedUnit.K)){
 			result = Unit.K();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.A)){
+		} else if( unit.equals( ExtendedUnit.A)){
 			result = Unit.m();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.mol)){
+		} else if( unit.equals( ExtendedUnit.mol)){
 			result = Unit.mol();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.cd)){
+		} else if( unit.equals( ExtendedUnit.cd)){
 			result = Unit.cd();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.m_s)){
+		} else if( unit.equals( ExtendedUnit.m_s)){
 			result = Unit.ms();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.m_s2)){
+		} else if( unit.equals( ExtendedUnit.m_s2)){
 			result = Unit.ms2();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.m2)){
+		} else if( unit.equals( ExtendedUnit.m2)){
 			result = Unit.m2();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.m3)){
+		} else if( unit.equals( ExtendedUnit.m3)){
 			result = Unit.m3();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.Hz)){
+		} else if( unit.equals( ExtendedUnit.Hz)){
 			result = Unit.Hz();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.N)){
+		} else if( unit.equals( ExtendedUnit.N)){
 			result = Unit.N();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.Pa)){
+		} else if( unit.equals( ExtendedUnit.Pa)){
 			result = Unit.Pa();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.J)){
+		} else if( unit.equals( ExtendedUnit.J)){
 			result = Unit.J();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.W)){
+		} else if( unit.equals( ExtendedUnit.W)){
 			result = Unit.W();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.C)){
+		} else if( unit.equals( ExtendedUnit.C)){
 			result = Unit.C();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.V)){
+		} else if( unit.equals( ExtendedUnit.V)){
 			result = Unit.V();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.F)){
+		} else if( unit.equals( ExtendedUnit.F)){
 			result = Unit.F();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.Ohm)){
+		} else if( unit.equals( ExtendedUnit.Ohm)){
 			result = Unit.Ohm();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.S)){
+		} else if( unit.equals( ExtendedUnit.S)){
 			result = Unit.S();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.Wb)){
+		} else if( unit.equals( ExtendedUnit.Wb)){
 			result = Unit.Wb();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.T)){
+		} else if( unit.equals( ExtendedUnit.T)){
 			result = Unit.T();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.lx)){
+		} else if( unit.equals( ExtendedUnit.Lx)){
 			result = Unit.lx();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.Gy)){
+		} else if( unit.equals( ExtendedUnit.Gy)){
 			result = Unit.Gy();
-		} else if( unit.equals( org.osgi.util.measurement.Unit.kat)){
+		} else if( unit.equals( ExtendedUnit.kat)){
 			result = Unit.kat();
+		} else if( unit.equals( ExtendedUnit.percent)){
+			result = Unit.percent();
+		} else if( unit.equals( ExtendedUnit.celsius)){
+			result = Unit.celsius();
 		}
 		
 		} catch (Exception e) {

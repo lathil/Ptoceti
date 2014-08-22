@@ -28,19 +28,14 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  */
 
 
+import org.restlet.data.Status;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
-import org.restlet.resource.ServerResource;
 
 import com.google.inject.Inject;
-import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.contract.Watch;
-import com.ptoceti.osgi.obix.contract.WatchIn;
-import com.ptoceti.osgi.obix.contract.WatchOut;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
-import com.ptoceti.osgi.obix.object.Op;
-import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.ResourceException;
 import com.ptoceti.osgi.obix.resources.WatchResource;
@@ -67,6 +62,8 @@ public class WatchServerResource extends AbstractServerResource implements Watch
 				watch.getDelete().setHref(new Uri("uri", watchUri +WatchDeleteServerResource.baseuri));
 				watch.getPoolChanges().setHref(new Uri("uri", watchUri + WatchPoolChangesServerResource.baseuri));
 				watch.getPoolRefresh().setHref(new Uri("uri", watchUri + WatchPoolRefreshServerResource.baseuri));
+			} else {
+				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 			}
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".retrieve", ex);

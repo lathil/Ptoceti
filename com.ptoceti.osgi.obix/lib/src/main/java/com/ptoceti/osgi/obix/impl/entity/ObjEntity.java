@@ -344,7 +344,7 @@ public class ObjEntity extends AbstractEntity {
 			query = query.replace( "?", ( new String(new char[params.size() -1 ]).replace("\0", "?,")).concat("?"));
 		}
 		
-		queryMultiple(query, params.toArray(), new ObjResultSetMultipleHandler(results));
+		queryMultiple(query, params.toArray(), new ObjResultSetMultipleHandler<ObjEntity>(results));
 		
 		for( int i = 0; i < results.size();i++){
 			ObjEntity objEnt = (ObjEntity)results.get(i);
@@ -414,8 +414,6 @@ public class ObjEntity extends AbstractEntity {
 	
 	public List<ObjEntity> fetchByContract () throws EntityException {
 		
-		boolean found = false;
-		
 		List<ObjEntity> objs = new ArrayList<ObjEntity>();
 		
 		ContractEntity contractEntity = new ContractEntity(obixObject.getIs());
@@ -434,7 +432,7 @@ public class ObjEntity extends AbstractEntity {
 				
 				List<Object> params = new ArrayList<Object>();
 				params.add(contractEnt.getContractid());
-				query(SEARCH_OBJ_BY_CONTRACT_ID, params.toArray(), new ObjResultSetHandler(objEnt));
+				query(SEARCH_OBJ_BY_CONTRACT_ID, params.toArray(), new ObjResultSetHandler<ObjEntity>(objEnt));
 				
 				// Obj could be of any obix type.
 				if(!objEnt.getObjtype().equals(EntityType.Obj)) {
@@ -465,13 +463,12 @@ public class ObjEntity extends AbstractEntity {
 
 	public void fetchChildrens() throws EntityException {
 
-		ArrayList params = new ArrayList();
+		List<Object> params = new ArrayList<Object>();
 		params.add(getId());
 
-		ArrayList childsList = new ArrayList();
+		List<ObjEntity> childsList = new ArrayList<ObjEntity>();
 
-		queryMultiple(SEARCH_OBJ_BY_PARENT_ID, params.toArray(),
-				new ObjResultSetMultipleHandler(childsList));
+		queryMultiple(SEARCH_OBJ_BY_PARENT_ID, params.toArray(), new ObjResultSetMultipleHandler<ObjEntity>(childsList));
 
 		
 		for( int i = 0; i < childsList.size();i++){
@@ -516,12 +513,12 @@ public class ObjEntity extends AbstractEntity {
 		}
 		if( !queried){
 
-			ArrayList params = new ArrayList();
+			List<Object> params = new ArrayList<Object>();
 			params.add(getId());
 			params.add(millisFrom);
 			params.add(millisTo);
 			
-			queryMultiple(SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP, params.toArray(), new ObjResultSetMultipleHandler(childsList));
+			queryMultiple(SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP, params.toArray(), new ObjResultSetMultipleHandler<ObjEntity>(childsList));
 		}
 
 		

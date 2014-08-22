@@ -27,10 +27,7 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  * #L%
  */
 
-
-import org.restlet.resource.Delete;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.Nil;

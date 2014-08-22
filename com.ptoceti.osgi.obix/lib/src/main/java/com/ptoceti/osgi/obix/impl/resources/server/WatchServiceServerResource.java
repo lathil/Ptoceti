@@ -30,11 +30,9 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import com.google.inject.Inject;
 
-import com.ptoceti.osgi.obix.contract.Make;
 import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.contract.Watch;
 import com.ptoceti.osgi.obix.contract.WatchService;
@@ -43,7 +41,6 @@ import com.ptoceti.osgi.obix.domain.WatchDomain;
 import com.ptoceti.osgi.obix.object.Op;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.ResourceException;
-import com.ptoceti.osgi.obix.resources.WatchResource;
 import com.ptoceti.osgi.obix.resources.WatchServiceResource;
 
 public class WatchServiceServerResource extends AbstractServerResource implements WatchServiceResource {

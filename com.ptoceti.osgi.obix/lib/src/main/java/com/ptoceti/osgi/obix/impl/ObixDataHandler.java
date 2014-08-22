@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.obix.impl;
+ package com.ptoceti.osgi.obix.impl;
 
 /*
  * #%L
@@ -30,7 +30,6 @@ package com.ptoceti.osgi.obix.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
 
 import com.ptoceti.osgi.data.JdbcDevice;
 
