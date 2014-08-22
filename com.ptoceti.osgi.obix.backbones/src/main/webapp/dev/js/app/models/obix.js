@@ -94,9 +94,9 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		},
 
 		parse : function(response, options) {
-			if (response !== null) {
+			if (!!response) {
 
-				if (response.href !== null) {
+				if (!response.href !== null) {
 					response.href = new Uri(response.href);
 				};
 				if (response.childrens !== null)

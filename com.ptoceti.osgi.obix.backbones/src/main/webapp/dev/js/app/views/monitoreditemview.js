@@ -73,12 +73,17 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		 * 
 		 */
 		fetchHistory : function() {
-			 var history = new Obix.history({href : this.model.getChildrens().getByName('historyRef').getHref()}, {urlRoot : this.model.urlRoot});
-			 history.fetch({
-				 success: _.bind(function(model, response) {
-					 this.history = model;
-				 },this)
-			 },this);
+		 var historyRef = this.model.getChildrens().getByName('historyRef');
+			if( !!historyRef){
+				 var history = new Obix.history({href : historyRef.getHref()}, {urlRoot : this.model.urlRoot});
+				 history.fetch({
+					 success: _.bind(function(model, response) {
+						 this.history = model;
+					 },this)
+				 },this);
+			} else {
+				console.log("historyRef not found");
+			}
 		},
 		
 		/**
@@ -214,13 +219,13 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		
 		valConverter : function(direction, value, attributeName, model) {
 			if(direction == 'ModelToView'){
-				return ( new Number(value)).toLocaleString();
+				return ( new Number(value)).toLocaleString( undefined,{minimumFractionDigits: 0, maximumFractionDigits: 2});
 			}
 		},
 		
 		
 		unitConverter : function(direction, value){
-			if(direction == 'ModelToView'){
+			if(direction == 'ModelToView' && !!value){
 				var unitContract = value.getVal();
 				if( unitContract.lastIndexOf("obix:Unit/") > -1){
 					return unitText[unitContract.substr(unitContract.lastIndexOf('/') + 1)];

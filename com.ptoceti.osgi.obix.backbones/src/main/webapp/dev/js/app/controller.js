@@ -161,7 +161,12 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 						}, this)
 					}, this);
 					
-				},this)
+				},this);
+				
+				if( !this.lobbyWatch){
+					// if none of the watches local matched, create a new one.
+					ventAggr.trigger("watch:createWatch"); 
+				}
 				
 			} else {
 				// create initial lobby watch
@@ -186,7 +191,11 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 				watchIn.getHrefList().add(watchedPoints[i].getHref());
 			}
 
-			model.getAddOp().invoke(watchIn, new Obix.watchOut(), {
+			var watchOut  = new Obix.watchOut({}, {
+				urlRoot : this.restRoot
+			});
+			
+			model.getAddOp().invoke(watchIn, watchOut, {
 				success : this.watchUpdated,
 				updateValues : false
 				//createUpdateTask : true,
@@ -296,8 +305,10 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 				var watchIn = new Obix.watchIn();
 				watchIn.getHrefList().add(point.getHref());
 				
-				this.lobbyWatch.getRemoveOp().invoke(watchIn, new Obix.watchOut(), {
-					success : this.watchUpdated,
+				this.lobbyWatch.getRemoveOp().invoke(watchIn, new Obix.nil(), {
+					success : _.bind(function(model, response) {
+						ventAggr.trigger("watch:updateList")
+					}, this),
 				});
 			}
 		},

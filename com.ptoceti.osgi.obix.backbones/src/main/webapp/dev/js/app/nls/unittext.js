@@ -53,6 +53,7 @@ define ({
 		"Gray":"Gy",
 		"katal":"kat",
 		"celsius":"\u00B0C",
-		"farenheit":"\u00B0F"
+		"farenheit":"\u00B0F",
+		"percent":"%"
 	}
 });
