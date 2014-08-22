@@ -46,6 +46,9 @@ public class Unit extends Obj implements Serializable {
 	private static final long serialVersionUID = -5941629735105808952L;
 	public static final Contract contract = new Contract("obix:Unit");
 	
+	public static final Unit unity(){
+		return new Unit( Dimension.dim_null, "unity", "", 0.0, 0.0);
+	}
 	public static final Unit m() {
 		return new Unit( Dimension.m,"meter","m",0.0,1.0);
 	}
@@ -150,6 +153,14 @@ public class Unit extends Obj implements Serializable {
 		return new Unit( Dimension.kat,"katal","kat",0.0,1.0);
 	}
 	
+	public static final Unit percent(){
+		return new Unit( Dimension.dim_null,"percent","%",0.0,1.0);
+	}
+	
+	public static final Unit celsius(){
+		return new Unit( Dimension.K,"celsius","\u2103",-273.15,1.0);
+	}
+	
 	public Unit() {
 		setIs(contract);
 	}
@@ -203,6 +214,9 @@ public class Unit extends Obj implements Serializable {
 		if( Unit.lx().getHref().getPath().equals(unitUri.getPath())) return Unit.lx();
 		if( Unit.Gy().getHref().getPath().equals(unitUri.getPath())) return Unit.Gy();
 		if( Unit.kat().getHref().getPath().equals(unitUri.getPath())) return Unit.kat();
+		
+		if( Unit.percent().getHref().getPath().equals(unitUri.getPath())) return Unit.percent();
+		if( Unit.celsius().getHref().getPath().equals(unitUri.getPath())) return Unit.celsius();
 		
 		return unit;
 	}

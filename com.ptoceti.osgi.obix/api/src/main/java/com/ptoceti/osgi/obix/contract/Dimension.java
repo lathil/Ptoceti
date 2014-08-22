@@ -51,6 +51,8 @@ public class Dimension extends Obj implements Serializable{
 	public static final Dimension mol = new Dimension(0,1,0,0,0,0,0);// Mole
 	public static final Dimension cd = new Dimension(1,0,0,0,0,0,0);// Candela
 	
+	public static final Dimension dim_null = new Dimension(0,0,0,0,0,0,0);
+	
 	/* SI Derived Units */
 	/** The speed unit meter per second (m/s) */
 	public static final Dimension m_s = new Dimension(0,0,0,0,0,-1,1);
