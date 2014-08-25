@@ -62,6 +62,20 @@
 	
 	
 	<distributionManagement>
+		<downloadUrl>
+		</downloadUrl>
+		<repository>
+	      <id>lathil-cloudbees-release</id>
+	      <name>lathil-cloudbees-release</name>
+	      <url>dav:https://repository-lathil.forge.cloudbees.com/release</url>
+	    </repository>
+	    <snapshotRepository>
+	      <id>lathil-cloudbees-snapshot</id>
+	      <name>lathil-cloudbees-snapshot</name>
+	      <url>dav:https://repository-lathil.forge.cloudbees.com/snapshot</url>
+	    </snapshotRepository>
+
+
 		<!-- Publish versioned releases here -->
 		 <!--
 		<repository>
@@ -83,6 +97,14 @@
 	</distributionManagement>
 
 	<build>
+		<extensions>
+			<!-- Extension required to deploy a snapshot or a release to the CloudBees remote maven repository using Webdav -->
+			<extension>
+			<groupId>org.apache.maven.wagon</groupId>
+			<artifactId>wagon-webdav</artifactId>
+			<version>1.0-beta-2</version>
+			</extension>
+		</extensions>
 		<resources>
 			<resource>
 				<directory>${basedir}</directory>
