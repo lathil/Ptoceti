@@ -98,8 +98,8 @@
 			<groupId>org.xerial</groupId>
 			<artifactId>sqlite-jdbc</artifactId>
 			<!-- <scope>system</scope> <systemPath>${basedir}/src/main/resources/sqlite-jdbc-3.7.15-SNAPSHOT.jar</systemPath> -->
-			<version>3.7.15-SNAPSHOT</version>
-			<!-- <version>3.7.15-M1</version> -->
+			<!-- <version>3.7.15-SNAPSHOT</version>-->
+			<version>3.7.15-M1</version>
 		</dependency>
 
 	</dependencies>
