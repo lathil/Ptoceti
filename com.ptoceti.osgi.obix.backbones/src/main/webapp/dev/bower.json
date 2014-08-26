@@ -69,7 +69,7 @@
     		"lib": "lib/backbone-pageable.js"
     	},
     	"backbone.localstorage" : {
-    		".": "backbone.localstorage.js"
+    		".": "backbone.localStorage.js"
     	},
     	"momentjs" : {
     		"." : "moment.js"
