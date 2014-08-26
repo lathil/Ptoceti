@@ -96,7 +96,10 @@ module.exports = function(grunt) {
 			        	  name: 'main',
 			        	  include: ["i18n", "text",'courier','moment','mediaenquire','jquery.enterkeyevent']
 			          },
-			          
+			          {
+			        	  name:'views/progressview',
+			        	  exclude: ['backbone', 'marionette', 'underscore', 'jquery']
+			          },
 			          {
 			        	  name:'views/headerview',
 			        	  exclude: ['backbone', 'marionette', 'underscore', 'jquery', 'bootstrap','moment',"i18n", "text"]

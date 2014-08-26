@@ -29,7 +29,7 @@
  * Root layout for the complete IHM. Serves also as placeholder to declare all ihm dependencies.
  * 
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder', 'views/progressView', 'marionette.handlebars',  'handlebars.helpers','bootstrap' ],
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder', 'views/progressview', 'marionette.handlebars',  'handlebars.helpers','bootstrap' ],
 		function(Backbone, Marionette, _, $, ventAggr, ModelBinder, ProgressView ) {
 
 	var ObixView = Marionette.Layout.extend({
