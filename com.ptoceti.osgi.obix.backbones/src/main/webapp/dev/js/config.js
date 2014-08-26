@@ -24,7 +24,7 @@ Modernizr.load({
 		handlebars : '../lib/handlebars/handlebars',
 		modelbinder : '../lib/Backbone.ModelBinder/Backbone.ModelBinder',
 		pageable : '../lib/backbone-pageable/lib/backbone-pageable',
-		localstorage : "../lib/backbone.localstorage/backbone.localStorage",
+		localstorage : "../lib/backbone.localstorage/backbone.localstorage",
 		moment : "../lib/momentjs/moment",
 		d3 : "../lib/d3/d3",
 		css : "../lib/require-css/css",
