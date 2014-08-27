@@ -65,12 +65,12 @@
 		<downloadUrl>
 		</downloadUrl>
 		<repository>
-	      <id>lathil-cloudbees-release</id>
+	      <id>lathil-release</id>
 	      <name>lathil-cloudbees-release</name>
 	      <url>dav:https://repository-lathil.forge.cloudbees.com/release</url>
 	    </repository>
 	    <snapshotRepository>
-	      <id>lathil-cloudbees-snapshot</id>
+	      <id>lathil-snapshot</id>
 	      <name>lathil-cloudbees-snapshot</name>
 	      <url>dav:https://repository-lathil.forge.cloudbees.com/snapshot</url>
 	    </snapshotRepository>
