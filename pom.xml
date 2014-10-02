@@ -37,7 +37,9 @@
 		
 		<restlet.version>2.2.1</restlet.version>
 		<pax-web.version>2.1.6</pax-web.version>
-		<osgi.version>4.2.0</osgi.version>
+		<osgi.core.version>4.3.0</osgi.core.version>
+		<osgi.compendium.version>4.3.0</osgi.compendium.version>
+		<osgi.enterprise.version>4.2.0</osgi.enterprise.version>
 	</properties>
 
 	<scm>
@@ -73,6 +75,7 @@
 	      <id>lathil-snapshot</id>
 	      <name>lathil-cloudbees-snapshot</name>
 	      <url>dav:https://repository-lathil.forge.cloudbees.com/snapshot</url>
+	      <uniqueVersion>false</uniqueVersion>
 	    </snapshotRepository>
 
 
@@ -335,9 +338,14 @@
 							<param>--bootDelegation=com.sun.net.httpserver</param>
 							<param>--usePersistedState=false</param>
 							<param>--platform=felix</param>
-							<param>--profiles=compendium</param>
+							<param>--ee=JavaSE-1.7</param>
 							<param>--log=debug</param>
 							<param>--felix.webconsole.loglevel=1</param>
+							
+							<param>scan-bundle:mvn:org.osgi/org.osgi.core/${osgi.core.version}</param>
+							<param>scan-bundle:mvn:org.osgi/org.osgi.compendium/${osgi.compendium.version}</param>
+							<param>scan-bundle:mvn:org.osgi/org.osgi.enterprise/${osgi.enterprise.version}</param>
+							
 							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-jetty-bundle/${pax-web.version}</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/${pax-web.version}</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.confman/pax-confman-propsloader/0.2.3</param>
@@ -350,7 +358,8 @@
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.packageadmin/1.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.obr/1.0.0</param>
 							
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.8.0</param>
+							
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.4.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.fileinstall/3.2.8</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.deploymentadmin/0.9.6</param>
@@ -388,19 +397,19 @@
 			<dependency>
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.core</artifactId>
-				<version>${osgi.version}</version>
+				<version>${osgi.core.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.compendium</artifactId>
-				<version>${osgi.version}</version>
+				<version>${osgi.compendium.version}</version>
 			</dependency>
 			
 			<dependency>
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.enterprise</artifactId>
-				<version>${osgi.version}</version>
+				<version>${osgi.enterprise.version}</version>
 			</dependency>
 
 		</dependencies>
