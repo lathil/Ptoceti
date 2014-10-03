@@ -43,8 +43,8 @@
 	</properties>
 
 	<scm>
-		<developerConnection>scm:git:ssh://git@github.com:lathil/Ptoceti.git</developerConnection>
-		<connection>scm:git:ssh://git@github.com:lathil/Ptoceti.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/lathil/Ptoceti.git</developerConnection>
+		<connection>scm:git:ssh://git@github.com/lathil/Ptoceti.git</connection>
 		<url>https://github.com/lathil/Ptoceti.git</url>
 	</scm>
 	
