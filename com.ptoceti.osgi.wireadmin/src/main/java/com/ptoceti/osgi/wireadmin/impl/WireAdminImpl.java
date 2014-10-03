@@ -466,7 +466,8 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 		
 		if( consumerPID == null ) {
 			try {
-				ServiceReference[] consumerRef = Activator.bc.getServiceReferences(null, consumerFilter);
+				String className = null;
+				ServiceReference[] consumerRef = Activator.bc.getServiceReferences( className, consumerFilter);
 				if( consumerRef != null && consumerRef.length > 0){
 					disConWire.setConsumerPID((String)consumerRef[0].getProperty(Constants.SERVICE_PID));
 					if(disConWire.isComplete()){
@@ -489,7 +490,8 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 		if( producerPID == null ) {
 			
 			try { // set ourselved as listener to the register / unregister event from this service
-				ServiceReference[] producerRef = Activator.bc.getServiceReferences(null, producerFilter);
+				String className = null;
+				ServiceReference[] producerRef = Activator.bc.getServiceReferences(className, producerFilter);
 				if( producerRef != null && producerRef.length > 0){
 					disConWire.setProducerPID((String)producerRef[0].getProperty(Constants.SERVICE_PID));
 					if(disConWire.isComplete()){
