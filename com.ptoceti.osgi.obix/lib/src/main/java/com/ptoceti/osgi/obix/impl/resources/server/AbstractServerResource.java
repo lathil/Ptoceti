@@ -32,6 +32,7 @@ import org.restlet.resource.ServerResource;
 
 public class AbstractServerResource extends ServerResource{
 
+	
 	@Override
 	public void doInit() {
 		

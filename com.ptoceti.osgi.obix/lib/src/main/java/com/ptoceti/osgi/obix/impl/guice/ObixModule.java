@@ -28,17 +28,24 @@ package com.ptoceti.osgi.obix.impl.guice;
  */
 
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
+import com.ptoceti.osgi.obix.cache.HistoryCache;
+import com.ptoceti.osgi.obix.cache.ObjCache;
+import com.ptoceti.osgi.obix.cache.WatchCache;
 import com.ptoceti.osgi.obix.domain.AboutDomain;
 import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
+import com.ptoceti.osgi.obix.impl.cache.HistoryCacheImpl;
+import com.ptoceti.osgi.obix.impl.cache.ObjCacheImpl;
+import com.ptoceti.osgi.obix.impl.cache.WatchCacheImpl;
 import com.ptoceti.osgi.obix.impl.domain.AboutDomainImpl;
-import com.ptoceti.osgi.obix.impl.domain.HistoryDomainImpl;
-import com.ptoceti.osgi.obix.impl.domain.ObjDomainImpl;
-import com.ptoceti.osgi.obix.impl.domain.WatchDomainImpl;
 import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnectionProxyFactory;
+import com.ptoceti.osgi.obix.object.Obj;
 
 /**
  * Configuration module for Guice.
@@ -47,28 +54,13 @@ import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnectionProxyFactory;
  *
  */
 public class ObixModule extends AbstractModule{
-	/**
-	 * factory for WatchDomain JdbcConnection proxys
-	 */
-	JdbcConnectionProxyFactory<WatchDomain> watchProxyFactory;
-	/**
-	 * factory for ObjDomain JdbcConnection proxys
-	 */
-	JdbcConnectionProxyFactory<ObjDomain> objProxyFactory;
-	/**
-	 * factory for HistoryDomain JdbcConnection proxys
-	 */
-	JdbcConnectionProxyFactory<HistoryDomain> historyProxyFactory;
+
 	
 	/**
 	 * Constructor
 	 * 
 	 */
 	public ObixModule() {
-		watchProxyFactory = new JdbcConnectionProxyFactory<WatchDomain>();
-		objProxyFactory = new JdbcConnectionProxyFactory<ObjDomain>();
-		historyProxyFactory = new JdbcConnectionProxyFactory<HistoryDomain>();
-		
 	}
 	
 	/**
@@ -77,32 +69,32 @@ public class ObixModule extends AbstractModule{
 	@Override
 	protected void configure() {
 		bind(AboutDomain.class).to((Class<? extends AboutDomain>) AboutDomainImpl.class);
+		bind(ObjDomain.class).toProvider(ObjDomainProvider.class);
+		bind(WatchDomain.class).toProvider(WatchDomainProvider.class);
+		bind(HistoryDomain.class).toProvider(HistoryDomainProvider.class);
+		bind(ObjCache.class).to(ObjCacheImpl.class);
+		bind(HistoryCache.class).to(HistoryCacheImpl.class);
+		bind(WatchCache.class).to(WatchCacheImpl.class);
+		
 	}
 	
-	/**
-	 * Provide WatchDomain implementation
-	 * @return
-	 */
-	@Provides
-	WatchDomain provideWatchDomain(){
-		return watchProxyFactory.createProxy( WatchDomainImpl.class, WatchDomain.class);
-	}
-	/**
-	 * Provide ObjDomain implementation
-	 * @return
-	 */
-	@Provides
-	ObjDomain provideObjDomain() {
-		return objProxyFactory.createProxy( ObjDomainImpl.class, ObjDomain.class);
-	}
-	/**
-	 * Provide HistoryDomain implementation
-	 * @return
-	 */
-	@Provides
-	HistoryDomain provideHistoryDomain() {
-		return historyProxyFactory.createProxy( HistoryDomainImpl.class, HistoryDomain.class);
+	@Provides @Singleton
+	JdbcConnectionProxyFactory<WatchDomain> watchDomainProxyFactoryProvider(){
+		return new JdbcConnectionProxyFactory<WatchDomain>();
 	}
 	
-
+	@Provides @Singleton
+	JdbcConnectionProxyFactory<ObjDomain> objectDomainProxyFactoryProvider(){
+		return new JdbcConnectionProxyFactory<ObjDomain>();
+	}
+	
+	@Provides @Singleton
+	JdbcConnectionProxyFactory<HistoryDomain> historyDomainProxyFactoryProvider(){
+		return new JdbcConnectionProxyFactory<HistoryDomain>();
+	}
+	
+	@Provides @Singleton
+	Cache<String, Obj> objCacheProvider(){
+		return CacheBuilder.newBuilder().maximumSize(1000).build();
+	}
 }

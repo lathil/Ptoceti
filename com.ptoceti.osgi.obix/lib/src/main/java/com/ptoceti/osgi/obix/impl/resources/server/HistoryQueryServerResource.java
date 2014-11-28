@@ -34,11 +34,11 @@ import java.util.List;
 import org.restlet.resource.Post;
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.HistoryCache;
 import com.ptoceti.osgi.obix.contract.HistoryFilter;
 import com.ptoceti.osgi.obix.contract.HistoryQueryOut;
 import com.ptoceti.osgi.obix.contract.HistoryRecord;
 import com.ptoceti.osgi.obix.domain.DomainException;
-import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.resources.HistoryQueryResource;
 import com.ptoceti.osgi.obix.resources.HistoryResource;
@@ -46,11 +46,11 @@ import com.ptoceti.osgi.obix.resources.ResourceException;
 
 public class HistoryQueryServerResource extends AbstractServerResource implements HistoryQueryResource{
 
-	private HistoryDomain historyDomain;
+	private HistoryCache cache;
 	
 	@Inject
-	public HistoryQueryServerResource(HistoryDomain domain) {
-		historyDomain = domain;
+	public HistoryQueryServerResource(HistoryCache cache) {
+		this.cache = cache;
 	}
 	
 	@Post
@@ -61,7 +61,7 @@ public class HistoryQueryServerResource extends AbstractServerResource implement
 		HistoryQueryOut result = new HistoryQueryOut();
 		
 		try {
-			List<HistoryRecord> records = historyDomain.getRecords(historyUri, in.getLimit(), in.getStart(), in.getEnd());
+			List<HistoryRecord> records = cache.getRecords(historyUri, in.getLimit(), in.getStart(), in.getEnd());
 			
 			Abstime start = null;
 			Abstime end = null;

@@ -31,20 +31,20 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 import org.restlet.resource.Get;
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.HistoryCache;
 import com.ptoceti.osgi.obix.contract.History;
 import com.ptoceti.osgi.obix.domain.DomainException;
-import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.HistoryResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
 
 public class HistoryServerResource extends AbstractServerResource implements HistoryResource{
 
-	private HistoryDomain historyDomain;
+	private HistoryCache cache;
 	
 	@Inject
-	public HistoryServerResource(HistoryDomain domain) {
-		this.historyDomain = domain;
+	public HistoryServerResource(HistoryCache cache) {
+		this.cache = cache;
 	}
 	
 	@Get
@@ -53,7 +53,7 @@ public class HistoryServerResource extends AbstractServerResource implements His
 		String historyUri = HistoryResource.baseuri.concat("/").concat((String)getRequest().getAttributes().get(HistoryResource.HISTORY_URI)).concat("/");
 		History history = null;
 		try {
-			history = historyDomain.retrieve(historyUri);
+			history = cache.retrieve(historyUri);
 			
 			history.getQuery().setHref(new Uri("uri", historyUri + HistoryQueryServerResource.baseuri));
 			history.getRollup().setHref(new Uri("uri", historyUri + HistoryRollupServerResource.baseuri));

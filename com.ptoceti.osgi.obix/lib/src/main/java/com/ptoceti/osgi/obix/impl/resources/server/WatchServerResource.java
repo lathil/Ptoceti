@@ -33,6 +33,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.WatchCache;
 import com.ptoceti.osgi.obix.contract.Watch;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
@@ -42,11 +43,11 @@ import com.ptoceti.osgi.obix.resources.WatchResource;
 
 public class WatchServerResource extends AbstractServerResource implements WatchResource{
 
-	private WatchDomain watchDomain;
+	private WatchCache cache;
 	
 	@Inject
-	public WatchServerResource(WatchDomain domain) {
-		watchDomain= domain;
+	public WatchServerResource(WatchCache domain) {
+		this.cache= cache;
 	}
 	
 	@Get
@@ -55,7 +56,7 @@ public class WatchServerResource extends AbstractServerResource implements Watch
 		String watchUri = WatchResource.baseuri.concat("/").concat((String)getRequest().getAttributes().get(WatchResource.WATCH_URI)).concat("/");
 		Watch watch = null;
 		try {
-			watch = watchDomain.retrieve(watchUri);
+			watch = cache.retrieve(watchUri);
 			if( watch != null ) {
 				watch.getAdd().setHref(new Uri("uri", watchUri + WatchAddServerResource.baseuri));
 				watch.getRemove().setHref(new Uri("uri", watchUri + WatchRemoveServerResource.baseuri));
@@ -77,7 +78,7 @@ public class WatchServerResource extends AbstractServerResource implements Watch
 		String watchUri = WatchResource.baseuri.concat("/").concat((String)getRequest().getAttributes().get(WatchResource.WATCH_URI)).concat("/");
 		
 		try {
-			watchDomain.update(watchUri, watchIn);
+			cache.update(watchUri, watchIn);
 		} catch (DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".update", ex);
 		}

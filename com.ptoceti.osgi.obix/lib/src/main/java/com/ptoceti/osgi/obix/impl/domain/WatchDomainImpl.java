@@ -49,10 +49,9 @@ import com.ptoceti.osgi.obix.impl.entity.UriEntity;
 
 public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 
-	public WatchOut addWatch(String uri, WatchIn in) throws DomainException {
+	public List<Uri> addWatch(String uri, WatchIn in) throws DomainException {
 		
-		WatchOut watchOut = new WatchOut();
-		
+		List<Uri> addedUris = new ArrayList<Uri>();
 		ObjEntity watch = getWatch(uri);
 		if( watch != null){
 			try {
@@ -69,8 +68,9 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 						if( containsUri( watch, uriToAdd) == null && objEnt != null){
 							// uri not already recorded and object exists, add to list.
 							watch.addChildren(objUri);
+							addedUris.add((Uri)objUri);
 						}
-						
+						/**
 						if( objEnt != null){
 							objEnt.fetchChildrens();
 							for( ObjEntity entity : (List<ObjEntity>) objEnt.getChilds()){
@@ -81,6 +81,7 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 							Err errorObj = new Err();
 							errorObj.setHref((Uri)objUri);
 						}
+						**/
 					}
 				}
 			} catch(EntityException ex) {
@@ -88,12 +89,13 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 			}
 		}
 		
-		return watchOut;
+		return addedUris;
 	}
 	
 	
-	public void removeWatch(String uri, WatchIn in) throws DomainException {
+	public List<Uri> removeWatch(String uri, WatchIn in) throws DomainException {
 		
+		List<Uri> removedUris = new ArrayList<Uri>();
 		ObjEntity watch = getWatch(uri);
 		try {
 			if( watch != null){
@@ -102,13 +104,18 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 						String uriTorRemove = ((Uri)objUri).getPath().toString();
 						
 						ObjEntity uriEntity = containsUri( watch, uriTorRemove);
-						if(uriEntity != null) uriEntity.delete();
+						if(uriEntity != null){
+							uriEntity.delete();
+							removedUris.add((Uri)uriEntity.getObixObject());
+						}
 					}
 				}
 			}
 		} catch(EntityException ex) {
 			throw new DomainException("Exception in " + this.getClass().getName() + ".removeWatch", ex);
 		}
+		
+		return removedUris;
 		
 	}
 

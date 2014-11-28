@@ -30,6 +30,7 @@ package com.ptoceti.osgi.obix.impl.entity;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.ptoceti.osgi.obix.object.Real;
@@ -117,6 +118,7 @@ public class RealEntity extends ObjEntity implements ValEntity {
 		params.add(getId());
 
 		update(UPDATE_REAL, params.toArray(), null);
+		getObixObject().setUpdateTimeStamp(((Date)params.get(6)).getTime());
 	}
 
 	public boolean fetchByHref() throws EntityException {

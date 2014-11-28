@@ -31,6 +31,7 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 import org.restlet.resource.Post;
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.WatchCache;
 import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.contract.WatchIn;
 import com.ptoceti.osgi.obix.domain.DomainException;
@@ -41,18 +42,18 @@ import com.ptoceti.osgi.obix.resources.WatchResource;
 
 public class WatchRemoveServerResource extends AbstractServerResource implements WatchRemoveResource  {
 
-	private WatchDomain watchDomain;
+	private WatchCache cache;
 	
 	@Inject
-	public WatchRemoveServerResource(WatchDomain domain) {
-		watchDomain = domain;
+	public WatchRemoveServerResource(WatchCache cache) {
+		this.cache = cache;
 	}
 	
 	@Post("xml|json")
 	public Nil removeWatch(WatchIn in) throws ResourceException {
 		String watchUri = WatchResource.baseuri.concat("/").concat((String)getRequest().getAttributes().get(WatchResource.WATCH_URI)).concat("/");	
 		try {
-			watchDomain.removeWatch(watchUri, in);
+			cache.removeWatch(watchUri, in);
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".removeWatch", ex);
 		}

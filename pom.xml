@@ -66,6 +66,7 @@
 	<distributionManagement>
 		<downloadUrl>
 		</downloadUrl>
+		<!--  
 		<repository>
 	      <id>lathil-release</id>
 	      <name>lathil-cloudbees-release</name>
@@ -77,7 +78,7 @@
 	      <url>dav:https://repository-lathil.forge.cloudbees.com/snapshot</url>
 	      <uniqueVersion>false</uniqueVersion>
 	    </snapshotRepository>
-
+		-->
 
 		<!-- Publish versioned releases here -->
 		 <!--

@@ -30,6 +30,7 @@ package com.ptoceti.osgi.obix.impl.entity;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.ptoceti.osgi.obix.object.Uri;
@@ -86,6 +87,7 @@ public class UriEntity extends ObjEntity implements ValEntity {
 		params.add(((Uri) getObixObject()).getVal());
 		params.add(getId());
 		update(UPDATE_URI, params.toArray(), null);
+		getObixObject().setUpdateTimeStamp(((Date)params.get(6)).getTime());
 	}
 
 	public boolean fetchByHref() throws EntityException {

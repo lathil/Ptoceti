@@ -33,6 +33,7 @@ import org.restlet.resource.Post;
 
 import com.google.inject.Inject;
 
+import com.ptoceti.osgi.obix.cache.WatchCache;
 import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.contract.Watch;
 import com.ptoceti.osgi.obix.contract.WatchService;
@@ -45,11 +46,11 @@ import com.ptoceti.osgi.obix.resources.WatchServiceResource;
 
 public class WatchServiceServerResource extends AbstractServerResource implements WatchServiceResource {
 	
-	private WatchDomain watchDomain;
+	private WatchCache cache;
 	
 	@Inject
-	public WatchServiceServerResource(WatchDomain domain){
-		watchDomain = domain;
+	public WatchServiceServerResource(WatchCache cache){
+		this.cache = cache;
 	}
 	
 	@Get
@@ -65,7 +66,7 @@ public class WatchServiceServerResource extends AbstractServerResource implement
 	@Post("xml|json")
 	public Watch make(Nil nil) throws ResourceException{	
 		try {
-			Watch watch = watchDomain.make();
+			Watch watch = cache.make();
 			return watch;
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".make", ex);

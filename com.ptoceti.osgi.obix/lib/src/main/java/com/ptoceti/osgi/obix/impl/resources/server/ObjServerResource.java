@@ -33,6 +33,7 @@ import org.restlet.resource.Post;
 import org.restlet.resource.Put;
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.ObjCache;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 import com.ptoceti.osgi.obix.object.Obj;
@@ -42,11 +43,11 @@ import com.ptoceti.osgi.obix.resources.ResourceException;
 
 public class ObjServerResource extends AbstractServerResource implements ObjResource {
 
-	private ObjDomain domain;
+	private ObjCache cache;
 	
 	@Inject
-	public ObjServerResource( ObjDomain domain) {
-		this.domain = domain;
+	public ObjServerResource( ObjCache cache) {
+		this.cache = cache;
 	}
 	
 	@Get
@@ -56,7 +57,7 @@ public class ObjServerResource extends AbstractServerResource implements ObjReso
 		Uri hrefUri = new Uri("href", uri + href);
 		Obj obj = null;
 		try {
-			obj = domain.getObixObj(hrefUri);
+			obj = cache.getObixObj(hrefUri);
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".retrieve", ex);
 		}
@@ -75,7 +76,7 @@ public class ObjServerResource extends AbstractServerResource implements ObjReso
 		Uri hrefUri = new Uri("href", uri + href);
 		
 		try {
-			domain.updateObixObjAt(hrefUri, objIn);
+			cache.updateObixObjAt(hrefUri, objIn);
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".update", ex);
 		}
@@ -93,7 +94,7 @@ public class ObjServerResource extends AbstractServerResource implements ObjReso
 		Uri hrefUri = new Uri("href", uri + href);
 		
 		try {
-			domain.updateObixObjAt(hrefUri, objIn);
+			cache.updateObixObjAt(hrefUri, objIn);
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".update", ex);
 		}

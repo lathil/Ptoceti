@@ -28,6 +28,8 @@ package com.ptoceti.osgi.obix.impl;
  */
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.HistoryCache;
+import com.ptoceti.osgi.obix.cache.ObjCache;
 import com.ptoceti.osgi.obix.contract.History;
 import com.ptoceti.osgi.obix.contract.Point;
 import com.ptoceti.osgi.obix.custom.contract.MonitoredPoint;
@@ -40,14 +42,14 @@ import com.ptoceti.osgi.obix.object.Val;
 
 public class EnveloppeHandler {
 
-	private ObjDomain objDomain;
+	private ObjCache objCache;
 	
-	private HistoryDomain historyDomain;
+	private HistoryCache historyCache;
 	
 	@Inject
-	public EnveloppeHandler(ObjDomain objDomain, HistoryDomain historyDomain) {
-		this.objDomain = objDomain;
-		this.historyDomain = historyDomain;
+	public EnveloppeHandler(ObjCache cache, HistoryCache historyCache) {
+		this.objCache = cache;
+		this.historyCache = historyCache;
 	}
 	
 	public void consumeObject(Val obj, String href) {
@@ -57,7 +59,7 @@ public class EnveloppeHandler {
 				// extend path of value object
 				obj.setHref(new Uri("", href + "/point"));
 				// href is then the one of the MonitoredPoint
-				Obj monitoredObj = objDomain.getObixObj(new Uri("",href));
+				Obj monitoredObj = objCache.getObixObj(new Uri("",href));
 				MonitoredPoint monitoredPoint = null;
 				Val sample = (Val)obj.cloneEmpty();
 				sample.setVal(obj.getVal());
@@ -70,8 +72,9 @@ public class EnveloppeHandler {
 						
 						Val point = (Val)monitoredPoint.getPoint();
 						point.setVal(obj.getVal());
-						objDomain.updateObixObjAt(obj.getHref(), point);
-						historyDomain.addRecord(monitoredPoint.getHistoryRef().getHref().getPath(), sample);
+						Obj updatedObj = objCache.updateObixObjAt(obj.getHref(), point);
+						historyCache.addRecord(monitoredPoint.getHistoryRef().getHref().getPath(), sample);
+						monitoredObj.setUpdateTimeStamp(updatedObj.getUpdateTimeStamp());
 					}
 				} else {
 					monitoredPoint = new MonitoredPoint();
@@ -79,19 +82,19 @@ public class EnveloppeHandler {
 					
 					monitoredPoint.setPoint(obj);
 					
-					History history = historyDomain.make( obj.getContract());
+					History history = historyCache.make( obj.getContract());
 					Ref historyRef = new Ref();
 					historyRef.setHref(history.getHref());
 					monitoredPoint.setHistoryRef(historyRef);
 					
-					objDomain.createObixObj(monitoredPoint);
-					historyDomain.addRecord(monitoredPoint.getHistoryRef().getHref().getPath(), sample);
+					objCache.createObixObj(monitoredPoint);
+					historyCache.addRecord(monitoredPoint.getHistoryRef().getHref().getPath(), sample);
 				}
 				
 				
 			} else {
 	
-				objDomain.createUpdateObixObj(obj);
+				objCache.createUpdateObixObj(obj);
 			}
 			
 		} catch (Exception ex ) {

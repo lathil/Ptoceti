@@ -30,6 +30,7 @@ package com.ptoceti.osgi.obix.impl.entity;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.ptoceti.osgi.obix.object.Reltime;
@@ -97,6 +98,7 @@ public class RelTimeEntity extends ObjEntity implements ValEntity {
 		params.add(getId());
 
 		update(UPDATE_RELTIME, params.toArray(), null);
+		getObixObject().setUpdateTimeStamp(((Date)params.get(6)).getTime());
 	}
 
 	public boolean fetchByHref() throws EntityException {

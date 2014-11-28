@@ -36,6 +36,7 @@ import com.ptoceti.osgi.obix.contract.WatchOut;
 import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnection;
 import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnection.ConnectionType;
 import com.ptoceti.osgi.obix.object.Obj;
+import com.ptoceti.osgi.obix.object.Uri;
 
 public interface WatchDomain extends BaseDomain {
 
@@ -64,7 +65,7 @@ public interface WatchDomain extends BaseDomain {
 	 * @return a list containing the newly added objects.
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
-	public WatchOut addWatch(String uri, WatchIn in) throws DomainException ;
+	public List<Uri> addWatch(String uri, WatchIn in) throws DomainException ;
 	
 	/**
 	 *  delete a watch
@@ -97,10 +98,10 @@ public interface WatchDomain extends BaseDomain {
 	 * 
 	 * @param uri the uri of the watch
 	 * @param in the list of uri to remove
-	 * 
+	 * @return List<Uri> a list of removed uris
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
-	public void removeWatch(String uri, WatchIn in) throws DomainException ;
+	public List<Uri> removeWatch(String uri, WatchIn in) throws DomainException ;
 	
 	/**
 	 * get a list of all the watches availables

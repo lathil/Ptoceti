@@ -31,6 +31,7 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 import org.restlet.resource.Post;
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.WatchCache;
 import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.contract.WatchOut;
 import com.ptoceti.osgi.obix.domain.DomainException;
@@ -41,11 +42,11 @@ import com.ptoceti.osgi.obix.resources.WatchResource;
 
 public class WatchPoolChangesServerResource extends AbstractServerResource implements WatchPoolChangesResource {
 
-	private WatchDomain watchDomain;
+	private WatchCache cache;
 	
 	@Inject
-	public WatchPoolChangesServerResource(WatchDomain domain) {
-		watchDomain = domain;
+	public WatchPoolChangesServerResource(WatchCache cache) {
+		this.cache = cache;
 	}
 	
 	@Post("xml|json")
@@ -54,7 +55,7 @@ public class WatchPoolChangesServerResource extends AbstractServerResource imple
 		try {
 			
 			//Long start = Calendar.getInstance().getTimeInMillis();
-			WatchOut result =  watchDomain.poolChanges(watchUri);
+			WatchOut result =  cache.poolChanges(watchUri);
 			
 			//Long end = Calendar.getInstance().getTimeInMillis();
 			

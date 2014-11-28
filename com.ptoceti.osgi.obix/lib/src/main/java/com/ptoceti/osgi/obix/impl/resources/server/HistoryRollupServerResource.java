@@ -34,22 +34,22 @@ import org.restlet.resource.Post;
 
 import com.google.inject.Inject;
 
+import com.ptoceti.osgi.obix.cache.HistoryCache;
 import com.ptoceti.osgi.obix.contract.HistoryRollupIn;
 import com.ptoceti.osgi.obix.contract.HistoryRollupOut;
 import com.ptoceti.osgi.obix.contract.HistoryRollupRecord;
 import com.ptoceti.osgi.obix.domain.DomainException;
-import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.resources.HistoryResource;
 import com.ptoceti.osgi.obix.resources.HistoryRollupResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
 
 public class HistoryRollupServerResource extends AbstractServerResource implements HistoryRollupResource {
 
-	private HistoryDomain historyDomain;
+	private HistoryCache cache;
 	
 	@Inject
-	public HistoryRollupServerResource(HistoryDomain domain) {
-		historyDomain = domain;
+	public HistoryRollupServerResource(HistoryCache cache) {
+		this.cache = cache;
 	}
 	
 	@Post
@@ -61,7 +61,7 @@ public class HistoryRollupServerResource extends AbstractServerResource implemen
 		
 		try {
 			
-			List<HistoryRollupRecord> records = historyDomain.getRollUprecords(historyUri, in.getLimit(), in.getStart(), in.getEnd(), in.getInterval());
+			List<HistoryRollupRecord> records = cache.getRollUprecords(historyUri, in.getLimit(), in.getStart(), in.getEnd(), in.getInterval());
 			if( records.size() > 0) {
 				
 				result.setStart(records.get(0).getStart());

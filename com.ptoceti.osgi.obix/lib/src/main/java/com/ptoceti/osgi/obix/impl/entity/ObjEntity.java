@@ -263,6 +263,7 @@ public class ObjEntity extends AbstractEntity {
 		List<Object> params = getUpdateParam();
 		params.add(getId());
 		update(UPDATE_OBJ, params.toArray(), null);
+		getObixObject().setUpdateTimeStamp(((Date)params.get(6)).getTime());
 
 	}
 	
@@ -991,6 +992,7 @@ public class ObjEntity extends AbstractEntity {
 			entity.getObixObject().setDisplay(getString(rs, COL_OBJ_DISPLAY));
 			entity.getObixObject().setIsNull(getBoolean(rs, COL_OBJ_ISNULL));
 			entity.getObixObject().setWritable(getBoolean(rs, COL_OBJ_WRITABLE));
+			entity.getObixObject().setUpdateTimeStamp(entity.getModificationDate() == null ? entity.getCreationDate().getTime() : entity.getModificationDate().getTime());
 			
 			Integer statusId = getInteger(rs, COL_OBJ_STATUS_ID);
 			if( statusId != null) {
