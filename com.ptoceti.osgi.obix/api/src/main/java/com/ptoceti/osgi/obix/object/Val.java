@@ -78,5 +78,15 @@ public abstract class Val extends Obj {
 	public Val getDiff(Val val ) {
 		return null;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if( o.getClass().isAssignableFrom(this.getClass())
+				&& (this.getName() != null) && ((Val)o).getName() != null
+				&& (this.getName().equals(((Val)o).getName())) 
+		){
+			return true;
+		} else return false;
+	}
 		
 }

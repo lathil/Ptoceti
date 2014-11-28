@@ -30,6 +30,7 @@ package com.ptoceti.osgi.obix.object;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 
 
@@ -49,12 +50,13 @@ public class Obj  implements Serializable {
 	protected String display;
 	protected Boolean writable = Boolean.FALSE;
 	protected Status status;
-	
-	
 	protected ArrayList<Obj> childrens;
+	
+	private long updateTimeStamp;
 	
 	public Obj() {
 		setChildrens(new ArrayList<Obj>());
+		updateTimeStamp = (new Date()).getTime();
 	}
 	
 	public Obj(Obj model) {
@@ -215,5 +217,13 @@ public class Obj  implements Serializable {
 	
 	public Contract getContract(){
 		return contract;
+	}
+	
+	public long getUpdateTimeStamp(){
+		return updateTimeStamp;
+	}
+	
+	public void setUpdateTimeStamp(long timeStamp){
+		updateTimeStamp = timeStamp;
 	}
 }
