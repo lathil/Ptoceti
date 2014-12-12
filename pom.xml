@@ -81,23 +81,18 @@
 		-->
 
 		<!-- Publish versioned releases here -->
-		 <!--
 		<repository>
 			<id>releases</id>
 			<name>Releases</name>
 			<url>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/releases</url>
 		</repository>
-		  -->
 
 		<!-- Publish snapshots here -->
-		<!--  
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>Snapshots</name>
 			<url>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/snapshots</url>
 		</snapshotRepository>
-		-->
-		
 	</distributionManagement>
 
 	<build>
