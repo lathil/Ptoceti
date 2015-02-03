@@ -1,5 +1,7 @@
 package com.ptoceti.osgi.obix.restlet;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.restlet.Application;
@@ -8,6 +10,7 @@ import org.restlet.Context;
 import org.restlet.Server;
 import org.restlet.data.Protocol;
 import org.restlet.engine.Engine;
+import org.restlet.engine.application.CorsFilter;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 import org.restlet.routing.Variable;
@@ -103,8 +106,9 @@ public class ObixRestComponent {
 		
 		addRoutes();
 		
-		OriginServerFilter corsFilter = new OriginServerFilter(root.getContext());
-		corsFilter.setNext(root);
+		CorsFilter corsFilter = new CorsFilter(root.getContext(), root);
+		corsFilter.setAllowedOrigins(new HashSet(Arrays.asList("*")));
+		corsFilter.setAllowedCredentials(true);
 		
 		application.setInboundRoot(corsFilter);
 	}

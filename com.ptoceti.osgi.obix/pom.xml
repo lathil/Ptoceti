@@ -2,7 +2,7 @@
 	<parent>
 	    <artifactId>com.ptoceti.parent</artifactId>
 	    <groupId>com.ptoceti</groupId>
-	    <version>1.0.1-SNAPSHOT</version>
+	    <version>1.1.0-SNAPSHOT</version>
 	    <relativePath>..</relativePath>
 	  </parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -39,12 +39,7 @@
 				<version>1.0</version>
 			</dependency>
 			 -->
-			<dependency>
-				<groupId>org.ops4j.pax.web</groupId>
-				<artifactId>pax-web-jetty-bundle</artifactId>
-				<version>${pax-web.version}</version>
-			</dependency>
-
+			
 			<dependency>
 				<groupId>org.restlet.osgi</groupId>
 				<artifactId>org.restlet</artifactId>
@@ -55,6 +50,7 @@
 				<groupId>org.restlet.osgi</groupId>
 				<artifactId>org.restlet.ext.servlet</artifactId>
 				<version>${restlet.version}</version>
+				 
 				<exclusions>
 					<exclusion>
 						<groupId>org.restlet.osgi</groupId>
@@ -65,6 +61,25 @@
 						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
 					</exclusion>
 				</exclusions>
+				 
+			</dependency>
+			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.osgi</artifactId>
+				<version>${restlet.version}</version>
+				 
+				<exclusions>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
+					</exclusion>
+				</exclusions>
+				 
 			</dependency>
 			
 			<dependency>
@@ -89,19 +104,19 @@
 			<dependency>
 				<groupId>com.ptoceti</groupId>
 				<artifactId>com.ptoceti.osgi.sqlite</artifactId>
-				<version>1.0.1-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.ptoceti</groupId>
 				<artifactId>com.ptoceti.osgi.data</artifactId>
-				<version>1.0.1-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 
 			<dependency>
 				<groupId>com.ptoceti</groupId>
 				<artifactId>com.ptoceti.osgi.control</artifactId>
-				<version>1.0.1-SNAPSHOT</version>
+				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
 
 		</dependencies>

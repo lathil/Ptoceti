@@ -33,20 +33,28 @@ import java.util.Hashtable;
 import javax.servlet.Filter;
 
 import org.eclipse.jetty.servlets.GzipFilter;
-import org.ops4j.pax.web.extender.whiteboard.ExtenderConstants;
-import org.ops4j.pax.web.extender.whiteboard.ResourceMapping;
-import org.ops4j.pax.web.extender.whiteboard.runtime.DefaultFilterMapping;
-import org.ops4j.pax.web.extender.whiteboard.runtime.DefaultResourceMapping;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.service.http.HttpService;
+import org.osgi.service.http.NamespaceException;
 import org.osgi.service.log.LogService;
 
 public class ClientApplicationHandler  implements ManagedService {
 
 	ServiceRegistration sReg = null;
-	ServiceRegistration appSReg = null;
+	ServiceRegistration filterSReg = null;
+	
+	// The http service registration
+	private HttpService httpService = null;
+	// the configuration properties
+	private Dictionary configProps = null;
+	// flag whether we have done the initialisation
+	private boolean isInitialized = false;
+	// the alias under which the resources is registered
+	private String registeredAlias = null;
+
 	
 	public static final String CLIENTPATH = "com.ptoceti.osgi.obix.backbones.clientpath";
 	public String clientPath = null;
@@ -64,53 +72,80 @@ public class ClientApplicationHandler  implements ManagedService {
 				+ (String) properties.get(Constants.SERVICE_PID));
 	}
 	
+	
+	/**
+	 * Called by the configuration manager when a set of configuration properties is found.
+	 * 
+	 */
 	public void updated(Dictionary props) throws ConfigurationException {
 		
 		if (props != null) {
-			
-			clientPath = (String) props.get(CLIENTPATH);
-			// If we have already registered the application , ...
-			if( appSReg != null ) {
-				//.unregister it ..
-				appSReg.unregister();
-				appSReg = null;
-				Activator.log(LogService.LOG_INFO, "Uregister resource /obix under alias " + clientPath);
+			configProps = props;
+			if( !isInitialized && httpService != null){
+				registerResources();
 			}
-			
-			DefaultResourceMapping resourceMapping = new DefaultResourceMapping();
-			resourceMapping.setAlias( clientPath );
-			resourceMapping.setPath( "/resources" );
-			appSReg = Activator.bc.registerService( ResourceMapping.class.getName(), resourceMapping, null );
-			
-			Activator.log(LogService.LOG_INFO, "Mapped /obix under alias " + clientPath);
-			
-			// the filter path must englobe all resources under the root application path
-			String filterPath;
-			if( clientPath.endsWith("/*")){
-				filterPath =  clientPath;
-			} else if (clientPath.endsWith("/")){
-				filterPath = clientPath.concat("*");
-			} else {
-				filterPath = clientPath.concat("/*");
-			}
-			
-			Dictionary<String, Object> filterProps = new Hashtable<String, Object>();
-			String[] urls = {filterPath};
-			
-			filterProps.put("filter-name", "ObixBackbonesGzipFilter");
-			filterProps.put(ExtenderConstants.PROPERTY_URL_PATTERNS, urls);
-			filterProps.put("mimeTypes", "text/html,text/plain,text/xml,application/xhtml+xml,text/css,application/javascript,application/x-javascript,image/svg+xml");
-			// add the gzip filter as osgi service. It will be picked up by Pax-Web Whiteboard.
-			Activator.bc.registerService(Filter.class.getName(), new GzipFilter(), filterProps );
-			
-			Activator.log(LogService.LOG_INFO, "Registered GZip filter under " + filterPath);
-			
-
 		} else {
-			
+			unregisterResources();
+		}
+	}
 
+	public void setHttpService(HttpService httpService) {
+		this.httpService = httpService;
+		if( !isInitialized && configProps != null){
+			registerResources();
+		}
+	}
+
+	public HttpService getHttpService() {
+		return httpService;
+	}
+
+	protected void unregisterResources(){
+		if( registeredAlias != null){
+			httpService.unregister(registeredAlias);
+			Activator.log(LogService.LOG_INFO, "Uregister resource /obix under alias " + registeredAlias);
+			registeredAlias = null;
+		}
+		if( filterSReg != null){
+			filterSReg.unregister();
+			filterSReg = null;
 		}
 		
 	}
-
+	
+	protected void registerResources() {
+		
+		clientPath = (String) configProps.get(CLIENTPATH);
+		if( clientPath != null && clientPath.length() > 0) {
+			try {
+				registeredAlias = clientPath;
+				httpService.registerResources(registeredAlias, "/resources", null);
+			
+				Activator.log(LogService.LOG_INFO, "Mapped /obix under alias " + registeredAlias);
+				
+				// the filter path must englobe all resources under the root application path
+				String filterPath;
+				if( registeredAlias.endsWith("/*")){
+					filterPath =  registeredAlias;
+				} else if (registeredAlias.endsWith("/")){
+					filterPath = registeredAlias.concat("*");
+				} else {
+					filterPath = registeredAlias.concat("/*");
+				}
+				  
+				Hashtable filterProps = new Hashtable();  
+				filterProps.put("pattern",filterPath);  
+				filterProps.put("init.message", "ObixBackbonesGzipFilter");  
+				filterProps.put("service.ranking", "1");  
+				filterSReg = Activator.bc.registerService(Filter.class.getName(), new GzipFilter(), filterProps );
+				   
+				Activator.log(LogService.LOG_INFO, "Registered GZip filter under " + filterPath);
+				
+				// Remember initialisation was done.
+				isInitialized = true;
+			} catch (NamespaceException e) {
+				Activator.log(LogService.LOG_ERROR, "Error while registering resources:  " + e.toString());
+			}
+		}
+	}
 }

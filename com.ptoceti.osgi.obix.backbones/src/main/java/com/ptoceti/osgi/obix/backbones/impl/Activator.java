@@ -30,10 +30,12 @@ package com.ptoceti.osgi.obix.backbones.impl;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
+import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
 
@@ -41,10 +43,10 @@ public class Activator implements BundleActivator {
 
 	// a reference to this service bundle context.
 	static BundleContext bc = null;
+	// the http service listener
+	static HttpServiceListener httpSrvLst;
 	// a reference to the logging service.
 	static LogService logSer;
-	// the name of the logging service in the osgi framework.
-	static private final String logServiceName = org.osgi.service.log.LogService.class.getName();
 	
 	ClientApplicationHandler clientHandler = null;
 	
@@ -53,12 +55,12 @@ public class Activator implements BundleActivator {
 		Activator.bc = context;
 		
 		// we construct a listener to detect if the log service appear or disapear.
-		String filter = "(objectclass=" + logServiceName + ")";
+		String filter = "(objectclass=" + LogService.class.getName() + ")";
 		ServiceListener logServiceListener = new LogServiceListener();
 		try {
 			bc.addServiceListener( logServiceListener, filter);
 			// in case the service is already registered, we send a REGISTERED event to its listener.
-			ServiceReference srLog = bc.getServiceReference( logServiceName );
+			ServiceReference srLog = bc.getServiceReference( LogService.class.getName() );
 			if( srLog != null ) {
 				logServiceListener.serviceChanged(new ServiceEvent( ServiceEvent.REGISTERED, srLog ));
 			}
@@ -66,9 +68,24 @@ public class Activator implements BundleActivator {
 			throw new BundleException("Error in filter string while registering LogServiceListener." + e.toString());
 		}
 		
+		clientHandler = new ClientApplicationHandler();
+		
+		String servletfilter = "(objectclass=" + HttpService.class.getName()+ ")";
+		try {
+			httpSrvLst = new HttpServiceListener(clientHandler);
+			Activator.bc.addServiceListener(httpSrvLst, servletfilter);
+			// In case the HttpService is already register, we force an event to
+			// ourselves.
+			ServiceReference servletSer[] = Activator.bc.getServiceReferences(HttpService.class.getName(), null);
+			if (servletSer != null) {
+				httpSrvLst.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, servletSer[0]));
+			}
+		} catch (InvalidSyntaxException e) {
+			// The shouldn't be any exception comming here.
+		}
+		
 		log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
 		
-		clientHandler = new ClientApplicationHandler();
 	}
 
 	public void stop(BundleContext context) throws Exception {
@@ -117,6 +134,58 @@ public class Activator implements BundleActivator {
 					}
 					break;
 				}
+		}
+	}
+	
+	/**
+	 * Internal listener for the osgi http service. Listen for start and stop events. Notify the provided listener when it happen.
+	 * 
+	 * 
+	 * @author lor
+	 *
+	 */
+	public class HttpServiceListener implements ServiceListener {
+
+		ClientApplicationHandler httpHandler = null;
+		
+		public HttpServiceListener(ClientApplicationHandler httpHandler) {
+			this.httpHandler = httpHandler;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework
+		 * .ServiceEvent)
+		 */
+		public void serviceChanged(ServiceEvent event) {
+			ServiceReference sr = event.getServiceReference();
+			switch (event.getType()) {
+			case ServiceEvent.REGISTERED: {
+				httpHandler.setHttpService((HttpService) Activator.bc.getService(sr));
+				Activator.log(LogService.LOG_INFO,
+						"Getting instance of service: "
+								+ HttpService.class.getName()
+								+ ","
+								+ Constants.SERVICE_PID
+								+ "="
+								+ (String) sr.getProperty(Constants.SERVICE_PID)
+								+ " from "
+								+ sr.getBundle().getSymbolicName());
+			}
+				break;
+			case ServiceEvent.UNREGISTERING: {
+				Activator.log(LogService.LOG_INFO, "Releasing service: "
+						+ HttpService.class.getName() + ","
+						+ Constants.SERVICE_PID + "="
+						+ (String) sr.getProperty(Constants.SERVICE_PID));
+
+				// httpService.unregister(obixServletPath);
+				httpHandler.setHttpService(null);
+			}
+				break;
+			}
 		}
 	}
 
