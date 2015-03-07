@@ -30,9 +30,9 @@ package com.ptoceti.osgi.obix.backbones.impl;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-import javax.servlet.Filter;
+import javax.servlet.ServletException;
 
-import org.eclipse.jetty.servlets.GzipFilter;
+
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
@@ -41,6 +41,14 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.service.log.LogService;
 
+/**
+ * Simple handler / managed service that register the spa application under a resource servlet once 
+ * the http service is available.
+ * 
+ * 
+ * @author lor
+ *
+ */
 public class ClientApplicationHandler  implements ManagedService {
 
 	ServiceRegistration sReg = null;
@@ -57,7 +65,9 @@ public class ClientApplicationHandler  implements ManagedService {
 
 	
 	public static final String CLIENTPATH = "com.ptoceti.osgi.obix.backbones.clientpath";
+	public static final String GZIPRESOURCES = "com.ptoceti.osgi.obix.backbones.gzip";
 	public String clientPath = null;
+	public Boolean doGzip = false;
 	
 	public ClientApplicationHandler() {
 		
@@ -80,6 +90,9 @@ public class ClientApplicationHandler  implements ManagedService {
 	public void updated(Dictionary props) throws ConfigurationException {
 		
 		if (props != null) {
+			if( isInitialized && httpService != null ){
+				unregisterResources();
+			}
 			configProps = props;
 			if( !isInitialized && httpService != null){
 				registerResources();
@@ -100,6 +113,10 @@ public class ClientApplicationHandler  implements ManagedService {
 		return httpService;
 	}
 
+	/**
+	 * Unregister the spas static resources.
+	 * 
+	 */
 	protected void unregisterResources(){
 		if( registeredAlias != null){
 			httpService.unregister(registeredAlias);
@@ -113,37 +130,29 @@ public class ClientApplicationHandler  implements ManagedService {
 		
 	}
 	
+	/**
+	 * Register spa resources under a resource servlet.
+	 * 
+	 */
 	protected void registerResources() {
 		
 		clientPath = (String) configProps.get(CLIENTPATH);
+		Object zip = configProps.get(GZIPRESOURCES);
+		doGzip = zip instanceof Boolean ? (Boolean) zip: Boolean.parseBoolean(zip != null ? zip.toString(): "false");
+		
 		if( clientPath != null && clientPath.length() > 0) {
 			try {
 				registeredAlias = clientPath;
-				httpService.registerResources(registeredAlias, "/resources", null);
+				
+				httpService.registerServlet(registeredAlias, new ResourceServlet("/resources", doGzip.booleanValue()), null, null);
+				
+				//httpService.registerResources(registeredAlias, "/resources", null);
 			
 				Activator.log(LogService.LOG_INFO, "Mapped /obix under alias " + registeredAlias);
 				
-				// the filter path must englobe all resources under the root application path
-				String filterPath;
-				if( registeredAlias.endsWith("/*")){
-					filterPath =  registeredAlias;
-				} else if (registeredAlias.endsWith("/")){
-					filterPath = registeredAlias.concat("*");
-				} else {
-					filterPath = registeredAlias.concat("/*");
-				}
-				  
-				Hashtable filterProps = new Hashtable();  
-				filterProps.put("pattern",filterPath);  
-				filterProps.put("init.message", "ObixBackbonesGzipFilter");  
-				filterProps.put("service.ranking", "1");  
-				filterSReg = Activator.bc.registerService(Filter.class.getName(), new GzipFilter(), filterProps );
-				   
-				Activator.log(LogService.LOG_INFO, "Registered GZip filter under " + filterPath);
-				
 				// Remember initialisation was done.
 				isInitialized = true;
-			} catch (NamespaceException e) {
+			} catch (NamespaceException | ServletException e) {
 				Activator.log(LogService.LOG_ERROR, "Error while registering resources:  " + e.toString());
 			}
 		}
