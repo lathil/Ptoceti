@@ -8,6 +8,7 @@
 		"grunt-bower-task" : "latest",
 		"grunt-contrib-watch": "latest",
 		"grunt-contrib-requirejs": "latest",
-		"grunt-modernizr": "latest"
+		"grunt-modernizr": "latest",
+		"grunt-contrib-compress" :"latest"
 	}
 }

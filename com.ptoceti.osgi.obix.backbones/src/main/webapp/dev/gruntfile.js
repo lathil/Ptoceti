@@ -67,7 +67,18 @@ module.exports = function(grunt) {
 			        "customTests" : []
 			    }
 		},
-		
+		compress: {
+			main: {
+				options: {
+					mode: 'gzip'
+				},
+				files: [
+			        // Each of the files in the src/ folder will be output to
+			        // the dist/ folder each with the extension .gz.js
+			        {expand: true, src: ['./js_optimized/**/*.js'], dest: '', ext: '.js.gz'}
+				]
+			}
+		},
 		requirejs: {
 			compile_build: {
 			    options: {
@@ -166,6 +177,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-bower-task');
 	grunt.loadNpmTasks('grunt-contrib-requirejs');
 	grunt.loadNpmTasks('grunt-modernizr');
+	grunt.loadNpmTasks('grunt-contrib-compress');
 	
 	
 	// Register building task
@@ -175,7 +187,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('require', [ 'requirejs' ]);
 	
 	// Register default task
-	grunt.registerTask('build', [ 'bower', 'modernizr', 'requirejs' ]);
+	grunt.registerTask('build', [ 'bower', 'modernizr', 'requirejs', 'compress']);
 
 
 };
