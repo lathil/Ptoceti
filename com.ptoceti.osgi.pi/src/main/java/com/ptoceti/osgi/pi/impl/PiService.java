@@ -52,7 +52,6 @@ import org.osgi.service.wireadmin.WireConstants;
 import org.osgi.util.measurement.State;
 
 import com.pi4j.system.SystemInfo;
-import com.pi4j.temperature.TemperatureConversion;
 import com.ptoceti.osgi.control.ExtendedUnit;
 import com.ptoceti.osgi.control.Measure;
 import com.ptoceti.osgi.pi.impl.Activator;
@@ -138,7 +137,8 @@ public class PiService implements ManagedService, Consumer, Producer{
 		Activator.log(LogService.LOG_DEBUG, "Configuration update.");
 		
 		if( properties != null && properties.get(CONFIGURATION_KEY_REFRESHRATE) != null ) {
-			Integer newRefreshRate = (Integer)properties.get(CONFIGURATION_KEY_REFRESHRATE);
+			Object rate = properties.get(CONFIGURATION_KEY_REFRESHRATE);
+			Integer newRefreshRate = rate instanceof Integer ? (Integer) rate : Integer.parseInt(rate.toString());
 			
 			if( pushWiresThread != null ) {
 				pushWiresThread.cancel();
