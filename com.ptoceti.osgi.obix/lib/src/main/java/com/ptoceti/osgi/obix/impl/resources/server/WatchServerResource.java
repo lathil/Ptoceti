@@ -46,7 +46,7 @@ public class WatchServerResource extends AbstractServerResource implements Watch
 	private WatchCache cache;
 	
 	@Inject
-	public WatchServerResource(WatchCache domain) {
+	public WatchServerResource(WatchCache cache) {
 		this.cache= cache;
 	}
 	
