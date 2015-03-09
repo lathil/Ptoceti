@@ -229,6 +229,8 @@ public class SensorNodeDriver implements SerialPortEventListener {
 			bytesOut.write(CHECK_ALL_COMMAND);
 			bytesOut.write(SensorNodeDriverUtils.calculateLRC(bytesOut.toByteArray(), bytesOut.size())); // CRC
 			
+			Activator.log(LogService.LOG_DEBUG, "Sending frame to sensor node: " + SensorNodeDriverUtils.writeHex(bytesOut.toByteArray()));
+			
 			outStream.write( bytesOut.toByteArray());
 			outStream.flush();
 			
@@ -247,6 +249,12 @@ public class SensorNodeDriver implements SerialPortEventListener {
 	 */
 	private void checkNewIncomingMessage() {
 		byte[] buff = bytesIn.toByteArray();
+		
+		try {
+			Activator.log(LogService.LOG_DEBUG, "Receiced message from sensor node: " + SensorNodeDriverUtils.writeHex(buff));
+		} catch (IOException e) {
+		}
+		
 		byte calculatedLrc = SensorNodeDriverUtils.calculateLRC(buff, buff.length - 1);
 		
 		List<Integer> result = new ArrayList<Integer>();

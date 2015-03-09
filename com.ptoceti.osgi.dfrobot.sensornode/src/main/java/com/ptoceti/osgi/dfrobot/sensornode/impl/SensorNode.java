@@ -334,7 +334,7 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 							// Try to update the wire with in every ModbusData value in our collection ..
 							sensorData = ((SensorData)sensorDatas[j]);
 							
-							if( sensorData.getValue() != null && (( sensorData.getLastValue() != null && sensorData.getLastValue() != sensorData.getValue()) || ( sensorData.getLastValue() == null))){
+							if( sensorData.getValue() != null){
 								// .. but check that the wire scope is within that of the wire.
 								if( wire.hasScope( sensorData.getScope())) {
 									int sensorDataId = sensorData.getId().intValue();
@@ -342,20 +342,27 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 									{
 										Date now = Calendar.getInstance().getTime();
 										double value = (sensorData.getScale().doubleValue() * sensorData.getValue().doubleValue()) + sensorData.getOffset().doubleValue();
-										Measure measure = new Measure(value, 0, ExtendedUnit.findUnit(sensorData.getUnit()), now.getTime());
-										measure.setStatus(StatusCode.getStatusFromId(getSensorStatus()));
-										Envelope enValue = new BasicEnvelope( measure, sensorData.getIdentification(), sensorData .getScope());
-										// if the Enveloppe type is included in the Consumer properties, we send it i to it.
-										for(int k = 0; k < flavors.length; k++){
-											if( flavors[k].isInstance(enValue)) {
-												wire.update( enValue );
-												break;
+										double lastValue = -1;
+										if( sensorData.getLastValue() != null){
+											lastValue = (sensorData.getScale().doubleValue() * sensorData.getLastValue().doubleValue()) + sensorData.getOffset().doubleValue();
+										} 
+										if( lastValue < 0 || (Math.abs(lastValue - value) >= 0.01)) {
+											Measure measure = new Measure(value, 0, ExtendedUnit.findUnit(sensorData.getUnit()), now.getTime());
+											measure.setStatus(StatusCode.getStatusFromId(getSensorStatus()));
+											Envelope enValue = new BasicEnvelope( measure, sensorData.getIdentification(), sensorData .getScope());
+											// if the Enveloppe type is included in the Consumer properties, we send it i to it.
+											for(int k = 0; k < flavors.length; k++){
+												if( flavors[k].isInstance(enValue)) {
+													wire.update( enValue );
+													break;
+												}
 											}
+											// remember last value
+											sensorData.setLastValue(sensorData.getValue());
 										}
 									}
 								}
-								// remember last value
-								sensorData.setLastValue(sensorData.getValue());
+								
 							}
 						}
 					}
