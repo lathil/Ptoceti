@@ -28,6 +28,7 @@ package com.ptoceti.osgi.obix.impl;
  */
 
 import com.ptoceti.osgi.obix.restlet.ObixRestComponent;
+import com.ptoceti.osgi.obix.restlet.ObixServlet;
 
 import com.ptoceti.osgi.data.JdbcDevice;
 
@@ -47,6 +48,9 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.service.log.LogService;
 import org.osgi.service.cm.ManagedService;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleListener;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
@@ -73,6 +77,8 @@ public class ObixService  implements ManagedService {
 	public static final String RESOURCEPATH = "com.ptoceti.osgi.obixservice.resourcepath";
 	public static final String DATABASEPATH = "com.ptoceti.osgi.obixservice.databasepath";
 	public static final String EXTERNALRESOURCEPATH = "com.ptoceti.osgi.obixservice.externalresourcepath";
+	
+	public static final String RESTLETSYMBOLICNAME = "org.restlet";
 
 	// the http service listener
 	private HttpServiceListener httpSrvLst;
@@ -91,20 +97,25 @@ public class ObixService  implements ManagedService {
 	private String databasePath;
 	// falg to indicate if the database has benn initialised
 	private boolean databaseInitialised = false;
-
+	// indicate if the restlet main bundle has started
+	private boolean restletHasStarted = false;
+	// indicate if the rest application has started
+	private boolean restAppStarted = false;
 	// Le service Rest Obix
 	private ObixRestComponent obixRestService;
+	
+	private ObixServlet obixServlet;
 	
 	private ObixHttpHandler obixHttpHandler;
 	
 	private WireHandler wireHandler;
 	
+	private RestletListener restletListener;
+	
 	private String httpServiceSymbolicName;
 
 	// Default creator. Don't do nothing at this point.
 	public ObixService() {
-
-		obixRestService = new ObixRestComponent();
 	}
 
 	/**
@@ -171,7 +182,17 @@ public class ObixService  implements ManagedService {
 		} catch (InvalidSyntaxException e) {
 			// The shouldn't be any exception comming here.
 		}
-
+		
+		// register an event listener to the restlet bundle to detect when it has finished initialising.
+		restletListener = new RestletListener();
+		Activator.bc.addBundleListener(restletListener);
+		
+		for (final Bundle bundle : Activator.bc.getBundles()) {
+			if( bundle.getSymbolicName().equals(RESTLETSYMBOLICNAME) && bundle.getState() == Bundle.ACTIVE){
+				restletListener.bundleChanged(new BundleEvent(BundleEvent.STARTED, bundle));
+				break;
+			}
+		}
 	}
 
 	/**
@@ -334,17 +355,30 @@ public class ObixService  implements ManagedService {
 	protected synchronized void startServlet() {
 		if ((obixServletPath != null)
 				&& (obixHttpHandler.getHttpService() != null)
-				&& (this.obixResourcesPath != null)) {
+				&& (this.obixResourcesPath != null)
+				&& restletHasStarted && !restAppStarted) {
 
 			try {
 				HttpContext defaultContext = obixHttpHandler.getHttpService().createDefaultHttpContext();
 				Hashtable initParams = new Hashtable();
 
 				if (!obixServletPath.startsWith("/")) obixServletPath = "/" + obixServletPath;
+				
+				//do this to serve through jetty connector directly
+				/**
+				if( obixRestService == null){
+					obixRestService = new ObixRestComponent();
+				}
 				obixRestService.start(obixServletPath, obixServletPort);
+				**/
 				
+				//do this to serve through servlet registered with httpservice
 				
-				//obixHttpHandler.getHttpService().registerServlet( obixServletPath, obixRestService, null, defaultContext);
+				if( obixServlet == null){
+					obixServlet = new ObixServlet();
+				}
+				obixHttpHandler.getHttpService().registerServlet( obixServletPath, obixServlet, null, defaultContext);
+				
 				
 				if (!obixResourcesPath.startsWith("/")) obixResourcesPath = "/" + obixResourcesPath;
 				
@@ -356,6 +390,9 @@ public class ObixService  implements ManagedService {
 				} else obixHttpHandler.getHttpService().registerResources(
 						obixResourcesPath, obixExternalResourcesPath, defaultContext);
 
+				// flag that we have started the rest front
+				restAppStarted = true;
+				
 				Activator.log(LogService.LOG_INFO,
 						"Registered servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
 				Activator.log(LogService.LOG_INFO,
@@ -374,11 +411,15 @@ public class ObixService  implements ManagedService {
 
 	protected synchronized void stopServlet() {
 		if ((obixServletPath != null)
-				&& (obixHttpHandler.getHttpService() != null)) {
+				&& (obixHttpHandler.getHttpService() != null) && restAppStarted) {
 			try {
-				obixRestService.stop();
+				if( obixRestService != null){
+					obixRestService.stop();
+				}
 				obixHttpHandler.getHttpService().unregister(obixServletPath);
 				obixHttpHandler.getHttpService().unregister(obixResourcesPath);
+				// flag that we have stoppped the front
+				restAppStarted = false;
 			} catch (IllegalArgumentException ne) {
 			} catch (Exception e) {
 				Activator.log(LogService.LOG_ERROR, "Error stating rest service: " +  e.toString());
@@ -412,8 +453,7 @@ public class ObixService  implements ManagedService {
 			ServiceReference sr = event.getServiceReference();
 			switch (event.getType()) {
 			case ServiceEvent.REGISTERED: {
-				obixHttpHandler.setHttpService((HttpService) Activator.bc
-						.getService(sr));
+				obixHttpHandler.setHttpService((HttpService) Activator.bc.getService(sr));
 				startServlet();
 				Activator.log(LogService.LOG_INFO,
 						"Getting instance of service: "
@@ -444,5 +484,27 @@ public class ObixService  implements ManagedService {
 				break;
 			}
 		}
+	}
+	
+	/**
+	 * 
+	 * Listener that detect when the restlet main bundle has started. Necessary as this one re-init list of services and converters ...
+	 * @author lor
+	 *
+	 */
+	public class RestletListener implements BundleListener {
+		@Override
+		public void bundleChanged(BundleEvent event) {
+			 if( event.getBundle().getSymbolicName().equals(RESTLETSYMBOLICNAME) ){
+				 if( event.getType() == BundleEvent.STARTED){
+					 restletHasStarted = true;
+					 Activator.log(LogService.LOG_INFO, "Restlet started event detected.");
+					 startServlet();
+				 } else {
+					 restletHasStarted = false;
+				 }
+			 }
+		}
+		
 	}
 }
