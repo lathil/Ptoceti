@@ -347,31 +347,34 @@
 							<param>--ee=JavaSE-1.7</param>
 							<param>--log=debug</param>
 							<param>--felix.webconsole.loglevel=1</param>
+							<param>--org.ops4j.pax.logging.DefaultServiceLog.level=INFO</param>
+							<param>--java.util.logging.config.file=blank</param>
 							
 							<param>scan-bundle:mvn:org.osgi/org.osgi.core/${osgi.core.version}</param>
 							<param>scan-bundle:mvn:org.osgi/org.osgi.compendium/${osgi.compendium.version}</param>
 							<param>scan-bundle:mvn:org.osgi/org.osgi.enterprise/${osgi.enterprise.version}</param>
 							
-							<!--  
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-util/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-http/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-io/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-security/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-server/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-servlet/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-servlets/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-webapp/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-deploy/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-xml/${jetty-version}</param>
-							<param>scan-bundle:mvn:org.eclipse.jetty.osgi/jetty-osgi-boot/${jetty-version}</param>
-							-->
-
+							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
+							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
+							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
+							<param>scan-bundle:mvn:javax.servlet/javax.servlet-api/3.1.0</param>
 							
-							<!-- <param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-jetty-bundle/${pax-web.version}</param> -->
-							<!-- <param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/${pax-web.version}</param>-->
 							<param>scan-bundle:mvn:org.ops4j.pax.confman/pax-confman-propsloader/0.2.3</param>
+										
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-api/1.4</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-service/1.4</param>
+							
+							
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.4.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.fileinstall/3.2.8</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>	
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.deploymentadmin/0.9.6</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.dependencymanager/3.1.0</param>	
+							
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.api/2.3.2</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.jetty/3.0.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.whiteboard/2.3.2</param>
+							
 							
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
@@ -380,28 +383,18 @@
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.obr/1.0.0</param>
 							
 							
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.4.0</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.fileinstall/3.2.8</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.deploymentadmin/0.9.6</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.dependencymanager/3.1.0</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.whiteboard/2.3.2</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.api/2.3.2</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.jetty/3.0.0</param>
-							
-							
-							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet/${restlet.version}</param>
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.servlet/${restlet.version}</param>
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.jetty/${restlet.version}</param>
+							<!--  
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet/${restlet.version}@10</param>
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.servlet/${restlet.version}@10</param>
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.jetty/${restlet.version}@10</param>
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.osgi/${restlet.version}@10</param>
+							-->
 			
 							<!-- <param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param> -->
-							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
-							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
 							
-							<param>scan-bundle:mvn:javax.servlet/javax.servlet-api/3.1.0</param>
-							
+							  
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.control/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.1.0-SNAPSHOT@update</param>
@@ -412,6 +405,7 @@
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.1.0-SNAPSHOT@nostart</param>
+							
 						</provision>
 					</configuration>
 				</plugin>

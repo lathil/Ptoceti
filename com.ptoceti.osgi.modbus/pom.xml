@@ -86,8 +86,12 @@
 			<artifactId>org.osgi.compendium</artifactId>
 		</dependency>
 
-		<!-- <dependency> <groupId>org.knopflerfish.bundle</groupId> <artifactId>rxtxcomm-API</artifactId> 
-			<version>2.1.7</version> </dependency> -->
+		<dependency>
+			<groupId>org.knopflerfish.bundle</groupId>
+			<artifactId>rxtxcomm-API</artifactId> 
+			<version>2.1.7</version>
+			<scope>compile</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>com.ptoceti</groupId>

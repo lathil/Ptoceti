@@ -139,6 +139,52 @@
 		<dependency>
 			<groupId>org.restlet.osgi</groupId>
 			<artifactId>org.restlet.ext.jetty</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-http</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-io</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-server</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-alpn-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-util</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty.spdy</groupId>
+					<artifactId>spdy-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty.spdy</groupId>
+					<artifactId>spdy-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty.spdy</groupId>
+					<artifactId>spdy-server</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty.spdy</groupId>
+					<artifactId>spdy-http-common</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty.spdy</groupId>
+					<artifactId>spdy-http-server</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

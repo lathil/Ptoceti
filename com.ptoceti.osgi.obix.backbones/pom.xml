@@ -33,38 +33,18 @@
 		</dependency>
 	
 		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.http.whiteboard</artifactId>
-			<version>2.3.0</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-servlets</artifactId>
-			<version>${jetty-version}</version>
-		</dependency>
-		
-		<dependency>
 			<groupId>javax.servlet</groupId>
 		    <artifactId>javax.servlet-api</artifactId>
-		    <version>${servlet-api.version}</version>
+		    <version>3.1.0</version>
 		</dependency>
-		
-		<!--  
+	<!-- 
 		<dependency>
-			<groupId>org.ops4j.pax.web</groupId>
-			<artifactId>pax-web-extender-whiteboard</artifactId>
-			<version>${pax-web.version}</version>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.http.whiteboard</artifactId>
+			<version>2.3.2</version>
 		</dependency>
-		-->
-		<!-- 
-		<dependency>
-			<groupId>org.ops4j.pax.web</groupId>
-			<artifactId>pax-web-jetty-bundle</artifactId>
-			<version>${pax-web.version}</version>
-		</dependency>
-		 -->
-		
+	 -->
+	 
 	</dependencies>
 	<build>
 

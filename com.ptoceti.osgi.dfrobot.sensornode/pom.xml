@@ -99,6 +99,13 @@
 		
 		<dependency>
 			<groupId>org.knopflerfish.bundle</groupId>
+			<artifactId>rxtxcomm-API</artifactId> 
+			<version>2.1.7</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.knopflerfish.bundle</groupId>
 			<artifactId>kxml-LIB</artifactId>
 			<version>2.3.0.kf3</version>
 		</dependency>
