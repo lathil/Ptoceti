@@ -27,15 +27,26 @@ package com.ptoceti.osgi.control;
  * #L%
  */
 
-
+/**
+ * A command that represent a user settable value.
+ * 
+ * @author lor
+ *
+ */
 
 public class Reference {
 	
 	private double value;
+	private double min;
+	private double max;
 	private ExtendedUnit unit;
 	
 	public Reference(double value, ExtendedUnit unit){
+		this.value = value;
+		this.unit = (unit != null) ? unit : ExtendedUnit.unity;
 		
+		min = 0;
+		max = Double.MAX_VALUE;
 	}
 
 	public double getValue(){
@@ -45,4 +56,21 @@ public class Reference {
 	public ExtendedUnit getUnit(){
 		return unit;
 	}
+
+	public double getMin() {
+		return min;
+	}
+
+	public void setMin(double min) {
+		this.min = min;
+	}
+
+	public double getMax() {
+		return max;
+	}
+
+	public void setMax(double max) {
+		this.max = max;
+	}
+	
 }
