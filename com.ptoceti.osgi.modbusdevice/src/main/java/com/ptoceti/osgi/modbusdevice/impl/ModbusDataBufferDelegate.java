@@ -41,5 +41,6 @@ public interface ModbusDataBufferDelegate {
 
 	public void init(int offset, int count);
 	public int read( int adress, int size );
+	public void write(int adress, int size, int value);
 	public long getLastUpdateTime();
 }

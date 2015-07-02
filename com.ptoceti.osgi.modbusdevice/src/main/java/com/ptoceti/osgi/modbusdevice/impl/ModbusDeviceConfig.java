@@ -56,6 +56,8 @@ public class ModbusDeviceConfig {
 	public static final String MeasurementElement = "Measurement";
 	public static final String ReferencesElement = "References";
 	public static final String ReferenceElement = "Reference";
+	public static final String CoilsElement = "Coils";
+	public static final String CoilElement = "Coil";
 	public static final String StatesElement = "States";
 	public static final String StateElement = "State";
 	public static final String IdentificationElement = "Identification";
@@ -76,6 +78,7 @@ public class ModbusDeviceConfig {
 	private ArrayList references = new ArrayList();
 	private ArrayList measurements = new ArrayList();
 	private ArrayList states = new ArrayList();
+	private ArrayList switches = new ArrayList();
 	
 	public ModbusDeviceConfig(ModbusDeviceFactory factory, String pid, String compositeIdentity, String portName, Integer modbusId, Integer poolingRate, Boolean mock) {
 		this.factory = factory;
@@ -125,6 +128,8 @@ public class ModbusDeviceConfig {
 					this.parseMeasurementsElement(parser);
 				} else if (parser.getName().equals(StatesElement)) {
 					this.parseStatesElement(parser);
+				} else if( parser.getName().equals(CoilsElement)) {
+					this.parseCoilsElement(parser);
 				}
 			}
 			
@@ -137,10 +142,10 @@ public class ModbusDeviceConfig {
 			try {
 				ModbusDevice newDevice = null;
 				if( isMock.booleanValue()) {
-					newDevice = new ModbusDeviceMockImpl(this.pid, compositeIdentity, port, id.intValue(), poolingRate.intValue(), references,measurements, states);
+					newDevice = new ModbusDeviceMockImpl(this.pid, compositeIdentity, port, id.intValue(), poolingRate.intValue(), references,measurements, states, switches);
 				} else {
 				//... then whe can create a new modbus device
-					newDevice = new ModbusDeviceImpl(this.pid, compositeIdentity, port, id.intValue(), poolingRate.intValue(), references,measurements, states);
+					newDevice = new ModbusDeviceImpl(this.pid, compositeIdentity, port, id.intValue(), poolingRate.intValue(), references, measurements, states, switches);
 				}
 				// .. and add it to the factory (id creation went ok.
 				factory.add(pid, newDevice);
@@ -256,6 +261,57 @@ private ModbusReference parseReferenceElement(KXmlParser parser ) throws XmlPull
 			mdbMeasurement = new ModbusMeasurement(identification, scope, expression, adress, length);
 		}
 		return mdbMeasurement;
+	}
+
+	private void parseCoilsElement(KXmlParser parser) throws XmlPullParserException, IOException {
+		
+		int eventType = parser.next();
+		while( eventType != XmlPullParser.END_TAG) {
+			
+			if(eventType == XmlPullParser.START_TAG) {
+				if(parser.getName().equals( CoilElement)) {
+					ModbusSwitch mdbSw= parseCoilElement(parser);
+					if( mdbSw != null) {
+						switches.add(mdbSw);
+					}
+				}
+			}
+			eventType = parser.next();
+		}
+	}
+	
+	private ModbusSwitch parseCoilElement(KXmlParser parser ) throws XmlPullParserException, IOException {
+		
+		ModbusSwitch mdbSwitch = null;
+		
+		String identification = null;
+		String scope = null;
+		int adress = 0;
+		int length = 0;
+		
+		int eventType = parser.getEventType();
+		while( eventType != XmlPullParser.END_TAG) {
+			
+			if(eventType == XmlPullParser.START_TAG) {
+				if(parser.getName().equals( IdentificationElement)) {
+					identification = parseGetText(parser);
+				} else if (parser.getName().equals(ScopeElement)) {
+					scope = parseGetText(parser);
+				} else if (parser.getName().equals(AdressElement)) {
+					adress = (new Integer(parseGetText(parser))).intValue();
+				} else if (parser.getName().equals(LengthElement)) {
+					length = (new Integer(parseGetText(parser))).intValue();
+				}
+			}
+		
+			eventType = parser.next();
+		}
+		
+		if(( identification != null) && ( scope != null) && (length > 0)){
+			mdbSwitch = new ModbusSwitch(identification, scope, adress, length);
+		}
+		
+		return mdbSwitch;
 	}
 
 	private void parseStatesElement(KXmlParser parser) throws XmlPullParserException, IOException {

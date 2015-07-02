@@ -28,6 +28,7 @@ package com.ptoceti.osgi.modbusdevice.impl;
  */
 
 import com.ptoceti.osgi.control.ExtendedUnit;
+import com.ptoceti.osgi.control.Measure;
 import com.ptoceti.osgi.control.Reference;
 
 
@@ -66,11 +67,16 @@ private String dataExpression = null;
 	
 	public Object getValue() {
 	
-		int data = reader.read( adress, length);
-		
+		int data = bufferDelegate.read( adress, length);
 		Reference reference = new Reference((double) data, ExtendedUnit.findUnit(dataExpression));
-		
 		return reference;
+		
+	}
+
+
+	@Override
+	public void setValue(Object value) {
+		bufferDelegate.write(adress, length, (int)((Reference) value).getValue());
 		
 	}
 	

@@ -78,10 +78,17 @@ public class ModbusMeasurement extends ModbusData{
 	
 	public Object getValue() {
 	
-		int data = reader.read( adress, length);
-		Measure measurement = new Measure((double) data, 0.0, ExtendedUnit.findUnit(dataExpression), reader.getLastUpdateTime());
+		int data = bufferDelegate.read( adress, length);
+		Measure measurement = new Measure((double) data, 0.0, ExtendedUnit.findUnit(dataExpression), bufferDelegate.getLastUpdateTime());
 		
 		return measurement;
+		
+	}
+
+
+	@Override
+	public void setValue(Object value) {
+		bufferDelegate.write(adress, length, (int)((Measure) value).getValue());
 		
 	}
 	

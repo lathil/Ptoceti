@@ -31,6 +31,7 @@ package com.ptoceti.osgi.modbusdevice.impl;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
@@ -58,16 +59,18 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 	protected Wire producerWires[];
 	
 	// the collection of ModbusData objects that represent readings from a modbus device?
-	protected ArrayList modbusData;
+	protected List<ModbusData> modbusData;
 	// an object that invoke the Modbus driver service for reading and writing Reference to and from a modbus device.
 	protected ModbusDataBufferDelegate modbusRDataBuffer;
 	// an object that invoke the Modbus driver service for reading a Measurement data from a modbus device, and buffer the value internaly.
 	protected ModbusDataBufferDelegate modbusMDataBuffer;
 	// an object that invoke the Modbus driver service for reading a State data from a modbus device, and buffer the value internaly.
 	protected ModbusDataBufferDelegate modbusSDataBuffer;
+	// a object that invoke the Modbus driver service for reading Switch data from a modbus device, and buffer the value internaly.
+	protected ModbusDataBufferDelegate modbusSwDataBuffer;
 	
 	
-	protected void init( String pid, String compositeIdentity, ArrayList mdbReferenceList, ArrayList mdbMeasurementList, ArrayList mdbStateList) {
+	protected void init( String pid, String compositeIdentity, List<ModbusData> mdbReferenceList, List<ModbusData> mdbMeasurementList, List<ModbusData> mdbStateList, List<ModbusData> mdbSwitchList ) {
 		
 		// Parse the two Measurement ans State ArrayLists. We need to build up the internal ModbuData list, set the delegate on each ModbusData
 		// object, build up the scope list with each ModbusData name and update the two factory with the size of the data they need to read
@@ -76,18 +79,18 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 		// Because the service is a composite producer, we need to produce a scope list that will indicate the intent of each data measurement
 		// the service is producing. The intent is simply the name of each data measurement.
 		
-		String[] producerScopes = new String[mdbReferenceList.size() + mdbMeasurementList.size() + mdbStateList.size()];
-		String[] consumerScopes = new String[] {"*"};
+		List<String> producerScopes = new ArrayList<String>();
+		List<String> consumerScopes = new ArrayList<String>();
 		
 		int j = 0;
 		
 		int lowAdd = 65535, highAdd = 0, newAdd;
 		for( int i = 0; i < mdbMeasurementList.size(); i++) {
-			ModbusData mdbData = (ModbusData) mdbMeasurementList.get(i);
+			ModbusData mdbData = mdbMeasurementList.get(i);
 			// set the delegate to the MeasurementFactory. Will be used for reading buffered data from the modbus device.
-			mdbData.setReader( modbusMDataBuffer );
+			mdbData.setDelegate( modbusMDataBuffer );
 			// add the ModbusData name to the scope list.
-			producerScopes[j++] = mdbData.getScope();
+			producerScopes.add(mdbData.getScope());
 			// and add the object to the ModbusData internal list.
 			modbusData.add( mdbData );
 			newAdd = mdbData.getAdress();
@@ -100,11 +103,12 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 //		 Do the same thing for the ModbusReference objects.
 		lowAdd = 65535; highAdd = 0;
 		for( int i = 0; i < mdbReferenceList.size(); i++ ) {
-			ModbusData mdbData = (ModbusData) mdbReferenceList.get(i);
+			ModbusData mdbData = mdbReferenceList.get(i);
 			// set the delegate to the StateFactory.
-			mdbData.setReader(modbusMDataBuffer);
+			mdbData.setDelegate(modbusRDataBuffer);
 			// add the ModbusData name to the scope list.
-			producerScopes[j++] = mdbData.getScope();
+			producerScopes.add(mdbData.getScope());
+			consumerScopes.add(mdbData.getScope());
 			// and add the object to the ModbusData internal list.
 			modbusData.add( mdbData );
 			newAdd = mdbData.getAdress();
@@ -117,11 +121,11 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 //		 Do the same thing for the State objects.
 		lowAdd = 65535; highAdd = 0;
 		for( int i = 0; i < mdbStateList.size(); i++ ) {
-			ModbusData mdbData = (ModbusData) mdbStateList.get(i);
+			ModbusData mdbData = mdbStateList.get(i);
 			// set the delegate to the StateFactory.
-			mdbData.setReader(modbusSDataBuffer);
+			mdbData.setDelegate(modbusSDataBuffer);
 			// add the ModbusData name to the scope list.
-			producerScopes[j++] = mdbData.getScope();
+			producerScopes.add(mdbData.getScope());
 			// and add the object to the ModbusData internal list.
 			modbusData.add( mdbData );
 			newAdd = mdbData.getAdress();
@@ -129,6 +133,24 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 			if( newAdd < lowAdd ) lowAdd = newAdd;
 			if( newAdd > highAdd ) highAdd = newAdd;
 			modbusSDataBuffer.init(lowAdd, 1 + highAdd - lowAdd);
+		}
+		
+//		 and for the  Switch objects
+		lowAdd = 65535; highAdd = 0;
+		for( int i = 0; i < mdbSwitchList.size(); i++ ) {
+			ModbusData mdbData = mdbSwitchList.get(i);
+			// set the delegate to the StateFactory.
+			mdbData.setDelegate(modbusSwDataBuffer);
+			// add the ModbusData name to the scope list.
+			producerScopes.add(mdbData.getScope());
+			consumerScopes.add(mdbData.getScope());
+			// and add the object to the ModbusData internal list.
+			modbusData.add( mdbData );
+			newAdd = mdbData.getAdress();
+			
+			if( newAdd < lowAdd ) lowAdd = newAdd;
+			if( newAdd > highAdd ) highAdd = newAdd;
+			modbusSwDataBuffer.init(lowAdd, 1 + highAdd - lowAdd);
 		}
 		
 		// Then we need to register our service into the framework.
@@ -153,11 +175,11 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 		Dictionary props = new Hashtable();
 		// set producer properties
 		props.put( WireConstants.WIREADMIN_PRODUCER_COMPOSITE, composites);
-		props.put( WireConstants.WIREADMIN_PRODUCER_SCOPE, producerScopes);
+		props.put( WireConstants.WIREADMIN_PRODUCER_SCOPE, producerScopes.toArray(new String[producerScopes.size()] ));
 		props.put( WireConstants.WIREADMIN_PRODUCER_FLAVORS, flavors);
 		// set consumer properties
 		props.put( WireConstants.WIREADMIN_CONSUMER_COMPOSITE, composites);
-		props.put( WireConstants.WIREADMIN_CONSUMER_SCOPE, consumerScopes);
+		props.put( WireConstants.WIREADMIN_CONSUMER_SCOPE, consumerScopes.toArray(new String[consumerScopes.size()] ));
 		props.put( WireConstants.WIREADMIN_CONSUMER_FLAVORS, flavors);
 		
 		props.put( Constants.SERVICE_PID, pid);
@@ -229,7 +251,15 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 	 * @param value
 	 */
 	public void updated(Wire wire, Object value ) {
-		
+		for( ModbusData mdbData : modbusData){
+			if( value instanceof Envelope){
+				if( mdbData.dataIdentification.equals(((Envelope)value).getIdentification()) &&
+						mdbData.dataScope.equals(((Envelope)value).getScope())){
+					mdbData.setValue(((Envelope)value).getValue());
+					break;
+				}
+			}
+		}
 	}
 	
 	/**

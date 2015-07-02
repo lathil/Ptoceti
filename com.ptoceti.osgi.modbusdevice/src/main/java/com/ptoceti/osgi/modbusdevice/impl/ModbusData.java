@@ -44,7 +44,7 @@ public abstract class ModbusData {
 
 	
 		
-	protected ModbusDataBufferDelegate reader;
+	protected ModbusDataBufferDelegate bufferDelegate;
 	
 	protected int adress = 0;
 	protected int length = 0;
@@ -52,11 +52,13 @@ public abstract class ModbusData {
 	protected String dataScope = null;
 	protected String dataIdentification = null;
 	
-	public void setReader( ModbusDataBufferDelegate mdbReader ){
-		reader = mdbReader;
+	public void setDelegate( ModbusDataBufferDelegate mdbDelegate ){
+		bufferDelegate = mdbDelegate;
 	}
 	
 	public abstract Object getValue();
+	
+	public abstract void setValue(Object value);
 	
 	public String getScope() {
 		return dataScope;

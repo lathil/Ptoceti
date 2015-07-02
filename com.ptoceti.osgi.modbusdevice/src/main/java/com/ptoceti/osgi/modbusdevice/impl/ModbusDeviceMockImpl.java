@@ -29,6 +29,7 @@ package com.ptoceti.osgi.modbusdevice.impl;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.osgi.service.log.LogService;
 
@@ -36,12 +37,12 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 
 	MockThread thread;
 	
-	public ModbusDeviceMockImpl( String pid, String compositeIdentity, String modbusPort, int modbusId, int  modbusPoolingRateS, ArrayList mdbReferenceList, ArrayList mdbMeasurementList, ArrayList mdbStateList ) throws Exception {
+	public ModbusDeviceMockImpl( String pid, String compositeIdentity, String modbusPort, int modbusId, int  modbusPoolingRateS, List<ModbusData> mdbReferenceList, List<ModbusData> mdbMeasurementList, List<ModbusData> mdbStateList, List<ModbusData> mdbSwitchList  ) throws Exception {
 		
 		// Force the list of wires to null. It will get initialiwed by the wire admin.
 		consumerWires = null;
 		// Initialise the list of ModbusData to an empty list. We'll feed it latter.
-		modbusData = new ArrayList();
+		modbusData = new ArrayList<ModbusData>();
 		
 		// Crate the reference data buffer ..
 		modbusRDataBuffer = new MockReferenceDataBuffer();
@@ -49,8 +50,10 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 		modbusMDataBuffer = new MockMeasurementDataBuffer();
 		// and the state data buffer now. We'll need to give them as delegates to the modbus data objects.
 		modbusSDataBuffer = new MockStateDataBuffer();
+		// a state buffer for the coils as well
+		modbusSwDataBuffer = new MockSwitchDataBuffer();
 		
-		init(pid, compositeIdentity, mdbReferenceList, mdbMeasurementList, mdbStateList);
+		init(pid, compositeIdentity, mdbReferenceList, mdbMeasurementList, mdbStateList, mdbSwitchList);
 		
 		thread = new MockThread(modbusPoolingRateS);
 		
@@ -92,7 +95,7 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 	
 			this.count = count;
 			this.offset = offset;
-			
+			this.registers = new int[count];
 		}
 		
 		/**
@@ -111,6 +114,14 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 					return 0;
 			} else
 				return 0;
+		}
+		
+		public synchronized void write(int adress, int size, int value){
+			if( registers != null ) {
+				if((adress >= offset ) && ( adress <= ( offset + count ))) {
+					registers[adress - offset] = value;
+				} 
+			} 
 		}
 		
 		public long getLastUpdateTime() {
@@ -164,6 +175,10 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 				return fakeValue;
 		}
 		
+		public synchronized void write(int adress, int size, int value){
+			
+		}
+		
 		public long getLastUpdateTime() {
 			return updateTime;
 		}
@@ -188,6 +203,7 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 			
 			this.count = count;
 			this.offset = offset;
+			registers = new int[count];
 		}
 		
 		/**
@@ -208,6 +224,62 @@ public class ModbusDeviceMockImpl extends ModbusDeviceAbstractImpl {
 				return 0;
 		}
 		
+		public synchronized void write(int adress, int size, int value){
+			
+		}
+		
+		public long getLastUpdateTime() {
+			return updateTime;
+		}
+	}
+	
+	private class MockSwitchDataBuffer implements ModbusDataBufferDelegate{
+	
+		
+		private int offset = 0;
+		private int count = 0;
+		private byte coils[];
+		private long updateTime = 0;
+		
+		/**
+		 * Setup the size and starting offset of the buffer array.
+		 *
+		 * @param count The number of bytes to read.
+		 * @param offset The adress of the first byte to read in the device adress space.
+		 */
+		public void init(int offset, int count){
+			
+			this.count = count;
+			this.offset = offset;
+			this.coils = new byte[count];
+		}
+		
+		/**
+		 * Read a value from the buffered array.
+		 *
+		 * @param adress The adress of the calue to read
+		 * @param size The size of the value to read in bits
+		 * @return The value.
+		 */
+		public synchronized int read( int adress, int size ) {
+			
+			if( coils != null ) {
+				if((adress >= offset ) && ( adress <= ( offset + count ))) {
+					return coils[adress - offset];
+				} else
+					return 0;
+			} else
+				return 0;
+		}
+		
+		public synchronized void write(int adress, int size, int value){
+			if( coils != null ) {
+				if((adress >= offset ) && ( adress <= ( offset + count ))) {
+					coils[adress - offset] = (byte) value;
+				} 
+			} 
+		}
+
 		public long getLastUpdateTime() {
 			return updateTime;
 		}

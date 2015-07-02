@@ -39,6 +39,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.log.LogService;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * modbusdevice.impl class
@@ -72,20 +73,22 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 	 *
 	 *
 	 */
-	public ModbusDeviceImpl( String pid, String compositeIdentity, String modbusPort, int modbusId, int  modbusPoolingRateS, ArrayList mdbReferenceList, ArrayList mdbMeasurementList, ArrayList mdbStateList ) throws Exception {
+	public ModbusDeviceImpl( String pid, String compositeIdentity, String modbusPort, int modbusId, int  modbusPoolingRateS, List<ModbusData> mdbReferenceList, List<ModbusData> mdbMeasurementList, List<ModbusData> mdbStateList, List<ModbusData> mdbSwitchList ) throws Exception {
 		
 		// Force the list of wires to null. It will get initialiwed by the wire admin.
 		consumerWires = null;
 		// Initialise the list of ModbusData to an empty list. We'll feed it latter.
-		modbusData = new ArrayList();
+		modbusData = new ArrayList<ModbusData>();
 		// Crate the reference data buffer ..
 		modbusRDataBuffer = new ReferenceDataBuffer();
 		// Create the measurement data buffer ..
 		modbusMDataBuffer = new MeasurementDataBuffer();
 		// and the state data buffer now. We'll need to give them as delegates to the modbus data objects.
 		modbusSDataBuffer = new StateDataBuffer();
+		// a state buffer for the coils as well
+		modbusSwDataBuffer = new SwitchDataBuffer();
 	
-		init(pid, compositeIdentity, mdbReferenceList, mdbMeasurementList, mdbStateList);
+		init(pid, compositeIdentity, mdbReferenceList, mdbMeasurementList, mdbStateList, mdbSwitchList);
 		
 		// Create a new ModbusDriverCommunicator. Will be responsible to communicate with the device.
 		mdbCommunicator = new ModbusDriverCommunicator(modbusPort, modbusId, modbusPoolingRateS);
@@ -127,6 +130,7 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		private int count = 0;
 		private int registers[];
 		private long updateTime = 0;
+		private List<WriteRequest> writeRequests = new ArrayList<WriteRequest>();
 	
 		/**
 		 * Setup the size and starting offset of the buffer array.
@@ -159,6 +163,10 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 				return 0;
 		}
 		
+		public synchronized void write(int adress, int size, int value){
+			writeRequests.add(new WriteRequest(adress, value));
+		}
+		
 		public long getLastUpdateTime() {
 			return updateTime;
 		}
@@ -173,6 +181,16 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		synchronized void update( ModbusDriver mdbDriver, int id ) {
 			// ensure we got a driver
 			if( mdbDriver != null && count > 0) {
+				while( !writeRequests.isEmpty()){
+					WriteRequest req = writeRequests.get(0);
+					boolean ok = mdbDriver.forceSingleRegister((byte)id, req.getAdress(), req.getValue());
+					if(ok){
+						writeRequests.remove(0);
+					} else {
+						Activator.log(LogService.LOG_ERROR, "Error writing reference to modbus device.");
+						break;
+					}
+				}
 				int regs[] = mdbDriver.readHoldingRegisters((byte)id, offset, count);
 				if( regs != null && (regs.length == count)) {
 					registers = regs;
@@ -227,6 +245,13 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 				return 0;
 		}
 		
+		/**
+		 * As measurement, we do not do anything here
+		 */
+		public synchronized void write(int adress, int size, int value){
+			
+		}
+
 		public long getLastUpdateTime() {
 			return updateTime;
 		}
@@ -259,12 +284,11 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 	  */
 	private class StateDataBuffer implements ModbusDataBufferDelegate{
 	
-		
 		private int offset = 0;
 		private int count = 0;
 		private int registers[];
 		private long updateTime = 0;
-		
+	
 		/**
 		 * Setup the size and starting offset of the buffer array.
 		 *
@@ -295,6 +319,10 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 				return 0;
 		}
 		
+		public synchronized void write(int adress, int size, int value){
+			
+		}
+		
 		public long getLastUpdateTime() {
 			return updateTime;
 		}
@@ -315,6 +343,111 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 					updateTime = System.currentTimeMillis();
 				}
 			}
+		}
+	}
+	
+	/**
+	  * The StateDataBuffer hold a array of bytes that is read from the modbus device through the ModbusDriver service.
+	  * The data is read back from the coils status. The access to its internal data is controlled through its
+	  * two synchronized method, so that a read cannot be done while the data is updated from the device. The size of the
+	  * array of data read back from the device is set through the init method.
+	  *
+	  */
+	private class SwitchDataBuffer implements ModbusDataBufferDelegate{
+	
+		
+		private int offset = 0;
+		private int count = 0;
+		private byte coils[];
+		private long updateTime = 0;
+		private List<WriteRequest> writeRequests = new ArrayList<WriteRequest>();
+		
+		/**
+		 * Setup the size and starting offset of the buffer array.
+		 *
+		 * @param count The number of bytes to read.
+		 * @param offset The adress of the first byte to read in the device adress space.
+		 */
+		public void init(int offset, int count){
+			
+			this.count = count;
+			this.offset = offset;
+		}
+		
+		/**
+		 * Read a value from the buffered array.
+		 *
+		 * @param adress The adress of the calue to read
+		 * @param size The size of the value to read in bits
+		 * @return The value.
+		 */
+		public synchronized int read( int adress, int size ) {
+			
+			if( coils != null ) {
+				if((adress >= offset ) && ( adress <= ( offset + count ))) {
+					return coils[adress - offset];
+				} else
+					return 0;
+			} else
+				return 0;
+		}
+		
+		public synchronized void write(int adress, int size, int value){
+			
+		}
+
+		public long getLastUpdateTime() {
+			return updateTime;
+		}
+		
+		/**
+		 * Update the internal array buffer from the modbus device.
+		 *
+		 * @param mdbDriver An instance of the ModbusDriver service.
+		 * @param id The identification of the slave device on the modbus network.
+		 */
+		synchronized void update( ModbusDriver mdbDriver, int id ) {
+	
+			// ensure we got a driver
+			if( mdbDriver != null && count > 0) {
+				while( !writeRequests.isEmpty()){
+					WriteRequest req = writeRequests.get(0);
+					boolean ok = mdbDriver.forceSingleCoil((byte)id, req.getAdress(), req.getValue() > 1 ? true : false);
+					if(ok){
+						writeRequests.remove(0);
+					} else {
+						Activator.log(LogService.LOG_ERROR, "Error writing reference to modbus device.");
+						break;
+					}
+				}
+				byte regs[] = mdbDriver.readCoilsStatus((byte)id, offset, count);
+				if( regs != null && (regs.length == count)) {
+					coils = regs;
+					updateTime = System.currentTimeMillis();
+				}
+			}
+		}
+	}
+	
+	protected class WriteRequest{
+		private int adress;
+		private int value;
+		
+		protected WriteRequest(int adress, int value){
+			this.adress = adress;
+			this.value = value;
+		}
+		protected int getValue() {
+			return value;
+		}
+		protected void setValue(int value) {
+			this.value = value;
+		}
+		protected int getAdress() {
+			return adress;
+		}
+		protected void setAdress(int adress) {
+			this.adress = adress;
 		}
 	}
 	
@@ -394,6 +527,9 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 					((MeasurementDataBuffer)modbusMDataBuffer).update(modbusDr, id);
 					((ReferenceDataBuffer)modbusRDataBuffer).update(modbusDr, id);
 					((StateDataBuffer)modbusSDataBuffer).update(modbusDr, id);
+					((SwitchDataBuffer)modbusSwDataBuffer).update(modbusDr, id);
+					
+					
 					refreshWires();
 				}
 				try {
