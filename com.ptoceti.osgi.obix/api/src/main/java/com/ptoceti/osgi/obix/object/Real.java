@@ -37,8 +37,8 @@ public class Real extends Val {
 
 	private static final Contract contract = new Contract("obix:real");
 	
-	protected Float min;
-	protected Float max;
+	protected Double min;
+	protected Double max;
 	protected Uri unit;
 	protected Integer precision;
 
@@ -52,8 +52,8 @@ public class Real extends Val {
 	
 	public Real( Real model){
 		super(model);
-		if( model.min != null) min = new Float(model.min);
-		if( model.max != null) min = new Float(model.max);
+		if( model.min != null) min = new Double(model.min);
+		if( model.max != null) min = new Double(model.max);
 		if( model.unit != null) unit = new Uri(model.unit);
 		if( model.precision != null) precision = new Integer(model.precision);
 		if( model.val != null) val = new Double( ((Double)model.val).doubleValue());
@@ -67,19 +67,19 @@ public class Real extends Val {
 		super(name, value);
 	}
 	
-	public void setMin(Float min) {
+	public void setMin(Double min) {
 		this.min = min;
 	}
 
-	public Float getMin() {
+	public Double getMin() {
 		return min;
 	}
 
-	public void setMax(Float max) {
+	public void setMax(Double max) {
 		this.max = max;
 	}
 
-	public Float getMax() {
+	public Double getMax() {
 		return max;
 	}
 

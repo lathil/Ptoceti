@@ -60,6 +60,11 @@ public class Bool extends Val{
 		setVal(Boolean.FALSE);
 	}
 	
+	public Bool(String name, Boolean value) {
+		super(name);
+		setVal(value);
+	}
+	
 	
 	public void setRange(Uri range) {
 		this.range = range;

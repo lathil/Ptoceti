@@ -52,6 +52,12 @@ public class Contract {
 		return result;
 	}
 	
+	public String toUniformString(){
+		StringBuffer result = new StringBuffer();
+		for(int i = 0;i < uris.length; i++) result.append(uris[i].getPath()).append(";");
+		return result.toString();
+	}
+	
 	public boolean containsContract( Contract in ) {
 		
 		boolean found = false;
@@ -69,6 +75,17 @@ public class Contract {
 			if( ! found ) break;
 		}
 		return found;
+	}
+	
+	@Override
+	public boolean equals(Object other){
+	    if (other == null) return false;
+	    if (other == this) return true;
+	    if (!(other instanceof Contract))return false;
+	    
+	    if( this.containsContract((Contract)other)) return true;
+	    
+	    return false;
 	}
 	
 }
