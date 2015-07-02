@@ -58,6 +58,15 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 			if( item.hasContract('ptoceti:MonitoredPoint')) {
 				return require('views/monitoreditemview');
 			}
+			if( item.hasContract('ptoceti:ReferencePoint')) {
+				return require('views/referenceitemview');
+			}
+			if( item.hasContract('ptoceti:DigitPoint')) {
+				return require('views/digititemview');
+			}
+			if( item.hasContract('ptoceti:SwitchPoint')) {
+				return require('views/switchitemview');
+			}
 		},
 		
 		// pass all messages from subview to parent view

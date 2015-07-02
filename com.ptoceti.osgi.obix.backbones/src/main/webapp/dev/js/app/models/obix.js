@@ -348,7 +348,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		},
 		
 		parse : function(response, options) {
-			if (response !== null) {
+			if (response !== null && response != undefined) {
 				if (response.uris !== null)
 					response.childrens = new Objs(response.uris, {
 						urlRoot : _.result(this, 'urlRoot'),
@@ -402,6 +402,8 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 				return new HistoryRollupOut(attrs, option);
 			case "historyrolluprecord":
 				return new HistoryRollupRecord(attrs,option);
+			case "monitoredpoint":
+				return new MonitoredPoint(attrs,option);
 			default :
 				return new Obj(attrs, option);
 			}
@@ -569,7 +571,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			this.constructor.__super__.parse.apply(this, arguments);
 			if (response !== null) {
 
-				if (response.unit !== null) {
+				if (response.unit !== null && response != undefined) {
 					response.unit = new Uri(response.unit);
 				};
 			}
@@ -726,7 +728,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		
 		parse : function(response, options) {
 			this.constructor.__super__.parse.apply(this, arguments);
-			if (response !== null) {
+			if (response !== null && response != undefined) {
 
 				if (response.unit !== null) {
 					response.unit = new Uri(response.unit);
@@ -1288,6 +1290,24 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		}
 
 	});
+	
+	var MeasurePoint = Real.extend({
+
+		defaults : _.extend({}, Real.prototype.defaults, {
+			type : 'measurepoint',
+			is : {uris: [{type: 'uri', val: 'ptoceti:MeasurePoint'}]}
+		})
+
+	});
+	
+	var ReferencePoint = Real.extend({
+
+		defaults : _.extend({}, Real.prototype.defaults, {
+			type : 'referencepoint',
+			is : {uris: [{type: 'uri', val: 'ptoceti:ReferencePoint'}]}
+		})
+
+	});
 
 	return {
 		obj : Obj,
@@ -1326,7 +1346,9 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		historyRollupOut : HistoryRollupOut,
 		historyRollupRecord : HistoryRollupRecord,
 		
-		monitoredPoint : MonitoredPoint
+		monitoredPoint : MonitoredPoint,
+		measurePoint : MeasurePoint,
+		referencePoint : ReferencePoint
 
 	};
 });

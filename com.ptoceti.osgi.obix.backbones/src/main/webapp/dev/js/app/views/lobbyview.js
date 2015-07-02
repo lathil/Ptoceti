@@ -135,7 +135,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			});
 			
 			this.model.set("count", updatedCollection.length);
-			require(['views/paginationview', 'views/monitoreditemview'], function(PaginView){
+			require(['views/paginationview', 'views/monitoreditemview', 'views/referenceitemview', 'views/digititemview', 'views/switchitemview'], function(PaginView){
 				if( region.currentView == null){
 					region.show(new PaginView({template:"pagination", collection: updatedCollection, context: 'lobby'}));
 				} else {
@@ -160,7 +160,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			
 			this.model.set("count", updatedCollection.length);
 			
-			require(['views/paginationview', 'views/monitoreditemview'], function(PaginView){
+			
+			require(['views/paginationview', 'views/monitoreditemview','views/referenceitemview','views/digititemview', 'views/switchitemview'], function(PaginView){
 				if( region.currentView == null){
 					region.show(new PaginView({template:"pagination", collection: updatedCollection, context: 'lobby'}));
 				} else {

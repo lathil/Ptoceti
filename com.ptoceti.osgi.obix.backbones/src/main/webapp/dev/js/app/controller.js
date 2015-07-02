@@ -185,8 +185,11 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 			console.log('watch created');
 
 			var watchIn = new Obix.watchIn();
-			var watchedPoints = _.union(this.lobby.getChildrens().getByContract('ptoceti:MonitoredPoint'), this.lobby.getChildrens().getByContract(
-			'obix:writablePoint'));
+			var watchedPoints = _.union(this.lobby.getChildrens().getByContract('ptoceti:MonitoredPoint'),
+					this.lobby.getChildrens().getByContract('ptoceti:SwitchPoint'),
+					this.lobby.getChildrens().getByContract('ptoceti:DigitPoint'),
+					this.lobby.getChildrens().getByContract('ptoceti:ReferencePoint'),
+					this.lobby.getChildrens().getByContract('obix:writablePoint'));
 			for ( var i = 0; i < watchedPoints.length; i++) {
 				watchIn.getHrefList().add(watchedPoints[i].getHref());
 			}

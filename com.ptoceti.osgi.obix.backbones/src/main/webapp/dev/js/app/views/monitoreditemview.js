@@ -63,7 +63,6 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		saveChanges : function(model, value, options){
 			// model bindel tag its change from the view by setting options.changeSource
 			if( options.changeSource == 'ModelBinder'){
-				console.log("saveChanges");
 				model.save();
 			}
 		},

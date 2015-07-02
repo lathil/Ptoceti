@@ -140,6 +140,14 @@ module.exports = function(grunt) {
 			        	  exclude : ['backbone', 'marionette', 'underscore', 'jquery', 'bootstrap', 'models/obix', 'modelbinder', 'mediaenquire', 'moment','courier','modernizr', 'jquery.enterkeyevent',"i18n", "text"]
 			          },
 			          {
+			        	  name: 'views/stateitemview',
+			        	  exclude : ['backbone', 'marionette', 'underscore', 'jquery', 'bootstrap', 'models/obix', 'modelbinder', 'mediaenquire', 'moment','courier','modernizr', 'jquery.enterkeyevent',"i18n", "text"]
+			          },
+			          {
+			        	  name: 'views/switchitemview',
+			        	  exclude : ['backbone', 'marionette', 'underscore', 'jquery', 'bootstrap', 'models/obix', 'modelbinder', 'mediaenquire', 'moment','courier','modernizr', 'jquery.enterkeyevent',"i18n", "text"]
+			          },
+			          {
 			        	  name:'views/historyrollupview',
 			        	  exclude: ['backbone', 'marionette', 'underscore', 'jquery', 'bootstrap', 'models/obix', 'modelbinder', 'moment','courier','modernizr', "i18n", "text"] 
 			          },
