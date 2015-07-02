@@ -66,22 +66,7 @@
 	
 	
 	<distributionManagement>
-		<downloadUrl>
-		</downloadUrl>
-		<!--  
-		<repository>
-	      <id>lathil-release</id>
-	      <name>lathil-cloudbees-release</name>
-	      <url>dav:https://repository-lathil.forge.cloudbees.com/release</url>
-	    </repository>
-	    <snapshotRepository>
-	      <id>lathil-snapshot</id>
-	      <name>lathil-cloudbees-snapshot</name>
-	      <url>dav:https://repository-lathil.forge.cloudbees.com/snapshot</url>
-	      <uniqueVersion>false</uniqueVersion>
-	    </snapshotRepository>
-		-->
-
+	
 		<!-- Publish versioned releases here -->
 		<repository>
 			<id>releases</id>
@@ -98,25 +83,6 @@
 	</distributionManagement>
 
 	<build>
-		<extensions>
-			<!-- Extension required to deploy a snapshot or a release to the CloudBees remote maven repository using Webdav -->
-			<extension>
-			<groupId>org.apache.maven.wagon</groupId>
-			<artifactId>wagon-webdav</artifactId>
-			<version>1.0-beta-2</version>
-			</extension>
-		</extensions>
-		<resources>
-			<resource>
-				<directory>${basedir}</directory>
-				<filtering>false</filtering>
-				<includes>
-					<include>LICENSE.txt</include>
-					<include>NOTICE.txt</include>
-					<include>README.md</include>
-				</includes>
-			</resource>
-		</resources>
 
 		<plugins>
 			<!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
@@ -325,15 +291,40 @@
 						</execution>
 					</executions>
 				</plugin>
-
-				
-				<!-- 
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
 				<plugin>
-					<groupId>org.ops4j.pax</groupId>
-					<artifactId>runner</artifactId>
-					<version>1.8.6</version>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											license-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.5,)
+										</versionRange>
+										<goals>
+											<goal>
+												update-project-license
+											</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
 				</plugin>
-					 -->
+
 				<plugin>
 					<groupId>org.ops4j</groupId>
 					<artifactId>maven-pax-plugin</artifactId>
@@ -409,6 +400,7 @@
 						</provision>
 					</configuration>
 				</plugin>
+				
 			</plugins>
 		</pluginManagement>
 	</build>
