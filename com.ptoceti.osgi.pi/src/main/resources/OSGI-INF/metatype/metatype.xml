@@ -2,6 +2,7 @@
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
 	<OCD description="Configuration of PiService" name="Ptoceti Pi Service"  id="com.ptoceti.osgi.pi.impl.PiService">
 		<AD name="Refresh rate" id="com.ptoceti.osgi.pi.refreshRate" required="true" type="Integer" />
+		<AD name="Pins configuration filepath" id="com.ptoceti.osgi.pi.pinsConfigFile" required="true" type="String"/>
 	</OCD>
 	<Designate pid="com.ptoceti.osgi.pi.impl.PiService">
 	   <Object ocdref="com.ptoceti.osgi.pi.impl.PiService"/>

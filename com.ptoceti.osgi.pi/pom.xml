@@ -97,6 +97,12 @@
 			<artifactId>pi4j-core</artifactId>
 			<version>0.0.5</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.knopflerfish.bundle</groupId>
+			<artifactId>kxml-LIB</artifactId>
+			<version>2.3.0.kf3</version>
+		</dependency>
 
 	</dependencies>
 

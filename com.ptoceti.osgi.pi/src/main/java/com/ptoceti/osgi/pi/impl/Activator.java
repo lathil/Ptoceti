@@ -28,6 +28,8 @@ package com.ptoceti.osgi.pi.impl;
  */
 
 
+import java.net.URL;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -105,6 +107,18 @@ public class Activator implements BundleActivator{
 	static public void log( int logLevel, String message ) {
 		if( logSer != null )
 			logSer.log( logLevel, message );
+	}
+	
+	/**
+	 * Fetch the resource from the bundle's resources and open a stream on it.
+	 * 
+	 * @param resourceName
+	 * @return URL
+	 * 
+	 */
+	static public URL getResourceStream(String resourceName) {
+
+		return bc.getBundle().getResource(resourceName);
 	}
 
 	/**
