@@ -29,19 +29,8 @@ package com.ptoceti.osgi.obix.impl;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.regex.PatternSyntaxException;
+import java.util.List;
 
-import com.google.inject.Inject;
-import com.ptoceti.osgi.obix.object.Int;
-import com.ptoceti.osgi.obix.object.Real;
-import com.ptoceti.osgi.obix.object.Status;
-import com.ptoceti.osgi.obix.object.Str;
-import com.ptoceti.osgi.obix.object.Val;
-import com.ptoceti.osgi.obix.resources.ObjResource;
-import com.ptoceti.osgi.obix.contract.Point;
-import com.ptoceti.osgi.obix.contract.Unit;
-import com.ptoceti.osgi.obix.domain.HistoryDomain;
-import com.ptoceti.osgi.obix.domain.ObjDomain;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
@@ -56,6 +45,7 @@ import org.osgi.util.measurement.State;
 import com.ptoceti.osgi.control.Measure;
 import com.ptoceti.osgi.control.Reference;
 import com.ptoceti.osgi.control.StatusCode;
+import com.ptoceti.osgi.control.Switch;
 
 import com.ptoceti.osgi.obix.impl.guice.GuiceContext;
 import com.ptoceti.osgi.obix.impl.transverse.UnitConverter;
@@ -68,56 +58,44 @@ public class WireHandler implements Consumer, Producer {
 	// a reference to the service registration for the Controller object.
 	ServiceRegistration sReg = null;
 
-	// The wiresObject hashtable keep track of all obix objects created in
-	// relation
-	// with the Measurements or State received through a wire.
-	private Hashtable wiresObjects = new Hashtable();
 	// The list of wires this consumer service is connected to. This list is
 	// usefull
 	// if the service decide to poll the wires or one in particular.
-	private ArrayList producerWires = null;
+	private List<Wire> producerWires = null;
 	// The list of wires this producer service is connected to.
-	private ArrayList consumerWires = null;
-	
+	private List<Wire> consumerWires = null;
+
 	private boolean respondToUpdates = false;
 
-	@Inject
-	private ObjDomain objDomain;
-	
-	@Inject
-	private HistoryDomain historyDomain;
 
 	public WireHandler() {
 
-		String[] wiresClazzes = new String[] { Producer.class.getName(),
-				Consumer.class.getName() };
+		String[] wiresClazzes = new String[] { Producer.class.getName(), Consumer.class.getName() };
 		// The type of objects that can be accepted through the wire.
-		Class[] flavors = new Class[] { Envelope[].class, Envelope.class,
-				Measure.class, State.class, };
+		Class[] flavors = new Class[] { Envelope[].class, Envelope.class, Measure.class, State.class, Switch.class};
 		// The scopes of measurements that this consumer is able to consume from
 		// the wire.
 		String[] scopes = new String[] { SCOPE };
 		// The composite identification of this Consumer service.
 		String[] composites = new String[] { COMPOSITEIDENTITY };
 		// register the class as a managed service.
-		Hashtable wiresProperties = new Hashtable();
+		Hashtable<String, Object> wiresProperties = new Hashtable<String, Object>();
 		wiresProperties.put(WireConstants.WIREADMIN_CONSUMER_SCOPE, scopes);
-		wiresProperties.put(WireConstants.WIREADMIN_CONSUMER_COMPOSITE,composites);
+		wiresProperties.put(WireConstants.WIREADMIN_CONSUMER_COMPOSITE, composites);
 		wiresProperties.put(WireConstants.WIREADMIN_CONSUMER_FLAVORS, flavors);
 
 		wiresProperties.put(WireConstants.WIREADMIN_PRODUCER_SCOPE, scopes);
-		wiresProperties.put(WireConstants.WIREADMIN_PRODUCER_COMPOSITE,composites);
+		wiresProperties.put(WireConstants.WIREADMIN_PRODUCER_COMPOSITE, composites);
 		wiresProperties.put(WireConstants.WIREADMIN_PRODUCER_FLAVORS, flavors);
 
 		wiresProperties.put(Constants.SERVICE_PID, this.getClass().getName());
-		sReg = Activator.bc.registerService(wiresClazzes, this,wiresProperties);
+		sReg = Activator.bc.registerService(wiresClazzes, this, wiresProperties);
 
-		Activator.log(LogService.LOG_INFO, "Registered "
-				+ this.getClass().getName() + ", Pid = "
-				+ (String) wiresProperties.get(Constants.SERVICE_PID));
+		Activator.log(LogService.LOG_INFO,
+				"Registered " + this.getClass().getName() + ", Pid = " + (String) wiresProperties.get(Constants.SERVICE_PID));
 
 	}
-	
+
 	public void setRespondToUpdates(boolean respond) {
 		respondToUpdates = respond;
 	}
@@ -140,30 +118,20 @@ public class WireHandler implements Consumer, Producer {
 				for (int i = 0; i < this.consumerWires.size(); i++) {
 					Wire nextWire = (Wire) this.consumerWires.get(i);
 					// send a little message.
-					Activator.log(
-							LogService.LOG_INFO,
-							"Wire PID:"
-									+ nextWire.getProperties().get(
-											WireConstants.WIREADMIN_PID)
-									+ " disconnected.");
+					Activator.log(LogService.LOG_INFO, "Wire PID:" + nextWire.getProperties().get(WireConstants.WIREADMIN_PID) + " disconnected.");
 				}
 				// before clearing the wire list.
 				this.consumerWires = null;
 			}
 		} else if (this.consumerWires == null) {
-			this.consumerWires = new ArrayList();
+			this.consumerWires = new ArrayList<Wire>();
 
 			for (int i = 0; i < wires.length; i++) {
 				Wire newWire = wires[i];
 				// add the wire to the wire list, ..
 				this.consumerWires.add(newWire);
 				// Send a little message
-				Activator.log(
-						LogService.LOG_INFO,
-						"Wire PID:"
-								+ newWire.getProperties().get(
-										WireConstants.WIREADMIN_PID)
-								+ " connected.");
+				Activator.log(LogService.LOG_INFO, "Wire PID:" + newWire.getProperties().get(WireConstants.WIREADMIN_PID) + " connected.");
 			}
 		} else {
 
@@ -175,12 +143,7 @@ public class WireHandler implements Consumer, Producer {
 					// we add it.
 					this.consumerWires.add(nextWire);
 					// Add a little message.
-					Activator.log(
-							LogService.LOG_INFO,
-							"Wire PID:"
-									+ nextWire.getProperties().get(
-											WireConstants.WIREADMIN_PID)
-									+ " connected.");
+					Activator.log(LogService.LOG_INFO, "Wire PID:" + nextWire.getProperties().get(WireConstants.WIREADMIN_PID) + " connected.");
 				}
 			}
 			// We parse each wire in the internal list
@@ -199,12 +162,7 @@ public class WireHandler implements Consumer, Producer {
 					// and the wire itself from our internal list
 					this.consumerWires.remove(nextWire);
 					// send a little message.
-					Activator.log(
-							LogService.LOG_INFO,
-							"Wire PID:"
-									+ nextWire.getProperties().get(
-											WireConstants.WIREADMIN_PID)
-									+ " disconnected.");
+					Activator.log(LogService.LOG_INFO, "Wire PID:" + nextWire.getProperties().get(WireConstants.WIREADMIN_PID) + " disconnected.");
 				}
 			}
 		}
@@ -250,30 +208,20 @@ public class WireHandler implements Consumer, Producer {
 				for (int i = 0; i < this.producerWires.size(); i++) {
 					Wire nextWire = (Wire) this.producerWires.get(i);
 					// send a little message.
-					Activator.log(
-							LogService.LOG_INFO,
-							"Wire PID:"
-									+ nextWire.getProperties().get(
-											WireConstants.WIREADMIN_PID)
-									+ " disconected.");
+					Activator.log(LogService.LOG_INFO, "Wire PID:" + nextWire.getProperties().get(WireConstants.WIREADMIN_PID) + " disconected.");
 				}
 				// before clearing the wire list.
 				this.producerWires = null;
 			}
 		} else if (this.producerWires == null) {
-			this.producerWires = new ArrayList();
+			this.producerWires = new ArrayList<Wire>();
 
 			for (int i = 0; i < wires.length; i++) {
 				Wire newWire = wires[i];
 				// add the wire to the wire list, ..
 				this.producerWires.add(newWire);
 				// Send a little message
-				Activator.log(
-						LogService.LOG_INFO,
-						"Wire PID:"
-								+ newWire.getProperties().get(
-										WireConstants.WIREADMIN_PID)
-								+ " connected.");
+				Activator.log(LogService.LOG_INFO, "Wire PID:" + newWire.getProperties().get(WireConstants.WIREADMIN_PID) + " connected.");
 			}
 		} else {
 
@@ -285,12 +233,7 @@ public class WireHandler implements Consumer, Producer {
 					// we add it.
 					this.producerWires.add(nextWire);
 					// Add a little message.
-					Activator.log(
-							LogService.LOG_INFO,
-							"Wire PID:"
-									+ nextWire.getProperties().get(
-											WireConstants.WIREADMIN_PID)
-									+ " connected.");
+					Activator.log(LogService.LOG_INFO, "Wire PID:" + nextWire.getProperties().get(WireConstants.WIREADMIN_PID) + " connected.");
 				}
 			}
 			// We parse each wire in the internal list
@@ -309,12 +252,7 @@ public class WireHandler implements Consumer, Producer {
 					// and the wire itself from our internal list
 					this.producerWires.remove(nextWire);
 					// send a little message.
-					Activator.log(
-							LogService.LOG_INFO,
-							"Wire PID:"
-									+ nextWire.getProperties().get(
-											WireConstants.WIREADMIN_PID)
-									+ " disconnected.");
+					Activator.log(LogService.LOG_INFO, "Wire PID:" + nextWire.getProperties().get(WireConstants.WIREADMIN_PID) + " disconnected.");
 				}
 			}
 		}
@@ -326,117 +264,37 @@ public class WireHandler implements Consumer, Producer {
 	 */
 	public void updated(Wire wire, Object object) {
 
-		if( !respondToUpdates) return;
+		if (!respondToUpdates)
+			return;
+
+		EventUpdateHandler evtHandler = GuiceContext.Instance.getInjector().getInstance(EventUpdateHandler.class);
 		
 		if (object instanceof Envelope[]) {
 			Envelope[] envelopes = (Envelope[]) object;
 			for (int i = 0; i < envelopes.length; i++) {
 				Envelope env = envelopes[i];
-				updateEnvelope(env, wire);
+				evtHandler.update(env, wire);
 			}
 		} else if (object instanceof Envelope) {
-			updateEnvelope((Envelope) object, wire);
+			evtHandler.update((Envelope) object, wire);
 		}
 	}
-
-	/*
-	 * Update or create the obix objects corresponding to an osgi envelope.
-	 * 
-	 * @param Envelope The envelope containing the object to map to obix.
-	 * 
-	 * @param Wire The wire that provided the envelope.
-	 */
-	private void updateEnvelope(Envelope env, Wire wire) {
-
-		Object val = env.getValue();
-		String name = env.getIdentification().toString();
-		String scope = env.getScope();
-		Val obj = mapWireObject(val, name);
-
-		// We look for an obix oject that already exists with the same scope
-		String href = this.mapScopeToHref(scope + "." + name);
-		// The href is then translated as a relative URI (this because the
-		// server adress
-		// can change. ). This rel Uri will be normalise to an absolute Url on
-		// requests by the
-		// client.
-		
-		href = ObjResource.uri  + href;
-		//obj.setHref(new Uri("", href));
-		
-		EnveloppeHandler  envHandler = GuiceContext.Instance.getInjector().getInstance(EnveloppeHandler.class);
-		envHandler.consumeObject(obj, href);
-
-	}
-
+	
 	/**
+	 * Update consumer wires with same scope as the enveloppe with new value.
 	 * 
-	 * @param object
-	 * @param name
-	 * @return
+	 * @param env the envelope to be sent
+	 * @return true if sent
 	 */
-
-	private Val mapWireObject(Object object, String name) {
-
-		Val obj = null;
-		if (object instanceof Measure) {
-			Real obixReal = new Real(name, ((Measure) object).getValue());
-			obixReal.setIs(Point.contract);
-			Unit unit = UnitConverter.mapFromOsgi(((Measure) object).getUnit());
-			obixReal.setUnit(unit.getHref());
-			StatusCode statusCode = ((Measure)object).getStatus();
-			obixReal.setStatus(statusCode ==  StatusCode.OK ? Status.OK : Status.FAULT);
-			obj = obixReal;
-		} else if (object instanceof Reference) {
-			Real obixReal = new Real(name, ((Reference) object).getValue());
-			obixReal.setIs(Point.contract);
-			Unit unit = UnitConverter.mapFromOsgi(((Reference) object).getUnit());
-			obixReal.setUnit(unit.getHref());
-			obixReal.setStatus(Status.OK);
-			obj = obixReal;
-		} else if (object instanceof State) {
-			Int obixInt = new Int(name, ((State) object).getValue());
-			obixInt.setIs(Point.contract);
-			obixInt.setStatus(Status.OK);
-			obj = obixInt;
-		} else if (object instanceof Integer) {
-			Int obixInt = new Int(name, ((Integer) object).intValue());
-			obixInt.setStatus(Status.OK);
-			obj = obixInt;
-		} else if (object instanceof Double) {
-			Real obixReal = new Real(name, ((Double) object).doubleValue());
-			obixReal.setStatus(Status.OK);
-			obj = obixReal;
-		} else if (object instanceof String) {
-			Str obixStr = new Str(name, (String) object);
-			obixStr.setStatus(Status.OK);
-			obj = obixStr;
+	protected boolean updateWire( Envelope env) {
+		boolean result = false;
+		for( Wire wire : consumerWires){
+			if( wire.isConnected() && wire.hasScope(env.getScope())){
+				wire.update(env);
+				result = true;
+			}
 		}
-
-		if ((name != null) && (obj != null)) {
-			obj.setDisplayName(name);
-		}
-
-		return obj;
-	}
-
-	private String mapScopeToHref(String scope) {
-
-		String result = null;
-		try {
-			// Remove white space
-			String resultNoWhites = scope.replaceAll("\t\n\f\r", "");
-			// Replace any '.' by '\'.
-			String resultNoDots = resultNoWhites.replaceAll("[.]", "/");
-			result = resultNoDots;
-		} catch (PatternSyntaxException e) {
-			Activator.log(LogService.LOG_DEBUG,
-					"Error while mapping Pid to Href: " + e.toString());
-		} catch (Exception e) {
-			Activator.log(LogService.LOG_DEBUG,
-					"Error while mapping Pid to Href: " + e.toString());
-		}
-
+		
 		return result;
 	}
 }

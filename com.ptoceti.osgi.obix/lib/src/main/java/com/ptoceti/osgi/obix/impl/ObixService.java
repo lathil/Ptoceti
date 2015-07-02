@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Dictionary;
+import java.util.List;
 
 
 import org.osgi.service.http.HttpContext;
@@ -133,51 +134,40 @@ public class ObixService  implements ManagedService {
 		
 		String[] clazzes = new String[] { ManagedService.class.getName()};
 		// register the class as a managed service.
-		Hashtable properties = new Hashtable();
+		Hashtable<String, String> properties = new Hashtable<String, String>();
 		properties.put(Constants.SERVICE_PID, this.getClass().getName());
 		sReg = Activator.bc.registerService(clazzes, this, properties);
 
-		Activator.log(LogService.LOG_INFO, "Registered "
-				+ this.getClass().getName() +  ", Pid = "
-				+ (String) properties.get(Constants.SERVICE_PID));
-
-		
+		Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName() +  ", Pid = " + (String) properties.get(Constants.SERVICE_PID));
 		wireHandler = new WireHandler();
-		
 		
 		// We need to get a reference to a data service. We need to get this
 		// reference dynamically by constructing
 		// a listener that will detect when the dataservice appear and disapear.
-		String dataServiceFilter = "(objectclass=" + JdbcDevice.class.getName()
-				+ ")";
+		String dataServiceFilter = "(objectclass=" + JdbcDevice.class.getName() + ")";
 		try {
 			dataDeviceLst = new DataDeviceListener(this);
 			Activator.bc.addServiceListener(dataDeviceLst, dataServiceFilter);
 			// in case the service is already registered, we send a REGISTER
 			// event to the listener.
-			ServiceReference srDataSrv[] = Activator.bc.getServiceReferences(
-					JdbcDevice.class.getName(), null);
+			ServiceReference srDataSrv[] = Activator.bc.getServiceReferences(JdbcDevice.class.getName(), null);
 			if (srDataSrv != null) {
-				dataDeviceLst.serviceChanged(new ServiceEvent(
-						ServiceEvent.REGISTERED, srDataSrv[0]));
+				dataDeviceLst.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, srDataSrv[0]));
 			}
 		} catch (InvalidSyntaxException e) {
 			// We know there shouldn't be an exception here since we made the
 			// filter string.
 		}
 
-		String servletfilter = "(objectclass=" + HttpService.class.getName()
-				+ ")";
+		String servletfilter = "(objectclass=" + HttpService.class.getName() + ")";
 		try {
 			httpSrvLst = new HttpServiceListener();
 			Activator.bc.addServiceListener(httpSrvLst, servletfilter);
 			// In case the HttpService is already register, we force an event to
 			// ourselves.
-			ServiceReference servletSer[] = Activator.bc.getServiceReferences(
-					HttpService.class.getName(), null);
+			ServiceReference servletSer[] = Activator.bc.getServiceReferences(HttpService.class.getName(), null);
 			if (servletSer != null) {
-				httpSrvLst.serviceChanged(new ServiceEvent(
-						ServiceEvent.REGISTERED, servletSer[0]));
+				httpSrvLst.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, servletSer[0]));
 			}
 		} catch (InvalidSyntaxException e) {
 			// The shouldn't be any exception comming here.
@@ -194,6 +184,15 @@ public class ObixService  implements ManagedService {
 			}
 		}
 	}
+	
+	/**
+	 * Get the instance of the wire handler. Might not be started.
+	 * 
+	 * @return WireHandler the instance.
+	 */
+	protected WireHandler getWireHandler(){
+		return wireHandler;
+	}
 
 	/**
 	 * Uregistered the class from the service registration system.
@@ -206,10 +205,8 @@ public class ObixService  implements ManagedService {
 		
 		stopServlet();
 
-		Activator.log(LogService.LOG_INFO, "Unregistered "
-				+ this.getClass().getName());
-		Activator.log(LogService.LOG_INFO, "Unregistered "
-				+ wireHandler.getClass().getName());
+		Activator.log(LogService.LOG_INFO, "Unregistered " + this.getClass().getName());
+		Activator.log(LogService.LOG_INFO, "Unregistered " + wireHandler.getClass().getName());
 	}
 
 	/*
@@ -243,9 +240,9 @@ public class ObixService  implements ManagedService {
 
 		if (ObixDataHandler.getInstance().getDataDevice() != null && (!databaseInitialised)) {
 			
-			ArrayList urls = new ArrayList();
+			List<URL> urls = new ArrayList<URL>();
 
-			Enumeration pathEnums;
+			Enumeration<?> pathEnums;
 			
 			pathEnums = Activator.bc.getBundle().getEntryPaths("/sql/");
 		
@@ -324,22 +321,16 @@ public class ObixService  implements ManagedService {
 			ServiceReference sr = event.getServiceReference();
 			switch (event.getType()) {
 			case ServiceEvent.REGISTERED: {
-				ObixDataHandler.getInstance().setDataDevice((JdbcDevice) Activator.bc
-						.getService(sr));
-				Activator.log(LogService.LOG_INFO,
-						"Getting instance of service: "
-								+ JdbcDevice.class.getName()
-								+ ","
-								+ Constants.SERVICE_PID
-								+ "="
-								+ (String) sr
-										.getProperty(Constants.SERVICE_PID));
+				ObixDataHandler.getInstance().setDataDevice((JdbcDevice) Activator.bc.getService(sr));
+				Activator.log(LogService.LOG_INFO, "Getting instance of service: "
+								+ JdbcDevice.class.getName() + ","
+								+ Constants.SERVICE_PID + "="
+								+ (String) sr.getProperty(Constants.SERVICE_PID));
 				startDatabase();
 			}
 				break;
 			case ServiceEvent.UNREGISTERING: {
-				Activator.log(LogService.LOG_INFO, "Releasing service: "
-						+ JdbcDevice.class.getName() + ","
+				Activator.log(LogService.LOG_INFO, "Releasing service: " + JdbcDevice.class.getName() + ","
 						+ Constants.SERVICE_PID + "="
 						+ (String) sr.getProperty(Constants.SERVICE_PID));
 
@@ -360,7 +351,7 @@ public class ObixService  implements ManagedService {
 
 			try {
 				HttpContext defaultContext = obixHttpHandler.getHttpService().createDefaultHttpContext();
-				Hashtable initParams = new Hashtable();
+				//Hashtable<Object, Object> initParams = new Hashtable<Object, Object>();
 
 				if (!obixServletPath.startsWith("/")) obixServletPath = "/" + obixServletPath;
 				
@@ -385,20 +376,15 @@ public class ObixService  implements ManagedService {
 				if( obixExternalResourcesPath.startsWith("file:")) {
 					
 					FileSystemHttpContext fsHttpContext = new FileSystemHttpContext();
-					obixHttpHandler.getHttpService().registerResources(
-							obixResourcesPath, obixExternalResourcesPath.substring("file:".length()), fsHttpContext);
-				} else obixHttpHandler.getHttpService().registerResources(
-						obixResourcesPath, obixExternalResourcesPath, defaultContext);
+					obixHttpHandler.getHttpService().registerResources( obixResourcesPath, obixExternalResourcesPath.substring("file:".length()), fsHttpContext);
+				} else obixHttpHandler.getHttpService().registerResources( obixResourcesPath, obixExternalResourcesPath, defaultContext);
 
 				// flag that we have started the rest front
 				restAppStarted = true;
 				
-				Activator.log(LogService.LOG_INFO,
-						"Registered servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
-				Activator.log(LogService.LOG_INFO,
-						"Registered resources under alias: " + obixResourcesPath);
-				Activator.log(LogService.LOG_INFO,
-						"Registered external resources under alias: " + obixExternalResourcesPath);
+				Activator.log(LogService.LOG_INFO, "Registered servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
+				Activator.log(LogService.LOG_INFO, "Registered resources under alias: " + obixResourcesPath);
+				Activator.log(LogService.LOG_INFO, "Registered external resources under alias: " + obixExternalResourcesPath);
 
 			} catch (NamespaceException ne) {
 				Activator.log(LogService.LOG_ERROR, "Error stating rest service: " + ne.toString());
@@ -437,6 +423,12 @@ public class ObixService  implements ManagedService {
 		this.httpServiceSymbolicName = httpServiceSymbolicName;
 	}
 
+	/**
+	 * Listener that listen to the Http service register and unregister events.
+	 * 
+	 * @author lor
+	 *
+	 */
 	public class HttpServiceListener implements ServiceListener {
 
 		public HttpServiceListener() {
@@ -455,14 +447,10 @@ public class ObixService  implements ManagedService {
 			case ServiceEvent.REGISTERED: {
 				obixHttpHandler.setHttpService((HttpService) Activator.bc.getService(sr));
 				startServlet();
-				Activator.log(LogService.LOG_INFO,
-						"Getting instance of service: "
-								+ HttpService.class.getName()
-								+ ","
-								+ Constants.SERVICE_PID
-								+ "="
-								+ (String) sr.getProperty(Constants.SERVICE_PID)
-								+ " from "
+				Activator.log(LogService.LOG_INFO, "Getting instance of service: "
+								+ HttpService.class.getName() + ","
+								+ Constants.SERVICE_PID + "="
+								+ (String) sr.getProperty(Constants.SERVICE_PID) + " from "
 								+ sr.getBundle().getSymbolicName());
 				
 				// keep track of HttpService name for filling About resource info

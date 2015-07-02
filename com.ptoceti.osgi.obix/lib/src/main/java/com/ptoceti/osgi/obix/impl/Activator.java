@@ -129,6 +129,15 @@ public class Activator implements BundleActivator {
 	}
 	
 	/**
+	 * Get hold to the instance of the obix Service. Might not be started.
+	 * 
+	 * @return ObixService
+	 */
+	public static ObixService getObixService() {
+		return obixService;
+	}
+	
+	/**
 	 * Called by the framework when the bundle is stopped.
 	 *
 	 * @param context
