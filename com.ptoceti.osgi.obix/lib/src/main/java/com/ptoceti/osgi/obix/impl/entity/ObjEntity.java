@@ -440,8 +440,8 @@ public class ObjEntity extends AbstractEntity {
 					// re-map it according to it type to the right obj (Int, Real, ... )
 					ObjEntity subentity = subClassToType( objEnt);
 					if( subentity != null) objEnt = subentity;
-					if( subentity instanceof ValEntity) {
-						((ValEntity)subentity).fetchDetails();
+					if( objEnt instanceof ValEntity) {
+						((ValEntity)objEnt).fetchDetails();
 					}
 				}
 				
@@ -827,6 +827,7 @@ public class ObjEntity extends AbstractEntity {
 		inContractId = rootObject.getInContractId();
 		ofContractId = rootObject.getOfContractId();
 		obixObject = rootObject.getObixObject();
+		fetched = rootObject.isFetched(); 
 	}
 
 	public class ObjResultSetMultipleHandler<T extends ObjEntity> extends ResultSetMultipleHandler {
@@ -887,7 +888,7 @@ public class ObjEntity extends AbstractEntity {
 					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_INT));
 					break;
 				case 3 : //boolean
-					((Str) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_BOOL));
+					((Bool) entity.getObixObject()).setVal(getBoolean(rs, COL_OBJ_VALUE_BOOL));
 					break;
 				case 5: //enum
 					((com.ptoceti.osgi.obix.object.Enum)entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT));
@@ -908,8 +909,8 @@ public class ObjEntity extends AbstractEntity {
 					((com.ptoceti.osgi.obix.object.List)entity.getObixObject()).setMin( getInteger(rs, COL_OBJ_MIN));
 					break;
 				case 9: //real
-					((Real) entity.getObixObject()).setMax(getFloat(rs, COL_OBJ_MAX_REAL));
-					((Real) entity.getObixObject()).setMin(getFloat(rs, COL_OBJ_MIN_REAL));
+					((Real) entity.getObixObject()).setMax(getDouble(rs, COL_OBJ_MAX_REAL));
+					((Real) entity.getObixObject()).setMin(getDouble(rs, COL_OBJ_MIN_REAL));
 					((Real) entity.getObixObject()).setVal(getDouble(rs, COL_OBJ_VALUE_REAL));
 					((Real) entity.getObixObject()).setPrecision(getInteger(rs, COL_OBJ_PRECISION));
 					if( entity.getUnit() != null && !entity.getUnit().isEmpty()){
@@ -1004,7 +1005,7 @@ public class ObjEntity extends AbstractEntity {
 					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_INT));
 					break;
 				case 3 : //boolean
-					((Str) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_BOOL));
+					((Bool) entity.getObixObject()).setVal(getBoolean(rs, COL_OBJ_VALUE_BOOL));
 					break;
 				case 5: //enum
 					((com.ptoceti.osgi.obix.object.Enum)entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT));
@@ -1025,8 +1026,8 @@ public class ObjEntity extends AbstractEntity {
 					((com.ptoceti.osgi.obix.object.List)entity.getObixObject()).setMin( getInteger(rs, COL_OBJ_MIN));
 					break;
 				case 9: //real
-					((Real) entity.getObixObject()).setMax(getFloat(rs, COL_OBJ_MAX_REAL));
-					((Real) entity.getObixObject()).setMin(getFloat(rs, COL_OBJ_MIN_REAL));
+					((Real) entity.getObixObject()).setMax(getDouble(rs, COL_OBJ_MAX_REAL));
+					((Real) entity.getObixObject()).setMin(getDouble(rs, COL_OBJ_MIN_REAL));
 					((Real) entity.getObixObject()).setVal(getDouble(rs, COL_OBJ_VALUE_REAL));
 					((Real) entity.getObixObject()).setPrecision(getInteger(rs, COL_OBJ_PRECISION));
 					if( entity.getUnit() != null && !entity.getUnit().isEmpty()){
