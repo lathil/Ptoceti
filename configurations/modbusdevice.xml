@@ -2,7 +2,7 @@
 <ModbusDevice>
 	<References>
 		<Reference>
-			<Identification>com.ptoceti.osgi.heatingcontrol.measurement.temperature.romm.ref</Identification>
+			<Identification>room.temperature.ref</Identification>
 			<Scope>com.ptoceti.osgi.heatingcontrol.marcilly</Scope>
 			<Expression>K</Expression>
 			<Adress>104</Adress>
@@ -83,6 +83,30 @@
 	</Measurements>
 	<States>
 		<State>
+			<Identification>test.digit1</Identification>
+			<Scope>com.ptoceti.osgi.heatingcontrol.marcilly</Scope>
+			<Adress>200</Adress>
+			<Length>1</Length>
+		</State>
+		<State>
+			<Identification>test.digit2</Identification>
+			<Scope>com.ptoceti.osgi.heatingcontrol.marcilly</Scope>
+			<Adress>201</Adress>
+			<Length>1</Length>
 		</State>
 	</States>
+	<Coils>
+		<Coil>
+			<Identification>test.coils1</Identification>
+			<Scope>com.ptoceti.osgi.heatingcontrol.marcilly</Scope>
+			<Adress>300</Adress>
+			<Length>1</Length>
+		</Coil>
+		<Coil>
+			<Identification>test.coils2</Identification>
+			<Scope>com.ptoceti.osgi.heatingcontrol.marcilly</Scope>
+			<Adress>301</Adress>
+			<Length>1</Length>
+		</Coil>
+	</Coils>
 </ModbusDevice>
