@@ -30,7 +30,6 @@ package com.ptoceti.osgi.obix.domain;
 
 import java.util.List;
 
-import com.ptoceti.osgi.obix.contract.Point;
 import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnection;
 import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnection.ConnectionType;
 import com.ptoceti.osgi.obix.object.Contract;

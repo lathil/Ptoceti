@@ -35,9 +35,10 @@ import org.restlet.resource.Put;
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.cache.ObjCache;
 import com.ptoceti.osgi.obix.domain.DomainException;
-import com.ptoceti.osgi.obix.domain.ObjDomain;
+import com.ptoceti.osgi.obix.impl.CommandHandler;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Uri;
+import com.ptoceti.osgi.obix.object.Val;
 import com.ptoceti.osgi.obix.resources.ObjResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
 
@@ -94,6 +95,11 @@ public class ObjServerResource extends AbstractServerResource implements ObjReso
 		Uri hrefUri = new Uri("href", uri + href);
 		
 		try {
+			if( objIn instanceof Val){
+				CommandHandler commandHandler = new CommandHandler();
+				commandHandler.sendCommand((Val)objIn);
+			}
+			
 			cache.updateObixObjAt(hrefUri, objIn);
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".update", ex);

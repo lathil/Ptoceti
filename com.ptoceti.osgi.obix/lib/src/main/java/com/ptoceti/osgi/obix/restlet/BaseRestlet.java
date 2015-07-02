@@ -13,8 +13,8 @@ import org.restlet.routing.TemplateRoute;
 import org.restlet.routing.Variable;
 
 import com.ptoceti.osgi.obix.impl.Activator;
-import com.ptoceti.osgi.obix.impl.converters.JSonConverter;
-import com.ptoceti.osgi.obix.impl.converters.XMLConverter;
+import com.ptoceti.osgi.obix.impl.front.converters.JSonConverter;
+import com.ptoceti.osgi.obix.impl.front.converters.XMLConverter;
 import com.ptoceti.osgi.obix.impl.guice.GuiceFinderFactory;
 import com.ptoceti.osgi.obix.impl.guice.GuiceRouter;
 import com.ptoceti.osgi.obix.impl.resources.server.AboutServerResource;

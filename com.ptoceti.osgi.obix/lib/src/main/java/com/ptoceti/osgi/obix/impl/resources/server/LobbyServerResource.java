@@ -33,6 +33,9 @@ import java.util.List;
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.Lobby;
 import com.ptoceti.osgi.obix.custom.contract.MonitoredPoint;
+import com.ptoceti.osgi.obix.custom.contract.DigitPoint;
+import com.ptoceti.osgi.obix.custom.contract.ReferencePoint;
+import com.ptoceti.osgi.obix.custom.contract.SwitchPoint;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 
@@ -71,13 +74,17 @@ public class LobbyServerResource extends AbstractServerResource implements Lobby
 		try {
 			//Add all the points we could find.
 			
-			List<Obj> monitoredPointList = objDomain.getObixObjsByContract(MonitoredPoint.contract);
-			for(Obj monitoredPoint : monitoredPointList ){
+			List<Obj> lobbyPointList = objDomain.getObixObjsByContract(MonitoredPoint.contract);
+			lobbyPointList.addAll(objDomain.getObixObjsByContract(SwitchPoint.contract));
+			lobbyPointList.addAll(objDomain.getObixObjsByContract(ReferencePoint.contract));
+			lobbyPointList.addAll(objDomain.getObixObjsByContract(DigitPoint.contract));
+			for(Obj lobbyPoint : lobbyPointList ){
 				Ref ref = new Ref();
-				ref.setHref(monitoredPoint.getHref());
-				ref.setIs(monitoredPoint.getIs());
+				ref.setHref(lobbyPoint.getHref());
+				ref.setIs(lobbyPoint.getIs());
 				lobby.addChildren(ref);
 			}
+			
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".retrieve", ex);
 		}

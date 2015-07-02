@@ -33,6 +33,12 @@ import com.ptoceti.osgi.obix.contract.Unit;
 
 
 public class UnitConverter {
+	
+public static final ExtendedUnit mapFromObix( Unit unit ){
+	ExtendedUnit result = ExtendedUnit.findUnit(unit.getName());
+	
+	return result;
+}
 
 public static final Unit mapFromOsgi( ExtendedUnit unit){
 		
