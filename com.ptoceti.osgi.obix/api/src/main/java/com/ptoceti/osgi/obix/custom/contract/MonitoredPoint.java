@@ -30,11 +30,16 @@ package com.ptoceti.osgi.obix.custom.contract;
 
 import java.io.Serializable;
 
-import com.ptoceti.osgi.obix.contract.Point;
 import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Ref;
 
+/**
+ * A point that include a history and a measure
+ * 
+ * @author lor
+ *
+ */
 public class MonitoredPoint  extends Obj implements Serializable {
 
 	/**
