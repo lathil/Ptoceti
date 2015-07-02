@@ -14,6 +14,7 @@ import org.osgi.service.log.LogService;
 import org.xmlpull.v1.XmlPullParserException;
 
 
+
 /**
  * A factory responsible to build all sensor node based on configuration
  * 
@@ -107,11 +108,9 @@ public class SensorNodeFactory implements org.osgi.service.cm.ManagedServiceFact
 				sensorNodes.put(pid, sensorNode);
 			
 			} catch (XmlPullParserException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Activator.log(LogService.LOG_ERROR, "Error parsing xml config file: " + e.toString());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Activator.log(LogService.LOG_ERROR, "Error reading xml config file: " + e.toString());
 			}
 			
 		}
