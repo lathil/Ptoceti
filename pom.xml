@@ -101,6 +101,7 @@
 								<canUpdateLicense>true</canUpdateLicense>
 							</configuration>
 						</execution>
+						
 						<execution>
 							<id>append-license-file-headers</id>
 							<goals>
@@ -112,6 +113,7 @@
 								<descriptionTemplate>${basedir}/src/license/template.ftl</descriptionTemplate>
 							</configuration>
 						</execution>
+						
 					</executions>
 			</plugin>
 			
@@ -270,7 +272,7 @@
 					<version>1.5</version>
 					<executions>
 						<execution>
-							<id>check-license-file-headers</id>
+							<id>append-license-file-headers</id>
 							<goals>
 								<goal>check-file-header</goal>
 							</goals>
@@ -311,6 +313,9 @@
 											[1.5,)
 										</versionRange>
 										<goals>
+											<goal>
+												check-file-header
+											</goal>
 											<goal>
 												update-project-license
 											</goal>
