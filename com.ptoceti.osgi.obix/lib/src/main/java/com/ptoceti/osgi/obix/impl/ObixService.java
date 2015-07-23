@@ -42,6 +42,9 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
 import org.osgi.service.http.HttpContext;
@@ -78,6 +81,7 @@ public class ObixService  implements ManagedService {
 	public static final String RESOURCEPATH = "com.ptoceti.osgi.obixservice.resourcepath";
 	public static final String DATABASEPATH = "com.ptoceti.osgi.obixservice.databasepath";
 	public static final String EXTERNALRESOURCEPATH = "com.ptoceti.osgi.obixservice.externalresourcepath";
+	public static final String NBEXECUTORPOOLTHREADS = "com.ptoceti.osgi.obixservice.nbexecutorpoolthreads";
 	
 	public static final String RESTLETSYMBOLICNAME = "org.restlet";
 
@@ -114,6 +118,8 @@ public class ObixService  implements ManagedService {
 	private RestletListener restletListener;
 	
 	private String httpServiceSymbolicName;
+	
+	private ExecutorService threadExecutor;
 
 	// Default creator. Don't do nothing at this point.
 	public ObixService() {
@@ -130,6 +136,9 @@ public class ObixService  implements ManagedService {
 
 	public synchronized void start() {
 
+		// create a default pool of 2 threads.
+		threadExecutor = Executors.newFixedThreadPool(2);
+		
 		obixHttpHandler = new ObixHttpHandler();
 		
 		String[] clazzes = new String[] { ManagedService.class.getName()};
@@ -193,6 +202,15 @@ public class ObixService  implements ManagedService {
 	protected WireHandler getWireHandler(){
 		return wireHandler;
 	}
+	
+	/**
+	 * Get the instance of the executor service. Might not be instanciated
+	 * 
+	 * @return
+	 */
+	protected ExecutorService getExecutorService(){
+		return threadExecutor;
+	}
 
 	/**
 	 * Uregistered the class from the service registration system.
@@ -203,7 +221,7 @@ public class ObixService  implements ManagedService {
 		// Unregister the factory first ..
 		sReg.unregister();
 		
-		stopServlet();
+		stopRestService();
 
 		Activator.log(LogService.LOG_INFO, "Unregistered " + this.getClass().getName());
 		Activator.log(LogService.LOG_INFO, "Unregistered " + wireHandler.getClass().getName());
@@ -225,14 +243,29 @@ public class ObixService  implements ManagedService {
 			databasePath = (String) props.get(DATABASEPATH);
 			obixExternalResourcesPath = (String) props.get(EXTERNALRESOURCEPATH);
 			
+		
+			Object nbThreads = props.get(NBEXECUTORPOOLTHREADS);
+			if( nbThreads != null && nbThreads instanceof Integer) {
+				try {
+				if( threadExecutor != null){
+						threadExecutor.shutdown();
+						threadExecutor.awaitTermination(10, TimeUnit.SECONDS);
+					}
+					threadExecutor = Executors.newFixedThreadPool(Integer.parseInt(nbThreads.toString()));
+				}catch (InterruptedException e) {
+					Activator.log(LogService.LOG_ERROR, "Error creating thread pool: " + e );
+				}
+			}
+				
+			
 			Object port = props.get(SERVICEPORT);
 			obixServletPort = port instanceof Integer ? (Integer) port : Integer.parseInt(port.toString());
 
-			startServlet();
+			startRestService();
 			startDatabase();
 
 		} else {
-			stopServlet();
+			stopRestService();
 		}
 	}
 
@@ -343,7 +376,7 @@ public class ObixService  implements ManagedService {
 		}
 	}
 
-	protected synchronized void startServlet() {
+	protected synchronized void startRestService() {
 		if ((obixServletPath != null)
 				&& (obixHttpHandler.getHttpService() != null)
 				&& (this.obixResourcesPath != null)
@@ -395,7 +428,7 @@ public class ObixService  implements ManagedService {
 		}
 	}
 
-	protected synchronized void stopServlet() {
+	protected synchronized void stopRestService() {
 		if ((obixServletPath != null)
 				&& (obixHttpHandler.getHttpService() != null) && restAppStarted) {
 			try {
@@ -446,7 +479,7 @@ public class ObixService  implements ManagedService {
 			switch (event.getType()) {
 			case ServiceEvent.REGISTERED: {
 				obixHttpHandler.setHttpService((HttpService) Activator.bc.getService(sr));
-				startServlet();
+				startRestService();
 				Activator.log(LogService.LOG_INFO, "Getting instance of service: "
 								+ HttpService.class.getName() + ","
 								+ Constants.SERVICE_PID + "="
@@ -487,7 +520,7 @@ public class ObixService  implements ManagedService {
 				 if( event.getType() == BundleEvent.STARTED){
 					 restletHasStarted = true;
 					 Activator.log(LogService.LOG_INFO, "Restlet started event detected.");
-					 startServlet();
+					 startRestService();
 				 } else {
 					 restletHasStarted = false;
 				 }

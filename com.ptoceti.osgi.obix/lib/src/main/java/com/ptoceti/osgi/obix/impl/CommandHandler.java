@@ -27,6 +27,8 @@ package com.ptoceti.osgi.obix.impl;
  * #L%
  */
 
+import java.util.concurrent.Callable;
+
 import org.osgi.service.wireadmin.BasicEnvelope;
 
 import com.ptoceti.osgi.obix.impl.back.converters.OsgiConverterFactory;
@@ -44,7 +46,7 @@ import com.ptoceti.osgi.obix.resources.ObjResource;
  * @author lor
  *
  */
-public class CommandHandler extends BaseObixHandler {
+public class CommandHandler  {
 
 	/**
 	 * Send a command to a wire consumer. Consumer scope is extracted from the obix href value. The name of the obix val is
@@ -68,7 +70,8 @@ public class CommandHandler extends BaseObixHandler {
 		
 		BasicEnvelope env = new BasicEnvelope(commandOut, name, scope);
 		
-		Activator.getObixService().getWireHandler().updateWire(env);
+		Activator.getObixService().getExecutorService().submit(new AsyncCommand(env));
+		//Activator.getObixService().getWireHandler().updateWire(env);
 		
 	}
 	
@@ -91,5 +94,26 @@ public class CommandHandler extends BaseObixHandler {
 		
 		
 		return scope;
+	}
+	
+	protected class AsyncCommand implements Callable {
+
+		BasicEnvelope enveloppe;
+		
+		public AsyncCommand(BasicEnvelope env){
+			enveloppe = env;
+		}
+		
+		@Override
+		public Object call() throws Exception {
+			boolean result = false;
+			WireHandler wHandler = Activator.getObixService().getWireHandler();
+			if( wHandler != null){
+				result = wHandler.updateWire(enveloppe);
+			}
+			
+			return Boolean.valueOf(result);
+		}
+		
 	}
 }
