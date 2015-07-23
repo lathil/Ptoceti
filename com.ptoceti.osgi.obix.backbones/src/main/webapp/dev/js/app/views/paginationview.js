@@ -24,8 +24,8 @@
  * limitations under the License.
  * #L%
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenquire', 'models/pageableobjs', "i18n!nls/paginationtext"],
-		function(Backbone, Marionette, _, $, Courier, mediaEnquire, PageableObj, localizedPaginationText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenquire', 'modernizr', 'models/pageableobjs', "i18n!nls/paginationtext"],
+		function(Backbone, Marionette, _, $, Courier, mediaEnquire, Modernizr, PageableObj, localizedPaginationText) {
 	
 	var PaginView = Marionette.CompositeView.extend({
 		template:"pagination",
@@ -59,7 +59,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 				return require('views/monitoreditemview');
 			}
 			if( item.hasContract('ptoceti:ReferencePoint')) {
-				return require('views/referenceitemview');
+				if( Modernizr.svg) {
+					return require('views/referenceitemsvgview');
+				} else {
+					return require('views/referenceitemview');
+				}
 			}
 			if( item.hasContract('ptoceti:DigitPoint')) {
 				return require('views/digititemview');
