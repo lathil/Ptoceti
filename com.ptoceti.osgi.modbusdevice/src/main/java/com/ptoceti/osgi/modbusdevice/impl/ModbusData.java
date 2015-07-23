@@ -52,6 +52,9 @@ public abstract class ModbusData {
 	protected String dataScope = null;
 	protected String dataIdentification = null;
 	
+	protected double min;
+	protected double max;
+	
 	public void setDelegate( ModbusDataBufferDelegate mdbDelegate ){
 		bufferDelegate = mdbDelegate;
 	}

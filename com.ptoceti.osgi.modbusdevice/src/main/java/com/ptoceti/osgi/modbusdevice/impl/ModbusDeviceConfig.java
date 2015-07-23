@@ -65,6 +65,8 @@ public class ModbusDeviceConfig {
 	public static final String ExpressionElement = "Expression";
 	public static final String AdressElement = "Adress";
 	public static final String LengthElement = "Length";
+	public static final String MinElement = "Min";
+	public static final String MaxElement = "Max";
 	
 	
 	private ModbusDeviceFactory factory;
@@ -182,6 +184,8 @@ private ModbusReference parseReferenceElement(KXmlParser parser ) throws XmlPull
 		String expression = null;
 		int adress = 0;
 		int length = 0;
+		double min = 0;
+		double max = Double.MAX_VALUE;
 		
 		int eventType = parser.getEventType();
 		while( eventType != XmlPullParser.END_TAG) {
@@ -197,6 +201,10 @@ private ModbusReference parseReferenceElement(KXmlParser parser ) throws XmlPull
 					adress = (new Integer(parseGetText(parser))).intValue();
 				} else if (parser.getName().equals(LengthElement)) {
 					length = (new Integer(parseGetText(parser))).intValue();
+				} else if (parser.getName().equals(MinElement)) {
+					min = (new Double(parseGetText(parser))).doubleValue();
+				} else if (parser.getName().equals(MaxElement)) {
+					max = (new Double(parseGetText(parser))).doubleValue();
 				}
 			}
 		
@@ -204,7 +212,7 @@ private ModbusReference parseReferenceElement(KXmlParser parser ) throws XmlPull
 		}
 		
 		if(( identification != null) && ( scope != null) && (length > 0)){
-			mdbReference = new ModbusReference(identification, scope, expression, adress, length);
+			mdbReference = new ModbusReference(identification, scope, expression, adress, length, min, max);
 		}
 		return mdbReference;
 	}

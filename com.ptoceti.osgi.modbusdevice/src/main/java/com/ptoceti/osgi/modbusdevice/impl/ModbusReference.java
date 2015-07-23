@@ -38,13 +38,15 @@ public class ModbusReference extends ModbusData {
 
 private String dataExpression = null;
 	
-	public ModbusReference(String identification, String scope, String expression, int adress, int lenght ){
+	public ModbusReference(String identification, String scope, String expression, int adress, int lenght, double min, double max ){
 		
 		dataIdentification = identification;
 		dataScope = scope;
 		dataExpression = expression;
 		this.adress = adress;
 		this.length = lenght;
+		this.min = min;
+		this.max = max;
 		
 	}
 	
@@ -69,6 +71,8 @@ private String dataExpression = null;
 	
 		int data = bufferDelegate.read( adress, length);
 		Reference reference = new Reference((double) data, ExtendedUnit.findUnit(dataExpression));
+		reference.setMin(min);
+		reference.setMax(max);
 		return reference;
 		
 	}
