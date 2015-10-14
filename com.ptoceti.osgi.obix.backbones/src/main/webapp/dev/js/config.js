@@ -15,7 +15,7 @@ Modernizr.load({
 	
 	paths : {
 		// libraries
-		jquery : '../lib/jquery/jquery',
+		jquery :  '../lib/jquery/jquery',
 		underscore : '../lib/underscore/underscore',
 		backbone : '../lib/backbone/backbone',
 		"backbone.wreqr" : '../lib/backbone.wreqr/lib/amd/backbone.wreqr',
@@ -46,7 +46,8 @@ Modernizr.load({
 		
 		//assets
 		'courier' : 'assets/backbone.courier/backbone.courier',
-		xchart : 'assets/xcharts/xcharts'
+		xchart : 'assets/xcharts/xcharts',
+		powerange : '../lib/powerange/powerange'
 
 	},
 	

@@ -94,7 +94,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		
 		// listener for view events coming from a subview
 		onMessages : {
-	        "pointItemSelected" : "onItemSelected"
+	        "listItemSelected" : "onItemSelected",
+	        "itemDelete" : "onItemDelete"	
 	    },
 		
 	    /**
@@ -127,6 +128,10 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			}
 		},
 		
+		onItemDelete : function( message ){
+			ventAggr.trigger("watch:removePoint", message.data.point);
+		},
+		
 		onUpdatedPointsValues: function(updatedCollection) {
 			var region = this.pointsListRegion;
 			
@@ -135,7 +140,32 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			});
 			
 			this.model.set("count", updatedCollection.length);
-			require(['views/paginationview', 'views/monitoreditemview', 'views/referenceitemview', 'views/referenceitemsvgview', 'views/digititemview', 'views/switchitemview'], function(PaginView){
+			
+			var requiredModules = ['views/paginationview'];
+			_.each(updatedCollection.models, function(element,index) {
+				var nextView;
+				if( element.hasContract('obix:Point')) {
+					nextView = 'views/pointitemview';
+				}
+				if( element.hasContract('ptoceti:MonitoredPoint')) {
+					nextView = 'views/monitoreditemview';
+				}
+				if( element.hasContract('ptoceti:ReferencePoint')) {
+					nextView = 'views/referenceitemview';
+				}
+				if( element.hasContract('ptoceti:DigitPoint')) {
+					nextView = 'views/stateitemview';
+				}
+				if( element.hasContract('ptoceti:SwitchPoint')) {
+					nextView = 'views/switchitemview';
+				}
+				
+				if( requiredModules.indexOf(nextView) < 0){
+					requiredModules.push(nextView);
+				}
+			});
+			
+			require(requiredModules, function(PaginView){
 				if( region.currentView == null){
 					region.show(new PaginView({template:"pagination", collection: updatedCollection, context: 'lobby'}));
 				} else {
@@ -160,8 +190,31 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			
 			this.model.set("count", updatedCollection.length);
 			
+			var requiredModules = ['views/paginationview'];
+			_.each(updatedCollection.models, function(element,index) {
+				var nextView;
+				if( element.hasContract('obix:Point')) {
+					nextView = 'views/pointitemview';
+				}
+				if( element.hasContract('ptoceti:MonitoredPoint')) {
+					nextView = 'views/monitoreditemview';
+				}
+				if( element.hasContract('ptoceti:ReferencePoint')) {
+					nextView = 'views/referenceitemview';
+				}
+				if( element.hasContract('ptoceti:DigitPoint')) {
+					nextView = 'views/stateitemview';
+				}
+				if( element.hasContract('ptoceti:SwitchPoint')) {
+					nextView = 'views/switchitemview';
+				}
+				
+				if( requiredModules.indexOf(nextView) < 0){
+					requiredModules.push(nextView);
+				}
+			});
 			
-			require(['views/paginationview', 'views/monitoreditemview','views/referenceitemview','views/referenceitemsvgview','views/digititemview', 'views/switchitemview'], function(PaginView){
+			require(requiredModules, function(PaginView){
 				if( region.currentView == null){
 					region.show(new PaginView({template:"pagination", collection: updatedCollection, context: 'lobby'}));
 				} else {

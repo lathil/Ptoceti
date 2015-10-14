@@ -1,9 +1,18 @@
  <td>
 	<div class="row">
-		<div class="col-md-8 col-sm-8 col-xs-10">
+		<div class="col-md-1 col-sm-1 col-xs-2">
+			<p style="display: inline-block" class="h4"><span name="icon" class="glyphicon glyphicon-home"/></p>
+		</div>
+		<div class="col-md-8 col-sm-7 col-xs-8">
 			<div class="row">
 				<div class="col-md-3 col-sm-3 col-xs-5">
-					<p class="h2"><button name="switch" class="btn btn-primary btn-block">{{val}}</button></p>
+				
+					<div  class="checkbox checkbox-slider-primary checkbox-slider-md checkbox-slider--b-flat">
+						<label>
+							<input type="checkbox" name="switchinput"><span name="switch">{{val}}</span>
+						</label>
+					</div>
+				
 				</div>
 			</div>
 		</div>
@@ -11,7 +20,7 @@
 			<p><span name="timeStamp" class="h3">{{timestamp}}</span></p>
 		</div>
 		<div class="col-md-1 col-sm-1 col-xs-2">
-			<p style="display: inline-block" class="h4"><span name="status" class="label label-default">New</span></p>
+			<p style="display: inline-block" class="h4"><span name="status" class="glyphicon glyphicon-ok-circle"/><span name="statusText" class="hidden-xs"/></p>
 		</div>
 	</div>
 	<div class="row">
@@ -21,6 +30,13 @@
 		<div class="col-md-3 col-sm-3 hidden-xs">
 		</div>
 		<div class="col-md-1 col-sm-1 col-xs-2">
+		</div>
+	</div>
+	<div  id="monitoredInfos{{elemId}}" name="infoPanel" class="panel-collapse collapse">
+		<div class=row">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<a name="deleteItem"><span class="glyphicon glyphicon-minus"></a>
+			</div>
 		</div>
 	</div>
 </td>

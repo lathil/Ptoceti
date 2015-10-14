@@ -104,6 +104,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 	    
 		// listener for view events coming from a subview
 		onMessages : {
+			"watchItemDelete" : "onWatchDelete",
 	        "watchItemSelected" : "onWatchSelected"
 	    },
 		
@@ -146,6 +147,10 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			
 		},
 
+		onWatchDelete : function( message ){
+			ventAggr.trigger("watch:removeWatch", message.data.watch);
+		},
+		
 		removeFromList : function() {
 			ventAggr.trigger("watch:removeWatch", this.watchSelected);
 		},

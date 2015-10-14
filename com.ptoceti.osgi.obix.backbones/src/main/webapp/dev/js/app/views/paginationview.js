@@ -59,14 +59,10 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 				return require('views/monitoreditemview');
 			}
 			if( item.hasContract('ptoceti:ReferencePoint')) {
-				if( Modernizr.svg) {
-					return require('views/referenceitemsvgview');
-				} else {
-					return require('views/referenceitemview');
-				}
+				return require('views/referenceitemview');
 			}
 			if( item.hasContract('ptoceti:DigitPoint')) {
-				return require('views/digititemview');
+				return require('views/stateitemview');
 			}
 			if( item.hasContract('ptoceti:SwitchPoint')) {
 				return require('views/switchitemview');
@@ -77,6 +73,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 		passMessages : {
 			"*" : '.'
 		},
+		
 		
 		templateHelpers : function() {
 			return {
@@ -97,6 +94,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 			
 			//this.hasTouchEvent = Modernizr.touch;
 			
+			this.on('itemview:siblingItem:Unselect', this.onItemViewItemUnselect, this);
 			_.bindAll(this, 'enterXs','quitXs');
 
 			this.onXsMedia = false;
@@ -128,7 +126,16 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 		 * Do extra cleaning here on view closing. Marionnette manage already most of it.
 		 */
 		onClose : function() {
+			this.off('itemview:siblingItem:Unselect', this.itemUnselected, this);
 			mediaEnquire.unregisterXs(this.xsQueryHandler);
+		},
+		
+		onItemViewItemUnselect : function(sourceView,msg) {
+			this.children.each( function(view){
+				if( sourceView !== view){
+					view.trigger('itemUnselected');
+				}
+			});
 		},
 		
 		enterXs : function(){

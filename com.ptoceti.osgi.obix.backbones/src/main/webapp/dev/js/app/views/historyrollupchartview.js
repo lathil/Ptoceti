@@ -1,5 +1,5 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 'mediaenquire', 'xchart', 'd3.global',  'bootstrap', 'css!../assets/xcharts/xcharts.css' ],
-		function(Backbone, Marionette, _, $, Courier, Moment, mediaEnquire, xChart, d3 ) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 'mediaenquire', 'd3', 'xchart' ,  'bootstrap', 'css!../assets/xcharts/xcharts.css' ],
+		function(Backbone, Marionette, _, $, Courier, Moment, mediaEnquire, d3, xChart ) {
 
 	var HistoryRollupChartView = Marionette.Layout.extend({
 		template : 'historyrollupchart',

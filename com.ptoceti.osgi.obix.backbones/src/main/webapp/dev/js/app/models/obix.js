@@ -240,6 +240,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 				if (this.getIs().get('uris').at(i).get('val') == contract)
 					return true;
 			}
+			return false;
 		},
 
 		setName : function(inName) {
