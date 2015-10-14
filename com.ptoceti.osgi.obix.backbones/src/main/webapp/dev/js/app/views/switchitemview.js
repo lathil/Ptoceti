@@ -3,7 +3,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 	var SwitchItemView = Backbone.Marionette.ItemView.extend({
 		tagName: "tr",
 		template: "switchitem",
-		className: "switchItem",
+		className: "switchItem listItem",
 		
 		templateHelpers :  {
 			contentEditable : function() {
@@ -11,15 +11,22 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			}
 		},
 		
+		ui : {
+			infosCollapsePanel : "[name=\"infoPanel\"]",
+			switchinput : "[name=\"switchinput\"]"
+		},
+		
 		// setup lister for pur DOM event handling
 		events : {
 			"click td" : "itemSelected",
+			"click [name='deleteItem']" : "onItemDelete",
 			"click [name='switch']" : "switchClicked"
 		},
 		
 		initialize : function() {
 			// add this view to Backbone.Courier
 			Courier.add(this);
+			this.on('itemUnselected', this.itemUnselected, this);
 			this.model.on('change:displayName', this.saveChanges, this);
 			// initialize Backbone.ModelBinder for dual binding
 			this.modelbinder = new ModelBinder();
@@ -27,6 +34,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		
 		// event handler called after the view has been closed
 		onClose : function() {
+			this.off('itemUnselected', this.itemUnselected, this);
 			this.modelbinder.unbind();
 		},
 		
@@ -43,11 +51,15 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		// event handler call after the view has been rendered
 		onRender : function(){
 			this.modelbinder.bind(this.model, this.el, {
-				val: [{selector: '[name=switch]',  converter: this.valueConverter}, {selector: '[name=switch]',  elAttribute: 'class', converter: this.valueClassConverter} ],
+				val: [{selector: '[name=switch]',  converter: this.valueConverter}],
 				name: {selector: '[name=displayName]', converter: this.nameConverter},
-				status: [{selector: '[name=status]',  elAttribute: 'class', converter: this.statusClassConverter},{selector: '[name=status]', converter: this.statusConverter}],
+				status: [{selector: '[name=status]',  elAttribute: 'class', converter: this.statusClassConverter},{selector: '[name=statusText]', converter: this.statusConverter}],
 				updateTimeStamp: {selector:'[name=timeStamp]', converter: this.lastTimeStamp}
 			});
+			
+			if( this.model.get("val") == "true"){
+				this.ui.switchinput.attr('checked', true);
+			}
 		},
 		
 		switchClicked : function(){
@@ -59,51 +71,62 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			})
 		},
 		
-		itemSelected : function(){
+		onItemDelete : function(){
+			this.spawn("itemDelete", {point: this.model});
+		},
+		
+		itemUnselected : function(){
 			if( this.$el.hasClass("active")){
 				this.$el.removeClass("active");
+				this.ui.infosCollapsePanel.collapse('hide');
+			}
+		},
+		
+		itemSelected : function(){
+			if( this.$el.hasClass("active")){
+				this.ui.infosCollapsePanel.collapse('hide');
+				this.$el.removeClass("active");
 				// setup view event to clear selection
-				this.spawn("switchItemSelected", {point: null});
+				this.spawn("listItemSelected", {point: null});
 			}
 			else {
-				$(".switchItem ").removeClass("active");
+				//$(".listItem ").removeClass("active");
+				this.trigger("siblingItem:Unselect", '', this);
 				this.$el.addClass("active");
+				this.ui.infosCollapsePanel.collapse('show');
 				// setup view event to indicate selection
-				this.spawn("switchItemSelected", {point: this.model});
+				this.spawn("listItemSelected", {point: this.model});
+			}
+		},
+		
+		switchCheckedConverter : function(direction, value, attributeName, model, els){
+			if( direction =='ModelToView') {
+				if(value == "true"){
+					return true;
+				} else { return false; }
 			}
 		},
 		
 		valueConverter : function(direction, value, attributeName, model){
 			if( direction =='ModelToView') {
 				if(value == "true"){
-					return stateText['on']
-				} else return stateText['off']
+					return stateText['on']; 
+				} else { return stateText['off']; }
 			}
 		},
-		
-		valueClassConverter : function( direction, value) {
-			if( direction == "ModelToView") {
-				if( value != null) {
-					if(value == "true"){
-						return "btn btn-danger"
-					} else return "btn btn-primary"
-				}
-			}
-		},
-		
 		
 		statusClassConverter : function( direction, value) {
 			if( direction == "ModelToView") {
 				if( value != null) {
 					var statustoLower = value.toLowerCase();
-					if( statustoLower == Obix.status.DISABLED) return "label label-default";
-					if( statustoLower == Obix.status.FAULT) return "label label-danger";
-					if( statustoLower == Obix.status.DOWN) return "label label-default";
-					if( statustoLower == Obix.status.UNAKEDALARM) return "label label-info";
-					if( statustoLower == Obix.status.ALARM) return "label label-warning";
-					if( statustoLower == Obix.status.UNACKED) return "label label-info";
-					if( statustoLower == Obix.status.OVERRIDEN) return "label label-primary";
-					if( statustoLower == Obix.status.OK) return "label label-success";
+					if( statustoLower == Obix.status.DISABLED) return "glyphicon glyphicon-ban-circle";
+					if( statustoLower == Obix.status.FAULT) return "glyphicon glyphicon-alert";
+					if( statustoLower == Obix.status.DOWN) return "glyphicon glyphicon-warning-sign";
+					if( statustoLower == Obix.status.UNAKEDALARM) return "glyphicon glyphicon-exclamation-sign";
+					if( statustoLower == Obix.status.ALARM) return "glyphicon glyphicon-bell";
+					if( statustoLower == Obix.status.UNACKED) return "glyphicon glyphicon-exclamation-sign";
+					if( statustoLower == Obix.status.OVERRIDEN) return "glyphicon glyphicon-remove-circle";
+					if( statustoLower == Obix.status.OK) return "glyphicon glyphicon-ok-circle";
 				}
 			}
 		},

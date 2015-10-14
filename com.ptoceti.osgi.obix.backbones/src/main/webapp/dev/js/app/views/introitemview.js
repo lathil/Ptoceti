@@ -24,12 +24,12 @@
  * limitations under the License.
  * #L%
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ModelBinder, Courier, unitText, statusText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'moment', 'models/obix', 'modelbinder', 'courier', 'numeral', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap' ], function(Backbone, Marionette, _, $, Moment, Obix, ModelBinder, Courier, Numeral, unitText, statusText) {
 	
-	var PointItemView = Backbone.Marionette.ItemView.extend({
-		tagName: "tr",
-		template: "pointitem",
-		className: "pointItem listItem",
+	var IntroItemView = Backbone.Marionette.ItemView.extend({
+		tagName: "div",
+		template: "introitem",
+		//className: "pointItem listItem",
 	
 		templateHelpers :  {
 			contentEditable : function() {
@@ -38,27 +38,21 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		},
 		
 		ui : {
-			infosCollapsePanel : "[name=\"infoPanel\"]"
 		},
 		
 		// setup lister for pur DOM event handling
 		events : {
-			"click td" : "itemSelected",
-			"click [name='deleteItem']" : "onItemDelete",
 		},
 		
 		initialize : function() {
 			// add this view to Backbone.Courier
 			Courier.add(this);
-			this.on('itemUnselected', this.itemUnselected, this);
-			this.model.on('change:displayName', this.saveChanges, this);
 			// initialize Backbone.ModelBinder for dual binding
 			this.modelbinder = new ModelBinder();
 		},
 		
 		// event handler called after the view has been closed
 		onClose : function() {
-			this.off('itemUnselected', this.itemUnselected, this);
 			this.modelbinder.unbind();
 		},
 		
@@ -76,50 +70,40 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		onRender : function(){
 			this.modelbinder.bind(this.model, this.el, {
 				unit: {selector: '[name=unit]', converter: this.unitConverter},
-				val: [{selector: '[name=val]'}, {selector: '[name=variance]', elAttribute:'class', converter: this.varianceConverter}],
+				val: [{selector: '[name=val]', converter: this.valConverter}, {selector: '[name=variance]', elAttribute:'class', converter: this.varianceConverter}, {selector: '[name=varianceText]', converter: this.varianceTextConverter}],
 				name: {selector: '[name=displayName]', converter: this.nameConverter},
-				status: [{selector: '[name=status]',  elAttribute: 'class', converter: this.statusClassConverter},{selector: '[name=status]', converter: this.statusConverter}],
+				status: [{selector: '[name=status]',  elAttribute: 'class', converter: this.statusClassConverter}],
 				updateTimeStamp: {selector:'[name=timeStamp]', converter: this.lastTimeStamp}
 			});
 		},
 		
-		onItemDelete : function(){
-			this.spawn("itemDelete", {point: this.model});
-		},
-		
-		itemUnselected : function(){
-			if( this.$el.hasClass("active")){
-				this.$el.removeClass("active");
-				this.ui.infosCollapsePanel.collapse('hide');
+		valConverter : function(direction, value, attributeName, model) {
+			if(direction == 'ModelToView'){
+				return Numeral( new Number(value)).format('0.[00]a');
 			}
 		},
-		
-		itemSelected : function(){
-			if( this.$el.hasClass("active")){
-				this.ui.infosCollapsePanel.collapse('hide');
-				this.$el.removeClass("active");
-				// setup view event to clear selection
-				this.spawn("listItemSelected", {point: null});
-			}
-			else {
-				//$(".listItem ").removeClass("active");
-				this.trigger("siblingItem:Unselect", '', this);
-				this.$el.addClass("active");
-				this.ui.infosCollapsePanel.collapse('show');
-				// setup view event to indicate selection
-				this.spawn("listItemSelected", {point: this.model});
-			}
-		},
-		
+
 		varianceConverter : function(direction, value, attributeName, model) {
 			if( direction == 'ModelToView'){
 				if( model.previousAttributes().hasOwnProperty('val')){
 					var previousVal = model.previousAttributes().val;
-					if( previousVal > value) return "glyphicon glyphicon-arrow-up";
-					if( previousVal < value) return "glyphicon glyphicon-arrow-down";
+					if( previousVal > value) return "glyphicon glyphicon-arrow-down";
+					if( previousVal < value) return "glyphicon glyphicon-arrow-up";
 					else return "{display: none}";
 				} else
 					return "{display: none}";
+			}
+		},
+		
+		varianceTextConverter : function(direction, value, attributeName, model) {
+			if( direction == 'ModelToView'){
+				if( model.previousAttributes().hasOwnProperty('val')){
+					var previousVal = model.previousAttributes().val;
+					if( previousVal != value ){
+						return (((value - previousVal)/previousVal)*100).toFixed(1) + " %";
+					} else return "";
+				} else
+					return "";
 			}
 		},
 		
@@ -154,32 +138,18 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 				}
 			}
 		},
-		
-		statusConverter : function( direction, value) {
-			if( direction == "ModelToView") {
-				if( value != null) {
-					var statustoLower = value.toLowerCase();
-					if( statustoLower == Obix.status.DISABLED) return statusText[statustoLower];
-					if( statustoLower == Obix.status.FAULT) return statusText[statustoLower];
-					if( statustoLower == Obix.status.DOWN) return statusText[statustoLower];
-					if( statustoLower == Obix.status.UNAKEDALARM) return statusText[statustoLower];
-					if( statustoLower == Obix.status.ALARM) return statusText[statustoLower];
-					if( statustoLower == Obix.status.UNACKED) return statusText[statustoLower];
-					if( statustoLower == Obix.status.OVERRIDEN) return statusText[statustoLower];
-					if( statustoLower == Obix.status.OK) return statusText[statustoLower];
-				}
-			}
-		},
+
 		
 		lastTimeStamp : function(direction, value, attributeName, model ) {
 			if( direction == "ModelToView") {
 				var lastTimeStamp = model.get('updateTimeStamp');
 				if( lastTimeStamp != null)
-					return lastTimeStamp.toLocaleTimeString();
+					//return lastTimeStamp.toLocaleTimeString();
+					return Moment(lastTimeStamp).format('hh:mm:ss');
 				
 			}
 		}
 	});
 	
-	return PointItemView;
+	return IntroItemView;
 });

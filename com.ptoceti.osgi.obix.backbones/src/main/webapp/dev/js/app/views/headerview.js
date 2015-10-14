@@ -33,17 +33,19 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 		// el: $("#header"),
 
 		ui : {
-			serverTimeElem : "#serverTime",
-			localTimeElem : "#localTime",
+			//serverTimeElem : "#serverTime",
+			//localTimeElem : "#localTime",
 			lobbyMenu : "#lobbyMenu",
 			watchesMenu : "#watchesMenu",
 			historyMenu : "#historyMenu"
 		},
 
+		
 		events : {
 			"click #lobbyMenu" : "lobbyMenuClicked",
 			"click #watchesMenu" : "watchesMenuClicked",
-			"click #historyMenu" : "historyMenuClicked"
+			"click #historyMenu" : "historyMenuClicked",
+			"click #logout" : "goToIntro"
 			//"click .navbar-collapse.in" : function(e) {if($(e.target).is('a')){$(this).collapse('hide');}}
 		},
 
@@ -61,8 +63,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 
 		templateHelpers : function() {
 			return {
-				localTime :  this.onXsMedia ?  Moment().format("ddd, H:mm") : Moment().format("dddd, MMM, H:mm"),
-				serverTime : Moment().add('ms',this.serverTimeOffsetMillis).format("H:mm:s"),
+				//localTime :  this.onXsMedia ?  Moment().format("ddd, H:mm") : Moment().format("dddd, MMM, H:mm"),
+				//serverTime : Moment().add('ms',this.serverTimeOffsetMillis).format("H:mm:s"),
 				lobbytext : localizedLobbyText.lobbytext
 			};
 		},
@@ -91,6 +93,10 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			}
 		},
 
+		goToIntro : function(event){
+			ventAggr.trigger("app:goToIntro");
+		},
+		
 		lobbyMenuClicked : function() {
 			this.ui.lobbyMenu.parent().addClass('active');
 			this.ui.watchesMenu.parent().removeClass('active');

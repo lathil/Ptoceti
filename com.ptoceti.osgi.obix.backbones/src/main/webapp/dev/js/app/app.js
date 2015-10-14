@@ -69,18 +69,23 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 	app.on('start', function() {
 
 		// wait till controller has finished initializing views before trigerring redirection to lobby.
-		ventAggr.on("controller:viewInitialized", function() {
-			Backbone.history.start({
+		ventAggr.on("controller:rootLoaded", function() {
+			if(!Backbone.history.start({
 				pushState : false,
 				root : app.root
-			});
+			})) ventAggr.trigger("app:goToIntro");
 			
-			ventAggr.trigger("app:goToLobby");
 		});
 		
 	});
 
-	
+	ventAggr.on("app:goToIntro", function() {
+		if( Backbone.history.fragment != "intro" ) {
+			Backbone.history.navigate("intro", {});
+		}
+		app.controller.goToIntro();
+		
+	});
 
 	/**
 	 * Handles application level gnerated events that indicate to swicth to the lobby view. Check first that we are not on this same view

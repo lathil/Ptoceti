@@ -39,6 +39,7 @@ define([
 		 *  Map routes to methods that must exists in coontroller injected at creation time.
 		 */
 		appRoutes : {
+			"intro" : "goToIntro",
 			"lobby" : "goToLobby",
 			"lobby/:watchUri" : "goToLobbyWithWatch",
 			"watches" : "goToWatches",

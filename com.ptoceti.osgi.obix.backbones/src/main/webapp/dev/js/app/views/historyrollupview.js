@@ -1,4 +1,4 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'moment', 'modernizr',  "i18n!nls/unittext", "i18n!nls/rolluptext", 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ModelBinder, Courier, Moment, Modernizr, unitText, localizedRollupText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'moment' , 'numeral', 'modernizr',  "i18n!nls/unittext", "i18n!nls/rolluptext", 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ModelBinder, Courier, Moment , Numeral, Modernizr, unitText, localizedRollupText) {
 	
 	var HistoryRollUpView = Backbone.Marionette.Layout.extend({
 		tagName: "div",
@@ -39,11 +39,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		// event handler call after the view has been rendered
 		onRender : function(){
 			this.maxModelbinder.bind(this.collection.at(0).getMax(), this.el, {
-				val: {selector: '[name=max]'},
+				val: {selector: '[name=max]', converter: this.valConverter},
 				unit: {selector: '[name=maxunit]', converter: this.unitConverter},
 			});
 			this.minModelbinder.bind(this.collection.at(0).getMin(), this.el, {
-				val: {selector: '[name=min]'},
+				val: {selector: '[name=min]', converter: this.valConverter},
 				unit: {selector: '[name=minunit]', converter: this.unitConverter},
 			});
 		},
@@ -62,6 +62,12 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 						region.currentView.updateItemValues(historyRollupColl);
 					} 
 				});
+			}
+		},
+		
+		valConverter : function(direction, value, attributeName, model) {
+			if(direction == 'ModelToView'){
+				return Numeral( new Number(value)).format('0.[00]a');
 			}
 		},
 		

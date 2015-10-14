@@ -31,9 +31,21 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 		template: "watchitem",
 		className: "watchItem",
 	
+		templateHelpers : {
+			watchtext : localizedWatchText.watchtext,
+			contentEditable : function() {
+				return Modernizr.contenteditable;
+			}
+		},
+		
+		ui : {
+			infosCollapsePanel : "[name=\"infoPanel\"]"
+		},
+		
 		// setup lister for pur DOM event handling
 		events : {
 			"click td" : "itemSelected",
+			"click [name='deleteItem']" : "onItemDelete",
 			"click [name=\'details\']" : "onDetailsClicked"
 		},
 		
@@ -44,14 +56,15 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 			this.watchbinder = new ModelBinder();
 			this.leaseBinder = new ModelBinder();
 			
+			this.on('itemUnselected', this.itemUnselected, this);
 			this.model.on('change:displayName', this.saveChanges, this);
 		},
 		
-		templateHelpers : {
-			watchtext : localizedWatchText.watchtext,
-			contentEditable : function() {
-				return Modernizr.contenteditable;
-			}
+		// event handler called after the view has been closed
+		onClose : function() {
+			this.off('itemUnselected', this.itemUnselected, this);
+			this.watchbinder.unbind();
+			this.leaseBinder.unbind();
 		},
 		
 		/**
@@ -63,12 +76,6 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 				console.log("saveChanges");
 				model.save();
 			}
-		},
-		
-		// event handler called after the view has been closed
-		onClose : function() {
-			this.watchbinder.unbind();
-			this.leaseBinder.unbind();
 		},
 		
 		// event handler call after the view has been rendered
@@ -90,19 +97,34 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 			ventAggr.trigger("app:goToLobbyWithWatch", this.model.getHref().getVal());
 		},
 		
-		itemSelected : function(){
+		onItemDelete : function(){
+			this.spawn("watchItemDelete", {watch: this.model});
+		},
+		
+		itemUnselected : function(){
 			if( this.$el.hasClass("active")){
 				this.$el.removeClass("active");
-				// setup view event to clear selection
-				this.spawn("watchItemSelected", {watch: null});
-			}
-			else {
-				$(".watchItem ").removeClass("active");
-				this.$el.addClass("active");
-				// setup view event to indicate selection
-				this.spawn("watchItemSelected", {watch: this.model});
+				this.ui.infosCollapsePanel.collapse('hide');
 			}
 		},
+		
+		itemSelected : function(){
+			if( this.$el.hasClass("active")){
+				this.ui.infosCollapsePanel.collapse('hide');
+				this.$el.removeClass("active");
+				// setup view event to clear selection
+				this.spawn("watchItemSelected", {point: null});
+			}
+			else {
+				//$(".watchItem ").removeClass("active");
+				this.trigger("siblingItem:Unselect", '', this);
+				this.$el.addClass("active");
+				this.ui.infosCollapsePanel.collapse('show');
+				// setup view event to indicate selection
+				this.spawn("watchItemSelected", {point: this.model});
+			}
+		},
+		
 		
 		nameConverter : function(direction, value, attributeName, model){
 			if( direction =='ModelToView') {

@@ -30,7 +30,7 @@
  * 
  * 
  */
-define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','models/obix', 'models/watcheslocal', 'models/watches'], function(
+define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','models/obix', 'models/watcheslocal', 'models/watches'], function(
 		Backbone, Marionette, _, ventAggr, ObixView, Obix, WatchesLocal, Watches) {
 
 	var AppController = Marionette.Controller.extend({
@@ -49,8 +49,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 			this.watches = new Watches();
 			
 			this.obixView = new ObixView();
-
-			options.rootRegion.show(this.obixView);
+			this.rootRegion = options.rootRegion;
+			this.rootRegion.show(this.obixView);
 			
 			ventAggr.on("watch:removePoint", this.onWatchDeletePoint, this);
 			ventAggr.on("watch:updateListValues", this.onUpdateWatchListItemValues,this);
@@ -61,7 +61,7 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 			ventAggr.on("history:update", this.onUpdateHistory,this);
 
 			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted', 'handleWatchListItemValueError', 'handleWatchListItemError');
-
+			
 		},
 
 		/**
@@ -89,6 +89,7 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 		 */
 		lobbyLoaded : function(model, response) {
 			console.log('lobby fetched');
+			ventAggr.trigger("controller:lobbyLoaded");
 
 			// Lobby indicate uri to use to get About
 			var aboutRef = this.lobby.getAbout();
@@ -125,7 +126,7 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 		 */
 		aboutLoaded : function(model, response) {
 			console.log('about loaded');
-
+			this.about = model;
 			ventAggr.trigger("controller:updatedAbout", model);
 		},
 
@@ -137,6 +138,7 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 		watchServiceLoaded : function(model, response) {
 			
 			console.log('watchService loaded');
+			ventAggr.trigger("controller:watchServiceLoaded");
 			
 			// if details of watches are stored locally
 			if( WatchesLocal.length > 0 ){
@@ -145,14 +147,16 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 					var watch = new Obix.watch({ href: element.getHref().toJSON() }, {urlRoot : this.restRoot});
 					
 					watch.fetch({
-						async: false,
+						//async: false,
+						async: true,
 						success: _.bind(function(model, response) {
 							this.watches.add(model);
 							// if first watch reloaded successfully,
 							if(typeof this.lobbyWatch == 'undefined' ||  this.lobbyWatch == null) {
 								// .. save as lobby watch and tell app
 								this.lobbyWatch = model ;
-								ventAggr.trigger("controller:viewInitialized");  
+								ventAggr.trigger("controller:watchListLoaded"); 
+								ventAggr.trigger("controller:rootLoaded"); 
 							}
 						}, this),
 						error : _.bind(function(model, response){
@@ -208,7 +212,7 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 			if(!this.lobbyWatch || typeof this.lobbyWatch == 'undefined' ||  this.lobbyWatch == null) {
 				// means it is the first watch
 				this.lobbyWatch = model;
-				ventAggr.trigger("controller:viewInitialized");
+				ventAggr.trigger("controller:rootLoaded");
 			}
 			
 			WatchesLocal.create( model);
@@ -350,13 +354,12 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 			ventAggr.trigger("controller:updatedHistory");
 		},
 
+		goToIntro : function(){
+			this.obixView.showIntro();
+		},
+		
 		goToLobby : function() {
-			var controller = this;
-			require(['views/lobbyview'], function(LobbyView) {
-				if( controller.lobbyWatch) {
-					controller.obixView.content.show(new LobbyView({name: controller.lobbyWatch.getName(), displayName : controller.lobbyWatch.getDisplayName()}));
-				}
-			});
+			this.obixView.showLobby(this.about, this.lobbyWatch);
 		},
 		
 		goToLobbyWithWatch : function ( watchUri ) {
@@ -370,27 +373,17 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'views/obixview','m
 			if( !!selectedWatch){
 				this.lobbyWatch = selectedWatch; 
 				var controller = this;
-				require(['views/lobbyview'], function(LobbyView) {
-					if( controller.lobbyWatch) {
-						controller.obixView.content.show(new LobbyView({name: controller.lobbyWatch.getName(), displayName : controller.lobbyWatch.getDisplayName()}));
-					}
-				});
+				this.obixView.showLobby(this.about, this.lobbyWatch);
 			}
 			
 		},
 
 		goToWatches : function() {
-			var controller = this;
-			require(['views/watchview'], function(WatchView) {
-				controller.obixView.content.show(new WatchView());
-			});
+			this.obixView.showWatches(this.about);
 		},
 		
 		goToHistory : function() {
-			var controller = this;
-			require(['views/historyview'], function(HistoryView) {
-				controller.obixView.content.show(new HistoryView());
-			});
+			this.obixView.showHistory(this.about);
 		}
 
 	});

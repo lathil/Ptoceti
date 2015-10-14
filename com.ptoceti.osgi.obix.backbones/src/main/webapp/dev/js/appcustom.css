@@ -1,3 +1,212 @@
+
+/* Sticky footer styles
+-------------------------------------------------- */
+
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+}
+
+#root{
+	 height: 100%;
+}
+
+#root > div{
+	 height: 100%;
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0 auto -60px;
+  /* Pad bottom by footer height */
+  padding: 0 0 60px;
+}
+
+#wrap > div{
+	 height: 100%;
+}
+
+/* Set the fixed height of the footer here */
+#sticky {
+  height: 60px;
+}
+
+#content {
+	min-height: 100%;
+}
+.container {
+	padding-right: 15px;
+	padding-left: 15px;
+}
+
+#header {
+	margin-right: -15px;
+	margin-left: -15px;
+}
+
+.navbar {
+	/*margin-bottom: 0px;*/
+}
+
+.text-white {
+	color: #fff;
+}
+
+.icon-white {
+	color: #fff;
+}
+
+.icon-large {
+	font-size: 1.5em;
+}
+
+.icon-spin {
+	animation-name: icon-spin;
+	animation-duration: 1.0s;
+  	animation-iteration-count: infinite;
+  	animation-timing-function: linear;
+}
+
+@-webkit-keyframes icon-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes icon-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+
+.vertical-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 75%;
+  /*min-height: 75vh;*/
+}
+
+.vertical-align {
+    display: flex;
+    align-items: center;
+}
+
+.large {
+      font-size: 48px;
+      font-family: inherit;
+      font-weight: 500;
+      line-height: 1.1;
+    }
+    
+.range-wrapper {
+	margin-top:20px;
+	margin-bottom:20px;
+}
+
+/* Medium devices */
+@media (min-width : 1200 px ) {
+	.radio, .checkbox {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+}
+
+/* Medium devices */
+@media (min-width : 992px ) and (max-width: 1199px) {
+	.radio, .checkbox {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+}
+
+/* small devices tablettes */
+@media (min-width: 768px) and (max-width: 991px) {
+	.radio, .checkbox {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+}
+
+/* extrat small devices */
+@media (max-width: 767px) {
+	
+	.h4 {
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	
+	.h3 {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+	
+	.h2 {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+	
+	.h1 {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+	
+	p {
+		margin-top: 0px;
+		margin-right: 0px;
+		margin-bottom: 5px;
+		margin-left: 0px;
+	}
+	
+	.radio, .checkbox {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	},
+	
+	.table {
+		margin-bottom: 5px;
+	}
+	
+
+	.jumbotron {
+		padding-top: 10px;
+		margin-bottom: 0px;
+	}
+	
+	.jumbotron h1,
+	.jumbotron .h1 {
+		font-size: 53px;
+	}
+
+	
+	.pagination {
+		margin-top: 5px;
+		margin-right: 0px;
+		margin-bottom: 5px;
+		margin-left: 0px;
+	}
+	
+	.pager {
+		margin-top: 5px;
+		margin-right: 0px;
+		margin-bottom: 5px;
+		margin-left: 0px;
+	}
+}
+
 .roundslider {
   /*position: absolute;*/
   padding-top: 10px;

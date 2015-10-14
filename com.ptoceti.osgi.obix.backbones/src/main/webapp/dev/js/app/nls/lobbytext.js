@@ -28,7 +28,7 @@ define({
 	    "root": {
 	    	"lobbytext":{
 	    		"poweredBy" : "Powered by ",
-	    		"contribute" : "CONTRIBUTE",
+	    		"info" : "Infos",
 	    		"ptoceti" : "Ptoceti",
 	    		"servedBy" : "Served by ",
 	    		"brand" : "Ptoceti's Obix",
@@ -46,7 +46,7 @@ define({
 	    	},
 	    	"lobbytextxs":{
 	    		"poweredBy" : "Powered by ",
-	    		"contribute" : "CONTRIBUTE",
+	    		"info" : "Infos",
 	    		"ptoceti" : "Ptoceti",
 	    		"servedBy" : "Served by ",
 	    		"brand" : "Ptoceti's Obix",
