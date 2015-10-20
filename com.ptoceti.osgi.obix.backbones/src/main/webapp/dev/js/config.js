@@ -49,7 +49,6 @@ Modernizr.load({
 		xchart : 'assets/xcharts/xcharts',
 		powerange : '../lib/powerange/powerange',
 		numeral : "../lib/numeral/numeral"
-
 	},
 	
 	/*
