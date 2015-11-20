@@ -41,6 +41,8 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.service.log.LogService;
 
+import com.ptoceti.osgi.obix.service.ObixService;
+
 /**
  * Simple handler / managed service that register the spa application under a resource servlet once 
  * the http service is available.
@@ -56,6 +58,8 @@ public class ClientApplicationHandler  implements ManagedService {
 	
 	// The http service registration
 	private HttpService httpService = null;
+	// The obix service registration
+	private ObixService obixService = null;
 	// the configuration properties
 	private Dictionary configProps = null;
 	// flag whether we have done the initialisation
@@ -87,24 +91,43 @@ public class ClientApplicationHandler  implements ManagedService {
 	 * Called by the configuration manager when a set of configuration properties is found.
 	 * 
 	 */
-	public void updated(Dictionary props) throws ConfigurationException {
+	public synchronized void updated(Dictionary props) throws ConfigurationException {
 		
 		if (props != null) {
 			if( isInitialized && httpService != null ){
 				unregisterResources();
 			}
 			configProps = props;
-			if( !isInitialized && httpService != null){
+			if( !isInitialized && httpService != null && obixService != null){
 				registerResources();
 			}
 		} else {
 			unregisterResources();
 		}
 	}
+	
+	protected String getOauthPublicClientID(String redirectURI) {
+		return obixService.createOauthPublicClientID(redirectURI);
+	}
+	
+	protected boolean existsOauthClient(String id){
+		return obixService.existsOauthClient(id);
+	}
 
-	public void setHttpService(HttpService httpService) {
+	public synchronized void setObixService(ObixService obixService) {
+		this.obixService = obixService;
+		if( !isInitialized && configProps != null && httpService != null){
+			registerResources();
+		}
+	}
+	
+	public ObixService getObixService() {
+		return obixService;
+	}
+	
+	public synchronized void setHttpService(HttpService httpService) {
 		this.httpService = httpService;
-		if( !isInitialized && configProps != null){
+		if( !isInitialized && configProps != null && obixService != null){
 			registerResources();
 		}
 	}
@@ -144,7 +167,7 @@ public class ClientApplicationHandler  implements ManagedService {
 			try {
 				registeredAlias = clientPath;
 				
-				httpService.registerServlet(registeredAlias, new ResourceServlet("/resources", doGzip.booleanValue()), null, null);
+				httpService.registerServlet(registeredAlias, new ResourceServlet("/resources", doGzip.booleanValue(), this ), null, null);
 				
 				//httpService.registerResources(registeredAlias, "/resources", null);
 			

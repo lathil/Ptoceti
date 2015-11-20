@@ -24,7 +24,9 @@
     	"media-match" : "2.0.2",
     	"titatoggle" : "1.2.6",
     	"powerange" : "0.0.2",
-    	"numeral" : "1.5.3"
+    	"numeral" : "1.5.3",
+    	"js-cookie" : "2.0.4",
+    	"js-md5" : ""
     },
      "exportsOverride":{
      	"jquery":{
@@ -101,6 +103,9 @@
     	"numeral": {
     		"." : "numeral.js",
     		"languages" : "languages"
+    	},
+    	"js-cookie" : {
+    		"." : "src/js.cookie.js"
     	}
     },
     "devDependencies": {

@@ -67,6 +67,16 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 			});
 		},
 		
+		showLogin: function(){
+			var layout = this;
+			require(['views/landingview','views/loginview'], function(LandingView, LoginView) {
+				if (!(layout.header.currentView instanceof LandingView)){
+					layout.header.show(new LandingView({}))
+				}
+				layout.content.show(new LoginView());
+			});
+		},
+		
 		showLobby: function(about, watch){
 			var layout = this;
 			require(['views/lobbyview', 'views/footerview','views/headerview'], function(LobbyView, FooterView, HeaderView) {

@@ -30,8 +30,8 @@
  * 
  * 
  */
-define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','models/obix', 'models/watcheslocal', 'models/watches'], function(
-		Backbone, Marionette, _, ventAggr, ObixView, Obix, WatchesLocal, Watches) {
+define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/obixview','models/obix', 'models/watcheslocal', 'models/watches', 'jscookie'], function(
+		Backbone, Marionette, _, ventAggr, oauth2, ObixView, Obix, WatchesLocal, Watches, Cookie ) {
 
 	var AppController = Marionette.Controller.extend({
 
@@ -42,7 +42,12 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 				urlRoot : this.restRoot
 			});
 			
-
+			window.location.protocol + '//' +  window.location.hostname + ':8080/obix/rest/';
+			
+			var clientid = Cookie.get('clientid');
+			oauth2.clientId = clientid;
+			oauth2.clientSecret = '';
+			
 			// load watches configuration from local storage
 			WatchesLocal.fetch();
 			// cerate a collection that will hold all watches
@@ -59,8 +64,11 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 			ventAggr.on("watch:removeWatch", this.onRemoveWatch, this);
 			ventAggr.on("watch:createWatch", this.onCreateWatch, this);
 			ventAggr.on("history:update", this.onUpdateHistory,this);
+			ventAggr.on("controller:loadApp", this.loadApp, this);
+			ventAggr.on("oauth2:access", this.oauth2Access, this);
+			ventAggr.on("controler:doLogin", this.doLogin, this);
 
-			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted', 'handleWatchListItemValueError', 'handleWatchListItemError');
+			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted');
 			
 		},
 
@@ -71,14 +79,44 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 		start : function() {
 			ventAggr.trigger("controller:startApp");
 			
+			if(oauth2.isAuthenticated() || !oauth2.clientId){
+				// if already authenticated
+				ventAggr.trigger("controller:loadApp");
+			} else {
+				// else authenticate
+				ventAggr.trigger("app:goToLogin");
+				
+			}	
+			
+		},
+		
+		doLogin : function(event){
+			oauth2.access(event.name, event.password);
+		},
+		
+		/**
+		 * oauth access to get a token ok
+		 * 
+		 */
+		oauth2Access : function(){
+			ventAggr.trigger("controller:loadApp");
+		},
+		
+		loadApp : function(){
 			this.lobby.fetch({
+				headers: oauth2.getAuthorizationHeader(),
 				success : this.lobbyLoaded,
-				error : _.bind(function(model, response){
+				error : _.bind(function(model, response, option){
+					if (response.status == 401 || response.status == 403) { // Not authorized
+						ventAggr.trigger("app:goToLogin");
+		            }
 					console.log('Error loading lobby');
 				}, this)
 			});
-			
 		},
+		
+		
+		
 
 		/**
 		 * Handler called when lobby resource has been retrieved. When arriving we can assume we got connection with the server. Continue with loding succesive part
@@ -100,8 +138,14 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 				urlRoot : this.restRoot
 			});
 			this.about.fetch({
+				headers: oauth2.getAuthorizationHeader(),
 				// async load
-				success : this.aboutLoaded
+				success : this.aboutLoaded,
+				error : _.bind(function(model, response, option){
+					if (response.status == 401 || response.status == 403) { // Not authorized
+						ventAggr.trigger("app:goToLogin");
+		            }
+				}, this)
 			});
 			
 			// idem for uri of WatchService
@@ -113,8 +157,14 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 				urlRoot : this.restRoot
 			});
 			this.watchService.fetch({
+				headers: oauth2.getAuthorizationHeader(),
 				// assync load
-				success : this.watchServiceLoaded
+				success : this.watchServiceLoaded,
+				error : _.bind(function(model, response, option){
+					if (response.status == 401 || response.status == 403) { // Not authorized
+						ventAggr.trigger("app:goToLogin");
+		            }
+				}, this)
 			});
 			// ..and wait for responses.
 		},
@@ -149,6 +199,7 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 					watch.fetch({
 						//async: false,
 						async: true,
+						headers: oauth2.getAuthorizationHeader(),
 						success: _.bind(function(model, response) {
 							this.watches.add(model);
 							// if first watch reloaded successfully,
@@ -160,12 +211,16 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 							}
 						}, this),
 						error : _.bind(function(model, response){
+							if (response.status == 401 || response.status == 403) { // Not authorized
+								ventAggr.trigger("app:goToLogin");
+				            }
 							// remove element from localstorage
 							element.destroy();
 						}, this)
 					}, this);
 					
 				},this);
+				
 				
 				if( !this.lobbyWatch){
 					// if none of the watches local matched, create a new one.
@@ -203,9 +258,14 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 			});
 			
 			model.getAddOp().invoke(watchIn, watchOut, {
+				headers: oauth2.getAuthorizationHeader(),
 				success : this.watchUpdated,
-				updateValues : false
-				//createUpdateTask : true,
+				updateValues : false,
+				error : _.bind(function(model, response, option){
+					if (response.status == 401 || response.status == 403) { // Not authorized
+						ventAggr.trigger("app:goToLogin");
+		            }
+				}, this)
 			});
 			
 			// if looby not yet initialised
@@ -265,14 +325,15 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 			var getPoolChangesOp = this.lobbyWatch.getPoolChangesOp().invoke(new Obix.nil(), new Obix.watchOut({}, {
 				urlRoot : this.restRoot
 			}), {
+				headers: oauth2.getAuthorizationHeader(),
 				success : this.watchUpdated,
-				error : this.handleWatchListItemValueError,
+				error : _.bind(function(model, response, option){
+					if (response.status == 401 || response.status == 403) { // Not authorized
+						ventAggr.trigger("app:goToLogin");
+		            }
+				}, this),
 				updateValues : true
 			});
-		},
-		
-		handleWatchListItemValueError : function() {
-			ventAggr.trigger("watch:updateListValues");
 		},
 		
 		/**
@@ -284,15 +345,17 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 			var getPoolChangesOp = this.lobbyWatch.getPoolRefreshOp().invoke(new Obix.nil(), new Obix.watchOut({}, {
 				urlRoot : this.restRoot
 			}), {
+				headers: oauth2.getAuthorizationHeader(),
 				success : this.watchUpdated,
-				error : this.handleWatchListItemError,
+				error : _.bind(function(model, response, option){
+					if (response.status == 401 || response.status == 403) { // Not authorized
+						ventAggr.trigger("app:goToLogin");
+		            }
+				}, this),
 				updateValues : false
 			});
 		},
-		
-		handleWatchListItemError : function(){
-			ventAggr.trigger("watch:updateList");
-		},
+	
 		
 		
 		/**
@@ -313,9 +376,15 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 				watchIn.getHrefList().add(point.getHref());
 				
 				this.lobbyWatch.getRemoveOp().invoke(watchIn, new Obix.nil(), {
+					headers: oauth2.getAuthorizationHeader(),
 					success : _.bind(function(model, response) {
 						ventAggr.trigger("watch:updateList")
 					}, this),
+					error : _.bind(function(model, response, option){
+						if (response.status == 401 || response.status == 403) { // Not authorized
+							ventAggr.trigger("app:goToLogin");
+			            }
+					}, this)
 				});
 			}
 		},
@@ -329,7 +398,13 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 		onRemoveWatch : function( watch) {
 			
 			watch.getDeleteOp().invoke( new Obix.nil(), new Obix.watchOut(), {
+				headers: oauth2.getAuthorizationHeader(),
 				success: this.watchDeleted,
+				error : _.bind(function(model, response, option){
+					if (response.status == 401 || response.status == 403) { // Not authorized
+						ventAggr.trigger("app:goToLogin");
+		            }
+				}, this),
 				deletedWatch : watch
 			});
 		},
@@ -346,7 +421,13 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 				urlRoot : this.restRoot
 			});
 			makeWatchOp.invoke(new Obix.nil(), watch, {
-				success : this.watchCreated
+				headers: oauth2.getAuthorizationHeader(),
+				success : this.watchCreated,
+				error : _.bind(function(model, response, option){
+					if (response.status == 401 || response.status == 403) { // Not authorized
+						ventAggr.trigger("app:goToLogin");
+		            }
+				}, this)
 			});
 		},
 		
@@ -356,6 +437,10 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr','views/obixview','mo
 
 		goToIntro : function(){
 			this.obixView.showIntro();
+		},
+		
+		goToLogin : function(){
+			this.obixView.showLogin();
 		},
 		
 		goToLobby : function() {

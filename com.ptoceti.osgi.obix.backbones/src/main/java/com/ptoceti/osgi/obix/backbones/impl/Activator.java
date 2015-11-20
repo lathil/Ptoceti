@@ -38,6 +38,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.log.LogService;
 
+import com.ptoceti.osgi.obix.service.ObixService;
+
 
 public class Activator implements BundleActivator {
 
@@ -45,6 +47,8 @@ public class Activator implements BundleActivator {
 	static BundleContext bc = null;
 	// the http service listener
 	static HttpServiceListener httpSrvLst;
+	
+	static ObixServiceListener obixSrvLst;
 	// a reference to the logging service.
 	static LogService logSer;
 	
@@ -83,6 +87,21 @@ public class Activator implements BundleActivator {
 		} catch (InvalidSyntaxException e) {
 			// The shouldn't be any exception comming here.
 		}
+		
+		String obixfilter = "(objectclass=" + ObixService.class.getName()+ ")";
+		try {
+			obixSrvLst = new ObixServiceListener(clientHandler);
+			Activator.bc.addServiceListener(obixSrvLst, obixfilter);
+			// In case the HttpService is already register, we force an event to
+			// ourselves.
+			ServiceReference obixSer[] = Activator.bc.getServiceReferences(ObixService.class.getName(), null);
+			if (obixSer != null) {
+				obixSrvLst.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, obixSer[0]));
+			}
+		} catch (InvalidSyntaxException e) {
+			// The shouldn't be any exception comming here.
+		}
+		
 		
 		log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
 		
@@ -137,6 +156,51 @@ public class Activator implements BundleActivator {
 		}
 	}
 	
+	public class ObixServiceListener implements ServiceListener {
+
+		ClientApplicationHandler httpHandler = null;
+		
+		public ObixServiceListener(ClientApplicationHandler httpHandler) {
+			this.httpHandler = httpHandler;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework
+		 * .ServiceEvent)
+		 */
+		public void serviceChanged(ServiceEvent event) {
+			ServiceReference sr = event.getServiceReference();
+			switch (event.getType()) {
+			case ServiceEvent.REGISTERED: {
+				httpHandler.setObixService((ObixService) Activator.bc.getService(sr));
+				Activator.log(LogService.LOG_INFO,
+						"Getting instance of service: "
+								+ ObixService.class.getName()
+								+ ","
+								+ Constants.SERVICE_PID
+								+ "="
+								+ (String) sr.getProperty(Constants.SERVICE_PID)
+								+ " from "
+								+ sr.getBundle().getSymbolicName());
+			}
+				break;
+			case ServiceEvent.UNREGISTERING: {
+				Activator.log(LogService.LOG_INFO, "Releasing service: "
+						+ ObixService.class.getName() + ","
+						+ Constants.SERVICE_PID + "="
+						+ (String) sr.getProperty(Constants.SERVICE_PID));
+
+				// httpService.unregister(obixServletPath);
+				httpHandler.setObixService(null);
+			}
+				break;
+			}
+		}
+	}
+	
 	/**
 	 * Internal listener for the osgi http service. Listen for start and stop events. Notify the provided listener when it happen.
 	 * 
@@ -166,13 +230,8 @@ public class Activator implements BundleActivator {
 				httpHandler.setHttpService((HttpService) Activator.bc.getService(sr));
 				Activator.log(LogService.LOG_INFO,
 						"Getting instance of service: "
-								+ HttpService.class.getName()
-								+ ","
-								+ Constants.SERVICE_PID
-								+ "="
-								+ (String) sr.getProperty(Constants.SERVICE_PID)
-								+ " from "
-								+ sr.getBundle().getSymbolicName());
+								+ HttpService.class.getName() + "," + Constants.SERVICE_PID + "=" + (String) sr.getProperty(Constants.SERVICE_PID)
+								+ " from " + sr.getBundle().getSymbolicName());
 			}
 				break;
 			case ServiceEvent.UNREGISTERING: {

@@ -1,4 +1,4 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', 'modernizr', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, Modernizr, unitText, statusText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'oauth2', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', 'modernizr', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, oauth2, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, Modernizr, unitText, statusText) {
 	
 	var MonitoredItemView = Backbone.Marionette.Layout.extend({
 		tagName: "tr",
@@ -81,6 +81,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 			if( !!historyRef){
 				 var history = new Obix.history({href : historyRef.getHref()}, {urlRoot : this.model.urlRoot});
 				 history.fetch({
+					 headers: oauth2.getAuthorizationHeader(),
 					 success: _.bind(function(model, response) {
 						 this.history = model;
 					 },this)
@@ -126,6 +127,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 				console.log('request history rollup');
 				
 				this.history.getRollupOp().invoke(rollUpIn, new Obix.historyRollupOut(), {
+					headers: oauth2.getAuthorizationHeader(),
 					success : _.bind( this.historyRollUpUpdate, this )
 				});
 			}

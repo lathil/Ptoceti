@@ -35,6 +35,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,11 +54,15 @@ public final class ResourceServlet extends HttpServlet
 {
     private final String path;
     private final boolean gzip;
+    private ClientApplicationHandler handler;
+    
+    private static final String COOKIECLIENTID = "clientid";
 
-    public ResourceServlet(String path, boolean gzip)
+    public ResourceServlet(String path, boolean gzip, ClientApplicationHandler handler )
     {
         this.path = path;
         this.gzip = gzip;
+        this.handler = handler;
     }
 
     @Override
@@ -92,6 +97,30 @@ public final class ResourceServlet extends HttpServlet
     	boolean doGzip = false;
     	URL gzipUrl = null;
     	
+    	 if(resName.endsWith("index.html")){
+         	Cookie[] cookies = req.getCookies();
+         	boolean hasClientIdCookie = false;
+         	if( cookies != null){
+ 	        	for(int i = 0; i < cookies.length; i++){
+ 	        		Cookie cookie = cookies[i];
+ 	        		if(cookie.getName().equals(COOKIECLIENTID)){
+ 	        			// check if client id still exists
+ 	        			if( handler.existsOauthClient(cookie.getValue().trim())){
+ 	        				hasClientIdCookie = true;
+ 	        			} else hasClientIdCookie = false;
+ 	        			break;
+ 	        		}
+ 	        	}
+         	}
+         	
+         	if( !hasClientIdCookie){
+         		String clientid = handler.getOauthPublicClientID("/index.html");
+         		Cookie cookie = new Cookie(COOKIECLIENTID, clientid);
+         		cookie.setPath(req.getServletPath() + req.getPathInfo());
+         		res.addCookie(cookie);
+         	}
+         }
+    	 
     	String acceptHeader = req.getHeader("Accept-Encoding");
     	if( this.gzip && acceptHeader != null && acceptHeader.lastIndexOf("gzip") > -1){
     		// client accept gzip ressources
@@ -129,6 +158,8 @@ public final class ResourceServlet extends HttpServlet
         	}
             copyResource(doGzip ? gzipUrl : url, res);
         }
+        
+       
     }
 
     private long getLastModified(URL url)

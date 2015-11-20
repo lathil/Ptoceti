@@ -79,6 +79,14 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 		
 	});
 
+	ventAggr.on("app:goToLogin", function() {
+		if( Backbone.history.fragment != "login" ) {
+			Backbone.history.navigate("login", {});
+		}
+		app.controller.goToLogin();
+		
+	});
+	
 	ventAggr.on("app:goToIntro", function() {
 		if( Backbone.history.fragment != "intro" ) {
 			Backbone.history.navigate("intro", {});

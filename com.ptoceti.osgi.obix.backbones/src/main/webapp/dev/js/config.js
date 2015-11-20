@@ -40,6 +40,7 @@ Modernizr.load({
 		'marionette.handlebars' : 'pluggins/marionette.handlebars',
 		"jquery.enterkeyevent" : 'pluggins/jquery.enterkeyevent',
 		"d3.global" : 'pluggins/d3.global',
+		"oauth2" : 'pluggins/backbones.oauth2',
 			
 		// helpers
 		'handlebars.helpers' : 'helpers/handlebars.helpers',
@@ -48,7 +49,9 @@ Modernizr.load({
 		'courier' : 'assets/backbone.courier/backbone.courier',
 		xchart : 'assets/xcharts/xcharts',
 		powerange : '../lib/powerange/powerange',
-		numeral : "../lib/numeral/numeral"
+		numeral : "../lib/numeral/numeral",
+		jscookie : "../lib/js-cookie/js.cookie",
+		md5 : "../lib/js-md5/md5"
 	},
 	
 	/*
