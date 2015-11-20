@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
-	<OCD description="Configuration of ObixService" name="Ptoceti Obix Service"  id="com.ptoceti.osgi.obix.impl.ObixService">
+	<OCD description="Configuration of ObixService" name="Ptoceti Obix Service"  id="com.ptoceti.osgi.obix.ObixService">
 		<AD name="Server path" id="com.ptoceti.osgi.obixservice.servletpath" required="true" type="String" default="obix/rest"/>
 		<AD name="Server port" id="com.ptoceti.osgi.obixservice.servletport" required="true" type="Integer" default="8081"/>
+		<AD name="Oauth path" id="com.ptoceti.osgi.obixservice.oauthpath" required="true" type="String" default="obix/oauth"/>
+		<AD name="Secure with Oauth" id="com.ptoceti.osgi.obixservice.oauthsecure" required="true" type="Boolean" default="true"/>
+		
+		<AD name="Owner name" id="com.ptoceti.osgi.obixservice.oauth.owner.name" required="true" type="String" default="obix"/>
+		<AD name="Owner secret" id="com.ptoceti.osgi.obixservice.oauth.owner.secret" required="true" type="String" default="obix"/>
+		
 	    <AD name="Resource path" id="com.ptoceti.osgi.obixservice.resourcepath" required="true" type="String" default="obix/res"/>
 	    <AD name="External resources path" id="com.ptoceti.osgi.obixservice.externalresourcepath" required="true" type="String" default="/res"/>
 	    <AD name="Database path" id="com.ptoceti.osgi.obixservice.databasepath" required="true" type="String" default="obix.sqlite"/>

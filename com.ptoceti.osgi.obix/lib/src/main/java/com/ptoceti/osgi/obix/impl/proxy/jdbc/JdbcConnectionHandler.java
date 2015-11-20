@@ -33,8 +33,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.ptoceti.osgi.obix.domain.BaseDomain;
-import com.ptoceti.osgi.obix.impl.ObixDataHandler;
 import com.ptoceti.osgi.obix.impl.proxy.jdbc.JdbcConnection.ConnectionType;
+import com.ptoceti.osgi.obix.impl.service.ObixDataHandler;
 
 /**
  * Handler that implement a proxy around a BaseDomain class. For each invoked method of the proxied class, chek if a JdbcConnection annotation is present.

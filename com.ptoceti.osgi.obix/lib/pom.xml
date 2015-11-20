@@ -66,7 +66,7 @@
 				<configuration>
 					<instructions>
 						<Private-Package>${pom.parent.artifactId}.impl.*</Private-Package>
-						<Bundle-Activator>${pom.parent.artifactId}.impl.Activator</Bundle-Activator>
+						<Bundle-Activator>${pom.parent.artifactId}.impl.service.Activator</Bundle-Activator>
 						<Bundle-DocURL>${pom.organization.url}</Bundle-DocURL>
 					</instructions>
 				</configuration>
@@ -117,6 +117,38 @@
 			<artifactId>org.restlet.lib.org.eclipse.e4.core.di</artifactId>
 					</exclusion>
 				</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.restlet.osgi</groupId>
+			<artifactId>org.restlet.ext.oauth</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>commons-dbcp</groupId>
+  					<artifactId>commons-dbcp</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-pool</groupId>
+  					<artifactId>commons-pool</artifactId>
+				</exclusion>
+				<exclusion>
+					 <groupId>net.oauth.core</groupId>
+					  <artifactId>oauth</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.restlet.osgi</groupId>
+					<artifactId>org.restlet.ext.freemarker</artifactId>
+				</exclusion>
+				<exclusion>
+					 <groupId>org.freemarker</groupId>
+  					 <artifactId>freemarker</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.restlet.osgi</groupId>
+			<artifactId>org.restlet.ext.crypto</artifactId>
 		</dependency>
 		
 		<dependency>
@@ -186,7 +218,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>

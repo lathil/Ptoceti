@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.obix.impl;
+package com.ptoceti.osgi.obix.impl.service;
 
 /*
  * #%L
@@ -54,7 +54,7 @@ public class Activator implements BundleActivator {
 	static private final String logServiceName = org.osgi.service.log.LogService.class.getName();
 	
 	// the service itself.
-	private static ObixService obixService;
+	private static ObixServiceImpl obixService;
 	
 	// keep track of start of service.
 	private static Long bootTime;
@@ -65,7 +65,7 @@ public class Activator implements BundleActivator {
 	 */
 	public Activator()
 	{
-		obixService = new ObixService();
+		obixService = new ObixServiceImpl();
 	}
 	
 	/**
@@ -133,7 +133,7 @@ public class Activator implements BundleActivator {
 	 * 
 	 * @return ObixService
 	 */
-	public static ObixService getObixService() {
+	public static ObixServiceImpl getObixService() {
 		return obixService;
 	}
 	

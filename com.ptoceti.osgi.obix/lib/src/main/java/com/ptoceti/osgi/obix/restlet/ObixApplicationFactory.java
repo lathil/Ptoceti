@@ -27,19 +27,22 @@ package com.ptoceti.osgi.obix.restlet;
  * #L%
  */
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 
 import org.osgi.service.log.LogService;
 import org.restlet.Application;
 import org.restlet.Context;
+import org.restlet.data.ChallengeScheme;
+import org.restlet.data.Reference;
 import org.restlet.engine.Engine;
+import org.restlet.ext.oauth.TokenVerifier;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 import org.restlet.routing.Variable;
+import org.restlet.security.ChallengeAuthenticator;
+import org.restlet.security.Role;
+import org.restlet.security.RoleAuthorizer;
 
-import com.ptoceti.osgi.obix.impl.Activator;
 import com.ptoceti.osgi.obix.impl.front.converters.JSonConverter;
 import com.ptoceti.osgi.obix.impl.front.converters.XMLConverter;
 import com.ptoceti.osgi.obix.impl.guice.GuiceFinderFactory;
@@ -58,6 +61,8 @@ import com.ptoceti.osgi.obix.impl.resources.server.WatchPoolRefreshServerResourc
 import com.ptoceti.osgi.obix.impl.resources.server.WatchRemoveServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.WatchServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.WatchServiceServerResource;
+import com.ptoceti.osgi.obix.impl.service.Activator;
+import com.ptoceti.osgi.obix.impl.service.ObixServiceImpl;
 
 /**
  * Base class to build the restlet application with routes, converters and filters.
@@ -67,7 +72,7 @@ import com.ptoceti.osgi.obix.impl.resources.server.WatchServiceServerResource;
  * @author lor
  *
  */
-public class BaseRestlet {
+public class ObixApplicationFactory {
 	/**
 	 * Guice rooter for dependencies injection inside the resources
 	 */
@@ -81,7 +86,18 @@ public class BaseRestlet {
 	 */
 	protected Application application;
 	
-	BaseRestlet() {
+	public static final String ROLE_CLIENT = "client";
+    public static final String ROLE_OWNER = "owner";
+    
+    public String oautLocalServerPath;
+    Boolean doSecure = false;
+	
+    public ObixApplicationFactory( String oautLocalServerPath, Boolean doSecure) {
+    	this.oautLocalServerPath = oautLocalServerPath;
+    	this.doSecure = doSecure;
+    }
+    
+	private void make() {
 		
 		XMLConverter obixConverter = new XMLConverter();
 		Engine.getInstance().getRegisteredConverters().add( obixConverter);
@@ -98,27 +114,42 @@ public class BaseRestlet {
 		root = new GuiceRouter(context);
 		root.setFinderFactory(guiceFinderFactory);
 		
-		addRoutes();
-		
-		CorsFilter corsFilter = new CorsFilter(root.getContext());
+		// Cors filter for cross domain requests
+		CorsFilter corsFilter = new CorsFilter(root.getContext());		
 		corsFilter.setNext(root);
+		// attach resources to root
+		addRoutes();
 
-		//Logger logger = Logger.getLogger("org.restlet");
-		application.setInboundRoot(corsFilter);
+		// if the rest resources have to be secured, add verification up front.
+		if( doSecure.booleanValue()){
+			// Create authentifier, will attempt to authentify every request
+			ChallengeAuthenticator authenticator = createAuthenticator();		
+			// authorizer will block request on resources based on role for current authentified user
+			//RoleAuthorizer roleAuth = createRoleAuthorizer();
+			authenticator.setNext(corsFilter);
+			//roleAuth.setNext(corsFilter);
+			application.setInboundRoot(authenticator);
+		} else {
+			// otherwie just the cors filter
+			application.setInboundRoot(corsFilter);
+		}
 		
 		Activator.log(LogService.LOG_INFO, "Restlet application initialised.");
 		//Engine.setRestletLogLevel(Level.OFF);
 		
 	}
 	
-	Application getApplication() {
+	public  Application getApplication() {
+		if( application == null){
+			make();
+		}
 		return application;
 	}
 
 	/**
 	 * Bind all resources to routes. Override this if you need to.
 	 */
-	public void addRoutes(){
+	private void addRoutes(){
 		
 		root.attach(AboutServerResource.uri, AboutServerResource.class);
 		root.attach(LobbyServerResource.uri, LobbyServerResource.class);
@@ -142,5 +173,20 @@ public class BaseRestlet {
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 		Map<String, Variable> variables = route.getTemplate().getVariables();
 		variables.put("href",new Variable(Variable.TYPE_URI_PATH));
+	}
+	
+	private ChallengeAuthenticator createAuthenticator() {
+		// ChallengeAuthenticator extends Authenticator extends Filter extens Restlet
+		ChallengeAuthenticator bearerAuthenticator = new ChallengeAuthenticator(application.getContext(),ChallengeScheme.HTTP_OAUTH_BEARER, ObixServiceImpl.REALM);
+	    bearerAuthenticator.setVerifier( new TokenVerifier(new Reference( "riap://component" + oautLocalServerPath + Oauth2ApplicationFactory.TOKENAUTHENTICATORURI)));
+	    return bearerAuthenticator;
+	}
+	
+	private RoleAuthorizer createRoleAuthorizer(){
+		// RoleAuthorizer extends Authorizer extends Filter extends Restlet
+        RoleAuthorizer roleAuth = new RoleAuthorizer();
+        roleAuth.getAuthorizedRoles().add(Role.get(application, ROLE_OWNER));
+        roleAuth.getAuthorizedRoles().add(Role.get(application, ROLE_CLIENT));
+        return roleAuth;
 	}
 }

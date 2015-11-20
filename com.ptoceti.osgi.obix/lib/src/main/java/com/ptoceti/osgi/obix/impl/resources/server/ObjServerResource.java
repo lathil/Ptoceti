@@ -35,7 +35,7 @@ import org.restlet.resource.Put;
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.cache.ObjCache;
 import com.ptoceti.osgi.obix.domain.DomainException;
-import com.ptoceti.osgi.obix.impl.CommandHandler;
+import com.ptoceti.osgi.obix.impl.service.CommandHandler;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;

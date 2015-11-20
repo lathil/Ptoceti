@@ -37,7 +37,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
 import org.restlet.resource.Resource;
 
-import com.ptoceti.osgi.obix.impl.Activator;
+import com.ptoceti.osgi.obix.impl.service.Activator;
 import com.ptoceti.osgi.obix.object.Obj;
 
 public class XMLRepresentation<T> extends WriterRepresentation {

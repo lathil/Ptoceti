@@ -36,7 +36,7 @@ import com.ptoceti.osgi.obix.contract.About;
 import com.ptoceti.osgi.obix.domain.AboutDomain;
 import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.object.Status;
-import com.ptoceti.osgi.obix.impl.Activator;
+import com.ptoceti.osgi.obix.impl.service.Activator;
 
 
 public class AboutDomainImpl extends AbstractDomain implements AboutDomain{

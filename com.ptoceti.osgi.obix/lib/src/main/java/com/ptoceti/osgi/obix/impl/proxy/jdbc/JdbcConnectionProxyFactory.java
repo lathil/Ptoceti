@@ -33,7 +33,7 @@ import java.lang.reflect.Proxy;
 import org.osgi.service.log.LogService;
 
 import com.ptoceti.osgi.obix.domain.BaseDomain;
-import com.ptoceti.osgi.obix.impl.Activator;
+import com.ptoceti.osgi.obix.impl.service.Activator;
 
 /**
  * Factory to create JdbcConnectionHandler proxy around a BaseDomain object

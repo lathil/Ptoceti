@@ -29,12 +29,13 @@ package com.ptoceti.osgi.obix.restlet;
 
 
 import org.osgi.service.log.LogService;
+import org.restlet.Application;
 import org.restlet.Component;
 import org.restlet.Server;
 import org.restlet.data.Protocol;
 
 
-import com.ptoceti.osgi.obix.impl.Activator;
+import com.ptoceti.osgi.obix.impl.service.Activator;
 
 
 /**
@@ -76,16 +77,17 @@ public class ObixRestComponent {
 	private Component component;
 	
 	
-	private BaseRestlet baseRestlet;
+	private Application obixApplication;
 	
 	
 	
 	/**
 	 * Create Restlet main Application, giving it guice rooter, other routes and a cors filter 
 	 */
-	public ObixRestComponent(){
+	public ObixRestComponent(String oautLocalServerPath){
 	
-		baseRestlet = new BaseRestlet();
+		ObixApplicationFactory factory = new ObixApplicationFactory(oautLocalServerPath, false);
+		obixApplication = factory.getApplication();
 
 	}
 	
@@ -100,13 +102,13 @@ public class ObixRestComponent {
 		if( component == null) {
 			component = new Component();
 		} else {
-			component.getDefaultHost().detach(baseRestlet.getApplication());
+			component.getDefaultHost().detach(obixApplication);
 		}
 		
 		Server server = component.getServers().add(Protocol.HTTP, port.intValue());
 		server.getContext().getParameters().add(JETTY_HTTP_CONNECTOR_TYPE, JETTY_HTTP_CONNECTOR_TYPE_NIO);
 		server.getContext().getParameters().add(MAX_THREADS, Integer.toString(5));
-		component.getDefaultHost().attach(path, baseRestlet.getApplication());
+		component.getDefaultHost().attach(path, obixApplication);
 		
 		component.start();
 		Activator.log(LogService.LOG_INFO, "Restlet application started.");

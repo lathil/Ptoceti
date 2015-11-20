@@ -34,7 +34,7 @@ import com.ptoceti.osgi.data.IResultSetGeneratedKeysHandler;
 import com.ptoceti.osgi.data.IResultSetMultipleHandler;
 import com.ptoceti.osgi.data.IResultSetSingleHandler;
 import com.ptoceti.osgi.data.JdbcDevice;
-import com.ptoceti.osgi.obix.impl.ObixDataHandler;
+import com.ptoceti.osgi.obix.impl.service.ObixDataHandler;
 
 
 public class AbstractEntity {

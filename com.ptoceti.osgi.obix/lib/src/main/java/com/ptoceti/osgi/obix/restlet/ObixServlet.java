@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.restlet.Application;
 import org.restlet.ext.servlet.ServletAdapter;
 
 /**
@@ -50,18 +51,17 @@ public class ObixServlet extends HttpServlet {
 	
 	private ServletAdapter adapter;
 	
-	private BaseRestlet baseRestlet;
+	private Application obixApplication;
 
-	public ObixServlet() {
+	public ObixServlet(Application obixApplication) {
 		super();
-		
-		baseRestlet = new BaseRestlet();
+		this.obixApplication = obixApplication;
 	}
 	
 	public void init() throws ServletException {
 		
 		adapter = new ServletAdapter(getServletContext());
-		this.adapter.setNext(baseRestlet.getApplication());
+		this.adapter.setNext(obixApplication);
 	
 	}
 

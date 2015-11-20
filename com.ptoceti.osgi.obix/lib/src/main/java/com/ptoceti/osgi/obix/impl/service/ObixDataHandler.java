@@ -1,4 +1,4 @@
- package com.ptoceti.osgi.obix.impl;
+ package com.ptoceti.osgi.obix.impl.service;
 
 /*
  * #%L

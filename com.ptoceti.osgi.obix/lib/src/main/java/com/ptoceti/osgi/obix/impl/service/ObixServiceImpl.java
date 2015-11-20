@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.obix.impl;
+package com.ptoceti.osgi.obix.impl.service;
 
 /*
  * #%L
@@ -27,8 +27,13 @@ package com.ptoceti.osgi.obix.impl;
  * #L%
  */
 
+import com.ptoceti.osgi.obix.restlet.AppOwnerManager;
+import com.ptoceti.osgi.obix.restlet.Oauth2ApplicationFactory;
+import com.ptoceti.osgi.obix.restlet.Oauth2Servlet;
+import com.ptoceti.osgi.obix.restlet.ObixApplicationFactory;
 import com.ptoceti.osgi.obix.restlet.ObixRestComponent;
 import com.ptoceti.osgi.obix.restlet.ObixServlet;
+import com.ptoceti.osgi.obix.service.ObixService;
 
 import com.ptoceti.osgi.data.JdbcDevice;
 
@@ -36,12 +41,17 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Dictionary;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +71,18 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.Constants;
+import org.restlet.Application;
+import org.restlet.Component;
+import org.restlet.data.Protocol;
+import org.restlet.ext.crypto.DigestUtils;
+import org.restlet.ext.oauth.GrantType;
+import org.restlet.ext.oauth.ResponseType;
+import org.restlet.ext.oauth.internal.Client;
+import org.restlet.ext.oauth.internal.Client.ClientType;
+import org.restlet.ext.oauth.internal.ClientManager;
+import org.restlet.ext.oauth.internal.TokenManager;
+import org.restlet.ext.oauth.internal.memory.MemoryClientManager;
+import org.restlet.ext.oauth.internal.memory.MemoryTokenManager;
 
 
 /**
@@ -71,17 +93,25 @@ import org.osgi.framework.Constants;
  * @author lor
  * 
  */
-public class ObixService  implements ManagedService {
+public class ObixServiceImpl  implements ObixService, ManagedService {
 
 	// a reference to the service registration for the Controller object.
 	ServiceRegistration sReg = null;
 
 	public static final String SERVICEPATH = "com.ptoceti.osgi.obixservice.servletpath";
 	public static final String SERVICEPORT = "com.ptoceti.osgi.obixservice.servletport";
+	public static final String OAUTHPATH = "com.ptoceti.osgi.obixservice.oauthpath";
+	public static final String OAUTHSECURE = "com.ptoceti.osgi.obixservice.oauthsecure";
+	
+	public static final String OAUTHOWNERNAME = "com.ptoceti.osgi.obixservice.oauth.owner.name";
+	public static final String OAUTHOWNERSECRET = "com.ptoceti.osgi.obixservice.oauth.owner.secret";
+	
 	public static final String RESOURCEPATH = "com.ptoceti.osgi.obixservice.resourcepath";
 	public static final String DATABASEPATH = "com.ptoceti.osgi.obixservice.databasepath";
 	public static final String EXTERNALRESOURCEPATH = "com.ptoceti.osgi.obixservice.externalresourcepath";
 	public static final String NBEXECUTORPOOLTHREADS = "com.ptoceti.osgi.obixservice.nbexecutorpoolthreads";
+	
+	public static final String REALM = "obixapplication";
 	
 	public static final String RESTLETSYMBOLICNAME = "org.restlet";
 
@@ -92,6 +122,10 @@ public class ObixService  implements ManagedService {
 	
 	// the path under which the service is accessible.
 	private String obixServletPath;
+	// the base path for the Oauth2 application
+	private String oauthServletPath;
+	// indicate if resource muste be secure with oauth
+	private Boolean oauthSecure;
 	// the port used for the service rest
 	private Integer obixServletPort;
 	// the path under which the resouces are accessibles.
@@ -111,6 +145,8 @@ public class ObixService  implements ManagedService {
 	
 	private ObixServlet obixServlet;
 	
+	private Oauth2Servlet oauth2Servlet;
+	
 	private ObixHttpHandler obixHttpHandler;
 	
 	private WireHandler wireHandler;
@@ -120,9 +156,15 @@ public class ObixService  implements ManagedService {
 	private String httpServiceSymbolicName;
 	
 	private ExecutorService threadExecutor;
+	
+	private ClientManager clientManager;
+	
+	private AppOwnerManager ownerManager;
+	
+	private Component component;
 
 	// Default creator. Don't do nothing at this point.
-	public ObixService() {
+	public ObixServiceImpl() {
 	}
 
 	/**
@@ -134,17 +176,22 @@ public class ObixService  implements ManagedService {
 	 * 
 	 */
 
-	public synchronized void start() {
+	protected synchronized void start() {
 
 		// create a default pool of 2 threads.
 		threadExecutor = Executors.newFixedThreadPool(2);
 		
 		obixHttpHandler = new ObixHttpHandler();
 		
-		String[] clazzes = new String[] { ManagedService.class.getName()};
+		// create the client manager that create id for oauth authorisation
+		clientManager = new MemoryClientManager();
+		// creat the owner manager that jeep track of owners ids. 
+		ownerManager  = new AppOwnerManager();
+		
+		String[] clazzes = new String[] { ManagedService.class.getName(),ObixService.class.getName()};
 		// register the class as a managed service.
 		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put(Constants.SERVICE_PID, this.getClass().getName());
+		properties.put(Constants.SERVICE_PID, ObixService.class.getName());
 		sReg = Activator.bc.registerService(clazzes, this, properties);
 
 		Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName() +  ", Pid = " + (String) properties.get(Constants.SERVICE_PID));
@@ -217,7 +264,7 @@ public class ObixService  implements ManagedService {
 	 * 
 	 * 
 	 */
-	public void stop() {
+	protected void stop() {
 		// Unregister the factory first ..
 		sReg.unregister();
 		
@@ -239,11 +286,29 @@ public class ObixService  implements ManagedService {
 			// we record the dictionary parameters. It may contains information
 			// for the http servlet.
 			obixServletPath = (String) props.get(SERVICEPATH);
+			oauthServletPath = (String) props.get(OAUTHPATH);
 			obixResourcesPath = (String) props.get(RESOURCEPATH);
 			databasePath = (String) props.get(DATABASEPATH);
 			obixExternalResourcesPath = (String) props.get(EXTERNALRESOURCEPATH);
 			
+			Object doOauthsecure = props.get(OAUTHSECURE);
+			oauthSecure = doOauthsecure instanceof Boolean ? (Boolean) doOauthsecure: Boolean.parseBoolean(doOauthsecure != null ? doOauthsecure.toString(): "false");
 		
+			String ownerName = (String)props.get(OAUTHOWNERNAME);
+			String ownerSecret = (String)props.get(OAUTHOWNERSECRET);
+			if( ownerName != null && ownerName.length() > 0 && ownerSecret != null && ownerSecret.length() > 0){
+				
+				String md5;
+				try {
+					md5 = DigestUtils.toMd5(ownerSecret, "UTF-8");
+					ownerManager.addOwner(ownerName, new String(md5));
+				} catch (UnsupportedEncodingException e) {
+					Activator.log(LogService.LOG_ERROR, "Error creating user: " + e );
+				}
+		       
+		       
+			}
+			
 			Object nbThreads = props.get(NBEXECUTORPOOLTHREADS);
 			if( nbThreads != null && nbThreads instanceof Integer) {
 				try {
@@ -269,7 +334,7 @@ public class ObixService  implements ManagedService {
 		}
 	}
 
-	public void startDatabase() {
+	protected void startDatabase() {
 
 		if (ObixDataHandler.getInstance().getDataDevice() != null && (!databaseInitialised)) {
 			
@@ -337,9 +402,9 @@ public class ObixService  implements ManagedService {
 	}
 
 	public class DataDeviceListener implements ServiceListener {
-		private ObixService serviceImpl = null;
+		private ObixServiceImpl serviceImpl = null;
 
-		public DataDeviceListener(ObixService serviceImpl) {
+		public DataDeviceListener(ObixServiceImpl serviceImpl) {
 			this.serviceImpl = serviceImpl;
 		}
 
@@ -387,6 +452,7 @@ public class ObixService  implements ManagedService {
 				//Hashtable<Object, Object> initParams = new Hashtable<Object, Object>();
 
 				if (!obixServletPath.startsWith("/")) obixServletPath = "/" + obixServletPath;
+				if (!oauthServletPath.startsWith("/")) oauthServletPath = "/" + oauthServletPath;
 				
 				//do this to serve through jetty connector directly
 				/**
@@ -396,12 +462,28 @@ public class ObixService  implements ManagedService {
 				obixRestService.start(obixServletPath, obixServletPort);
 				**/
 				
-				//do this to serve through servlet registered with httpservice
+				component = new Component();
+			    component.getServers().add(Protocol.RIAP);
+			    component.getClients().add(Protocol.RIAP);
+			     
+				// create oauth servlet
+				if( oauth2Servlet == null){
+					Oauth2ApplicationFactory factory = new Oauth2ApplicationFactory(clientManager, ownerManager);
+					
+					Application  application = factory.getApplication();
+					component.getInternalRouter().attach(oauthServletPath, application);
+					oauth2Servlet = new Oauth2Servlet(application);
+				}
+				obixHttpHandler.getHttpService().registerServlet( oauthServletPath, oauth2Servlet, null, defaultContext);
+				Activator.log(LogService.LOG_INFO, "Registered oauth2 servlet under alias: " + oauthServletPath );
 				
+				// create obix servlet
 				if( obixServlet == null){
-					obixServlet = new ObixServlet();
+					ObixApplicationFactory factory = new ObixApplicationFactory( oauthServletPath, oauthSecure );
+					obixServlet = new ObixServlet(factory.getApplication());
 				}
 				obixHttpHandler.getHttpService().registerServlet( obixServletPath, obixServlet, null, defaultContext);
+				Activator.log(LogService.LOG_INFO, "Registered obix servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
 				
 				
 				if (!obixResourcesPath.startsWith("/")) obixResourcesPath = "/" + obixResourcesPath;
@@ -411,49 +493,72 @@ public class ObixService  implements ManagedService {
 					FileSystemHttpContext fsHttpContext = new FileSystemHttpContext();
 					obixHttpHandler.getHttpService().registerResources( obixResourcesPath, obixExternalResourcesPath.substring("file:".length()), fsHttpContext);
 				} else obixHttpHandler.getHttpService().registerResources( obixResourcesPath, obixExternalResourcesPath, defaultContext);
+				
+				Activator.log(LogService.LOG_INFO, "Registered resources under alias: " + obixResourcesPath);
+				Activator.log(LogService.LOG_INFO, "Registered external resources under alias: " + obixExternalResourcesPath);
 
 				// flag that we have started the rest front
 				restAppStarted = true;
 				
-				Activator.log(LogService.LOG_INFO, "Registered servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
-				Activator.log(LogService.LOG_INFO, "Registered resources under alias: " + obixResourcesPath);
-				Activator.log(LogService.LOG_INFO, "Registered external resources under alias: " + obixExternalResourcesPath);
 
 			} catch (NamespaceException ne) {
-				Activator.log(LogService.LOG_ERROR, "Error stating rest service: " + ne.toString());
+				Activator.log(LogService.LOG_ERROR, "Error starting rest service: " + ne.toString());
 			} catch (Exception e) {
-				Activator.log(LogService.LOG_ERROR, "Error stating rest service: " +  e.toString());
+				Activator.log(LogService.LOG_ERROR, "Error starting rest service: " +  e.toString());
 			}
 
 		}
 	}
 
 	protected synchronized void stopRestService() {
-		if ((obixServletPath != null)
-				&& (obixHttpHandler.getHttpService() != null) && restAppStarted) {
+		
+		// stop obix rest application
+		if ((obixServletPath != null) && (obixHttpHandler.getHttpService() != null) && restAppStarted) {
 			try {
-				if( obixRestService != null){
-					obixRestService.stop();
-				}
 				obixHttpHandler.getHttpService().unregister(obixServletPath);
+				obixHttpHandler.getHttpService().unregister(oauthServletPath);
 				obixHttpHandler.getHttpService().unregister(obixResourcesPath);
 				// flag that we have stoppped the front
 				restAppStarted = false;
 			} catch (IllegalArgumentException ne) {
 			} catch (Exception e) {
-				Activator.log(LogService.LOG_ERROR, "Error stating rest service: " +  e.toString());
+				Activator.log(LogService.LOG_ERROR, "Error starting obix rest service: " +  e.toString());
 			}
 		}
-		// We discard the initialisation parametres dictionary.
 		obixServletPath = null;
+		
+		// stop oauth2 service application 
+		if ((oauthServletPath != null) && (obixHttpHandler.getHttpService() != null)) {
+			try {
+				obixHttpHandler.getHttpService().unregister(oauthServletPath);
+			} catch (IllegalArgumentException ne) {
+			} catch (Exception e) {
+				Activator.log(LogService.LOG_ERROR, "Error starting oauth2 service: " +  e.toString());
+			}
+		}
+		oauthServletPath = null;
 	}
 
-	public String getHttpServiceSymbolicName() {
+	protected String getHttpServiceSymbolicName() {
 		return httpServiceSymbolicName;
 	}
 
-	public void setHttpServiceSymbolicName(String httpServiceSymbolicName) {
+	protected void setHttpServiceSymbolicName(String httpServiceSymbolicName) {
 		this.httpServiceSymbolicName = httpServiceSymbolicName;
+	}
+	
+	public String createOauthPublicClientID(String redirectURI){
+		
+		Map<String, Object> properties = new Hashtable<String, Object>();
+		properties.put(Client.PROPERTY_SUPPORTED_FLOWS, new Object[] { GrantType.password, GrantType.refresh_token});
+		String[] redirectURIs = new String[] { redirectURI };
+		Client client = clientManager.createClient(ClientType.PUBLIC, redirectURIs, properties);
+		
+		return client.getClientId();
+	}
+	
+	public boolean existsOauthClient(String id){
+		return clientManager.findById(id) != null;
 	}
 
 	/**
