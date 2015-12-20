@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ptoceti</groupId>
@@ -322,7 +323,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore/>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -395,12 +396,13 @@
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.1.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.dfrobot.sensornode/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.dfrobot.sensornode/1.1.0-SNAPSHOT@nostart</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.1.0-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.mqtt/1.1.0-SNAPSHOT@update</param>
 							
 						</provision>
 					</configuration>
@@ -446,5 +448,6 @@
 		<module>com.ptoceti.osgi.wireadmin</module>
 		<module>com.ptoceti.osgi.pi</module>
 		<module>com.ptoceti.osgi.dfrobot.sensornode</module>
-	</modules>
+    <module>com.ptoceti.osgi.mqtt</module>
+  </modules>
 </project>
