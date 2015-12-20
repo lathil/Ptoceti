@@ -41,6 +41,10 @@ public class Switch {
 	private long	time;
 	private String name;
 	
+	public Switch(){
+		
+	}
+	
 	public Switch(boolean state) {
 		this(state, null);
 	}

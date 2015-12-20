@@ -41,6 +41,10 @@ public class Digit {
 	private long	time;
 	private String name;
 	
+	public Digit(){
+		this(false);
+	}
+	
 	public Digit(boolean state) {
 		this(state, null);
 	}

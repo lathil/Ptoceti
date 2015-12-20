@@ -36,13 +36,17 @@ package com.ptoceti.osgi.control;
  */
 public class Measure {
 
-	private final double				value;
-	private final double				error;
-	private final long					time;
+	private double				value;
+	private double				error;
+	private long					time;
 	private StatusCode					status;
-	private final ExtendedUnit			unit;
+	private ExtendedUnit			unit;
 	private transient volatile String	name;
 	private transient volatile int		hashCode;
+	
+	public Measure(){
+		
+	}
 	
 	public Measure(double value, double error, ExtendedUnit unit, long time) {
 		this.value = value;
@@ -195,20 +199,42 @@ public class Measure {
 	public ExtendedUnit getUnit(){
 		return unit;
 	}
+	
+	public void setUnit(ExtendedUnit unit){
+		this.unit = unit;
+	}
+	
+	
 	public double getValue() {
 		return value;
+	}
+	
+	public void setValue(double value){
+		this.value = value;
 	}
 
 	public double getError() {
 		return error;
 	}
+	
+	public void setError(double error){
+		this.error = error;
+	}
 
 	public long getTime() {
 		return time;
 	}
+	
+	public void setTime(long time){
+		this.time = time;
+	}
 
 	public String getName() {
 		return name;
+	}
+	
+	public void setName(String name){
+		this.name = name;
 	}
 
 	public StatusCode getStatus() {

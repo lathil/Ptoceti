@@ -41,6 +41,10 @@ public class Reference {
 	private double max;
 	private ExtendedUnit unit;
 	
+	public Reference(){
+		this( 0, ExtendedUnit.unity);
+	}
+	
 	public Reference(double value, ExtendedUnit unit){
 		this.value = value;
 		this.unit = (unit != null) ? unit : ExtendedUnit.unity;
@@ -53,8 +57,16 @@ public class Reference {
 		return value;
 	}
 	
+	public void setValue(double value){
+		this.value = value;
+	}
+	
 	public ExtendedUnit getUnit(){
 		return unit;
+	}
+	
+	public void setUnit(ExtendedUnit unit){
+		this.unit = unit;
 	}
 
 	public double getMin() {
