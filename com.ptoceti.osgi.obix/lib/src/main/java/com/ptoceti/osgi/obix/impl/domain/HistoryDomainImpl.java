@@ -186,9 +186,14 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 						if(val instanceof Integer || val instanceof Double) {
 							if( val instanceof Integer ) prim = ((Integer)val).doubleValue();
 							else if( val instanceof Double) prim = ((Double)val).doubleValue();
-							if( prim < min) min = prim;
-							if( prim > max) max = prim;
-							
+							if( i == 0){
+								min = prim;
+								max = prim;
+										
+							} else {
+								if( prim < min) min = prim;
+								if( prim > max) max = prim;
+							}
 							avg += prim / (double)count;
 							sum += prim;
 							
