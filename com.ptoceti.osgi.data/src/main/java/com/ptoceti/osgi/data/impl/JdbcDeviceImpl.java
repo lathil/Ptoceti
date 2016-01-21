@@ -53,6 +53,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Properties;
 
 import javax.sql.ConnectionPoolDataSource;
@@ -91,18 +92,21 @@ public class JdbcDeviceImpl implements JdbcDevice {
 	 */
 	DataSourceFactory dataSourceFactory;
 	
-	private String dbUrl;
-	private Properties props = new Properties();
+	/**
+	 * the name of the datasource jdbc driver
+	 */
+	String dataSourceDriverName;
+	
+	private String dbName;
 	
 	private ThreadLocal<ThreadConnection>  threadLocalConn = new ThreadLocal<ThreadConnection>();
 
-	private Object writeAccesLock = new Object();
-	private int writeAccessCount = 0;
 	/**
 	 * constructor
 	 */
-	public JdbcDeviceImpl(DataSourceFactory dataSourceFactory){
+	public JdbcDeviceImpl(DataSourceFactory dataSourceFactory, String dataSourceDriverName){
 		this.dataSourceFactory = dataSourceFactory;
+		this.dataSourceDriverName  = dataSourceDriverName;
 	}
 	
 
@@ -110,16 +114,32 @@ public class JdbcDeviceImpl implements JdbcDevice {
 	
 		try {
 			Properties rdprops = new Properties();
-			rdprops.put(DataSourceFactory.JDBC_URL, dbUrl);
+			rdprops.put(DataSourceFactory.JDBC_DATABASE_NAME, dbName);
 			//TODO need to find a way we are using SQLite
 			// this maps to read only in SQLITE open mode flags
-			rdprops.put("open_mode", (new Integer((int)0x00000001)).toString());
+			if( dataSourceDriverName.equals("org.sqlite.JDBC")){
+				rdprops.put("open_mode", (new Integer((int)0x00000001)).toString());
+			}
+			
+			if( dataSourceDriverName.equals("org.h2.Driver")){
+				rdprops.put("MVCC", false);
+				rdprops.put("MV_STORE", false);
+			}
+			
 			rdPooledDataSource = dataSourceFactory.createConnectionPoolDataSource(rdprops);
 			rPooledManager = new  MiniConnectionPoolManager(rdPooledDataSource, 5);
 			
 			Properties rwprops = new Properties();
-			rwprops.put(DataSourceFactory.JDBC_URL, dbUrl);
-			rwprops.put("open_mode", (new Integer((int)0x00000002)).toString());
+			rwprops.put(DataSourceFactory.JDBC_DATABASE_NAME, dbName);
+			
+			if( dataSourceDriverName.equals("org.h2.Driver")){
+				rwprops.put("MVCC", false);
+				rwprops.put("MV_STORE", false);
+			}
+			
+			if( dataSourceDriverName.equals("org.sqlite.JDBC")){
+				rwprops.put("open_mode", (new Integer((int)0x00000002)).toString());
+			}
 			rwPooledDataSource = dataSourceFactory.createConnectionPoolDataSource(rwprops); 
 			rwPooledManager = new  MiniConnectionPoolManager(rwPooledDataSource, 5);
 			
@@ -133,15 +153,29 @@ public class JdbcDeviceImpl implements JdbcDevice {
 		
 		try {
 			Properties rdprops = new Properties();
-			rdprops.put(DataSourceFactory.JDBC_URL, dbUrl);
+			rdprops.put(DataSourceFactory.JDBC_DATABASE_NAME, dbName);
 			//TODO need to find a way we are using SQLite
 			// this maps to read only in SQLITE open mode flags
-			rdprops.put("open_mode", (new Integer((int)0x00000001)).toString());
+			if( dataSourceDriverName.equals("org.sqlite.JDBC")){
+				rdprops.put("open_mode", (new Integer((int)0x00000001)).toString());
+			}
+			if( dataSourceDriverName.equals("org.h2.Driver")){
+				rdprops.put("MVCC", false);
+				rdprops.put("MV_STORE", false);
+			}
+			
 			rdDataSource = dataSourceFactory.createDataSource(rdprops);
 			
 			Properties rwprops = new Properties();
-			rwprops.put(DataSourceFactory.JDBC_URL, dbUrl);
-			rwprops.put("open_mode", (new Integer((int)0x00000002)).toString());
+			rwprops.put(DataSourceFactory.JDBC_DATABASE_NAME, dbName);
+			if( dataSourceDriverName.equals("org.sqlite.JDBC")){
+				rwprops.put("open_mode", (new Integer((int)0x00000002)).toString());
+			}
+			if( dataSourceDriverName.equals("org.h2.Driver")){
+				rwprops.put("MVCC", false);
+				rwprops.put("MV_STORE", false);
+			}
+			
 			rwDataSource = dataSourceFactory.createDataSource(rwprops); 
 			
 		} catch (SQLException e) {
@@ -158,35 +192,37 @@ public class JdbcDeviceImpl implements JdbcDevice {
 			
 			Activator.log(LogService.LOG_INFO, "Verifying database file at " + databasePath);
 			
-			Properties driverProps = new Properties();
-			Driver jdbcDriver = dataSourceFactory.createDriver(props);
-			
 			// take in input a pathname, not an uri
 			File file = new File(databasePath);
-			dbUrl = file.toURI().toURL().toString();
+			dbName = file.toURI().toURL().toString();
+			File dbFileName = new File(databasePath + (dataSourceDriverName.equals("org.h2.Driver") ? ".h2.db" : ""));
+			
+			Properties dataSourceProps = new Properties();
+			dataSourceProps.put(DataSourceFactory.JDBC_DATABASE_NAME, dbName);
 
-			if (file.exists()) {
+			if( dataSourceDriverName.equals("org.h2.Driver")){
+				dataSourceProps.put("MVCC", false);
+				dataSourceProps.put("MV_STORE", false);
+			}
 
+			DataSource dataSource = dataSourceFactory.createDataSource(dataSourceProps);
+			
+			if (dbFileName.exists()) {
 				try {
-					if (jdbcDriver.acceptsURL(dbUrl)) {
-						Connection con = jdbcDriver.connect(dbUrl, props);
-						Activator.log(LogService.LOG_INFO,
-								"Connection to database file " + dbUrl
-										+ " sucessfull.");
+					Connection con = dataSource.getConnection();
+					if (con != null) {
+						Activator.log(LogService.LOG_INFO, "Connection to database file " + dbFileName + " sucessfull.");
 
 						con.close();
 						success = true;
 						initializeDb = false;
-						//configureDataSource();
 						configurePooledConnectionDataSource();
 					} else {
 						file.delete();
 						initializeDb = true;
 					}
 				} catch (SQLException e) {
-					Activator.log(LogService.LOG_ERROR,
-							"Connection to database file " + dbUrl
-									+ " failed: " + e.toString());
+					Activator.log(LogService.LOG_ERROR, "Connection to database file " + dbFileName + " failed: " + e.toString());
 					return success;
 				}
 			} else {
@@ -195,32 +231,20 @@ public class JdbcDeviceImpl implements JdbcDevice {
 
 			if (initializeDb) {
 				try {
-					Activator.log(LogService.LOG_INFO,
-							"Creating database file " + dbUrl);
-					file.createNewFile();
-
-					jdbcDriver.acceptsURL(dbUrl.toString());
-
-					Activator.log(LogService.LOG_INFO,
-							"Creating database objects.");
-
-					Connection conn = jdbcDriver.connect(dbUrl, props);
-					if( conn != null){
-						this.update(conn, setupScript, null);
+					Activator.log(LogService.LOG_INFO, "Creating database file " + dbFileName);
+					Connection con = dataSource.getConnection();
+					if( con != null){
+						Activator.log(LogService.LOG_INFO, "Creating database objects.");
+						this.update(con, setupScript, null);
 						// Connection from driver are in autocommit mode by default
-						//conn.commit();
-						conn.close();
-						
+						if( dataSourceDriverName.equals("org.h2.Driver")){
+							con.commit();
+						}
+						con.close();
 						configurePooledConnectionDataSource();
 					}
-
-				} catch (IOException e) {
-					Activator.log(LogService.LOG_ERROR,
-							"Could not create database file " + dbUrl + ". "
-									+ e.toString());
 				} catch (SQLException e) {
-					Activator.log(LogService.LOG_ERROR, "Setup of database "
-							+ dbUrl + " failed. " + e.toString());
+					Activator.log(LogService.LOG_ERROR, "Setup of database " + dbName + " failed. " + e.toString());
 				}
 			}
 		}
@@ -583,5 +607,10 @@ public class JdbcDeviceImpl implements JdbcDevice {
 		void setRw(boolean isRw) {
 			this.isRw = isRw;
 		}
+	}
+
+	@Override
+	public String getDriverName() {
+		return dataSourceDriverName;
 	}
 }

@@ -48,9 +48,14 @@ public class ResultSetGeneratedKeysHandler implements IResultSetGeneratedKeysHan
 	protected Integer getRowID(ResultSet rs) {
 		Integer result = null;
 		try {
-			int value = rs.getInt(ROW_ID);
-			if (!rs.wasNull())
+			ResultSet krs = rs.getStatement().getGeneratedKeys();
+			if( krs.next()){
+				int value = krs.getInt(1);
 				result = new Integer(value);
+			}
+			//int value = rs.getInt(ROW_ID);
+			//if (!rs.wasNull())
+			//	result = new Integer(value);
 
 		} catch (SQLException ex) {
 

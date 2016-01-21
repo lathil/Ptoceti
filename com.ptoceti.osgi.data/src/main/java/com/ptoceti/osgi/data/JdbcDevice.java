@@ -40,6 +40,7 @@ public interface JdbcDevice  {
 	
 	public static final int MATCH_CLASS = 10;
 	
+	public String getDriverName();
 	public boolean setupDatabase(String databasePath, String setupScript );
 	public Connection getConnectionRx();
 	public Connection getConnectionRWx();
