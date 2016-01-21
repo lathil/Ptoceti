@@ -88,7 +88,6 @@ public class SQLiteJDBC implements java.sql.Driver{
 			
 		SQLiteConfig config = new SQLiteConfig(info);
 	
-		//SQLiteConfig newConfig = new SQLiteConfig();
 		config.setSharedCache(true);
 		config.setSynchronous(SynchronousMode.NORMAL);
 		
@@ -111,12 +110,12 @@ public class SQLiteJDBC implements java.sql.Driver{
 	 * @return an sqlite db url
 	 */
 	private String adaptUrl(String url) {
-		
 		String strippedUrl = url;
-		int lastIndex = strippedUrl.lastIndexOf(FILE_PREFIX)+ FILE_PREFIX.length();
-		strippedUrl = strippedUrl.substring(lastIndex );
-		
-		strippedUrl = SQLITE_JDBC_PREFIX + strippedUrl;
+		if( url.contains(FILE_PREFIX)){
+			int lastIndex = strippedUrl.lastIndexOf(FILE_PREFIX)+ FILE_PREFIX.length();
+			strippedUrl = strippedUrl.substring(lastIndex );
+			strippedUrl = SQLITE_JDBC_PREFIX + strippedUrl;
+		}
 		
 		return strippedUrl;
 	}

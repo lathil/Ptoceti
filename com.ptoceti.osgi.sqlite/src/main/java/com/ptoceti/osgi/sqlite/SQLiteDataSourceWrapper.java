@@ -53,10 +53,10 @@ public class SQLiteDataSourceWrapper implements DataSource {
 	
 	SQLiteDataSourceWrapper(Properties props) {
 		SQLiteConfig config = new SQLiteConfig(props);
-		String url = props.getProperty(DataSourceFactory.JDBC_URL);
+		String dbName = props.getProperty(DataSourceFactory.JDBC_DATABASE_NAME);
 		
 		wrapped = new SQLiteDataSource(config);
-		wrapped.setUrl(url);
+		wrapped.setUrl(wrapped.getUrl() + dbName);
 	}
 
 	@Override
