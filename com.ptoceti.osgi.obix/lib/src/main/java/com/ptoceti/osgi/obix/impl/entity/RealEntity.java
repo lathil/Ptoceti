@@ -149,8 +149,8 @@ public class RealEntity extends ObjEntity implements ValEntity {
 		
 		List<Object> params = new ArrayList<Object>();
 		params.add(parentId);
-		params.add(millisFrom);
-		params.add(millisTo);
+		params.add(new Date(millisFrom));
+		params.add(new Date(millisTo));
 
 		List<RealEntity> childsList = new ArrayList<RealEntity>();
 

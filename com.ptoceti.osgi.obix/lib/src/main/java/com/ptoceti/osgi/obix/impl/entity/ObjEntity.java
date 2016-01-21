@@ -87,6 +87,7 @@ public class ObjEntity extends AbstractEntity {
 	protected static final String COL_MODIFIED_TS = "modified_ts";
 	
 	protected static final String COL_OBJ_VALUE_INT = "value_int";
+	protected static final String COL_OBJ_VALUE_TS = "value_ts";
 	protected static final String COL_OBJ_VALUE_TEXT = "value_text";
 	protected static final String COL_OBJ_VALUE_BOOL = "value_bool";
 	protected static final String COL_OBJ_VALUE_REAL = "value_real";
@@ -184,7 +185,7 @@ public class ObjEntity extends AbstractEntity {
 		params.add(getObixObject().getName());
 		
 		Uri hrefUri = getObixObject().getHref();
-		if (hrefUri != null) {
+		if (hrefUri != null && getObjtype() != EntityType.Ref) {
 			params.add(getObixObject().getHref().getVal());
 			params.add(hrefUri.getVal().hashCode());
 		} else {
@@ -516,8 +517,8 @@ public class ObjEntity extends AbstractEntity {
 
 			List<Object> params = new ArrayList<Object>();
 			params.add(getId());
-			params.add(millisFrom);
-			params.add(millisTo);
+			params.add(new Date(millisFrom));
+			params.add(new Date(millisTo));
 			
 			queryMultiple(SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP, params.toArray(), new ObjResultSetMultipleHandler<ObjEntity>(childsList));
 		}
@@ -846,7 +847,7 @@ public class ObjEntity extends AbstractEntity {
 				entity.setId(id);
 			
 			entity.setObj_uri(getString(rs, COL_OBJ_URI));
-			if( entity.getObj_uri() != null){
+			if( entity.getObj_uri() != null && getObjtype() != EntityType.Ref){
 				Uri href = new Uri("", entity.getObj_uri());
 				entity.getObixObject().setHref(href);
 			}
@@ -885,7 +886,7 @@ public class ObjEntity extends AbstractEntity {
 			
 			switch(fetchType.getIdent().intValue()){
 				case 2 : // abstime
-					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_INT));
+					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_TS));
 					break;
 				case 3 : //boolean
 					((Bool) entity.getObixObject()).setVal(getBoolean(rs, COL_OBJ_VALUE_BOOL));
@@ -917,6 +918,9 @@ public class ObjEntity extends AbstractEntity {
 						Uri unit = new Uri("", entity.getUnit());
 						((Real)entity.getObixObject()).setUnit(unit);
 					}
+					break;
+				case 10: //ref
+					((Ref) entity.getObixObject()).setHref(new Uri("", (getString(rs, COL_OBJ_VALUE_TEXT))));
 					break;
 				case 11: //realtime
 					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));
@@ -964,7 +968,7 @@ public class ObjEntity extends AbstractEntity {
 				entity.setId(id);
 			
 			entity.setObj_uri(getString(rs, COL_OBJ_URI));
-			if( entity.getObj_uri() != null){
+			if( entity.getObj_uri() != null && getObjtype() != EntityType.Ref){
 				Uri href = new Uri("", entity.getObj_uri());
 				entity.getObixObject().setHref(href);
 			}
@@ -1002,7 +1006,7 @@ public class ObjEntity extends AbstractEntity {
 			
 			switch(fetchType.getIdent().intValue()){
 				case 2 : // abstime
-					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_INT));
+					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_TS));
 					break;
 				case 3 : //boolean
 					((Bool) entity.getObixObject()).setVal(getBoolean(rs, COL_OBJ_VALUE_BOOL));
@@ -1034,6 +1038,9 @@ public class ObjEntity extends AbstractEntity {
 						Uri unit = new Uri("", entity.getUnit());
 						((Real)entity.getObixObject()).setUnit(unit);
 					}
+					break;
+				case 10: //ref
+					((Ref) entity.getObixObject()).setHref(new Uri("", (getString(rs, COL_OBJ_VALUE_TEXT))));
 					break;
 				case 11: //realtime
 					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));

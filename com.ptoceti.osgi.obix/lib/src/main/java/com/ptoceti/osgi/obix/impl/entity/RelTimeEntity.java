@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Uri;
 
@@ -65,8 +66,10 @@ public class RelTimeEntity extends ObjEntity implements ValEntity {
 
 	public void create() throws EntityException {
 		List<Object> params = getCreateParam();
-		params.add(((Reltime) getObixObject()).getMin());
-		params.add(((Reltime) getObixObject()).getMax());
+		Reltime min = ((Reltime) getObixObject()).getMin();
+		Reltime max = ((Reltime) getObixObject()).getMax();
+		params.add(min != null ? min.getVal() : null);
+		params.add(max != null ? max.getVal() : null);
 		params.add(((Reltime) getObixObject()).getVal());
 		update(CREATE_RELTIME, params.toArray(), new RelTimeResultSetGeneratedKeysHandler(this));
 	}
@@ -92,8 +95,10 @@ public class RelTimeEntity extends ObjEntity implements ValEntity {
 	public void update() throws EntityException {
 
 		List<Object> params = getUpdateParam();
-		params.add(((Reltime) getObixObject()).getMin());
-		params.add(((Reltime) getObixObject()).getMax());
+		Reltime min = ((Reltime) getObixObject()).getMin();
+		Reltime max = ((Reltime) getObixObject()).getMax();
+		params.add(min != null ? min.getVal() : null);
+		params.add(max != null ? max.getVal() : null);
 		params.add(((Reltime) getObixObject()).getVal());
 		params.add(getId());
 

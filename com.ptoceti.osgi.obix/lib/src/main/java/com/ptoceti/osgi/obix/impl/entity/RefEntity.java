@@ -28,16 +28,28 @@ package com.ptoceti.osgi.obix.impl.entity;
  */
 
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import com.ptoceti.osgi.obix.object.Ref;
+import com.ptoceti.osgi.obix.object.Uri;
 
 public class RefEntity extends ObjEntity {
+	
+	private static final String CREATE_REF = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, value_text ) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String DELETE_REF = "delete from object where id=?";
+	private static final String UPDATE_REF = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, value_text = ? where id = ? ";
+
 
 	public RefEntity(){
 		super(EntityType.Ref);
 	}
 	
-	public RefEntity(ObjEntity entObj) {
+	public RefEntity(ObjEntity entObj)  throws EntityException {
 		super(entObj);
+		fetchByObjectId();
 	}
 	
 	public RefEntity(Ref obixObj) {
@@ -45,4 +57,64 @@ public class RefEntity extends ObjEntity {
 		setObjtype(EntityType.Ref);
 	}
 
+	public void create() throws EntityException {
+
+		List<Object> params = getCreateParam();
+		params.add(getObixObject().getHref().getPath());
+		update(CREATE_REF, params.toArray(), new RefResultSetGeneratedKeysHandler(this));
+	}
+
+	public void delete() throws EntityException {
+
+		deleteReferences();
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(getId());
+		update(DELETE_REF, params.toArray(), null);
+	}
+	@Override
+	protected void deleteReferences() throws EntityException{
+		super.deleteReferences();
+		
+		if (getId() != null) {
+			UriEntity uriEntity = new UriEntity(new Uri());
+			uriEntity.setId(getId());
+			uriEntity.delete();
+		}
+	}
+	
+	public void update() throws EntityException {
+		List<Object> params = getUpdateParam();
+		params.add(getObixObject().getHref().getPath());
+		update(UPDATE_REF, params.toArray(), null);
+		getObixObject().setUpdateTimeStamp(((Date)params.get(6)).getTime());
+	}
+	
+	public boolean fetchByObjectId() throws EntityException {
+		boolean found = super.fetchByObjectId();
+		if( found){
+			fetchDetails();
+		}
+		return found;
+	}
+	
+	public void fetchDetails() throws EntityException{
+		setDetailsfetched(true);
+	}
+	
+	public class RefResultSetHandler extends ObjResultSetHandler<RefEntity> {
+
+		public RefResultSetHandler(RefEntity entity) {
+			super(entity);
+		}
+
+		public void getRowAsBean(ResultSet rs) throws Exception {
+			super.getRowAsBean(rs);
+		}
+	}
+
+	public class RefResultSetGeneratedKeysHandler extends ObjResultSetGeneratedKeysHandler<RefEntity> {
+		public RefResultSetGeneratedKeysHandler(RefEntity entity) {
+			super(entity);
+		}
+	}
 }

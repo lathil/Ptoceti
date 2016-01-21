@@ -41,11 +41,11 @@ public class AbsTimeEntity extends ObjEntity implements ValEntity {
 	
 	private static final String SEARCH_ABSTIME_BY_HREF = "select object.* from object where object.type_id=2 and object.uri_hash=?";
 
-	private static final String CREATE_ABSTIME = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, min, max, value_int ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String CREATE_ABSTIME = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, min, max, value_ts ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
 	private static final String DELETE_ABSTIME = "delete from object where id=?";
 
-	private static final String UPDATE_ABSTIME = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, min = ?, max = ?, value_int = ? where id = ? ";
+	private static final String UPDATE_ABSTIME = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, min = ?, max = ?, value_ts = ? where id = ? ";
  
 	
 	public AbsTimeEntity(){
@@ -65,8 +65,10 @@ public class AbsTimeEntity extends ObjEntity implements ValEntity {
 	public void create() throws EntityException {
 
 		List<Object> params = getCreateParam();
-		params.add(((Abstime) getObixObject()).getMin());
-		params.add(((Abstime) getObixObject()).getMax());
+		Abstime min = ((Abstime) getObixObject()).getMin();
+		Abstime max = ((Abstime) getObixObject()).getMax();
+		params.add(min != null ? ((Date)min.getVal()).getTime() : null);
+		params.add(max != null ? ((Date)max.getVal()).getTime() : null);
 		params.add(((Abstime) getObixObject()).getVal());
 		update(CREATE_ABSTIME, params.toArray(), new AbsTimeResultSetGeneratedKeysHandler(this));
 	}
@@ -93,8 +95,10 @@ public class AbsTimeEntity extends ObjEntity implements ValEntity {
 	public void update() throws EntityException {
 
 		List<Object> params = getUpdateParam();
-		params.add(((Abstime) getObixObject()).getMin());
-		params.add(((Abstime) getObixObject()).getMax());
+		Abstime min = ((Abstime) getObixObject()).getMin();
+		Abstime max = ((Abstime) getObixObject()).getMax();
+		params.add(min != null ? ((Date)min.getVal()).getTime() : null);
+		params.add(max != null ? ((Date)max.getVal()).getTime() : null);
 		params.add(((Abstime) getObixObject()).getVal());
 		params.add(getId());
 

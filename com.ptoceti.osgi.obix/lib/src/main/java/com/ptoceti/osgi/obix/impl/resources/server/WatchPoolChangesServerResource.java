@@ -28,6 +28,9 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  */
 
 
+import java.util.Calendar;
+
+import org.osgi.service.log.LogService;
 import org.restlet.resource.Post;
 
 import com.google.inject.Inject;
@@ -36,6 +39,7 @@ import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.contract.WatchOut;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
+import com.ptoceti.osgi.obix.impl.service.Activator;
 import com.ptoceti.osgi.obix.resources.ResourceException;
 import com.ptoceti.osgi.obix.resources.WatchPoolChangesResource;
 import com.ptoceti.osgi.obix.resources.WatchResource;
@@ -59,7 +63,7 @@ public class WatchPoolChangesServerResource extends AbstractServerResource imple
 			
 			//Long end = Calendar.getInstance().getTimeInMillis();
 			
-			//.log(LogService.LOG_DEBUG, "WatchPoolChangesServerResource poolChanges time: " +  Long.valueOf(end - start) + " ms ");
+			//Activator.log(LogService.LOG_INFO, "WatchPoolChangesServerResource poolChanges time: " +  Long.valueOf(end - start) + " ms ");
 			
 			return result;
 		} catch( DomainException ex) {
