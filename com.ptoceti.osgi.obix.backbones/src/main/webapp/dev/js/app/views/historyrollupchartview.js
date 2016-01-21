@@ -100,10 +100,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 
 	    	var min =  Number.MAX_VALUE;
 	    	
 	    	_.each(this.collection.models, function(historyRecord, index, list) {
-	    		var value = parseInt(historyRecord.getAvg().getVal());
+	    		var valueMin = parseInt(historyRecord.getMin().getVal());
+	    		var valueMax = parseInt(historyRecord.getMax().getVal());
 	    		
-	    		if( value > max ) max = value;
-	    		if( value < min ) min = value;
+	    		if( valueMax > max ) max = valueMax;
+	    		if( valueMin < min ) min = valueMin;
 	    		
 	    		set.push({ x : new Date(historyRecord.getStart().getVal()), y : historyRecord.getAvg().getVal()})
 	    	},this);
