@@ -28,11 +28,14 @@ public class Oauth2Servlet extends HttpServlet {
 		
 		adapter = new ServletAdapter(getServletContext());
 		this.adapter.setNext(oauth2Application);
-	
 	}
 
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 	     
 		this.adapter.service(req, res);
+	}
+	
+	public Application getApplication(){
+		return oauth2Application;
 	}
 }

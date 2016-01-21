@@ -70,4 +70,7 @@ public class ObixServlet extends HttpServlet {
 		this.adapter.service(req, res);
 	}
 	
+	public Application getApplication(){
+		return obixApplication;
+	}
 }

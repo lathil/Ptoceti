@@ -43,10 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Dictionary;
@@ -73,7 +70,9 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.Constants;
 import org.restlet.Application;
 import org.restlet.Component;
+import org.restlet.Server;
 import org.restlet.data.Protocol;
+import org.restlet.engine.local.RiapServerHelper;
 import org.restlet.ext.crypto.DigestUtils;
 import org.restlet.ext.oauth.GrantType;
 import org.restlet.ext.oauth.ResponseType;
@@ -161,6 +160,8 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 	
 	private AppOwnerManager ownerManager;
 	
+	private TokenManager tokenManager;
+	
 	private Component component;
 
 	// Default creator. Don't do nothing at this point.
@@ -187,6 +188,8 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 		clientManager = new MemoryClientManager();
 		// creat the owner manager that jeep track of owners ids. 
 		ownerManager  = new AppOwnerManager();
+		// create and set token manager
+		tokenManager = new MemoryTokenManager();
 		
 		String[] clazzes = new String[] { ManagedService.class.getName(),ObixService.class.getName()};
 		// register the class as a managed service.
@@ -326,8 +329,9 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 			Object port = props.get(SERVICEPORT);
 			obixServletPort = port instanceof Integer ? (Integer) port : Integer.parseInt(port.toString());
 
-			startRestService();
 			startDatabase();
+			stopRestService();
+			startRestService();
 
 		} else {
 			stopRestService();
@@ -342,7 +346,9 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 
 			Enumeration<?> pathEnums;
 			
-			pathEnums = Activator.bc.getBundle().getEntryPaths("/sql/");
+			// we want to get the database initialisation script for the correct jdbc driver.
+			String driverName = ObixDataHandler.getInstance().getDataDevice().getDriverName().toLowerCase();
+			pathEnums = Activator.bc.getBundle().getEntryPaths("/sql/" + driverName.replace(".", "/"));
 		
 			if (pathEnums != null) {
 				while (pathEnums.hasMoreElements()) {
@@ -462,28 +468,36 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 				obixRestService.start(obixServletPath, obixServletPort);
 				**/
 				
-				component = new Component();
-			    component.getServers().add(Protocol.RIAP);
-			    component.getClients().add(Protocol.RIAP);
+				if( component == null){
+					component = new Component();
+					// this line seeme to start a new RIAP ServerHelper
+					component.getServers().add(Protocol.RIAP);
+				    component.getClients().add(Protocol.RIAP);
+				    component.start();
+			    }
 			     
 				// create oauth servlet
 				if( oauth2Servlet == null){
-					Oauth2ApplicationFactory factory = new Oauth2ApplicationFactory(clientManager, ownerManager);
+					Oauth2ApplicationFactory factory = new Oauth2ApplicationFactory(clientManager, ownerManager, tokenManager);
 					
 					Application  application = factory.getApplication();
 					component.getInternalRouter().attach(oauthServletPath, application);
 					oauth2Servlet = new Oauth2Servlet(application);
+					application.start();
+					obixHttpHandler.getHttpService().registerServlet( oauthServletPath, oauth2Servlet, null, defaultContext);
+					Activator.log(LogService.LOG_INFO, "Registered oauth2 servlet under alias: " + oauthServletPath );
 				}
-				obixHttpHandler.getHttpService().registerServlet( oauthServletPath, oauth2Servlet, null, defaultContext);
-				Activator.log(LogService.LOG_INFO, "Registered oauth2 servlet under alias: " + oauthServletPath );
 				
 				// create obix servlet
 				if( obixServlet == null){
 					ObixApplicationFactory factory = new ObixApplicationFactory( oauthServletPath, oauthSecure );
-					obixServlet = new ObixServlet(factory.getApplication());
+					Application  application = factory.getApplication();
+					component.getInternalRouter().attach(obixServletPath, application);
+					obixServlet = new ObixServlet(application);
+					application.start();
+					obixHttpHandler.getHttpService().registerServlet( obixServletPath, obixServlet, null, defaultContext);
+					Activator.log(LogService.LOG_INFO, "Registered obix servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
 				}
-				obixHttpHandler.getHttpService().registerServlet( obixServletPath, obixServlet, null, defaultContext);
-				Activator.log(LogService.LOG_INFO, "Registered obix servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
 				
 				
 				if (!obixResourcesPath.startsWith("/")) obixResourcesPath = "/" + obixResourcesPath;
@@ -512,31 +526,53 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 
 	protected synchronized void stopRestService() {
 		
-		// stop obix rest application
-		if ((obixServletPath != null) && (obixHttpHandler.getHttpService() != null) && restAppStarted) {
-			try {
-				obixHttpHandler.getHttpService().unregister(obixServletPath);
-				obixHttpHandler.getHttpService().unregister(oauthServletPath);
-				obixHttpHandler.getHttpService().unregister(obixResourcesPath);
-				// flag that we have stoppped the front
-				restAppStarted = false;
-			} catch (IllegalArgumentException ne) {
-			} catch (Exception e) {
-				Activator.log(LogService.LOG_ERROR, "Error starting obix rest service: " +  e.toString());
+		if(restAppStarted) {
+			// stop obix rest application
+			if ((obixServletPath != null) && (obixHttpHandler.getHttpService() != null)) {
+				try {
+					obixHttpHandler.getHttpService().unregister(obixServletPath);
+					obixHttpHandler.getHttpService().unregister(obixResourcesPath);
+					if(obixServlet != null){
+						Application app = obixServlet.getApplication();
+						if( app != null) app.stop();
+						component.getInternalRouter().detach(app);
+						obixServlet = null;
+					}
+				} catch (IllegalArgumentException ne) {
+				} catch (Exception e) {
+					Activator.log(LogService.LOG_ERROR, "Error starting obix rest service: " +  e.toString());
+				}
 			}
+			
+			// stop oauth2 service application 
+			if ((oauthServletPath != null) && (obixHttpHandler.getHttpService() != null)) {
+				try {
+					obixHttpHandler.getHttpService().unregister(oauthServletPath);
+					if( oauth2Servlet != null){
+						Application app = oauth2Servlet.getApplication();
+						if( app != null) app.stop();
+						if(component != null){
+							component.getInternalRouter().detach(app);
+							component.getInternalRouter().stop();
+							component.stop();
+							component = null;
+							// we need to clear up the instance created when the component is instantiated, otherwise
+							// on a new start of the bundle, we'll get the wrong reference.
+							RiapServerHelper.instance = null;
+						}
+						oauth2Servlet = null;
+					}
+					
+				} catch (IllegalArgumentException ne) {
+				} catch (Exception e) {
+					Activator.log(LogService.LOG_ERROR, "Error starting oauth2 service: " +  e.toString());
+				}
+			}
+			
+			// flag that we have stoppped the front
+			restAppStarted = false;
 		}
-		obixServletPath = null;
 		
-		// stop oauth2 service application 
-		if ((oauthServletPath != null) && (obixHttpHandler.getHttpService() != null)) {
-			try {
-				obixHttpHandler.getHttpService().unregister(oauthServletPath);
-			} catch (IllegalArgumentException ne) {
-			} catch (Exception e) {
-				Activator.log(LogService.LOG_ERROR, "Error starting oauth2 service: " +  e.toString());
-			}
-		}
-		oauthServletPath = null;
 	}
 
 	protected String getHttpServiceSymbolicName() {

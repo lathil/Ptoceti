@@ -29,15 +29,18 @@ public class Oauth2ApplicationFactory {
 	
 	private AppOwnerManager ownerManager;
 	
+	private TokenManager tokenManager;
+	
 	public static final String CLIENTTOKENENDPOINTURI = "/token";
 	public static final String AUTHORIZEENDPOINTURI = "/authorize";
 	public static final String TOKENAUTHENTICATORURI = "/auth_token";
 	public static final String OAUTHDEFAULTSCOPE = "owner";
 	
-	public Oauth2ApplicationFactory(ClientManager clientManager, AppOwnerManager ownerManager){
+	public Oauth2ApplicationFactory(ClientManager clientManager, AppOwnerManager ownerManager, TokenManager tokenManager){
 		
 		this.clientManager = clientManager;
 		this.ownerManager = ownerManager;
+		this.tokenManager = tokenManager;
 	}
 	
 	private void make(){
@@ -45,8 +48,6 @@ public class Oauth2ApplicationFactory {
 		application = new Application(new Context());
 		Router router = new Router(application.getContext());
 		
-		// create and set token manager
-		TokenManager tokenManager = new MemoryTokenManager();
 		application.getContext().getAttributes().put(TokenManager.class.getName(), tokenManager);
 		
 		application.getContext().getAttributes().put(ClientManager.class.getName(), clientManager);

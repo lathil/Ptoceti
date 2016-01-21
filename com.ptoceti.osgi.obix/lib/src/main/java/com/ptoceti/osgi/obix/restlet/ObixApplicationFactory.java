@@ -178,7 +178,10 @@ public class ObixApplicationFactory {
 	private ChallengeAuthenticator createAuthenticator() {
 		// ChallengeAuthenticator extends Authenticator extends Filter extens Restlet
 		ChallengeAuthenticator bearerAuthenticator = new ChallengeAuthenticator(application.getContext(),ChallengeScheme.HTTP_OAUTH_BEARER, ObixServiceImpl.REALM);
-	    bearerAuthenticator.setVerifier( new TokenVerifier(new Reference( "riap://component" + oautLocalServerPath + Oauth2ApplicationFactory.TOKENAUTHENTICATORURI)));
+		// do not propose new challenge if authorisation fails.
+		bearerAuthenticator.setRechallenging(false);
+		//bearerAuthenticator.setVerifier( new TokenVerifier(new Reference( "http://localhost:8080" + oautLocalServerPath + Oauth2ApplicationFactory.TOKENAUTHENTICATORURI)));
+		bearerAuthenticator.setVerifier( new TokenVerifier(new Reference( "riap://component" + oautLocalServerPath + Oauth2ApplicationFactory.TOKENAUTHENTICATORURI)));
 	    return bearerAuthenticator;
 	}
 	
