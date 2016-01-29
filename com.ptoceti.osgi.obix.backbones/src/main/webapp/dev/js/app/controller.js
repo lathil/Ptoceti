@@ -66,6 +66,7 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 			ventAggr.on("history:update", this.onUpdateHistory,this);
 			ventAggr.on("controller:loadApp", this.loadApp, this);
 			ventAggr.on("oauth2:access", this.oauth2Access, this);
+			ventAggr.on("oauth2:error", this.oauth2Error, this);
 			ventAggr.on("controler:doLogin", this.doLogin, this);
 
 			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted');
@@ -91,6 +92,7 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 		},
 		
 		doLogin : function(event){
+			oauth2.clear();
 			oauth2.access(event.name, event.password);
 		},
 		
@@ -101,14 +103,20 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 		oauth2Access : function(){
 			ventAggr.trigger("controller:loadApp");
 		},
+		/**
+		 * error occured while trying to get toauth2 token
+		 */
+		oauth2Error : function(response){
+			window.location.reload();
+		},
 		
 		loadApp : function(){
 			this.lobby.fetch({
 				headers: oauth2.getAuthorizationHeader(),
 				success : this.lobbyLoaded,
 				error : _.bind(function(model, response, option){
-					if (response.status == 401 || response.status == 403) { // Not authorized
-						ventAggr.trigger("app:goToLogin");
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
 		            }
 					console.log('Error loading lobby');
 				}, this)
@@ -142,8 +150,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 				// async load
 				success : this.aboutLoaded,
 				error : _.bind(function(model, response, option){
-					if (response.status == 401 || response.status == 403) { // Not authorized
-						ventAggr.trigger("app:goToLogin");
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
 		            }
 				}, this)
 			});
@@ -161,8 +169,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 				// assync load
 				success : this.watchServiceLoaded,
 				error : _.bind(function(model, response, option){
-					if (response.status == 401 || response.status == 403) { // Not authorized
-						ventAggr.trigger("app:goToLogin");
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
 		            }
 				}, this)
 			});
@@ -211,8 +219,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 							}
 						}, this),
 						error : _.bind(function(model, response){
-							if (response.status == 401 || response.status == 403) { // Not authorized
-								ventAggr.trigger("app:goToLogin");
+							if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+								ventAggr.trigger("oauth2:error");
 				            }
 							// remove element from localstorage
 							element.destroy();
@@ -262,8 +270,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 				success : this.watchUpdated,
 				updateValues : false,
 				error : _.bind(function(model, response, option){
-					if (response.status == 401 || response.status == 403) { // Not authorized
-						ventAggr.trigger("app:goToLogin");
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
 		            }
 				}, this)
 			});
@@ -328,8 +336,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 				headers: oauth2.getAuthorizationHeader(),
 				success : this.watchUpdated,
 				error : _.bind(function(model, response, option){
-					if (response.status == 401 || response.status == 403) { // Not authorized
-						ventAggr.trigger("app:goToLogin");
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
 		            }
 				}, this),
 				updateValues : true
@@ -348,8 +356,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 				headers: oauth2.getAuthorizationHeader(),
 				success : this.watchUpdated,
 				error : _.bind(function(model, response, option){
-					if (response.status == 401 || response.status == 403) { // Not authorized
-						ventAggr.trigger("app:goToLogin");
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
 		            }
 				}, this),
 				updateValues : false
@@ -381,8 +389,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 						ventAggr.trigger("watch:updateList")
 					}, this),
 					error : _.bind(function(model, response, option){
-						if (response.status == 401 || response.status == 403) { // Not authorized
-							ventAggr.trigger("app:goToLogin");
+						if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+							ventAggr.trigger("oauth2:error");
 			            }
 					}, this)
 				});
@@ -401,8 +409,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 				headers: oauth2.getAuthorizationHeader(),
 				success: this.watchDeleted,
 				error : _.bind(function(model, response, option){
-					if (response.status == 401 || response.status == 403) { // Not authorized
-						ventAggr.trigger("app:goToLogin");
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
 		            }
 				}, this),
 				deletedWatch : watch
@@ -424,8 +432,8 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 				headers: oauth2.getAuthorizationHeader(),
 				success : this.watchCreated,
 				error : _.bind(function(model, response, option){
-					if (response.status == 401 || response.status == 403) { // Not authorized
-						ventAggr.trigger("app:goToLogin");
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
 		            }
 				}, this)
 			});
