@@ -119,6 +119,8 @@ public final class ResourceServlet extends HttpServlet
          		cookie.setPath(req.getServletPath() + req.getPathInfo());
          		res.addCookie(cookie);
          	}
+         	// index.html page shall not be cached !
+         	res.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
          }
     	 
     	String acceptHeader = req.getHeader("Accept-Encoding");
