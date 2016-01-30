@@ -28,6 +28,10 @@ public class AppOwnerManager implements ResourceOwnerManager {
 			if( Arrays.equals(user.getSecret(), password)) return user.getIdentifier();
 		}
 		
+		if( user == null){
+			throw new AuthenticationException("Authentication failed.");
+		}
+		
 		return null;
 	}
 
