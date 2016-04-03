@@ -86,6 +86,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		 * Do extra cleaning here on view closing. Marionnette manage already most of it.
 		 */
 		onClose : function() {
+			
 			this.modelbinder.unbind();
 			ventAggr.off("controller:updatedWatchPointList", this.onUpdatedPointsList, this);
 			ventAggr.off("controller:updatedWatchPointValues", this.onUpdatedPointsValues, this);
@@ -95,7 +96,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		// listener for view events coming from a subview
 		onMessages : {
 	        "listItemSelected" : "onItemSelected",
-	        "itemDelete" : "onItemDelete"	
+	        "itemDelete" : "onItemDelete",
+	        "itemRecord" : "onItemRecord"
 	    },
 		
 	    /**
@@ -132,6 +134,10 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			ventAggr.trigger("watch:removePoint", message.data.point);
 		},
 		
+		onItemRecord : function(message){
+			ventAggr.trigger("history:createHistory", message.data.point);
+		},
+		
 		onUpdatedPointsValues: function(updatedCollection) {
 			var region = this.pointsListRegion;
 			
@@ -141,10 +147,13 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			
 			this.model.set("count", updatedCollection.length);
 			
-			var requiredModules = ['views/paginationview'];
+			var requiredModules = ['views/paginationview','views/blankitemview'];
 			_.each(updatedCollection.models, function(element,index) {
 				var nextView;
 				if( element.hasContract('obix:Point')) {
+					nextView = 'views/pointitemview';
+				}
+				if( element.hasContract('ptoceti:MeasurePoint')) {
 					nextView = 'views/pointitemview';
 				}
 				if( element.hasContract('ptoceti:MonitoredPoint')) {
@@ -190,10 +199,13 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			
 			this.model.set("count", updatedCollection.length);
 			
-			var requiredModules = ['views/paginationview'];
+			var requiredModules = ['views/paginationview','views/blankitemview'];
 			_.each(updatedCollection.models, function(element,index) {
 				var nextView;
 				if( element.hasContract('obix:Point')) {
+					nextView = 'views/pointitemview';
+				}
+				if( element.hasContract('ptoceti:MeasurePoint')) {
 					nextView = 'views/pointitemview';
 				}
 				if( element.hasContract('ptoceti:MonitoredPoint')) {

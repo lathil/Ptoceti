@@ -23,6 +23,7 @@ Modernizr.load({
 		marionette : '../lib/backbone.marionette/lib/backbone.marionette',
 		handlebars : '../lib/handlebars/handlebars',
 		modelbinder : '../lib/Backbone.ModelBinder/Backbone.ModelBinder',
+		collectionbinder : '../lib/Backbone.ModelBinder/Backbone.CollectionBinder',
 		pageable : '../lib/backbone-pageable/lib/backbone-pageable',
 		localstorage : "../lib/backbone.localstorage/backbone.localStorage",
 		moment : "../lib/momentjs/moment",
@@ -54,13 +55,14 @@ Modernizr.load({
 		md5 : "../lib/js-md5/md5"
 	},
 	
-	/*
+	
 	map: {
 		  '*': {
-		    'css': 'requirecss', // or whatever the path to require-css is
+			//Backbone.CollectionBinder require Backbone.Modelbinder, not modelbinder
+		    'Backbone.ModelBinder': 'modelbinder'
 		  }
 	},
-	**/
+	
 
 	shim : {
 		underscore : {

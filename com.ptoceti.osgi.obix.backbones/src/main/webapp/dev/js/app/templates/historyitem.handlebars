@@ -1,0 +1,33 @@
+<td>
+	<div class="row">
+		<div class="col-md-5 col-sm-5 col-xs-6">
+			<p><span name="displayName" class="h4" {{#if contentEditable }} contenteditable="true"{{/if}}>{{displayName}}</span></p>
+		</div>
+		<div class="col-md-3 col-md-3 col-xs-4">
+		</div>
+		<div class="col-md-3 col-md-3 col-xs-2">
+			<p name="childCollapseItem" class="h4 hidden"><a name="bootstrapCollapseItem" data-toggle="collapse" data-target="#childDetails{{elemId}}"><span name="childCollapseControl" class="glyphicon glyphicon-menu-down"/></a></p>
+		</div>
+	</div>
+	<div class=row">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<div  id="childDetails{{elemId}}" name="childPanel" class="panel-collapse collapse">
+					<div  id="rollupDetails{{elemId}}" name="rollupPanel" ></div>
+				</div>
+			</div>
+	</div>
+	<div  id="monitoredInfos{{elemId}}" name="infoPanel" class="panel-collapse collapse">
+		<div class=row">
+			<div class="col-md-4 col-sm-4 col-xs-4">
+				<a name="deleteItem"><span class="glyphicon glyphicon-minus"></a>
+			</div>
+			<div class="col-md-4 col-sm-4 col-xs-4">
+				<a name="previousPeriod"><span class="glyphicon glyphicon-backward"></a>
+			</div>
+			<div class="col-md-4 col-sm-4 col-xs-4">
+				<a name="nextPeriod"><span class="glyphicon glyphicon-forward"></a>
+			</div>
+		</div>
+	</div>
+</td>
+

@@ -24,28 +24,68 @@
  * limitations under the License.
  * #L%
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'courier', "i18n!nls/lobbytext", 'bootstrap' ], function(Backbone, Marionette, _, $, ventAggr, Courier, localizedLobbyText) {
-
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaenquire', 'modelbinder', 'courier', 'models/historyviewmodel','views/historyitemview', "i18n!nls/historytext", 'bootstrap' ],
+		function(Backbone, Marionette, _, $, ventAggr, mediaEnquire, ModelBinder, Courier, HistoryViewModel, HistoryItemView, localizedHistoryText ) {
+	
 	var HistoryView = Marionette.Layout.extend({
 		template : 'history',
 		
+		ui : {
+			reloadButton : "#reloadButton",
+			removeButton : "#removeButton",
+		},
+		
+		events : {
+			"click #reloadButton" : "reloadList",
+			"click #removeButton" : "removeFromList",
+		},
+		
 		regions: {
-			historyItemRegion : "#historyItem"
+			historyListRegion : "#historyList"
 		},
 		
 		initialize : function(options) {
 			
 			// add this view to Backbone.Courier
 			Courier.add(this);
-			ventAggr.on("controller:updatedHistory", this.onUpdateHistory, this);
+			// initialize Backbone.ModelBinder for dual binding
+			this.modelbinder = new ModelBinder();
 			
+			this.model = new HistoryViewModel();
+			this.model.set("historyUriToLoad", options.historyUri);
+			
+			ventAggr.on("controller:updatedHistoryList", this.onUpdatedHistoryList, this);
+			
+			_.bindAll(this, 'enterXs','quitXs');
+
+			this.onXsMedia = false;
+			this.xsQueryHandler = {match : this.enterXs, unmatched: this.quitXs};
+			mediaEnquire.registerXs(this.xsQueryHandler);
+			
+		},
+		
+		enterXs : function(){
+			this.onXsMedia = true;
+		},
+		
+		quitXs : function(){
+			this.onXsMedia = false;
+		},
+		
+		templateHelpers : function() {
+			return {
+				historytext : this.onXsMedia ? localizedHistoryText.historytextxs : localizedHistoryText.historytext,
+				onXsMedia : this.onXsMedia
+			};
 		},
 		
 		/**
 		 * Do extra cleaning here on view closing. Marionnette manage already most of it.
 		 */
 		onClose : function() {
-			ventAggr.off("controller:updatedHistory", this.onUpdateHistory, this);
+			this.modelbinder.unbind();
+			ventAggr.off("controller:updatedHistoryList", this.onUpdatedHistoryList, this);
+			mediaEnquire.unregisterXs(this.xsQueryHandler);
 		},
 		
 		 /**
@@ -53,18 +93,57 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'courier
 	     * 
 	     */    
 	    onRender : function() {
-	    	ventAggr.trigger("history:update");
+	    	this.modelbinder.bind(this.model, this.el, {
+				count: {selector: '[name=count]'},
+			});
+	    	
+	    	ventAggr.trigger("controller:loadHistory", this.model.get('historyUriToLoad'));
+	    
 	    },
 		
-		onUpdateHistory: function()  {
-			var region = this.historyItemRegion;
+	 // listener for view events coming from a subview
+		onMessages : {
+			"historyItemDelete" : "onHistoryDelete",
+	        "historyItemSelected" : "onHistorySelected"
+	    },
+		
+		onHistorySelected : function( message ) {
 			
-			require(['views/historyitemview'], function(HistoryItemView){
+			if( message.data.history != null) {
+				this.historySelected = message.data.history;
+				this.ui.removeButton.removeAttr("disabled");
+			} else  {
+				this.historySelected = null;
+				this.ui.removeButton.attr("disabled", "disabled");
+			}
+		},
+		
+		
+		onUpdatedHistoryList: function(updatedCollection) {
+			var region = this.historyListRegion;
+			this.model.set("count", updatedCollection.length);
+			var modelCid = this.model.get("historyUriToLoad");
+			require(['views/paginationview','views/historyitemview'], function(PaginView){
 				if( region.currentView == null){
-					region.show(new HistoryItemView());
-				} 
+					region.show(new PaginView({template: "pagination", itemView: HistoryItemView,  collection: updatedCollection, context: 'history', modelToOpenCid : modelCid}));
+				} else {
+					region.currentView.updateItemList(updatedCollection);
+				}
 			});
+		},
+		
+		reloadList : function() {
+			
+		},
+		
+		removeFromList : function() {
+			ventAggr.trigger("history:removeHistory", this.historySelected);
+		},
+		
+		onHistoryDelete : function( message ){
+			ventAggr.trigger("history:removeHistory", message.data.history);
 		}
+		
 	});
 		
 	

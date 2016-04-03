@@ -1,11 +1,18 @@
-// Backbone.ModelBinder v1.0.5
-// (c) 2013 Bart Wood
+// Backbone.ModelBinder v1.1.0
+// (c) 2015 Bart Wood
 // Distributed Under MIT License
 
 (function (factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
         define(['underscore', 'jquery', 'backbone'], factory);
+    } else if(typeof module !== 'undefined' && module.exports) {
+        // CommonJS
+        module.exports = factory(
+            require('underscore'),
+            require('jquery'),
+            require('backbone')
+        );
     } else {
         // Browser globals
         factory(_, jQuery, Backbone);
@@ -26,7 +33,7 @@
     };
 
     // Current version of the library.
-    Backbone.ModelBinder.VERSION = '1.0.5';
+    Backbone.ModelBinder.VERSION = '1.1.0';
     Backbone.ModelBinder.Constants = {};
     Backbone.ModelBinder.Constants.ModelToView = 'ModelToView';
     Backbone.ModelBinder.Constants.ViewToModel = 'ViewToModel';
@@ -60,7 +67,7 @@
 
         bindCustomTriggers: function (model, rootEl, triggers, attributeBindings, modelSetOptions) {
             this._triggers = triggers;
-            this.bind(model, rootEl, attributeBindings, modelSetOptions)
+            this.bind(model, rootEl, attributeBindings, modelSetOptions);
         },
 
         unbind:function () {
@@ -234,7 +241,7 @@
 
         _bindViewToModel: function () {
             _.each(this._options['changeTriggers'], function (event, selector) {
-                $(this._rootEl).delegate(selector, event, this._onElChanged);
+                $(this._rootEl).on(event, selector, this._onElChanged);
             }, this);
 
             if(this._options['initialCopyDirection'] === Backbone.ModelBinder.Constants.ViewToModel){
@@ -245,7 +252,7 @@
         _unbindViewToModel: function () {
             if(this._options && this._options['changeTriggers']){
                 _.each(this._options['changeTriggers'], function (event, selector) {
-                    $(this._rootEl).undelegate(selector, event, this._onElChanged);
+                    $(this._rootEl).off(event, selector, this._onElChanged);
                 }, this);
             }
         },
@@ -293,7 +300,7 @@
             var elCount, el;
             for(elCount = 0; elCount < elBinding.boundEls.length; elCount++){
                 el = $(elBinding.boundEls[elCount]);
-                if(el.attr('type') === 'radio' && el.attr('checked')){
+                if(el.attr('type') === 'radio' && el.prop('checked')){
                     return el;
                 }
             }
@@ -478,7 +485,7 @@
 
         _throwException: function(message){
             if(this._options.suppressThrows){
-                if(console && console.error){
+                if(typeof(console) !== 'undefined' && console.error){
                     console.error(message);
                 }
             }

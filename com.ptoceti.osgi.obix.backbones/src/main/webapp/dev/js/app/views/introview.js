@@ -84,11 +84,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr','models/o
 			var filteredCollection = new Obix.objs();
 			
 			_.each(updatedCollection.models, function(element,index) {
-				if(element.hasContract('ptoceti:MonitoredPoint')){
-					var point = element.getChildrens().getByName('point')
-					point.set({updateTimeStamp: new Date()});
-					filteredCollection.push(point);
-				} else if(element.hasContract('obix:Point')){
+				if(element.hasContract('ptoceti:MeasurePoint')){
 					element.set({updateTimeStamp: new Date()});
 					filteredCollection.push(element);
 				} 
@@ -114,11 +110,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr','models/o
 			var filteredCollection = new Obix.objs();
 			
 			_.each(updatedCollection.models, function(element,index) {
-				if(element.hasContract('ptoceti:MonitoredPoint')){
-					var point = element.getChildrens().getByName('point')
-					point.set({updateTimeStamp: new Date()});
-					filteredCollection.push(point);
-				} else if(element.hasContract('obix:Point')){
+				if(element.hasContract('ptoceti:MeasurePoint')){
 					element.set({updateTimeStamp: new Date()});
 					filteredCollection.push(element);
 				} 

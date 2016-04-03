@@ -43,7 +43,8 @@ define([
 			"lobby" : "goToLobby",
 			"lobby/:watchUri" : "goToLobbyWithWatch",
 			"watches" : "goToWatches",
-			"history" : "goToHistory"
+			"histories" : "goToHistories",
+			"histories/:historyUri" : "goToHistoriesWithHistory"
 		},
 
 		// standard routes can bind to AppRouter

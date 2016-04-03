@@ -146,13 +146,13 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		reloadList : function() {
 			
 		},
-
-		onWatchDelete : function( message ){
-			ventAggr.trigger("watch:removeWatch", message.data.watch);
-		},
 		
 		removeFromList : function() {
 			ventAggr.trigger("watch:removeWatch", this.watchSelected);
+		},
+
+		onWatchDelete : function( message ){
+			ventAggr.trigger("watch:removeWatch", message.data.watch);
 		},
 		
 		createWatch : function() {

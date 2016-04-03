@@ -117,7 +117,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			this.ui.lobbyMenu.parent().removeClass('active');
 			this.ui.watchesMenu.parent().removeClass('active');
 			this.ui.historyMenu.parent().addClass('active');
-			ventAggr.trigger("app:goToHistory");
+			ventAggr.trigger("app:goToHistories");
 		}
 
 	});

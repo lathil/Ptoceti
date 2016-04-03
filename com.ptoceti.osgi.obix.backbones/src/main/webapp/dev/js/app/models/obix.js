@@ -947,6 +947,13 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		getWatchService : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('watchService');
 		},
+		
+		/*
+		 * Return WatchService 'Ref' type resource
+		 */
+		getHistoryService : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('historyService');
+		},
 
 		/*
 		 * Return Batch 'op' type resource
@@ -979,6 +986,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('make');
 		},
 	});
+	
 
 	var Watch = Obj.extend({
 
@@ -1077,6 +1085,21 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		}),
 	});
 	
+	var HistoryService = Obj.extend({
+
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'historyservice',
+			is : {uris: [{type: 'uri', val: 'obix:HistoryService'}]}
+		}),
+
+		/*
+		 * Return Op 'make' operation for creating a new watch
+		 */
+		getMakeOp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('make');
+		},
+	});
+	
 	var History = Obj.extend({
 		defaults : _.extend({}, Obj.prototype.defaults, {
 			type : 'history',
@@ -1155,6 +1178,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			is : {uris: [{type: 'uri', val: 'obix:HistoryQueryOut'}]}
 		}),
 		
+		
 		getCount : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('count');
 		},
@@ -1225,7 +1249,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			type : 'historyrollupout',
 			is : {uris: [{type: 'uri', val: 'obix:HistoryRollupOut'}]}
 		}),
-		
+	
 		getData : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('data');
 		},
@@ -1339,6 +1363,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		watchInItem : WatchInItem,
 		point : Point,
 		writablePoint : WritablePoint,
+		historyService : HistoryService,
 		history : History,
 		historyFilter : HistoryFilter,
 		historyRecord : HistoryRecord,

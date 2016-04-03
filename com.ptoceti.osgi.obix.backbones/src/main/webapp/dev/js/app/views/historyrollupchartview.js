@@ -57,6 +57,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 
 	     */
 	    onShow : function() {
 	    	
+	    	console.log('request history rollup');
 	    	var width = this.ui.chartfigure.width();
 	    	this.ui.chartfigure.height( width / ( this.onXsMedia ? 16/9 : 32/9));
 	    	 

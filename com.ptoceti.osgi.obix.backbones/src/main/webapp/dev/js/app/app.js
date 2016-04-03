@@ -129,5 +129,31 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 		}
 	});
 	
+	/**
+	 * Handles application level gnerated events that indicate to swicth to the history view. Check first that we are not on this same view
+	 * from Backbones history.
+	 * Delegate view switching to applcation controller
+	 */
+	ventAggr.on("app:goToHistories", function() {
+		if( Backbone.history.fragment != "histories" ) {
+			Backbone.history.navigate("histories", {});
+			app.controller.goToHistories();
+		}
+	});
+	
+	/**
+	 * Handles application level gnerated events that indicate to swicth to the history view. Check first that we are not on this same view
+	 * from Backbones history.
+	 * Delegate view switching to applcation controller
+	 */
+	ventAggr.on("app:goToHistoriesWithHistory", function(historyUri) {
+		if( Backbone.history.fragment != "histories" + historyUri ) {
+			Backbone.history.navigate("histories" + historyUri, {});
+			app.controller.goToHistoriesWithHistory(historyUri);
+		}
+	});
+	
+	
+	
 	return app;
 });

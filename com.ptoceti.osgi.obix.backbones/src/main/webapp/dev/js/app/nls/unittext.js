@@ -54,6 +54,7 @@ define ({
 		"katal":"kat",
 		"celsius":"\u00B0C",
 		"farenheit":"\u00B0F",
-		"percent":"%"
+		"percent":"%",
+		"1":""
 	}
 });

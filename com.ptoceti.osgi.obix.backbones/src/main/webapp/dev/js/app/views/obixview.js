@@ -105,7 +105,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 			});
 		},
 		
-		showHistory: function(about){
+		showHistory: function(about, historyUri){
 			var layout = this;
 			require(['views/historyview', 'views/footerview','views/headerview'], function(HistoryView, FooterView, HeaderView) {
 				if (!(layout.header.currentView instanceof HeaderView)){
@@ -114,7 +114,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 				if (!(layout.footer.currentView instanceof FooterView)){
 					layout.footer.show(new FooterView({model : about}))
 				}
-				layout.content.show(new HistoryView());
+				layout.content.show(new HistoryView({historyUri: historyUri}));
 			});
 		}
 	

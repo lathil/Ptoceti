@@ -161,11 +161,11 @@ module.exports = function(grunt) {
 									},
 									{
 										name : 'views/historyrollupchartview',
-										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'models/obix','modelbinder', 'mediaenquire','moment', 'courier', 'd3', 'd3.global', 'xchart', 'normalize', "i18n", "text", 'modernizr' ]
+										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'models/obix','modelbinder',  'mediaenquire','moment', 'courier', 'd3', 'd3.global', 'xchart', 'normalize', "i18n", "text", 'modernizr' ]
 									},
 									{
 										name : 'views/historyrollupview',
-										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'models/obix','modelbinder', 'moment','courier', 'modernizr', "i18n","text" ]
+										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'models/obix', 'modelbinder', 'moment','courier', 'modernizr', "i18n","text" ]
 									},
 									{
 										name : 'views/historyview',
@@ -173,7 +173,7 @@ module.exports = function(grunt) {
 									},
 									{
 										name : 'views/introitemview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'moment', 'models/obix', 'modelbinder', 'courier', 'bootstrap','modernizr' ]
+										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'moment', 'models/obix', 'modelbinder',  'courier', 'bootstrap','modernizr' ]
 									},
 									{
 										name : 'views/introview',
@@ -181,7 +181,7 @@ module.exports = function(grunt) {
 									},
 									{
 										name : 'views/landingview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder', 'moment', 'mediaenquire', 'bootstrap','modernizr']
+										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder',  'moment', 'mediaenquire', 'bootstrap','modernizr']
 									},
 									{
 										name : 'views/lobbyview',
@@ -213,7 +213,7 @@ module.exports = function(grunt) {
 									},
 									{
 										name : 'views/referenceitemview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'bootstrap','modernizr' ]
+										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'bootstrap','modernizr', 'powerange' ],
 									},
 									{
 										name : 'views/stateitemview',
@@ -234,7 +234,7 @@ module.exports = function(grunt) {
 									
 									{
 										name : 'main',
-										include : [ "i18n", "text", 'courier','moment', 'mediaenquire','jquery.enterkeyevent' ]
+										include : [ "i18n", "text", 'courier','moment', 'mediaenquire','jquery.enterkeyevent','powerange' ]
 									}
 									
 

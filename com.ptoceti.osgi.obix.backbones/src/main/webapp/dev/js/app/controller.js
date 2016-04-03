@@ -30,8 +30,8 @@
  * 
  * 
  */
-define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/obixview','models/obix', 'models/watcheslocal', 'models/watches', 'jscookie'], function(
-		Backbone, Marionette, _, ventAggr, oauth2, ObixView, Obix, WatchesLocal, Watches, Cookie ) {
+define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/obixview','models/obix', 'models/watcheslocal', 'models/watches', 'models/histories', 'models/compositehistory', 'jscookie'], function(
+		$, Backbone, Marionette, _, ventAggr, oauth2, ObixView, Obix, WatchesLocal, Watches, Histories, CompositeHistory, Cookie ) {
 
 	var AppController = Marionette.Controller.extend({
 
@@ -50,8 +50,10 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 			
 			// load watches configuration from local storage
 			WatchesLocal.fetch();
-			// cerate a collection that will hold all watches
+			// create a collection that will hold all watches
 			this.watches = new Watches();
+			// create a collection that will hold all histories
+			this.histories = new Histories();
 			
 			this.obixView = new ObixView();
 			this.rootRegion = options.rootRegion;
@@ -63,13 +65,18 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 			ventAggr.on("watchlist:updateList", this.onUpdateWatchList, this); 
 			ventAggr.on("watch:removeWatch", this.onRemoveWatch, this);
 			ventAggr.on("watch:createWatch", this.onCreateWatch, this);
+			ventAggr.on("history:createHistory", this.onCreateHistory,this);
+			ventAggr.on("history:removeHistory", this.onDeleteHistory,this);
+			
 			ventAggr.on("history:update", this.onUpdateHistory,this);
+			ventAggr.on("history:showHistory", this.onShowHistory,this);
+			ventAggr.on("controller:loadHistory", this.onLoadHistory, this);
 			ventAggr.on("controller:loadApp", this.loadApp, this);
 			ventAggr.on("oauth2:access", this.oauth2Access, this);
 			ventAggr.on("oauth2:error", this.oauth2Error, this);
 			ventAggr.on("controler:doLogin", this.doLogin, this);
 
-			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted');
+			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted', 'historyLoaded', 'historyDeleted', 'historyCreated');
 			
 		},
 
@@ -174,6 +181,27 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 		            }
 				}, this)
 			});
+			
+			// idem for uri of HistoryService
+			var historyServiceRef = this.lobby.getHistoryService();
+
+			this.historyService = new Obix.historyService({
+				href : historyServiceRef.getHref()
+			}, {
+				urlRoot : this.restRoot
+			});
+			
+			this.historyService.fetch({
+				headers: oauth2.getAuthorizationHeader(),
+				// assync load
+				success : this.historyServiceLoaded,
+				error : _.bind(function(model, response, option){
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
+		            }
+				}, this)
+			});
+			
 			// ..and wait for responses.
 		},
 		
@@ -189,6 +217,15 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 		},
 
 		/**
+		 *  HistoryService resource handler. Called once resource is loaded. Get hold of history.make resource 
+		 * 
+		 * 
+		 */
+		historyServiceLoaded : function(model, response) {
+			
+		},
+		
+		/**
 		 *  WatchService resource handler. Called once resource is loaded. Get hold of watch.make resource and initiate creation of a watch
 		 * 
 		 * 
@@ -200,12 +237,11 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 			
 			// if details of watches are stored locally
 			if( WatchesLocal.length > 0 ){
-				_.each(WatchesLocal.models, function(element,index){
+				var deferreds = _.map(WatchesLocal.models, function(element,index){
 					// parse each and recreate watch
 					var watch = new Obix.watch({ href: element.getHref().toJSON() }, {urlRoot : this.restRoot});
 					
-					watch.fetch({
-						//async: false,
+					return watch.fetch({
 						async: true,
 						headers: oauth2.getAuthorizationHeader(),
 						success: _.bind(function(model, response) {
@@ -229,11 +265,13 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 					
 				},this);
 				
+				$.when.apply($,deferreds).then().always( _.bind(function(){
+						if( !this.lobbyWatch){
+							// if none of the watches local matched, create a new one.
+							ventAggr.trigger("watch:createWatch"); 
+						}
+				},this));
 				
-				if( !this.lobbyWatch){
-					// if none of the watches local matched, create a new one.
-					ventAggr.trigger("watch:createWatch"); 
-				}
 				
 			} else {
 				// create initial lobby watch
@@ -252,7 +290,7 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 			console.log('watch created');
 
 			var watchIn = new Obix.watchIn();
-			var watchedPoints = _.union(this.lobby.getChildrens().getByContract('ptoceti:MonitoredPoint'),
+			var watchedPoints = _.union(this.lobby.getChildrens().getByContract('ptoceti:MeasurePoint'),
 					this.lobby.getChildrens().getByContract('ptoceti:SwitchPoint'),
 					this.lobby.getChildrens().getByContract('ptoceti:DigitPoint'),
 					this.lobby.getChildrens().getByContract('ptoceti:ReferencePoint'),
@@ -439,8 +477,116 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 			});
 		},
 		
+		/**
+		 * Load an History object from rest server. The uri of the resource is passed on as parameter
+		 * 
+		 */
+		onLoadHistory : function(historyRef) {
+			
+			var history;
+			if( !!historyRef && this.histories.length > 0 ){
+				history = this.histories.find(function(element){
+					if( element.getHistory()){
+						return element.getHistory().getHref().getVal() == historyRef;
+					} else {
+						return false;
+					}
+				})
+			}
+			
+			if( !history && historyRef) {
+				var historyHref = new Obix.uri();
+				historyHref.setVal(historyRef);
+				var history = new Obix.history({href : historyHref}, {urlRoot : this.restRoot});
+				history.fetch({
+					headers: oauth2.getAuthorizationHeader(),
+					success: this.historyLoaded
+				},this);
+			} else {
+				ventAggr.trigger("controller:updatedHistoryList", this.histories);
+			}
+		},
+		
+		historyLoaded : function(history, response) {
+			console.log('history loaded response');
+			var compositeHistory = new CompositeHistory();
+			compositeHistory.set({id: history.getHref().getVal()})
+			compositeHistory.setHistory(history)
+			this.histories.add(compositeHistory);
+			ventAggr.trigger("controller:updatedHistoryList", this.histories);
+		},
+		
+		/**
+		 * Delete an history on rest server. The uri of the resource is passed on as parameter
+		 * 
+		 */
+		onDeleteHistory : function(history) {
+			
+			var compositeHistory;
+			if( !!history && this.histories.length > 0 ){
+				compositeHistory = this.histories.find(function(element){
+					if( element.getHistory()){
+						return element.getHistory().getHref().getVal() == history.getHref().getVal();
+					} else {
+						return false;
+					}
+				},this)
+			}
+			
+			if( history && compositeHistory) {
+				compositeHistory.getHistory().set('id',compositeHistory.getHistory().getHref().getVal() );
+				compositeHistory.getHistory().destroy({
+					headers: oauth2.getAuthorizationHeader(),
+					success: this.historyDeleted,
+					wait: true,
+					compositeHistory: compositeHistory
+				},this)
+			}
+		},
+		
+		historyDeleted : function(history, response, options){
+			this.histories.remove(options.compositeHistory)
+			console.log('history deleted response');
+			ventAggr.trigger("controller:updatedHistoryList", this.histories);
+		},
+		
+		/**
+		 * Send a request to the rest server to create a history object for a point.
+		 * The point is passed on as parameter
+		 * 
+		 */
+		onCreateHistory : function(point) {
+			
+			var ref = new Obix.ref();
+			ref.setHref(point.getHref())
+			
+			var history  = new Obix.history({}, {
+				urlRoot : this.restRoot
+			});
+			
+			this.historyService.getMakeOp().invoke(ref, history, {
+				headers: oauth2.getAuthorizationHeader(),
+				success : this.historyCreated,
+				error : _.bind(function(model, response, option){
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
+		            }
+				}, this)
+			});
+			
+		},
+		
+		historyCreated : function(){
+			ventAggr.trigger("watch:updateList");
+		},
+		
 		onUpdateHistory : function() {
 			ventAggr.trigger("controller:updatedHistory");
+		},
+		
+		
+		onShowHistory : function(historyRef){
+			this.goToHistoriesWithHistory(historyRef);
 		},
 
 		goToIntro : function(){
@@ -475,8 +621,12 @@ define(['backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/ob
 			this.obixView.showWatches(this.about);
 		},
 		
-		goToHistory : function() {
+		goToHistories : function() {
 			this.obixView.showHistory(this.about);
+		},
+		
+		goToHistoriesWithHistory : function(historyUri){
+			this.obixView.showHistory(this.about, historyUri);
 		}
 
 	});

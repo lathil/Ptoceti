@@ -55,6 +55,15 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 			if( item.hasContract('obix:Point')) {
 				return require('views/pointitemview');
 			}
+			if( item.hasContract('obix:Point')) {
+				return require('views/pointitemview');
+			}
+			if( item.hasContract('obix:History')) {
+				return require('views/historyitemview');
+			}
+			if( item.hasContract('ptoceti:MeasurePoint')) {
+				return require('views/pointitemview');
+			}
 			if( item.hasContract('ptoceti:MonitoredPoint')) {
 				return require('views/monitoreditemview');
 			}
@@ -66,6 +75,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 			}
 			if( item.hasContract('ptoceti:SwitchPoint')) {
 				return require('views/switchitemview');
+			}
+			if( item.hasContract('ptoceti:compositehistory')){
+				return require('views/historyitemview');
 			}
 		},
 		
@@ -91,6 +103,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 			Courier.add(this);
 			
 			this.context = options.context;
+			
+			this.modelToOpenCid = options.modelToOpenCid;
 			
 			//this.hasTouchEvent = Modernizr.touch;
 			
@@ -129,6 +143,27 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 			this.off('itemview:siblingItem:Unselect', this.itemUnselected, this);
 			mediaEnquire.unregisterXs(this.xsQueryHandler);
 		},
+		
+		/**
+		 * Called after all items in the collection have been rendered.
+		 */
+		//onCompositeCollectionRendered : function(){
+		onCompositeRendered : function() {
+			// if there is a model to be open ..
+			if( this.modelToOpenCid ){
+				var childview = this.children.find(function(view){
+					if(view.model.id == this.modelToOpenCid ){
+						return true;
+					}
+					return false;
+				},this);
+				if(childview){
+					//... ask the matching view to show details
+					childview.showContents();
+				}
+			}
+		},
+		
 		
 		onItemViewItemUnselect : function(sourceView,msg) {
 			this.children.each( function(view){
