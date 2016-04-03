@@ -27,6 +27,7 @@ package com.ptoceti.osgi.obix.impl.service;
  * #L%
  */
 
+import java.util.List;
 import java.util.regex.PatternSyntaxException;
 
 import org.osgi.service.log.LogService;
@@ -44,10 +45,12 @@ import com.ptoceti.osgi.obix.custom.contract.DigitPoint;
 import com.ptoceti.osgi.obix.custom.contract.ReferencePoint;
 import com.ptoceti.osgi.obix.custom.contract.SwitchPoint;
 import com.ptoceti.osgi.obix.impl.back.converters.OsgiConverterFactory;
+import com.ptoceti.osgi.obix.impl.observer.HistoryObserver;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
+import com.ptoceti.osgi.obix.observable.IObserver;
 import com.ptoceti.osgi.obix.resources.ObjResource;
 
 public class EventUpdateHandler {
@@ -96,6 +99,26 @@ public class EventUpdateHandler {
 	
 	public void consumeObject(Val obj, String href) {
 		try {
+			// Preload object to fetch in cache
+			Obj cachedObj = objCache.getObixObj(new Uri("", href ));
+			if( cachedObj != null ){
+				// If object exists, check if we have a reference to an history object
+				Obj historyRef = cachedObj.getChildren("history");
+				if( historyRef != null && historyRef instanceof Ref){
+					// check that if there is an history linked to this object, the observer exists.
+					List<IObserver<? super Obj>> observers = cachedObj.getObservers();
+					boolean found = false;
+					for( IObserver<? super Obj> observer : observers){
+						if( observer instanceof HistoryObserver){
+							found = true;
+							break;
+						}
+					}
+					if( !found){
+						historyCache.addHistoryObserver(historyRef.getHref().getPath(), cachedObj);
+					}
+				}
+			}
 			if( obj.getIs().containsContract(DigitPoint.contract)){
 				obj.setHref(new Uri("", href ));
 				objCache.createUpdateObixObj(obj);
@@ -106,18 +129,21 @@ public class EventUpdateHandler {
 				obj.setHref(new Uri("", href ));
 				objCache.createUpdateObixObj(obj);
 			} else if( obj.getIs().containsContract(MeasurePoint.contract)){
-				// extend path of value object
+				obj.setHref(new Uri("", href ));
+				objCache.createUpdateObixObj(obj);
+				
+				/**
 				obj.setHref(new Uri("", href + "/point"));
-				// href is then the one of the MonitoredPoint
 				Obj monitoredObj = objCache.getObixObj(new Uri("",href));
 				MonitoredPoint monitoredPoint = null;
 				Val sample = (Val)obj.cloneEmpty();
 				sample.setVal(obj.getVal());
 				
+				
 				if( monitoredObj != null && monitoredObj.getIs().containsContract(MonitoredPoint.contract))
 				{
 					monitoredPoint = new MonitoredPoint(monitoredObj);
-					// update db only if point value changed.
+					
 					if( !((Val)monitoredPoint.getPoint()).getVal().equals(obj.getVal())){
 						
 						Val point = (Val)monitoredPoint.getPoint();
@@ -140,6 +166,7 @@ public class EventUpdateHandler {
 					objCache.createObixObj(monitoredPoint);
 					historyCache.addRecord(monitoredPoint.getHistoryRef().getHref().getPath(), sample);
 				}
+				**/
 				
 				
 			} else {
@@ -148,7 +175,7 @@ public class EventUpdateHandler {
 			}
 			
 		} catch (Exception ex ) {
-			
+			Activator.log(LogService.LOG_ERROR, "Error while handling wire input: " + ex.toString());
 		}
 	}
 	

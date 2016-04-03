@@ -33,11 +33,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.ptoceti.osgi.obix.impl.entity.ObjEntity.ObjResultSetHandler;
 import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Uri;
 
 public class RefEntity extends ObjEntity {
 	
+	private static final String SEARCH_REF = "select object.* from object where object.type_id=? and value_text=?";
 	private static final String CREATE_REF = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, value_text ) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	private static final String DELETE_REF = "delete from object where id=?";
 	private static final String UPDATE_REF = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, value_text = ? where id = ? ";
@@ -57,6 +59,26 @@ public class RefEntity extends ObjEntity {
 		setObjtype(EntityType.Ref);
 	}
 
+	public boolean fetchByHref() throws EntityException {
+
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(EntityType.Ref.getIdent());
+		params.add(getObixObject().getHref().getPath());
+		
+		query(SEARCH_REF, params.toArray(), new ObjResultSetHandler<ObjEntity>(this));
+
+		if (this.isFetched()) {
+			if (getObj_contract_id() != null) {
+				ContractEntity contractEntity = new ContractEntity(getObj_contract_id());
+				contractEntity.fetch();
+				getObixObject().setIs(contractEntity.getObixContract());
+			}
+			return true;
+		}
+
+		return false;
+	}
+	
 	public void create() throws EntityException {
 
 		List<Object> params = getCreateParam();

@@ -32,6 +32,7 @@ import java.util.List;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.Lobby;
+import com.ptoceti.osgi.obix.custom.contract.MeasurePoint;
 import com.ptoceti.osgi.obix.custom.contract.MonitoredPoint;
 import com.ptoceti.osgi.obix.custom.contract.DigitPoint;
 import com.ptoceti.osgi.obix.custom.contract.ReferencePoint;
@@ -46,6 +47,7 @@ import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.AboutResource;
+import com.ptoceti.osgi.obix.resources.HistoryServiceResource;
 import com.ptoceti.osgi.obix.resources.LobbyResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
 import com.ptoceti.osgi.obix.resources.WatchServiceResource;
@@ -69,12 +71,14 @@ public class LobbyServerResource extends AbstractServerResource implements Lobby
 		lobby.setAbout(new Uri("uri", AboutResource.uri));
 		lobby.setWatchService(new Uri("uri", WatchServiceResource.uri));
 		
+		lobby.setHistoryService(new Uri("uri", HistoryServiceResource.uri));
+		
 		lobby.getBatch().setHref(new Uri("uri",BatchServerResource.uri));
 		
 		try {
 			//Add all the points we could find.
 			
-			List<Obj> lobbyPointList = objDomain.getObixObjsByContract(MonitoredPoint.contract);
+			List<Obj> lobbyPointList = objDomain.getObixObjsByContract(MeasurePoint.contract);
 			lobbyPointList.addAll(objDomain.getObixObjsByContract(SwitchPoint.contract));
 			lobbyPointList.addAll(objDomain.getObixObjsByContract(ReferencePoint.contract));
 			lobbyPointList.addAll(objDomain.getObixObjsByContract(DigitPoint.contract));

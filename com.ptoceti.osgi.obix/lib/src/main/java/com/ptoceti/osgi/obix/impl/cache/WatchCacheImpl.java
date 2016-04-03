@@ -42,8 +42,10 @@ import com.ptoceti.osgi.obix.contract.WatchOut;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
+import com.ptoceti.osgi.obix.impl.observer.WatchObserver;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Uri;
+import com.ptoceti.osgi.obix.observable.IObserver;
 
 public class WatchCacheImpl extends ObjCacheImpl implements WatchCache {
 
@@ -58,9 +60,11 @@ public class WatchCacheImpl extends ObjCacheImpl implements WatchCache {
 	
 	@Override
 	public Watch make() throws DomainException {
-		Watch result = watchDomain.make();
-		cache.put(result.getHref().getPath(), result);
-		return result;
+		Watch watch = watchDomain.make();
+		WatchObserver observer = new WatchObserver();
+		watch.setObserver(observer);
+		cache.put(watch.getHref().getPath(), watch);
+		return watch;
 	}
 
 
@@ -72,9 +76,22 @@ public class WatchCacheImpl extends ObjCacheImpl implements WatchCache {
 
 				@Override
 				public Watch call() throws Exception {
-					Watch obj =  watchDomain.retrieve(uri);
-					if( obj == null) throw new ObjNotFoundException("Obj at "  + uri + " not found");
-					return obj;
+					Watch watch =  watchDomain.retrieve(uri);
+					if( watch == null) throw new ObjNotFoundException("Obj at "  + uri + " not found");
+					WatchObserver observer = new WatchObserver();
+					watch.setObserver(observer);
+					List<Obj> childs = watch.getChildrens();
+					// add watch observer to all watched resources
+					for( Obj nextUri : childs){
+						if( nextUri instanceof Uri){
+							Obj nextObj = getObixObj((Uri)nextUri);
+							if( nextObj != null){
+								nextObj.addObserver(observer);
+							}
+						}
+					}
+					
+					return watch;
 				}
 				
 			});
@@ -84,31 +101,73 @@ public class WatchCacheImpl extends ObjCacheImpl implements WatchCache {
 		return result;
 	}
 
+	/**
+	 * Add a list of references to a watch.
+	 * 
+	 * 
+	 */
 	@Override
 	public WatchOut addWatch(String uri, WatchIn in) throws DomainException {
 		List<Uri> uris = watchDomain.addWatch(uri, in);
 		
 		WatchOut watchOut = new WatchOut();
 		Watch currentWatch = retrieve(uri);
+		IObserver<? super Obj> observer = currentWatch.getObserver();
 		for( Uri nextUri : uris){
-			currentWatch.getChildrens().add(nextUri);
-			watchOut.getValuesList().addChildren(getObixObj(nextUri));
+			// get object link to the ref
+			Obj nextObj = getObixObj(nextUri);
+			if( nextObj != null){
+				// add ref to persistent store
+				currentWatch.getChildrens().add(nextUri);
+				// add watch's observer  to observable resource
+				nextObj.addObserver(observer);
+				watchOut.getValuesList().addChildren(nextObj);
+			}
 		}
 
 		return watchOut;
 	}
 	
+	/**
+	 * Remove a list of references from a watch
+	 * 
+	 */
 	@Override
 	public void removeWatch(String uri, WatchIn in) throws DomainException {
 		List<Uri> uris = watchDomain.removeWatch(uri, in);
 		Watch currentWatch = retrieve(uri);
+		IObserver<? super Obj> observer = currentWatch.getObserver();
 		for( Uri nextUri : uris){
-			currentWatch.getChildrens().remove(nextUri);
+			// get object link to the ref
+			Obj nextObj = getObixObj(nextUri);
+			if( nextObj != null){
+				currentWatch.getChildrens().remove(nextUri);
+				// remove link to observer
+				nextObj.removeObserver(observer);
+			}
 		}
 	}
-
+	
+	/**
+	 * Delete the watch.
+	 * 
+	 */
 	@Override
 	public void deleteWatch(String uri) throws DomainException {
+		Watch currentWatch = retrieve(uri);
+		IObserver<? super Obj> observer = currentWatch.getObserver();
+		List<Obj> childs = currentWatch.getChildrens();
+		// remove all links to ref objects
+		for( Obj nextUri : childs){
+			if( nextUri instanceof Uri){
+				Obj nextObj = getObixObj((Uri)nextUri);
+				if( nextObj != null){
+					// remove link to observer
+					nextObj.removeObserver(observer);
+				}
+			}
+		}
+		
 		watchDomain.deleteWatch(uri);
 		cache.invalidate(uri);
 		
@@ -118,6 +177,11 @@ public class WatchCacheImpl extends ObjCacheImpl implements WatchCache {
 	public WatchOut poolChanges(String uri) throws DomainException {
 		Watch currentWatch = retrieve(uri);
 		WatchOut watchOut = new WatchOut();
+		List<Obj> changedObj = ((WatchObserver)currentWatch.getObserver()).getChangedObj();
+		for( Obj obj : changedObj){
+			watchOut.getValuesList().addChildren(obj);
+		}
+		/**
 		List<Obj> childs = currentWatch.getChildrens();
 		for( Obj child : childs){
 			if( child instanceof Uri){
@@ -128,6 +192,7 @@ public class WatchCacheImpl extends ObjCacheImpl implements WatchCache {
 				}
 			}
 		}
+		**/
 		return watchOut;
 	}
 

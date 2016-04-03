@@ -36,28 +36,57 @@ import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Int;
+import com.ptoceti.osgi.obix.object.Obj;
+import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Val;
 
 public interface HistoryCache {
 
 	/**
-	 * Create a hitory element
+	 * Create a history element for a referenced object
 	 * 
 	 * @param of
 	 * @return
 	 * @throws DomainException
 	 */
-	History make(Contract of) throws DomainException;
+	History make(Ref ref) throws DomainException;
 	
 	/**
-	 * Return a history and its configuration froml the specified url
+	 * Create a history element of a type
+	 * 
+	 * @param of type of history
+	 * @return
+	 * @throws DomainException
+	 */
+	History make(Contract of, String displayName) throws DomainException;
+	
+	/**
+	 * Add an history observer to the observable object
+	 * 
+	 * @param uri uri of the history object
+	 * @param observable the object to be observed by the history object
+	 * @throws DomainException
+	 */
+	void addHistoryObserver(String uri, Obj observable) throws DomainException;
+	
+	/**
+	 * Return a history and its configuration for the specified url
 	 * 
 	 * @param uri
 	 * @return
 	 * @throws DomainException
 	 */
 	History retrieve(String uri) throws DomainException;
+	
+	/**
+	 * Delete an history object and references to it
+	 * 
+	 * @param uri
+	 * @return
+	 * @throws DomainException
+	 */
+	boolean delete(String uri) throws DomainException;
 	
 	/**
 	 * Add a value record to the history specified by the uri

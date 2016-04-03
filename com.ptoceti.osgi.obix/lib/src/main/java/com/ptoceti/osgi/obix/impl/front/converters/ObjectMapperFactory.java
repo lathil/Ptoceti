@@ -66,6 +66,7 @@ import com.ptoceti.osgi.obix.contract.WritablePoint;
 import com.ptoceti.osgi.obix.contract.Write;
 import com.ptoceti.osgi.obix.contract.WritePoint;
 import com.ptoceti.osgi.obix.contract.WritePointIn;
+import com.ptoceti.osgi.obix.custom.contract.HistoryService;
 import com.ptoceti.osgi.obix.custom.contract.MeasurePoint;
 import com.ptoceti.osgi.obix.custom.contract.MonitoredPoint;
 import com.ptoceti.osgi.obix.custom.contract.DigitPoint;
@@ -161,6 +162,7 @@ public class ObjectMapperFactory {
 	 	@Type(value=Write.class, name="write"),
 	 	@Type(value=WritePoint.class, name="writepoint"),
 	 	@Type(value=WritePointIn.class, name="writepointin"),
+	 	@Type(value=HistoryService.class,name="historyservice"),
 	 	@Type(value=History.class,name="history"),
 	 	@Type(value=HistoryRecord.class,name="historyrecord"),
 	 	@Type(value=HistoryFilter.class,name="historyfilter"),

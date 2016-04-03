@@ -51,10 +51,20 @@ public interface HistoryDomain extends BaseDomain {
 	 * @throws DomainException
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
-	History make(Contract of) throws DomainException;
+	History make(Contract of, String displayName) throws DomainException;
 	
 	/**
-	 * Return a history and its configuration froml the specified url
+	 * Remove a hitory element
+	 * 
+	 * @param of
+	 * @return
+	 * @throws DomainException
+	 */
+	@JdbcConnection(type = ConnectionType.RWX)
+	void remove(String uri) throws DomainException;
+	
+	/**
+	 * Return a history and its configuration froml the specified urlHistoryDomain
 	 * 
 	 * @param uri
 	 * @return

@@ -81,16 +81,27 @@ public class ObjCacheImpl extends AbstractCache implements ObjCache{
 
 	@Override
 	public Obj updateObixObjAt(Uri href, Obj updateObj) throws DomainException {
-		Obj result = objDomain.updateObixObjAt(href, updateObj);
-		cache.put(result.getHref().getPath(), result);
-		return result;
+		Obj obj = getObixObj(href);
+		if( obj != null){
+			if (obj.updateWith(updateObj)){
+				objDomain.updateObixObjAt(href, updateObj);
+			}
+		}
+		return obj;
 	}
 
 	@Override
 	public Obj createUpdateObixObj(Obj updateObj) throws DomainException {
-		Obj result = objDomain.createUpdateObixObj(updateObj);
-		cache.put(result.getHref().getPath(), result);
-		return result;
+		Obj obj = getObixObj(updateObj.getHref());
+		if( obj == null){
+			obj = objDomain.createUpdateObixObj(updateObj);
+			cache.put(obj.getHref().getPath(), obj);
+		} else {
+			if (obj.updateWith(updateObj)){
+				objDomain.updateObixObjAt(updateObj.getHref(), updateObj);
+			}
+		}
+		return obj;
 	}
 
 	

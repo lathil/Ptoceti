@@ -39,6 +39,17 @@ import com.ptoceti.osgi.obix.object.Uri;
 public interface ObjDomain extends BaseDomain {
 
 	/**
+	 * Get Obix with reference object to uri
+	 * 
+	 * @param href
+	 * @return
+	 * @throws DomainException
+	 */
+	@JdbcConnection(type = ConnectionType.RX)
+	public Obj getObixObjWithRefTo(Uri href) throws DomainException;
+	
+	
+	/**
 	 * Get Obix oject specified by given uri
 	 * 
 	 * @param href
@@ -68,6 +79,27 @@ public interface ObjDomain extends BaseDomain {
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public Obj updateObixObjAt(Uri href, Obj updatePbj) throws DomainException;
+	
+	/**
+	 * Remove a child object to an existing one
+	 * 
+	 * @param href
+	 * @param childName name of child object
+	 * @return
+	 * @throws DomainException
+	 */
+	@JdbcConnection(type = ConnectionType.RWX)
+	public boolean deleteChildObject(Uri href,String childName) throws DomainException;
+	/**
+	 * Add a child object to an existing one
+	 * 
+	 * @param href
+	 * @param child object
+	 * @return
+	 * @throws DomainException
+	 */
+	@JdbcConnection(type = ConnectionType.RWX)
+	public boolean addChildObject(Uri href, Obj childObj) throws DomainException;
 	
 	/**
 	 * Update an existing Obix object or if it does not exists, create it.

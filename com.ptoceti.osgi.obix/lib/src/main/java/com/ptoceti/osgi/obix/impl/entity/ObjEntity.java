@@ -65,6 +65,7 @@ public class ObjEntity extends AbstractEntity {
 	private static final String SEARCH_OBJ_BY_CONTRACT_ID = "select object.* from object where object.contract_id = ?";
 
 	private static final String DELETE_OBJ = "delete from object where object.id=?";
+	private static final String DELETE_CHILD_OBJ = "delete from object where object.parent_id=?";
 
 	private static final String UPDATE_OBJ = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ? where id = ? ";
 
@@ -218,6 +219,13 @@ public class ObjEntity extends AbstractEntity {
 		
 		return params;
 
+	}
+	
+	public void deleteChilds() throws EntityException {
+		
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(this.getId());
+		update(DELETE_CHILD_OBJ, params.toArray(), null);
 	}
 	
 	/**

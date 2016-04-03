@@ -51,10 +51,10 @@ import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
 import com.ptoceti.osgi.obix.resources.HistoryResource;
 
-public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
+public class HistoryDomainImpl extends AbstractDomain implements  HistoryDomain{
 
 	@Override
-	public History make(Contract of) throws DomainException {
+	public History make(Contract of,  String displayName) throws DomainException {
 		String timeStamp = (new Long (Calendar.getInstance().getTimeInMillis())).toString();
 		
 		History history = new History(timeStamp);
@@ -67,6 +67,8 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 		history.setEnd(end);
 		
 		history.setCount(0);
+		
+		history.setDisplayName(displayName);
 		
 		history.setHref(new Uri("uri",HistoryResource.baseuri.concat("/").concat(timeStamp).concat("/")));
 		
@@ -85,6 +87,34 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 		return (History) objEnt.getObixObject();
 	}
 
+	@Override
+	public void remove(String uri) throws DomainException {
+		
+		History obixObj = new History();
+		obixObj.setHref(new Uri("href", uri));
+		ObjEntity objEnt = new ObjEntity(obixObj);
+		
+		try {
+			if( objEnt.fetchByHref()) {
+				if( objEnt.getObixObject().containsContract(History.contract)) {
+					objEnt.fetchChildrens();
+					for( ObjEntity entity : (List<ObjEntity>) objEnt.getChilds()){
+						if( entity.getObixObject().getName() != null && entity.getObixObject().getName().equals("historyrecords")) {
+							// we are on the records list, delete all childs
+							entity.deleteChilds();
+							break;
+						}
+					}
+					// delete history and direct childs.
+					objEnt.delete();
+				}
+			}
+		} catch(EntityException ex) {
+			throw new DomainException("Exception in " + this.getClass().getName() + ".getHistory", ex);
+		}
+		
+	}
+	
 	@Override
 	public History retrieve(String uri) throws DomainException{
 		return (History)getHistory(uri).getObixObject();
@@ -126,7 +156,13 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 
 			if( recordsList.getObjtype().equals(EntityType.List) ){
 				// simply add the sample as history record. creation date will be the timestamp
-				recordsList.addChildren(value);
+				
+				Val clone = (Val)value.clone();
+				
+				clone.setIs(null);
+				clone.setHref(null);
+				
+				recordsList.addChildren(clone);
 				
 				((Int)count.getObixObject()).setVal( new Integer(((Integer)((Int)count.getObixObject()).getVal()).intValue() + 1 ));
 				count.update();
@@ -135,6 +171,8 @@ public class HistoryDomainImpl extends AbstractDomain implements HistoryDomain {
 			}
 			
 		} catch(EntityException ex) {
+			throw new DomainException("Exception in " + this.getClass().getName() + ".addRecord", ex);
+		} catch (CloneNotSupportedException ex) {
 			throw new DomainException("Exception in " + this.getClass().getName() + ".addRecord", ex);
 		}
 		
