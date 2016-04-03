@@ -1,5 +1,7 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.Objects;
+
 /*
  * #%L
  * **********************************************************************
@@ -65,6 +67,27 @@ public class Bool extends Val{
 		setVal(value);
 	}
 	
+	@Override
+	public Obj clone() throws CloneNotSupportedException {
+		Bool clone = (Bool)super.clone();
+		
+		clone.setRange(this.getRange() != null ? this.getRange().clone(): null);
+		clone.setVal(this.getVal() != null ? new Boolean( ((Boolean)this.getVal()).booleanValue()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public boolean updateWith(Obj other){
+		boolean different = false;
+		
+		if(!Objects.equals(getVal(), ((Bool)other).getVal())){
+			setVal(((Bool)other).getVal());
+			different = true;
+		}
+		
+		return super.updateWith(other, different);
+	}
 	
 	public void setRange(Uri range) {
 		this.range = range;

@@ -28,9 +28,11 @@ package com.ptoceti.osgi.obix.resources;
  */
 
 
+import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 
 import com.ptoceti.osgi.obix.contract.History;
+import com.ptoceti.osgi.obix.contract.Nil;
 
 public interface HistoryResource {
 
@@ -42,4 +44,7 @@ public static final String HISTORY_URI = "historyuri";
 	
 	@Get
 	public History retrieve() throws ResourceException;
+	
+	@Delete
+	public Nil remove() throws ResourceException;
 }

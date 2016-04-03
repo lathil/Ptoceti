@@ -1,5 +1,7 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.Objects;
+
 /*
  * #%L
  * **********************************************************************
@@ -65,6 +67,43 @@ public class Real extends Val {
 
 	public Real(String name, Double value) {
 		super(name, value);
+	}
+	
+	@Override
+	public Obj clone() throws CloneNotSupportedException {
+		Real clone = (Real)super.clone();
+		
+		clone.setMax(this.getMax() != null ? new Double(this.getMax()) : null);
+		clone.setMin(this.getMin() != null ? new Double(this.getMin()) : null);
+		clone.setUnit(this.getUnit() != null ? this.getUnit().clone() : null);
+		clone.setPrecision(this.getPrecision() != null ? new Integer(this.getPrecision()) : null);
+		clone.setVal(this.getVal() != null ?   new Double( ((Double)this.getVal()).doubleValue()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public boolean updateWith(Obj other){
+		boolean different = false;
+		
+		if( !Objects.equals(getMax(), ((Real)other).getMax())){
+			setMax(((Real)other).getMax());
+			different = true;
+		}
+		if( !Objects.equals(getMin(), ((Real)other).getMin())){
+			setMin(((Real)other).getMin());
+			different = true;
+		}
+		if( !Objects.equals(getPrecision(), ((Real)other).getPrecision())){
+			setPrecision(((Real)other).getPrecision());
+			different = true;
+		}
+		if(!Objects.equals(getVal(), ((Real)other).getVal())){
+			setVal(((Real)other).getVal());
+			different = true;
+		}
+		
+		return super.updateWith(other, different);
 	}
 	
 	public void setMin(Double min) {

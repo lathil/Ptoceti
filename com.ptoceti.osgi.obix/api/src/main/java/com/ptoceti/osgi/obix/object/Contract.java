@@ -1,5 +1,7 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
+
 /*
  * #%L
  * **********************************************************************
@@ -28,7 +30,7 @@ package com.ptoceti.osgi.obix.object;
  */
 
 
-public class Contract {
+public class Contract implements Cloneable{
 
 	protected Uri[] uris;
 	
@@ -50,6 +52,17 @@ public class Contract {
 		Uri[] result = new Uri[uris.length];
 		for(int i = 0;i < uris.length; i++) result[i] = uris[i];
 		return result;
+	}
+	
+	public Contract clone() throws CloneNotSupportedException {
+		Contract clone = (Contract)super.clone();
+		ArrayList<Uri> clonedUris = new ArrayList<Uri>();
+		for( Uri uri : uris){
+			clonedUris.add(uri);
+		}
+		clone.setUris(clonedUris.toArray(new Uri[clonedUris.size()]));
+		
+		return clone;
 	}
 	
 	public String toUniformString(){

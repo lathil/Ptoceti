@@ -1,5 +1,7 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.Objects;
+
 /*
  * #%L
  * **********************************************************************
@@ -64,6 +66,37 @@ public class Reltime extends Val {
 
 	public Reltime(String name, Long value) {
 		super(name, value);
+	}
+	
+	@Override
+	public Obj clone() throws CloneNotSupportedException {
+		Reltime clone = (Reltime)super.clone();
+		
+		clone.setMax(this.getMax() != null ? new Reltime(this.getMax()) : null);
+		clone.setMin(this.getMin() != null ? new Reltime(this.getMin()) : null);
+		clone.setVal(this.getVal() != null ? new Long( ((Long)this.getVal()).longValue()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public boolean updateWith(Obj other){
+		boolean different = false;
+		
+		if( !Objects.equals(getMax(), ((Reltime)other).getMax())){
+			setMax(((Reltime)other).getMax());
+			different = true;
+		}
+		if( !Objects.equals(getMin(), ((Reltime)other).getMin())){
+			setMin(((Reltime)other).getMin());
+			different = true;
+		}
+		if(!Objects.equals(getVal(), ((Reltime)other).getVal())){
+			setVal(((Reltime)other).getVal());
+			different = true;
+		}
+		
+		return super.updateWith(other, different);
 	}
 	
 	public void setMax(Reltime max) {

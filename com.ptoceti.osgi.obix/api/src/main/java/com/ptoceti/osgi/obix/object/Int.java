@@ -1,5 +1,8 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.Date;
+import java.util.Objects;
+
 /*
  * #%L
  * **********************************************************************
@@ -66,6 +69,38 @@ public class Int extends Val {
 		super(name, value);
 	}
 
+	@Override
+	public Obj clone() throws CloneNotSupportedException  {
+		Int clone = (Int)super.clone();
+		
+		clone.setMax(this.getMax() != null ? new Integer(this.getMax()) : null);
+		clone.setMin(this.getMin() != null ? new Integer(this.getMin()) : null);
+		clone.setUnit(this.getUnit() != null ? this.getUnit().clone() : null);
+		clone.setVal(this.getVal() != null ?  new Integer( ((Integer)this.getVal()).intValue()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public boolean updateWith(Obj other){
+		boolean different = false;
+		
+		if( !Objects.equals(getMax(), ((Int)other).getMax())){
+			setMax(((Int)other).getMax());
+			different = true;
+		}
+		if( !Objects.equals(getMin(), ((Int)other).getMin())){
+			setMin(((Int)other).getMin());
+			different = true;
+		}
+		if(!Objects.equals(getVal(), ((Int)other).getVal())){
+			setVal(((Int)other).getVal());
+			different = true;
+		}
+		
+		return super.updateWith(other, different);
+	}
+	
 	public void setMin(Integer min) {
 		this.min = min;
 	}

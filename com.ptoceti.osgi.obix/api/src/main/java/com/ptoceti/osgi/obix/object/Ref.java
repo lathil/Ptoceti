@@ -36,7 +36,7 @@ public class Ref extends Obj {
 	 */
 	private static final long serialVersionUID = -7465212287362622984L;
 	
-	private static final Contract contract = new Contract("obix:ref");
+	public static final Contract contract = new Contract("obix:ref");
 	
 	public Ref() {super();}
 	

@@ -39,6 +39,13 @@ public interface WatchAddResource {
 	
 	public static String uri = WatchResource.uri.concat(baseuri);
 	
+	/**
+	 * Add ref to a obix resource to monitor to a watch
+	 * 
+	 * @param in a list of ref to monitor
+	 * @return
+	 * @throws ResourceException
+	 */
 	@Post
 	WatchOut addWatch(WatchIn in) throws ResourceException;
 }

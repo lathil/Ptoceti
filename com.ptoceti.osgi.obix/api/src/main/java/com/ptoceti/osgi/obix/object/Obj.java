@@ -32,9 +32,14 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.IObserver;
+import com.ptoceti.osgi.obix.observable.Observable;
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
 
 
-public class Obj  implements Serializable {
+public class Obj extends Observable<Obj >implements Serializable, Cloneable {
 
 	private static final Contract contract = new Contract("obix:obj");
 	/**
@@ -53,6 +58,9 @@ public class Obj  implements Serializable {
 	protected ArrayList<Obj> childrens;
 	
 	private long updateTimeStamp;
+	
+	
+	private IObserver<? super Obj> observer;
 	
 	public Obj() {
 		setChildrens(new ArrayList<Obj>());
@@ -88,6 +96,16 @@ public class Obj  implements Serializable {
 		}
 	}
 	
+	public void removeChildren( String name ){
+		for( int i = 0; i < childrens.size(); i ++){
+			Obj nextChild = childrens.get(i);
+			if( nextChild.getName() != null && (nextChild.getName().equals(name))){
+				childrens.remove(i);
+				break;
+			}
+		}
+	}
+	
 	public boolean has (String name ){
 		Iterator<Obj> childIter = childrens.iterator();
 		boolean found = false;
@@ -115,6 +133,62 @@ public class Obj  implements Serializable {
 				break;
 			}
 		}
+	}
+	
+	public boolean updateWith(Obj other){
+		return updateWith(other, false);
+	}
+	
+	protected boolean updateWith(Obj other, boolean hasChanged){
+		boolean different = hasChanged;
+		
+		if( !Objects.equals(getDisplayName(), other.getDisplayName())){
+			if( other.getDisplayName() != null){
+				setDisplayName(other.getDisplayName());
+				different = true;
+			}
+		}
+		if( !Objects.equals(getIcon(), other.getIcon())){
+			if( other.getIcon() != null){
+				setIcon(other.getIcon());
+				different = true;
+			}
+		}
+		if( !Objects.equals(getStatus(), other.getStatus())){
+			if( other.getStatus() != null){
+				setStatus(other.getStatus());
+				different = true;
+			}
+		}
+		if( !Objects.equals(getIsNull(), other.getIsNull())){
+			if( other.getIsNull() != null){
+				setIsNull(other.getIsNull());
+				different = true;
+			}
+		}
+		if( !Objects.equals(getWritable(), other.getWritable())){
+			if( other.getWritable() != null){
+				setWritable(other.getWritable());
+				different = true;
+			}
+		}
+		
+		for(Obj otherChild: other.getChildrens()){
+			Obj thisChild = getChildren(otherChild.getName());
+			if( thisChild!= null){
+				if (thisChild.updateWith(otherChild)) different = true;
+			}
+		}
+		
+		if( different){
+			hasChanged();
+		}
+		
+		return different;
+	}
+	
+	public void hasChanged(){
+		notifyObservers( this, ObservableEvent.CHANGED);
 	}
 	
 	public Obj getChildren( String name) {
@@ -215,6 +289,30 @@ public class Obj  implements Serializable {
 		return new Obj();
 	}
 	
+
+	public Obj clone() throws CloneNotSupportedException {
+		
+		Obj clone = (Obj)super.clone();
+		
+		clone.setDisplay(this.getDisplay() != null ? new String(this.getDisplay()) : null);
+		clone.setDisplayName(this.getDisplayName() != null ? new String (this.getDisplayName()) : null);
+		clone.setName(this.getName() != null ? new String(this.getName()) : null);
+		clone.setIsNull(this.isNull != null ? new Boolean(this.isNull) : null);
+		clone.setWritable(this.writable != null ? new Boolean(this.writable) : null);
+		clone.setStatus(this.getStatus() != null ? this.getStatus() : null);
+		clone.setHref(this.getHref() != null ? this.getHref().clone() : null);
+		clone.setIcon(this.getIcon() != null ?this.getIcon().clone() : null);		
+		clone.setIs(this.getIs() != null ? this.getIs() .clone(): null);
+		
+		if( this.getChildrens().size() > 0){
+			for( Obj child : this.getChildrens()){
+				clone.addChildren(child.clone());
+			}
+		}
+		
+		return clone;
+	}
+	
 	public Contract getContract(){
 		return contract;
 	}
@@ -225,5 +323,13 @@ public class Obj  implements Serializable {
 	
 	public void setUpdateTimeStamp(long timeStamp){
 		updateTimeStamp = timeStamp;
+	}
+
+	public IObserver<? super Obj> getObserver() {
+		return observer;
+	}
+
+	public void setObserver(IObserver<? super Obj> observer) {
+		this.observer = observer;
 	}
 }

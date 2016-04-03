@@ -30,6 +30,7 @@ package com.ptoceti.osgi.obix.contract;
 
 import java.io.Serializable;
 
+import com.ptoceti.osgi.obix.custom.contract.HistoryService;
 import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Op;
@@ -69,6 +70,12 @@ public class Lobby extends Obj implements Serializable {
 	public void setWatchService(Uri uri) {
 		Ref ref = new Ref("watchService", uri);
 		ref.setIs(WatchService.contract);
+		this.addChildren(ref);
+	}
+	
+	public void setHistoryService(Uri uri) {
+		Ref ref = new Ref("historyService", uri);
+		ref.setIs(HistoryService.contract);
 		this.addChildren(ref);
 	}
 	

@@ -1,5 +1,7 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.Objects;
+
 /*
  * #%L
  * **********************************************************************
@@ -35,7 +37,7 @@ public class Uri extends Val {
 	 */
 	private static final long serialVersionUID = 8040144014174027501L;
 	
-	private static final Contract contract = new Contract("obix:uri");
+	public static final Contract contract = new Contract("obix:uri");
 	
 	public Uri(){
 		super();
@@ -58,6 +60,18 @@ public class Uri extends Val {
 		super (name, value);
 	}
 	
+	@Override
+	public boolean updateWith(Obj other){
+		boolean different = false;
+		
+		if(!Objects.equals(getVal(), ((Uri)other).getVal())){
+			setVal(((Uri)other).getVal());
+			different = true;
+		}
+		
+		return super.updateWith(other, different);
+	}
+	
 	public String getPath() {
 		return (String) this.getVal();
 	}
@@ -65,6 +79,13 @@ public class Uri extends Val {
 	@Override
 	public Obj cloneEmpty() {
 		return new Uri();
+	}
+	
+	@Override
+	public Uri clone() throws CloneNotSupportedException  {
+		Uri clone = (Uri) super.clone();
+		clone.setVal(new String((String)this.getVal()));
+		return clone;
 	}
 	
 	public Val getDiff(Val val) {

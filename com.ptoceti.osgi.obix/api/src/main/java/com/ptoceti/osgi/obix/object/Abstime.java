@@ -29,6 +29,7 @@ package com.ptoceti.osgi.obix.object;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 
 public class Abstime extends Val {
@@ -68,6 +69,37 @@ public class Abstime extends Val {
 
 	public Abstime(String name, Date millis) {
 		super(name, millis);
+	}
+	
+	@Override
+	public Obj clone() throws CloneNotSupportedException {
+		Abstime clone = (Abstime)super.clone();
+		
+		clone.setMax(this.getMax() != null ? new Abstime(this.getMax()) : null);
+		clone.setMin(this.getMin() != null ? new Abstime(this.getMin()) : null);
+		clone.setVal(this.getVal() != null ? new Date(((Date)this.getVal()).getTime()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public boolean updateWith(Obj other){
+		boolean different = false;
+		
+		if( !Objects.equals(getMax(), ((Abstime)other).getMax())){
+			setMax(((Abstime)other).getMax());
+			different = true;
+		}
+		if( !Objects.equals(getMin(), ((Abstime)other).getMin())){
+			setMin(((Abstime)other).getMin());
+			different = true;
+		}
+		if(!Objects.equals(getVal(), ((Abstime)other).getVal())){
+			setVal(((Abstime)other).getVal());
+			different = true;
+		}
+		
+		return super.updateWith(other, different);
 	}
 	
 	public void setMax(Abstime max) {
