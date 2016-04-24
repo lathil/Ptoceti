@@ -72,6 +72,7 @@ import org.restlet.Application;
 import org.restlet.Component;
 import org.restlet.Server;
 import org.restlet.data.Protocol;
+import org.restlet.engine.Engine;
 import org.restlet.engine.local.RiapServerHelper;
 import org.restlet.ext.crypto.DigestUtils;
 import org.restlet.ext.oauth.GrantType;
@@ -82,6 +83,7 @@ import org.restlet.ext.oauth.internal.ClientManager;
 import org.restlet.ext.oauth.internal.TokenManager;
 import org.restlet.ext.oauth.internal.memory.MemoryClientManager;
 import org.restlet.ext.oauth.internal.memory.MemoryTokenManager;
+import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 
 /**
@@ -661,6 +663,7 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 				 if( event.getType() == BundleEvent.STARTED){
 					 restletHasStarted = true;
 					 Activator.log(LogService.LOG_INFO, "Restlet started event detected.");
+					 Engine.getInstance().setLoggerFacade(new Slf4jLoggerFacade());
 					 startRestService();
 				 } else {
 					 restletHasStarted = false;

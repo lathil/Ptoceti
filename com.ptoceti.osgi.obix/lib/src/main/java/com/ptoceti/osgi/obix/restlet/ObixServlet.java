@@ -28,6 +28,7 @@ package com.ptoceti.osgi.obix.restlet;
  */
 
 import java.io.IOException;
+import java.util.Calendar;
 
 
 import javax.servlet.ServletException;
@@ -35,8 +36,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.osgi.service.log.LogService;
 import org.restlet.Application;
 import org.restlet.ext.servlet.ServletAdapter;
+
+import com.ptoceti.osgi.obix.impl.service.Activator;
 
 /**
  * Execute the restlet application as a servlet.
@@ -66,8 +70,14 @@ public class ObixServlet extends HttpServlet {
 	}
 
 	protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-	     
+	    
+		Long start = Calendar.getInstance().getTimeInMillis();
+		
 		this.adapter.service(req, res);
+		
+		Long end = Calendar.getInstance().getTimeInMillis();
+		
+		Activator.log(LogService.LOG_DEBUG, "ObixServlet service: " + req.getRequestURI() + " time: " +  Long.valueOf(end - start) + " ms ");
 	}
 	
 	public Application getApplication(){

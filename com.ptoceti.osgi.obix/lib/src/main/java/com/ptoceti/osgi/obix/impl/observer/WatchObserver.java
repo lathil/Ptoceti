@@ -10,11 +10,12 @@ import com.ptoceti.osgi.obix.observable.ObservableEvent;
 public class WatchObserver implements IObserver<Obj> {
 
 	List<Obj> changedObjs = new ArrayList<Obj>();
+	Object lock = new Object();
 	
 	@Override
 	public void notify(Obj observable, ObservableEvent event) {
 		if( event.equals(ObservableEvent.CHANGED)){
-			synchronized(changedObjs){
+			synchronized(lock){
 				if(!changedObjs.contains(observable)){
 					changedObjs.add(observable);
 				}
@@ -25,7 +26,7 @@ public class WatchObserver implements IObserver<Obj> {
 	
 	public List<Obj> getChangedObj(){
 		List<Obj> result;
-		synchronized(changedObjs){
+		synchronized(lock){
 			result = new ArrayList<Obj>(changedObjs);
 			changedObjs.clear();
 		}

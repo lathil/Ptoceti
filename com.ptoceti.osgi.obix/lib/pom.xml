@@ -152,6 +152,11 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.restlet.osgi</groupId>
+			<artifactId>org.restlet.ext.slf4j</artifactId>
+		</dependency>
+		
+		<dependency>
 				<groupId>org.restlet.osgi</groupId>
 				<artifactId>org.restlet.ext.osgi</artifactId>
 				 
