@@ -40,6 +40,7 @@ define({
 	    		"serverBootTime" : "Server boot time : ",
 	    		"remove" : "Remove",
 	    		"reload" : "Reload",
+	    		"create" : "Create",
 	    		"watch" : "Watch",
 	    		"items" : "Items : ",
 	    		"copyright" :"\251 Ptoceti 2014"
@@ -58,6 +59,7 @@ define({
 	    		"serverBootTime" : "Server boot time : ",
 	    		"remove" : "",
 	    		"reload" : "",
+	    		"create" : "",
 	    		"watch" : "Watch",
 	    		"items" : "Items : ",
 	    		"copyright" :"\251 Ptoceti 2014"

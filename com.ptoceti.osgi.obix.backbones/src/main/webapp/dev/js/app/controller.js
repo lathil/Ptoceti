@@ -30,8 +30,8 @@
  * 
  * 
  */
-define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/obixview','models/obix', 'models/watcheslocal', 'models/watches', 'models/histories', 'models/compositehistory', 'jscookie'], function(
-		$, Backbone, Marionette, _, ventAggr, oauth2, ObixView, Obix, WatchesLocal, Watches, Histories, CompositeHistory, Cookie ) {
+define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/obixview','models/obix', 'models/watcheslocal', 'models/watches', 'models/histories', 'models/historyrollupoutlocal','models/compositehistory', 'jscookie'], function(
+		$, Backbone, Marionette, _, ventAggr, oauth2, ObixView, Obix, WatchesLocal, Watches, Histories, HistoryRollupOutLocal, CompositeHistory, Cookie ) {
 
 	var AppController = Marionette.Controller.extend({
 
@@ -54,6 +54,8 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 			this.watches = new Watches();
 			// create a collection that will hold all histories
 			this.histories = new Histories();
+			// load previously saves history rollups
+			HistoryRollupOutLocal.fetch();
 			
 			this.obixView = new ObixView();
 			this.rootRegion = options.rootRegion;
@@ -421,7 +423,9 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 				var watchIn = new Obix.watchIn();
 				watchIn.getHrefList().add(point.getHref());
 				
-				this.lobbyWatch.getRemoveOp().invoke(watchIn, new Obix.nil(), {
+				this.lobbyWatch.getRemoveOp().invoke(watchIn, new Obix.nil({}, {
+					urlRoot : this.restRoot
+				}), {
 					headers: oauth2.getAuthorizationHeader(),
 					success : _.bind(function(model, response) {
 						ventAggr.trigger("watch:updateList")
@@ -443,7 +447,9 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 		 */
 		onRemoveWatch : function( watch) {
 			
-			watch.getDeleteOp().invoke( new Obix.nil(), new Obix.watchOut(), {
+			watch.getDeleteOp().invoke( new Obix.nil(), new Obix.watchOut({}, {
+				urlRoot : this.restRoot
+			}), {
 				headers: oauth2.getAuthorizationHeader(),
 				success: this.watchDeleted,
 				error : _.bind(function(model, response, option){

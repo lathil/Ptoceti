@@ -1,4 +1,4 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr','oauth2', 'modelbinder', 'courier', 'numeral', 'moment', 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ventAggr, oauth2, ModelBinder, Courier, Numeral, Moment) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'models/historyrollupoutlocal', 'eventaggr','oauth2', 'modelbinder', 'courier', 'numeral', 'moment', 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, HistoryRollupOutLocal, ventAggr, oauth2, ModelBinder, Courier, Numeral, Moment) {
 	
 	var HistoryItemView = Backbone.Marionette.Layout.extend({
 		tagName: "tr",
@@ -19,7 +19,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 			childCollapseItem : "[name=\"childCollapseItem\"]",
 			bootstrapCollapseItem : "[name=\"bootstrapCollapseItem\"]",
 			nextPeriodItem : "[name=\"nextPeriod\"]",
-			previousPeriodItem : "[name=\"previousPeriod\"]"
+			previousPeriodItem : "[name=\"previousPeriod\"]",
+			spin : "[name=\"spin\"]"
 		},
 		
 		// setup lister for pur DOM event handling
@@ -50,15 +51,24 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 			this.on('itemUnselected', this.itemUnselected, this);
 			this.model.getHistory().on('change:displayName', this.saveChanges, this);
 			
+			//this.model.getHistory().getRollupOp()
+			
+			var localHistoryRollup = HistoryRollupOutLocal.get(this.model.getHistory().getRollupOp().getHref().getVal());
+			if( localHistoryRollup ){
+				this.model.setRollUp(localHistoryRollup);
+			}
+			
 			ventAggr.on(this.model.getHistory().getHref().getVal().replace(/\//gi,"-") + ":updateRollup", this.loadLast1HRollUp, this);
 
 		},
 		
 		// event handler called after the view has been closed
 		onClose : function() {
+			this.model.getRollUp().save();
 			ventAggr.off(this.model.getHistory().getHref().getVal().replace(/\//gi,"-") + ":updateRollup", this.loadLast1HRollUp, this);
 			this.off('itemUnselected', this.itemUnselected, this);
 			this.historybinder.unbind();
+			
 		},
 		
 		/**
@@ -78,7 +88,26 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 				displayName: {selector: '[name=displayName]', converter: this.nameConverter}
 			}, {'changeTriggers': {'': 'change', '[contenteditable]': 'enterpress'}}  );
 			
-			this.loadLast24HRollUp();
+			// if rollup was not retrieved from local storage
+			if( !this.model.getRollUp()){
+				//... go get it
+				this.loadLast24HRollUp();
+			} else {
+				// rollup end there
+				var endRecord = Moment(this.model.getRollUp().getEnd().getVal());
+				var now = Moment();
+				
+				var duration = Moment.duration(now.diff(endRecord));
+				var hours = duration.asHours();
+				
+				if(hours < 1){
+					this.loadLast1HRollUp();
+				} else if( hours > 24){
+					this.loadLast24HRollUp();
+				} else {
+					this.loadRollUp(endRecord, now, 24);
+				}
+			}
 		},
 		
 		onItemDelete : function(){
@@ -275,7 +304,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 				
 				console.log('request history rollup');
 				
-				this.model.getHistory().getRollupOp().invoke(rollUpIn, new Obix.historyRollupOut(), {
+				var historyrollup  = new Obix.historyRollupOut({}, {
+					urlRoot : this.model.getHistory().urlRoot
+				});
+				
+				this.model.getHistory().getRollupOp().invoke(rollUpIn, historyrollup, {
 					headers: oauth2.getAuthorizationHeader(),
 					success : _.bind( this.historyRollUpUpdate, this )
 				});
@@ -296,6 +329,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 				var rollUpEnd = Moment( historyRollupOut.getEnd().getVal());
 				
 				if( !this.model.getRollUp()){
+					
+					HistoryRollupOutLocal.create( historyRollupOut);
 					this.model.setRollUp(historyRollupOut);
 					
 					this.startChartDate = Moment( rollUpStart);
@@ -384,6 +419,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 					this.ui.bootstrapCollapseItem.click();
 					this.mustShowContents = false;
 				}
+				
+				if(!this.ui.spin.hasClass('hidden')){
+					this.ui.spin.addClass('hidden');
+				}
+				
 				
 				
 			} else {

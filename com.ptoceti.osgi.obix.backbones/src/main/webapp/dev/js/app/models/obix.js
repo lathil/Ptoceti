@@ -96,9 +96,19 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		parse : function(response, options) {
 			if (!!response) {
 
-				if (!response.href !== null) {
+				if (response.href) {
 					response.href = new Uri(response.href);
-				};
+					response.id = response.href.getVal();
+				} else if (options.url) {
+					var href = new Uri();
+					var url = options.url.substring( (_.result(this,'urlRoot')).length );
+					if( !(url.substr(0, 1) == '/')){
+						url = '/' + url;
+					}
+					href.setVal(url)
+					response.href = href;
+					response.id = response.href.getVal();
+				}
 				if (response.childrens !== null)
 					response.childrens = new Objs(response.childrens, {
 						urlRoot : _.result(this, 'urlRoot'),

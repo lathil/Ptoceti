@@ -31,15 +31,15 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		template : 'watches',  
 
 		ui : {
-			reloadButton : "#reloadButton",
-			removeButton : "#removeButton",
-			createButton : "#createButton",
+			reloadButton : "[name=\"reloadButton\"]",
+			removeButton : "[name=\"removeButton\"]",
+			createButton : "[name=\"createButton\"]"
 		},
 
 		events : {
-			"click #reloadButton" : "reloadList",
-			"click #removeButton" : "removeFromList",
-			"click #createButton" : "createWatch",
+			"click [name='reloadButton']" : "reloadList",
+			"click [name='removeButton']" : "removeFromList",
+			"click [name='createButton']" : "createWatch",
 		},
 		
 		regions: {

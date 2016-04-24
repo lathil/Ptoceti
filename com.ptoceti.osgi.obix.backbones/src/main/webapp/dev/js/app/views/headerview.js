@@ -54,7 +54,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			
 			this.serverTimeOffsetMillis = Moment().diff(Moment(this.model.getServerTime().getVal()));
 			
-			_.bindAll(this, 'enterXs','quitXs');
+			_.bindAll(this, 'enterXs','quitXs', 'activeLobbyMenu', 'activeWatchesMenu', 'activeHistoryMenu');
 			
 			this.onXsMedia = false;
 			this.xsQueryHandler = {match : this.enterXs, unmatch: this.quitXs};
@@ -101,7 +101,6 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			this.ui.lobbyMenu.parent().addClass('active');
 			this.ui.watchesMenu.parent().removeClass('active');
 			this.ui.historyMenu.parent().removeClass('active');
-			
 			ventAggr.trigger("app:goToLobby");
 			
 		},
@@ -118,6 +117,24 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			this.ui.watchesMenu.parent().removeClass('active');
 			this.ui.historyMenu.parent().addClass('active');
 			ventAggr.trigger("app:goToHistories");
+		},
+		
+		activeLobbyMenu : function(){
+			this.ui.lobbyMenu.parent().addClass('active');
+			this.ui.watchesMenu.parent().removeClass('active');
+			this.ui.historyMenu.parent().removeClass('active');
+		},
+		
+		activeWatchesMenu : function(){
+			this.ui.lobbyMenu.parent().removeClass('active');
+			this.ui.watchesMenu.parent().addClass('active');
+			this.ui.historyMenu.parent().removeClass('active');
+		},
+		
+		activeHistoryMenu : function(){
+			this.ui.lobbyMenu.parent().removeClass('active');
+			this.ui.watchesMenu.parent().removeClass('active');
+			this.ui.historyMenu.parent().addClass('active');
 		}
 
 	});

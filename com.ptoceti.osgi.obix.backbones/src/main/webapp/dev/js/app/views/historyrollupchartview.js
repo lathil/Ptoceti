@@ -86,7 +86,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 
 	    updateItemValues : function(historyRollupColl) {
 	    	
 	    	
-	    	this.collection.set( historyRollupColl.models, {add: true, remove: false, merge : true});
+	    	this.collection.set( historyRollupColl.models, {add: true, remove: true, merge : true});
 	    	this.historyChart.setData(this.getChartData());
 	    },
 	    

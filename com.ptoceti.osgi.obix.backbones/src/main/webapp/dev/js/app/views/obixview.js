@@ -88,6 +88,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 				}
 				if( watch) {
 					layout.content.show(new LobbyView({name: watch.getName(), displayName : watch.getDisplayName()}));
+					layout.header.currentView.activeLobbyMenu();
 				}
 			});
 		},
@@ -102,6 +103,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 					layout.footer.show(new FooterView({model : about}))
 				}
 				layout.content.show(new WatchView());
+				layout.header.currentView.activeWatchesMenu();
 			});
 		},
 		
@@ -115,6 +117,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 					layout.footer.show(new FooterView({model : about}))
 				}
 				layout.content.show(new HistoryView({historyUri: historyUri}));
+				layout.header.currentView.activeHistoryMenu();
 			});
 		}
 	

@@ -5,8 +5,6 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		template: "historyrollup",
 		className: "historyrollup",
 		
-		model : new HistoryRollupViewModel(),
-		
 		regions : {
 			historyRegion : '[name=\'history\']'
 		},
@@ -14,6 +12,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		initialize : function() {
 			// add this view to Backbone.Courier
 			Courier.add(this);
+			
+			this.model = new HistoryRollupViewModel();
 			
 			this.collection.on('change', this.updateModelFromCollection, this);
 			this.collection.on('add remove', this.updateCollection, this);
@@ -48,11 +48,6 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			mediaEnquire.unregisterXs(this.xsQueryHandler);
 		},
 		
-		updateItemValues : function(historyRollupColl) {
-			this.collection.set( historyRollupColl.models, {add: true, remove: true, merge : true});
-			this.updateRollUpChart(this.collection);
-		},
-		
 		// event handler call after the view has been rendered
 		onRender : function(){
 			if( this.collection.length > 0) {
@@ -71,6 +66,12 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			this.updateModelFromCollection();
 		},
 		
+		updateItemValues : function(historyRollupColl) {
+			this.collection.set( historyRollupColl.models, {add: true, remove: true, merge : true});
+			this.updateRollUpChart(this.collection);
+			this.updateModelFromCollection();
+		},
+		
 		updateCollection : function(model, collection, option){
 			this.updateModelFromCollection();
 		},
@@ -84,7 +85,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 				if(max == null){
 					max = new Number(model.getMax().getVal());
 				} else {
-					temp = new Number(model.getMax().getVal());
+					var temp = new Number(model.getMax().getVal());
 					if( temp > max){
 						max = temp;
 					}
@@ -112,7 +113,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 				if(min == null){
 					min = new Number(model.getMin().getVal());
 				} else {
-					temp = new Number(model.getMin().getVal());
+					var temp = new Number(model.getMin().getVal());
 					if( temp < min){
 						min = temp;
 					}
