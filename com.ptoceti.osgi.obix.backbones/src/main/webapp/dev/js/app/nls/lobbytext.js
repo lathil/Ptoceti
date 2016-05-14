@@ -41,6 +41,7 @@ define({
 	    		"remove" : "Remove",
 	    		"reload" : "Reload",
 	    		"create" : "Create",
+	    		"add" : "Add",
 	    		"watch" : "Watch",
 	    		"items" : "Items : ",
 	    		"copyright" :"\251 Ptoceti 2014"
@@ -60,6 +61,7 @@ define({
 	    		"remove" : "",
 	    		"reload" : "",
 	    		"create" : "",
+	    		"add" : "",
 	    		"watch" : "Watch",
 	    		"items" : "Items : ",
 	    		"copyright" :"\251 Ptoceti 2014"

@@ -96,9 +96,9 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 	});
 
 	/**
-	 * Handles application level gnerated events that indicate to swicth to the lobby view. Check first that we are not on this same view
+	 * Handles application level generated events that indicate to swicth to the lobby view. Check first that we are not on this same view
 	 * from Backbones history.
-	 * Delegate view switching to applcation controller
+	 * Delegate view switching to application controller
 	 */
 	ventAggr.on("app:goToLobby", function() {
 		if( Backbone.history.fragment != "lobby" ) {
@@ -130,9 +130,9 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 	});
 	
 	/**
-	 * Handles application level gnerated events that indicate to swicth to the history view. Check first that we are not on this same view
+	 * Handles application level generated events that indicate to swicth to the history view. Check first that we are not on this same view
 	 * from Backbones history.
-	 * Delegate view switching to applcation controller
+	 * Delegate view switching to application controller
 	 */
 	ventAggr.on("app:goToHistories", function() {
 		if( Backbone.history.fragment != "histories" ) {
@@ -142,14 +142,25 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 	});
 	
 	/**
-	 * Handles application level gnerated events that indicate to swicth to the history view. Check first that we are not on this same view
+	 * Handles application level generated events that indicate to swicth to the history view. Check first that we are not on this same view
 	 * from Backbones history.
-	 * Delegate view switching to applcation controller
+	 * Delegate view switching to application controller
 	 */
 	ventAggr.on("app:goToHistoriesWithHistory", function(historyUri) {
 		if( Backbone.history.fragment != "histories" + historyUri ) {
 			Backbone.history.navigate("histories" + historyUri, {});
 			app.controller.goToHistoriesWithHistory(historyUri);
+		}
+	});
+	
+	/**
+	 * Handle application event that ask to search for items to ad to the current lobby watch
+	 * 
+	 */
+	ventAggr.on("app:goToAddItemToWatch", function() {
+		if( Backbone.history.fragment != "search" ) {
+			Backbone.history.navigate("search", {});
+			app.controller.goToAddItemToWatch();
 		}
 	});
 	

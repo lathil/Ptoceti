@@ -61,7 +61,7 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 			this.rootRegion = options.rootRegion;
 			this.rootRegion.show(this.obixView);
 			
-			ventAggr.on("watch:removePoint", this.onWatchDeletePoint, this);
+			ventAggr.on("watch:removePoint", this.onDeleteItemFromWatch, this);
 			ventAggr.on("watch:updateListValues", this.onUpdateWatchListItemValues,this);
 			ventAggr.on("watch:updateList", this.onUpdateWatchListItem,this);
 			ventAggr.on("watchlist:updateList", this.onUpdateWatchList, this); 
@@ -74,11 +74,15 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 			ventAggr.on("history:showHistory", this.onShowHistory,this);
 			ventAggr.on("controller:loadHistory", this.onLoadHistory, this);
 			ventAggr.on("controller:loadApp", this.loadApp, this);
+			ventAggr.on("controller:doSearch", this.onDoSearch, this);
+			ventAggr.on("controller:doAdditemToWatch", this.onAddItemToWatch, this);
+			
+			
 			ventAggr.on("oauth2:access", this.oauth2Access, this);
 			ventAggr.on("oauth2:error", this.oauth2Error, this);
 			ventAggr.on("controler:doLogin", this.doLogin, this);
 
-			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted', 'historyLoaded', 'historyDeleted', 'historyCreated');
+			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted', 'historyLoaded', 'historyDeleted', 'historyCreated', 'searchDone');
 			
 		},
 
@@ -290,31 +294,6 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 		 */
 		watchCreated : function(model, response) {
 			console.log('watch created');
-
-			var watchIn = new Obix.watchIn();
-			var watchedPoints = _.union(this.lobby.getChildrens().getByContract('ptoceti:MeasurePoint'),
-					this.lobby.getChildrens().getByContract('ptoceti:SwitchPoint'),
-					this.lobby.getChildrens().getByContract('ptoceti:DigitPoint'),
-					this.lobby.getChildrens().getByContract('ptoceti:ReferencePoint'),
-					this.lobby.getChildrens().getByContract('obix:writablePoint'));
-			for ( var i = 0; i < watchedPoints.length; i++) {
-				watchIn.getHrefList().add(watchedPoints[i].getHref());
-			}
-
-			var watchOut  = new Obix.watchOut({}, {
-				urlRoot : this.restRoot
-			});
-			
-			model.getAddOp().invoke(watchIn, watchOut, {
-				headers: oauth2.getAuthorizationHeader(),
-				success : this.watchUpdated,
-				updateValues : false,
-				error : _.bind(function(model, response, option){
-					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
-						ventAggr.trigger("oauth2:error");
-		            }
-				}, this)
-			});
 			
 			// if looby not yet initialised
 			if(!this.lobbyWatch || typeof this.lobbyWatch == 'undefined' ||  this.lobbyWatch == null) {
@@ -328,6 +307,72 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 			
 			ventAggr.trigger("controller:updatedWatchList", this.watches);
 		},
+		
+		/**
+		 * Add an item to the current lobby watch
+		 */
+		onAddItemToWatch : function( href ){
+			
+			var watchIn = new Obix.watchIn();
+			watchIn.getHrefList().add(href.getHref());
+			
+			var watchOut  = new Obix.watchOut({}, {
+				urlRoot : this.restRoot
+			});
+			
+			this.lobbyWatch.getAddOp().invoke(watchIn, watchOut, {
+				headers: oauth2.getAuthorizationHeader(),
+				success : _.bind(function(watchOut, response, options){
+					this.watchUpdated(watchOut, response, options);
+					// add uri to watch list so that it won't be re-displayed
+					this.lobbyWatch.getChildrens().add(href.getHref());
+					
+				},this),
+				updateValues : false,
+				error : _.bind(function(model, response, option){
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
+		            }
+				}, this)
+			});
+		},
+		
+		/**
+		 * Remove a point from the list of watched points of the lobby watch.
+		 * 
+		 */
+		onDeleteItemFromWatch : function( item) {
+			if( this.lobbyWatch != null ) {
+				
+				var watchIn = new Obix.watchIn();
+				watchIn.getHrefList().add(item.getHref());
+				
+				this.lobbyWatch.getRemoveOp().invoke(watchIn, new Obix.nil({}, {
+					urlRoot : this.restRoot
+				}), {
+					headers: oauth2.getAuthorizationHeader(),
+					success : _.bind(function(model, response) {
+						// removed item from local watch so that it may be redisplayed in search list
+						var removedItem = _.find(this.lobbyWatch.getChildrens().models, function( nextItem){
+							if( nextItem.get('type') == "uri" && nextItem.getVal() == item.getHref().getVal()){
+								return true;
+							}
+						}, this);
+						if( removedItem){
+							this.lobbyWatch.getChildrens().remove(removedItem);
+						}
+						
+						ventAggr.trigger("watch:updateList")
+					}, this),
+					error : _.bind(function(model, response, option){
+						if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+							ventAggr.trigger("oauth2:error");
+			            }
+					}, this)
+				});
+			}
+		},
+		
 
 		/**
 		 * Call back looby watch with updated values
@@ -339,15 +384,10 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 			console.log('watch updated response');
 			
 			if( options.updateValues !== 'undefined' && options.updateValues == true) {
-				ventAggr.trigger("controller:updatedWatchPointValues", watchout.getValueList().getChildrens());
+				ventAggr.trigger("controller:updatedWatchItemsValues", watchout.getValueList().getChildrens());
 			}
-			else ventAggr.trigger("controller:updatedWatchPointList", watchout.getValueList().getChildrens());
-			
-			/**
-			if( options.createUpdateTask !== 'undefined' &&  options.createUpdateTask == true) {
-				this.schedulesUpdateWatch = setTimeout(_.bind(this.updateWatch, this), 5000);
-			}
-			**/
+			else ventAggr.trigger("controller:updatedWatchItemsList", watchout.getValueList().getChildrens());
+
 		},
 		
 		watchDeleted : function(watchout, response, option) {
@@ -413,31 +453,7 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 			ventAggr.trigger("controller:updatedWatchList", this.watches);
 		}, 
 		
-		/**
-		 * Remove a point from the list of watched points of the lobby watch.
-		 * 
-		 */
-		onWatchDeletePoint : function( point) {
-			if( this.lobbyWatch != null ) {
-				
-				var watchIn = new Obix.watchIn();
-				watchIn.getHrefList().add(point.getHref());
-				
-				this.lobbyWatch.getRemoveOp().invoke(watchIn, new Obix.nil({}, {
-					urlRoot : this.restRoot
-				}), {
-					headers: oauth2.getAuthorizationHeader(),
-					success : _.bind(function(model, response) {
-						ventAggr.trigger("watch:updateList")
-					}, this),
-					error : _.bind(function(model, response, option){
-						if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
-							ventAggr.trigger("oauth2:error");
-			            }
-					}, this)
-				});
-			}
-		},
+		
 		
 		/**
 		 * Event handler for application level event type watch:removeWatch. Remove watch loccaly and on server
@@ -594,6 +610,60 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 		onShowHistory : function(historyRef){
 			this.goToHistoriesWithHistory(historyRef);
 		},
+		
+		/**
+		 * execute a search on server for a list of items
+		 */
+		onDoSearch : function(searchValue) {
+			
+			var ref = new Obix.ref();
+			ref.setDisplayName(searchValue);
+			
+			var searchOut  = new Obix.searchOut({}, {
+				urlRoot : this.restRoot
+			});
+			
+			this.lobby.getSearchOp().invoke(ref, searchOut, {
+				headers: oauth2.getAuthorizationHeader(),
+				success : this.searchDone,
+				updateValues : false,
+				error : _.bind(function(model, response, option){
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
+		            }
+				}, this)
+			});
+			
+		},
+		
+		/**
+		 * Publish event when search is done with results
+		 */
+		searchDone : function(searchout, response, options) {
+			console.log('search done');
+			
+			var filteredResults = new Backbone.Collection(null,{model: Obix.ref});
+			
+			_.each(searchout.getValueList().getChildrens().models, function(item){
+				
+				var found = false;
+				var searchitem = item
+				
+				_.each(this.lobbyWatch.getChildrens().models, function(watchitem){
+					if( watchitem.get('type') == "uri" && watchitem.get('val') && watchitem.get('val') == searchitem.get('href').get('val')){
+						found = true;
+					}
+					
+				}, this)
+				
+				if( !found){
+					filteredResults.push(searchitem);
+				}
+				
+			}, this)
+			
+			ventAggr.trigger("controller:searchResultValues", filteredResults);
+		},
 
 		goToIntro : function(){
 			this.obixView.showIntro();
@@ -633,6 +703,11 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 		
 		goToHistoriesWithHistory : function(historyUri){
 			this.obixView.showHistory(this.about, historyUri);
+		},
+		
+		
+		goToAddItemToWatch : function(){
+			this.obixView.showSearch(this.about);
 		}
 
 	});
