@@ -48,12 +48,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 		},
 		
 		getItemView: function(item){
-			
+			if( item.attributes.type && item.attributes.type == 'ref' ) {
+				return require('views/refitemview');
+			} 
 			if( item.hasContract('obix:Watch')) {
 				return require('views/watchitemview');
-			}
-			if( item.hasContract('obix:Point')) {
-				return require('views/pointitemview');
 			}
 			if( item.hasContract('obix:Point')) {
 				return require('views/pointitemview');
@@ -187,6 +186,10 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 		
 		updateItemValues : function(updatedCollection) {
 			this.collection.set(updatedCollection.models,{add: false, remove: false, merge : true});
+		},
+		
+		removeItemFromList: function(item){
+			this.collection.remove(item.id);
 		},
 		
 		goToNextPage : function(){

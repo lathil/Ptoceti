@@ -1,12 +1,13 @@
 define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ventAggr, ModelBinder, Courier) {
 	
 	var RefItemView = Backbone.Marionette.ItemView.extend({
-		tagName:"div",
+		tagName:"tr",
 		template: "refitem",
 	
 		// setup lister for pur DOM event handling
 		events : {
-			"click [name='reflink']" : "onRefLinkNavigate",
+			"click td" : "itemSelected",
+			"click [name='reflink']" : "onRefLinkNavigate"
 		},
 		
 		templateHelpers :  {
@@ -19,6 +20,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 		},
 		
 		initialize : function() {
+			this.on('itemUnselected', this.itemUnselected, this);
+			// initialize Backbone.ModelBinder for dual binding
+			this.modelbinder = new ModelBinder();
 			// add this view to Backbone.Courier
 			Courier.add(this);
 
@@ -26,20 +30,51 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 		
 		// event handler called after the view has been closed
 		onClose : function() {
-		
+			this.off('itemUnselected', this.itemUnselected, this);
+			this.modelbinder.unbind();
 		},
 		
 		// event handler call after the view has been rendered
 		onRender : function(){
-			
+			this.modelbinder.bind(this.model, this.el, {
+				name: {selector: '[name=refname]', converter: this.nameConverter},
+			} );
 		},
 		
 		onRefLinkNavigate : function(){
-			if( this.model.hasContract('obix:History')){
-				ventAggr.trigger("app:goToHistoriesWithHistory", this.model.getHref().getVal());
+			this.spawn("refLinkNavigate", {point: this.model});
+		},
+		
+		nameConverter : function(direction, value, attributeName, model){
+			if( direction =='ModelToView') {
+				if(model.getDisplayName() && model.getDisplayName().length > 0) return model.getDisplayName();
+				else if(model.getDisplay() && model.getDisplay().length > 0) return model.getDisplay();
+				else if(value && value.length > 0) return value;
 			}
 		},
 		
+		itemUnselected : function(){
+			if( this.$el.hasClass("active")){
+				this.$el.removeClass("active");
+			}
+		},
+		
+		itemSelected : function(){
+			if( this.$el.hasClass("active")){
+				this.$el.removeClass("active");
+				// setup view event to clear selection
+				this.spawn("listItemSelected", {point: null});
+			}
+			else {
+				//$(".listItem ").removeClass("active");
+				this.trigger("siblingItem:Unselect", '', this);
+				this.$el.addClass("active");
+				// setup view event to indicate selection
+				this.spawn("listItemSelected", {point: this.model});
+			}
+		},
+		
+		/**
 		fetchHistory : function( historyRef ){
 			var region = this.refRegion;
 			var refmodel = this.model;
@@ -55,6 +90,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 				} 
 			});
 		}
+		**/
 	
 	});
 	

@@ -1,5 +1,5 @@
 /* Modernizr (Custom Build) | MIT & BSD
- * Build: http://modernizr.com/download/#-indexeddb-mq-svg-touch-websockets-contenteditable-shiv-load-cssclasses-testallprops
+ * Build: http://modernizr.com/download/#-indexeddb-mq-svg-touch-websockets-contenteditable-shiv-load-cssclasses-contenteditable-testallprops
  */
 ;
 

@@ -33,12 +33,13 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		ui : {
 			reloadButton : "[name=\"reloadButton\"]",
 			removeButton : "[name=\"removeButton\"]",
-			createButton : "[name=\"createButton\"]"
+			addButton : "[name=\"addButton\"]"
 		},
 
 		events : {
 			"click [name='reloadButton']" : "reloadWatch",
-			"click [name='removeButton']" : "removeFromWatch"
+			"click [name='removeButton']" : "removeFromWatch",
+			"click [name='addButton']" :"addToWatch"
 		},
 		
 		regions: {
@@ -56,8 +57,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			this.model.set("name", options.name);
 			this.model.set("displayName", options.displayName);
 			
-			ventAggr.on("controller:updatedWatchPointList", this.onUpdatedPointsList, this);
-			ventAggr.on("controller:updatedWatchPointValues", this.onUpdatedPointsValues, this);
+			ventAggr.on("controller:updatedWatchItemsList", this.onUpdatedItemsList, this);
+			ventAggr.on("controller:updatedWatchItemsValues", this.onUpdatedItemsValues, this);
 			
 
 			_.bindAll(this, 'enterXs','quitXs');
@@ -89,8 +90,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		onClose : function() {
 			
 			this.modelbinder.unbind();
-			ventAggr.off("controller:updatedWatchPointList", this.onUpdatedPointsList, this);
-			ventAggr.off("controller:updatedWatchPointValues", this.onUpdatedPointsValues, this);
+			ventAggr.off("controller:updatedWatchItemsList", this.onUpdatedItemsList, this);
+			ventAggr.off("controller:updatedWatchItemsValues", this.onUpdatedItemsValues, this);
 			mediaEnquire.unregisterXs(this.xsQueryHandler);
 		},
 		
@@ -98,7 +99,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		onMessages : {
 	        "listItemSelected" : "onItemSelected",
 	        "itemDelete" : "onItemDelete",
-	        "itemRecord" : "onItemRecord"
+	        "itemRecord" : "onItemRecord",
+	        "refLinkNavigate" : "onRefLinkNavigated"
 	    },
 		
 	    /**
@@ -117,6 +119,12 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			if( direction =='ModelToView') {
 				if(!model.get('displayName')) return value;
 				else return model.get('displayName');
+			}
+		},
+		
+		onRefLinkNavigated : function( message) {
+			if( message.data.point.hasContract('obix:History')){
+				ventAggr.trigger("app:goToHistoriesWithHistory", message.data.point.getHref().getVal());
 			}
 		},
 		
@@ -139,7 +147,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			ventAggr.trigger("history:createHistory", message.data.point);
 		},
 		
-		onUpdatedPointsValues: function(updatedCollection) {
+		onUpdatedItemsValues: function(updatedCollection) {
 			var region = this.pointsListRegion;
 			
 			_.each(updatedCollection.models, function(element,index) {
@@ -191,7 +199,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			});
 		},
 		
-		onUpdatedPointsList: function(updatedCollection) {
+		onUpdatedItemsList: function(updatedCollection) {
 			var region = this.pointsListRegion;
 			
 			_.each(updatedCollection.models, function(element,index) {
@@ -255,6 +263,13 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		 */
 		removeFromWatch : function() {
 			ventAggr.trigger("watch:removePoint", this.pointSelected);
+		},
+		
+		/**
+		 * Binded to delete watch button. Send event to mediator to remove watch
+		 */
+		addToWatch : function() {
+			ventAggr.trigger("app:goToAddItemToWatch");
 		}
 		
 	});

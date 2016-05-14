@@ -119,7 +119,20 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 				layout.content.show(new HistoryView({historyUri: historyUri}));
 				layout.header.currentView.activeHistoryMenu();
 			});
-		}
+		},
+		
+		showSearch: function(about){
+			var layout = this;
+			require(['views/searchview', 'views/footerview','views/headerview'], function(SearchView, FooterView, HeaderView) {
+				if (!(layout.header.currentView instanceof HeaderView)){
+					layout.header.show(new HeaderView({model : about}))
+				}
+				if (!(layout.footer.currentView instanceof FooterView)){
+					layout.footer.show(new FooterView({model : about}))
+				}
+				layout.content.show(new SearchView());
+			});
+		},
 	
 	});
 	

@@ -47,8 +47,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr','models/o
 				  },
 			});
 			
-			ventAggr.on("controller:updatedWatchPointList", this.onUpdatedPointsList, this);
-			ventAggr.on("controller:updatedWatchPointValues", this.onUpdatedPointsValues, this);
+			ventAggr.on("controller:updatedWatchItemsList", this.onUpdatedPointsList, this);
+			ventAggr.on("controller:updatedWatchItemsValues", this.onUpdatedPointsValues, this);
 			
 			ventAggr.trigger("watch:updateList");
 			
@@ -57,8 +57,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr','models/o
 		
 		// event handler called after the view has been closed
 		onClose : function() {
-			ventAggr.off("controller:updatedWatchPointList", this.onUpdatedPointsList, this);
-			ventAggr.off("controller:updatedWatchPointValues", this.onUpdatedPointsValues, this);
+			ventAggr.off("controller:updatedWatchItemsList", this.onUpdatedPointsList, this);
+			ventAggr.off("controller:updatedWatchItemsValues", this.onUpdatedPointsValues, this);
 		},
 		
 		// event handler call after the view has been rendered

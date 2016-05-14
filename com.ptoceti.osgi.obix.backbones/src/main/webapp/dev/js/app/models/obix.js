@@ -970,6 +970,10 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		 */
 		getBatchOp : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('batch');
+		},
+		
+		getSearchOp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('search');
 		}
 	});
 
@@ -981,6 +985,19 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		}),
 		
 	});
+	
+	var SearchOut = Obj.extend({
+
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'searchout',
+			is : {uris: [{type: 'uri', val: 'obix:SearchOut'}]}
+		}),
+		
+		getValueList : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('results');
+		}
+	});
+	
 
 	var WatchService = Obj.extend({
 
@@ -1366,6 +1383,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		about : About,
 		lobby : Lobby,
 		nil : Nil,
+		searchOut : SearchOut,
 		watchService : WatchService,
 		watch : Watch,
 		watchIn : WatchIn,
