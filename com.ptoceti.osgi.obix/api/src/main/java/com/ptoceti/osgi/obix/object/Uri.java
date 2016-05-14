@@ -102,4 +102,9 @@ public class Uri extends Val {
 	public Contract getContract(){
 		return contract;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return super.equals(o) && getVal().equals(((Uri)o).getVal());
+	}
 }
