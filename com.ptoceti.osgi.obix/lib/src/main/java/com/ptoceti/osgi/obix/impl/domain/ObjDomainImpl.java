@@ -134,6 +134,26 @@ public class ObjDomainImpl extends AbstractDomain implements ObjDomain {
 		return objs;
 	}
 	
+	public List<Obj> getObixObjByDisplayName(String displayName) throws DomainException {
+		
+		Obj obixObj = new Obj();
+		obixObj.setDisplayName(displayName);
+		ObjEntity objEnt = new ObjEntity(obixObj);
+	
+		List<Obj> objs = new ArrayList<Obj>();
+		try {
+			List<ObjEntity> entityList = (List<ObjEntity>)objEnt.fetchByDisplayName();
+			
+			for( ObjEntity entity : entityList) {
+				objs.add(entity.getObixObject());
+			}
+		} catch(EntityException ex) {
+			throw new DomainException("Exception in " + this.getClass().getName() + ".getObixObjsByContract", ex);
+		}
+		
+		return objs;
+	}
+	
 	public Obj updateObixObjAt(Uri href, Obj updateObj) throws DomainException{
 	
 		ObjEntity objEnt = mapEntityToObj(updateObj);

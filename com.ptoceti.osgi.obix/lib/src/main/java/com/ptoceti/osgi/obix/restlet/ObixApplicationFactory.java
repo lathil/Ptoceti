@@ -55,6 +55,7 @@ import com.ptoceti.osgi.obix.impl.resources.server.HistoryServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.HistoryServiceServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.LobbyServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.ObjServerResource;
+import com.ptoceti.osgi.obix.impl.resources.server.SearchServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.WatchAddServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.WatchDeleteServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.WatchPoolChangesServerResource;
@@ -155,6 +156,8 @@ public class ObixApplicationFactory {
 		root.attach(AboutServerResource.uri, AboutServerResource.class);
 		root.attach(LobbyServerResource.uri, LobbyServerResource.class);
 		root.attach(BatchServerResource.uri, BatchServerResource.class);
+		
+		root.attach(SearchServerResource.uri, SearchServerResource.class);
 		
 		root.attach(WatchServiceServerResource.uri, WatchServiceServerResource.class);
 		

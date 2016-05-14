@@ -28,28 +28,21 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  */
 
 
-import java.util.List;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.Lobby;
-import com.ptoceti.osgi.obix.custom.contract.MeasurePoint;
-import com.ptoceti.osgi.obix.custom.contract.MonitoredPoint;
-import com.ptoceti.osgi.obix.custom.contract.DigitPoint;
-import com.ptoceti.osgi.obix.custom.contract.ReferencePoint;
-import com.ptoceti.osgi.obix.custom.contract.SwitchPoint;
-import com.ptoceti.osgi.obix.domain.DomainException;
+import com.ptoceti.osgi.obix.contract.Search;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 
 import org.restlet.resource.Get;
 
-
-import com.ptoceti.osgi.obix.object.Obj;
-import com.ptoceti.osgi.obix.object.Ref;
+import com.ptoceti.osgi.obix.object.Op;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.AboutResource;
 import com.ptoceti.osgi.obix.resources.HistoryServiceResource;
 import com.ptoceti.osgi.obix.resources.LobbyResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
+import com.ptoceti.osgi.obix.resources.SearchResource;
 import com.ptoceti.osgi.obix.resources.WatchServiceResource;
 
 public class LobbyServerResource extends AbstractServerResource implements LobbyResource{
@@ -75,23 +68,8 @@ public class LobbyServerResource extends AbstractServerResource implements Lobby
 		
 		lobby.getBatch().setHref(new Uri("uri",BatchServerResource.uri));
 		
-		try {
-			//Add all the points we could find.
-			
-			List<Obj> lobbyPointList = objDomain.getObixObjsByContract(MeasurePoint.contract);
-			lobbyPointList.addAll(objDomain.getObixObjsByContract(SwitchPoint.contract));
-			lobbyPointList.addAll(objDomain.getObixObjsByContract(ReferencePoint.contract));
-			lobbyPointList.addAll(objDomain.getObixObjsByContract(DigitPoint.contract));
-			for(Obj lobbyPoint : lobbyPointList ){
-				Ref ref = new Ref();
-				ref.setHref(lobbyPoint.getHref());
-				ref.setIs(lobbyPoint.getIs());
-				lobby.addChildren(ref);
-			}
-			
-		} catch( DomainException ex) {
-			throw new ResourceException("Exception in " + this.getClass().getName() + ".retrieve", ex);
-		}
+		lobby.getSearch().setHref(new Uri("uri",SearchResource.uri));
+		
 		
 		return lobby;
 	}

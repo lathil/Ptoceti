@@ -70,6 +70,16 @@ public interface ObjDomain extends BaseDomain {
 	public List<Obj> getObixObjsByContract(Contract contract) throws DomainException;
 	
 	/**
+	 * Get all objects that have a display name approaching the one given in parameter
+	 * 
+	 * @param displayName
+	 * @return
+	 * @throws DomainException
+	 */
+	@JdbcConnection(type = ConnectionType.RX)
+	List<Obj> getObixObjByDisplayName(String displayName) throws DomainException;
+	
+	/**
 	 * Update an Obix oject at the uri specified
 	 * 
 	 * @param href

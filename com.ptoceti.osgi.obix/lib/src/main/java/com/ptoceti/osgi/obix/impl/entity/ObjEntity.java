@@ -63,6 +63,8 @@ public class ObjEntity extends AbstractEntity {
 	private static final String SEARCH_OBJ_BY_PARENT_ID = "select object.* from object where object.parent_id=?";
 	private static final String SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP = "select object.* from object where object.parent_id=? and created_ts > ? and created_ts <= ?";
 	private static final String SEARCH_OBJ_BY_CONTRACT_ID = "select object.* from object where object.contract_id = ?";
+	
+	private static final String SEARCH_OBJ_BY_DISPLAYNAME = "select object.* from object where uri_hash not null and uri like '/%' and displayname like (?)";
 
 	private static final String DELETE_OBJ = "delete from object where object.id=?";
 	private static final String DELETE_CHILD_OBJ = "delete from object where object.parent_id=?";
@@ -339,6 +341,8 @@ public class ObjEntity extends AbstractEntity {
 		query(SEARCH_OBJ_BY_HREF, params.toArray(), new ObjResultSetHandler<ObjEntity>(this));
 	}
 	
+	
+	
 	public List<ObjEntity> fetchByHrefs(List<Uri> uris) throws EntityException{
 		
 		List<ObjEntity> results = new ArrayList<ObjEntity>();
@@ -397,6 +401,38 @@ public class ObjEntity extends AbstractEntity {
 		}
 		
 		return resultObjEntity;
+	}
+
+	public List<ObjEntity> fetchByDisplayName() throws EntityException{
+		
+		List<ObjEntity> results = new ArrayList<ObjEntity>();
+		
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add("%" + getObixObject().getDisplayName() + "%");
+		
+		queryMultiple(SEARCH_OBJ_BY_DISPLAYNAME, params.toArray(), new ObjResultSetMultipleHandler<ObjEntity>(results));
+		
+		for( int i = 0; i < results.size();i++){
+			ObjEntity objEnt = (ObjEntity)results.get(i);
+
+			if (objEnt.getObj_contract_id() != null) {
+				ContractEntity contractEntity = new ContractEntity(objEnt.getObj_contract_id());
+				contractEntity.fetch();
+				objEnt.getObixObject().setIs(contractEntity.getObixContract());
+			}
+			
+			if(!objEnt.getObjtype().equals(EntityType.Obj) && !objEnt.isDetailsfetched()) {
+				// re-map it according to it type to the right obj (Int, Real, ... )
+				ObjEntity resultObjEntity = objEnt.subClassToType( objEnt);
+				if( resultObjEntity instanceof ValEntity) {
+					((ValEntity)resultObjEntity).fetchDetails();
+				}
+				results.set(i, resultObjEntity);
+			}
+		}
+		
+		return results; 
+		
 	}
 
 	public boolean fetchByObjectId() throws EntityException {
