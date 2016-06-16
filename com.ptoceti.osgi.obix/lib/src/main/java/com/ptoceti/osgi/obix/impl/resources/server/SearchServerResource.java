@@ -3,7 +3,7 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 import java.util.List;
 
 import com.google.inject.Inject;
-import com.ptoceti.osgi.obix.contract.SearchOut;
+import com.ptoceti.osgi.obix.custom.contract.SearchOut;
 import com.ptoceti.osgi.obix.custom.contract.DigitPoint;
 import com.ptoceti.osgi.obix.custom.contract.MeasurePoint;
 import com.ptoceti.osgi.obix.custom.contract.ReferencePoint;

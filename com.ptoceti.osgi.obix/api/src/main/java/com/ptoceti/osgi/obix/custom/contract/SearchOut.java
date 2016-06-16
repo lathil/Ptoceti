@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.obix.contract;
+package com.ptoceti.osgi.obix.custom.contract;
 
 import java.io.Serializable;
 
@@ -13,7 +13,7 @@ public class SearchOut extends Obj implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -327159805480987161L;
-	public static final Contract contract = new Contract("obix:SearchOut");
+	public static final Contract contract = new Contract("ptoceti:SearchOut");
 	
 	public SearchOut() {
 		this.setIs(contract);

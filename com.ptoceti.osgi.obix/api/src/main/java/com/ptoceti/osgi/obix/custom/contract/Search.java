@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.obix.contract;
+package com.ptoceti.osgi.obix.custom.contract;
 
 import java.io.Serializable;
 

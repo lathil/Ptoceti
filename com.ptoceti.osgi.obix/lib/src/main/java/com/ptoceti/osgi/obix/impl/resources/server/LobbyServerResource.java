@@ -31,12 +31,10 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.Lobby;
-import com.ptoceti.osgi.obix.contract.Search;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 
 import org.restlet.resource.Get;
 
-import com.ptoceti.osgi.obix.object.Op;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.AboutResource;
 import com.ptoceti.osgi.obix.resources.HistoryServiceResource;
