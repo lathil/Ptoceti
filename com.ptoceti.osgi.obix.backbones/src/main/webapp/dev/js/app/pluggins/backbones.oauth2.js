@@ -417,6 +417,6 @@ define(['jquery', 'underscore', 'backbone', 'eventaggr'], function ($, _, Backbo
         }
     });
 
-    var oauth2 = new Backbone.OAuth2({tokenEndPointUrl: window.location.protocol + '//' +  window.location.hostname + ':8080/obix/oauth/token'});
+    var oauth2 = new Backbone.OAuth2({tokenEndPointUrl: window.location.protocol + '//' +  window.location.hostname + (window.location.port ? (':' + window.location.port) : '') + '/obix/oauth/token'});
     return oauth2;
 });

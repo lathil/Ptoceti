@@ -990,7 +990,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 
 		defaults : _.extend({}, Obj.prototype.defaults, {
 			type : 'searchout',
-			is : {uris: [{type: 'uri', val: 'obix:SearchOut'}]}
+			is : {uris: [{type: 'uri', val: 'ptoceti:SearchOut'}]}
 		}),
 		
 		getValueList : function() {
@@ -1116,7 +1116,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 
 		defaults : _.extend({}, Obj.prototype.defaults, {
 			type : 'historyservice',
-			is : {uris: [{type: 'uri', val: 'obix:HistoryService'}]}
+			is : {uris: [{type: 'uri', val: 'ptoceti:HistoryService'}]}
 		}),
 
 		/*
