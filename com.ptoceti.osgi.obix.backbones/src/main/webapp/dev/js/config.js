@@ -13,6 +13,8 @@ Modernizr.load({
 
 	baseUrl: 'app/',
 	
+	urlArgs : "v=110", 
+	
 	paths : {
 		// libraries
 		jquery :  '../lib/jquery/jquery',

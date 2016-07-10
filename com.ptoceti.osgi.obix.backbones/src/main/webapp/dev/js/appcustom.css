@@ -36,11 +36,13 @@ body {
 }
 
 #content {
-	min-height: 100%;
+	/*min-height: 100%;*/
 }
 .container {
 	padding-right: 15px;
 	padding-left: 15px;
+	margin-right: 5px;
+	margin-left: 5px;
 }
 
 #header {
@@ -92,15 +94,25 @@ body {
   }
 }
 
+.vertical-space-between {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height:100%;
+}
+
 .vertical-center {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 75%;
-  /*min-height: 75vh;*/
+  height:100%;
 }
 
-.vertical-align {
+.grow-enabled {
+	flex-grow:1;
+}
+
+.horizontal-align {
     display: flex;
     align-items: center;
 }

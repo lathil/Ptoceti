@@ -121,6 +121,9 @@ public final class ResourceServlet extends HttpServlet
          	}
          	// index.html page shall not be cached !
          	res.setHeader("Cache-Control", "private, no-store, no-cache, must-revalidate");
+         } else {
+        	 // normal resources are cached for 7 days
+        	res.setHeader("Cache-Control","public, max-age=604800, must-revalidate");
          }
     	 
     	String acceptHeader = req.getHeader("Accept-Encoding");

@@ -54,7 +54,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 			if (!(this.header.currentView instanceof LandingView)){
 				this.header.show(new LandingView({}))
 			}
+			
 			this.content.show(new ProgressView({model: new ProgressViewModel()}));
+			
 		},
 		
 		showIntro: function(){
@@ -62,6 +64,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 			require(['views/landingview','views/introview'], function(LandingView, IntroView) {
 				if (!(layout.header.currentView instanceof LandingView)){
 					layout.header.show(new LandingView({}))
+				}
+				if(layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.removeClass('grow-enabled')
 				}
 				layout.content.show(new IntroView());
 			});
@@ -72,6 +77,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 			require(['views/landingview','views/loginview'], function(LandingView, LoginView) {
 				if (!(layout.header.currentView instanceof LandingView)){
 					layout.header.show(new LandingView({}))
+				}
+				if(layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.removeClass('grow-enabled')
 				}
 				layout.content.show(new LoginView());
 			});
@@ -87,6 +95,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 					layout.footer.show(new FooterView({model : about}))
 				}
 				if( watch) {
+					if(!layout.content.$el.hasClass('grow-enabled')){
+						layout.content.$el.addClass('grow-enabled')
+					}
 					layout.content.show(new LobbyView({name: watch.getName(), displayName : watch.getDisplayName()}));
 					layout.header.currentView.activeLobbyMenu();
 				}
@@ -102,6 +113,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 				if (!(layout.footer.currentView instanceof FooterView)){
 					layout.footer.show(new FooterView({model : about}))
 				}
+				if(!layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.addClass('grow-enabled')
+				}
 				layout.content.show(new WatchView());
 				layout.header.currentView.activeWatchesMenu();
 			});
@@ -116,6 +130,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 				if (!(layout.footer.currentView instanceof FooterView)){
 					layout.footer.show(new FooterView({model : about}))
 				}
+				if(!layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.addClass('grow-enabled')
+				}
 				layout.content.show(new HistoryView({historyUri: historyUri}));
 				layout.header.currentView.activeHistoryMenu();
 			});
@@ -129,6 +146,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 				}
 				if (!(layout.footer.currentView instanceof FooterView)){
 					layout.footer.show(new FooterView({model : about}))
+				}
+				if(!layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.addClass('grow-enabled')
 				}
 				layout.content.show(new SearchView());
 			});

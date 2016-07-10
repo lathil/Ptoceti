@@ -131,6 +131,7 @@ module.exports = function(grunt) {
 						options : {
 							appDir : "js",
 							baseUrl : "app",
+							urlArgs : "v=110", 
 							mainConfigFile : "js/config.js",
 							dir : "js_optimized/",
 							// skip files or directories that start with '.'
