@@ -35,7 +35,7 @@ public class Enum extends Val {
 	 */
 	private static final long serialVersionUID = 390838246631189012L;
 
-	private static final Contract contract = new Contract("obix:enum");
+	public static final Contract contract = new Contract("obix:enum");
 	
 	protected Uri range;
 
@@ -101,5 +101,10 @@ public class Enum extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return ((String)this.val).compareTo((String)((Val)o).getVal());
 	}
 }

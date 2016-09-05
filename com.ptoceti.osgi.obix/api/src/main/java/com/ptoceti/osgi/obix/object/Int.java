@@ -1,7 +1,10 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
 
 /*
  * #%L
@@ -38,7 +41,7 @@ public class Int extends Val {
 	 */
 	private static final long serialVersionUID = 499008084834546740L;
 
-	private static final Contract contract = new Contract("obix:int");
+	public static final Contract contract = new Contract("obix:int");
 	
 	protected Integer min;
 	protected Integer max;
@@ -82,8 +85,10 @@ public class Int extends Val {
 	}
 	
 	@Override
-	public boolean updateWith(Obj other){
+	public synchronized boolean updateWith(Obj other){
 		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
 		
 		if( !Objects.equals(getMax(), ((Int)other).getMax())){
 			setMax(((Int)other).getMax());
@@ -95,10 +100,11 @@ public class Int extends Val {
 		}
 		if(!Objects.equals(getVal(), ((Int)other).getVal())){
 			setVal(((Int)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
 			different = true;
 		}
 		
-		return super.updateWith(other, different);
+		return super.updateWith(other, different, changeEvents);
 	}
 	
 	public void setMin(Integer min) {
@@ -157,5 +163,10 @@ public class Int extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		return ((Int)this.val).compareTo((Int)((Val)o).getVal());
 	}
 }

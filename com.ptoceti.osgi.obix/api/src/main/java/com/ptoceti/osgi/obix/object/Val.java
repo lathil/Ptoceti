@@ -28,7 +28,7 @@ package com.ptoceti.osgi.obix.object;
  */
 
 
-public abstract class Val extends Obj {
+public abstract class Val extends Obj implements Comparable {
 
 	/**
 	 * 
@@ -88,5 +88,7 @@ public abstract class Val extends Obj {
 			return true;
 		} else return false;
 	}
+	
+	
 		
 }

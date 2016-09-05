@@ -135,11 +135,17 @@ public class Obj extends Observable<Obj >implements Serializable, Cloneable {
 		}
 	}
 	
-	public boolean updateWith(Obj other){
+	public synchronized boolean updateWith(Obj other){
 		return updateWith(other, false);
 	}
 	
 	protected boolean updateWith(Obj other, boolean hasChanged){
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
+		return updateWith(other, hasChanged, changeEvents);
+	}
+
+	protected boolean updateWith(Obj other, boolean hasChanged, ArrayList<ObservableEvent> changeEvents){
+		
 		boolean different = hasChanged;
 		
 		if( !Objects.equals(getDisplayName(), other.getDisplayName())){
@@ -157,6 +163,7 @@ public class Obj extends Observable<Obj >implements Serializable, Cloneable {
 		if( !Objects.equals(getStatus(), other.getStatus())){
 			if( other.getStatus() != null){
 				setStatus(other.getStatus());
+				changeEvents.add(ObservableEvent.STATUSCHANGED);
 				different = true;
 			}
 		}
@@ -180,16 +187,13 @@ public class Obj extends Observable<Obj >implements Serializable, Cloneable {
 			}
 		}
 		
-		if( different){
-			hasChanged();
+		for(ObservableEvent obsEvent : changeEvents){
+			notifyObservers(this, obsEvent);
 		}
 		
 		return different;
 	}
 	
-	public void hasChanged(){
-		notifyObservers( this, ObservableEvent.CHANGED);
-	}
 	
 	public Obj getChildren( String name) {
 		

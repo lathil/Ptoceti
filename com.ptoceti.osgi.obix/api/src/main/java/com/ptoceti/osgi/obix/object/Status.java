@@ -33,7 +33,7 @@ public enum Status {
 	DISABLED( 1, "disabled"),
 	FAULT(2, "fault"),
 	DOWN( 3,"down"),
-	UNAKEDALARM( 4,"unackedAlarm"),
+	UNACKEDALARM( 4,"unackedalarm"),
 	ALARM( 5, "alarm"),
 	UNACKED( 6, "unacked"),
 	OVERRIDEN( 7,"overridden"),

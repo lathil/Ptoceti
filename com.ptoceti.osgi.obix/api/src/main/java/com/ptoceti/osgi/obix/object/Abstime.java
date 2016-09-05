@@ -28,8 +28,11 @@ package com.ptoceti.osgi.obix.object;
  */
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
 
 
 public class Abstime extends Val {
@@ -39,7 +42,7 @@ public class Abstime extends Val {
 	 */
 	private static final long serialVersionUID = -4989961871886264857L;
 
-	private static final Contract contract = new Contract("obix:abstime");
+	public static final Contract contract = new Contract("obix:abstime");
 	
 	protected Abstime max;
 	protected Abstime min;
@@ -83,8 +86,10 @@ public class Abstime extends Val {
 	}
 	
 	@Override
-	public boolean updateWith(Obj other){
+	public synchronized boolean updateWith(Obj other){
 		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
 		
 		if( !Objects.equals(getMax(), ((Abstime)other).getMax())){
 			setMax(((Abstime)other).getMax());
@@ -96,10 +101,11 @@ public class Abstime extends Val {
 		}
 		if(!Objects.equals(getVal(), ((Abstime)other).getVal())){
 			setVal(((Abstime)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
 			different = true;
 		}
 		
-		return super.updateWith(other, different);
+		return super.updateWith(other, different, changeEvents);
 	}
 	
 	public void setMax(Abstime max) {
@@ -214,5 +220,11 @@ public class Abstime extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		
+		return ((Date)this.val).compareTo((Date) ((Val)o).getVal());
 	}
 }

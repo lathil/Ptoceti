@@ -31,9 +31,10 @@ package com.ptoceti.osgi.obix.contract;
 import java.io.Serializable;
 
 import com.ptoceti.osgi.obix.object.Contract;
+import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Val;
 
-public class Point extends Val implements Serializable {
+public class Point extends Obj implements Serializable {
 
 	/**
 	 * 

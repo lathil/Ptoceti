@@ -2,7 +2,8 @@ package com.ptoceti.osgi.obix.observable;
 
 public enum ObservableEvent {
 
-	CHANGED( 1, "changed");
+	VALCHANGED( 1, "valchanged"),
+	STATUSCHANGED(2, "statuschanged");
 	
 	final protected String name;
 	final protected int id;

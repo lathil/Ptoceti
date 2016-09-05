@@ -1,6 +1,9 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
 import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
 
 /*
  * #%L
@@ -40,7 +43,7 @@ public class Reltime extends Val {
 	// private static final String xsduration =
 	// "-?P(?=\\d+|T)(\\d+Y)?(\\d+M)?(\\d+D)?(T(?=\\d+)(\\d+H)?(\\d+M)?(\\d+S)?)?";
 
-	private static final Contract contract = new Contract("obix:reltime");
+	public static final Contract contract = new Contract("obix:reltime");
 	
 	protected Reltime max;
 	protected Reltime min;
@@ -80,8 +83,10 @@ public class Reltime extends Val {
 	}
 	
 	@Override
-	public boolean updateWith(Obj other){
+	public synchronized boolean updateWith(Obj other){
 		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
 		
 		if( !Objects.equals(getMax(), ((Reltime)other).getMax())){
 			setMax(((Reltime)other).getMax());
@@ -93,10 +98,12 @@ public class Reltime extends Val {
 		}
 		if(!Objects.equals(getVal(), ((Reltime)other).getVal())){
 			setVal(((Reltime)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
 			different = true;
 		}
 		
-		return super.updateWith(other, different);
+		
+		return super.updateWith(other, different, changeEvents);
 	}
 	
 	public void setMax(Reltime max) {
@@ -236,5 +243,10 @@ public class Reltime extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return ((Long)this.val).compareTo((Long)((Val)o).getVal());
 	}
 }

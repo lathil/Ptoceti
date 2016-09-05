@@ -39,9 +39,22 @@ public class Contract implements Cloneable{
 	}
 
 	public Contract(String contractName) {
-		uris = new Uri[1];
-		uris[0] = new Uri("uri", contractName);	
+		
+		String[] urisString = contractName.split(",");
+		uris = new Uri[urisString.length];
+		for( int i = 0; i < urisString.length; i ++){
+			uris[i] = new Uri("uri", urisString[i].trim());	
+		}
+		
 	}
+	
+	public void addUri(Uri[] addedUris){
+		ArrayList<Uri> urisList = new ArrayList<Uri>();
+		for(int i = 0; i < this.uris.length; i ++) urisList.add(this.uris[i]);
+		for(int i = 0; i < addedUris.length; i ++) urisList.add(addedUris[i]);
+		this.uris = urisList.toArray(new Uri[urisList.size()]);
+	}
+	
 	
 	public void setUris(Uri[] uris) {
 		this.uris = new Uri[uris.length];
@@ -80,7 +93,7 @@ public class Contract implements Cloneable{
 			Uri uriIn = urisIn[i];
 			found = false;
 			for( int j = 0; j < uris.length; j ++) {
-				if( uriIn.getVal().toString().equals( uris[i].getVal().toString() )){
+				if( uriIn.getVal().toString().equals( uris[j].getVal().toString() )){
 					found = true;
 					break;
 				}

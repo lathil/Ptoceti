@@ -1,6 +1,9 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
 import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
 
 /*
  * #%L
@@ -39,7 +42,7 @@ public class Bool extends Val{
 	 */
 	private static final long serialVersionUID = 5703560627132064965L;
 
-	private static final Contract contract = new Contract("obix:bool");
+	public static final Contract contract = new Contract("obix:bool");
 	
 	protected Uri range;
 	
@@ -78,15 +81,18 @@ public class Bool extends Val{
 	}
 	
 	@Override
-	public boolean updateWith(Obj other){
+	public synchronized boolean updateWith(Obj other){
 		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
 		
 		if(!Objects.equals(getVal(), ((Bool)other).getVal())){
 			setVal(((Bool)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
 			different = true;
 		}
 		
-		return super.updateWith(other, different);
+		return super.updateWith(other, different, changeEvents);
 	}
 	
 	public void setRange(Uri range) {
@@ -128,5 +134,10 @@ public class Bool extends Val{
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return ((Bool)this.val).compareTo((Bool)((Val)o).getVal());
 	}
 }

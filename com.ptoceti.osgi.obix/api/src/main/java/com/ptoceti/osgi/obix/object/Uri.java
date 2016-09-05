@@ -1,6 +1,9 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
 import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
 
 /*
  * #%L
@@ -61,15 +64,18 @@ public class Uri extends Val {
 	}
 	
 	@Override
-	public boolean updateWith(Obj other){
+	public synchronized boolean updateWith(Obj other){
 		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
 		
 		if(!Objects.equals(getVal(), ((Uri)other).getVal())){
 			setVal(((Uri)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
 			different = true;
 		}
 		
-		return super.updateWith(other, different);
+		return super.updateWith(other, different, changeEvents);
 	}
 	
 	public String getPath() {
@@ -106,5 +112,10 @@ public class Uri extends Val {
 	@Override
 	public boolean equals(Object o) {
 		return super.equals(o) && getVal().equals(((Uri)o).getVal());
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return ((String)this.val).compareTo((String)((Val)o).getVal());
 	}
 }
