@@ -1,12 +1,13 @@
 define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ventAggr, ModelBinder, Courier) {
 	
 	var RefItemView = Backbone.Marionette.ItemView.extend({
-		tagName:"tr",
+		tagName:"div",
 		template: "refitem",
+		className: "item",
 	
 		// setup lister for pur DOM event handling
 		events : {
-			"click td" : "itemSelected",
+			"click [name='listItem']" : "itemSelected",
 			"click [name='reflink']" : "onRefLinkNavigate"
 		},
 		
@@ -37,12 +38,13 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 		// event handler call after the view has been rendered
 		onRender : function(){
 			this.modelbinder.bind(this.model, this.el, {
-				name: {selector: '[name=refname]', converter: this.nameConverter},
+				name: {selector: '[name=reflink]', converter: this.nameConverter},
 			} );
 		},
 		
-		onRefLinkNavigate : function(){
+		onRefLinkNavigate : function(event){
 			this.spawn("refLinkNavigate", {point: this.model});
+			event.stopImmediatePropagation();
 		},
 		
 		nameConverter : function(direction, value, attributeName, model){

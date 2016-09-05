@@ -20,16 +20,20 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		
 		ui : {
 			infosCollapsePanel : "[name=\"infoPanel\"]",
+			childCollapsePanel : "[name=\"childPanel\"]",
 			childCollapseControlElem : "[name=\"childCollapseControl\"]",
 			recordItem : "[name=\"recordItem\"]",
+			alarmItem : "[name=\"alarmItem\"]",
 			childCollapseItem : "[name=\"childCollapseItem\"]"
 		},
 		
 		// setup lister for pur DOM event handling
 		events : {
-			"click td" : "itemSelected",
+			"click [name='listItem']" : "itemSelected",
 			"click [name='deleteItem']" : "onItemDelete",
 			"click [name='recordItem']" : "onItemRecord",
+			"click [name='alarmItem']" : "onItemAlarm",
+			"click [name='childCollapseItem']" : "onChildCollapse",
 			"hidden.bs.collapse [name='childPanel']" : "onChildCollapsed",
 			"show.bs.collapse [name='childPanel']" : "onChildShow",
 			"shown.bs.collapse [name='childPanel']" : "onChildShown"
@@ -84,33 +88,48 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		},
 		
 		
-		onItemRecord : function(){
+		onItemRecord : function(event){
 			this.spawn("itemRecord", {point: this.model});
+			event.stopImmediatePropagation();
 		},
 		
-		onItemDelete : function(){
+		onItemAlarm : function(event){
+			this.spawn("itemAlarm", {point: this.model});
+			event.stopImmediatePropagation();
+		},
+		
+		onItemDelete : function(event){
 			this.spawn("itemDelete", {point: this.model});
+			event.stopImmediatePropagation();
+		},
+		
+		onChildCollapse : function(event){
+			
 		},
 		
 		itemUnselected : function(){
-			if( this.$el.hasClass("active")){
-				this.$el.removeClass("active");
+			if( this.$el.hasClass("bg-selected")){
+				this.$el.removeClass("bg-selected");
 				this.ui.infosCollapsePanel.collapse('hide');
+				this.ui.childCollapsePanel.collapse('hide');
 			}
 		},
 		
-		itemSelected : function(){
-			if( this.$el.hasClass("active")){
+		itemSelected : function(event){
+			if( this.$el.hasClass("bg-selected")){
 				this.ui.infosCollapsePanel.collapse('hide');
-				this.$el.removeClass("active");
+				//this.ui.childCollapsePanel.collapse('hide');
+				
+				this.$el.removeClass("bg-selected");
 				// setup view event to clear selection
 				this.spawn("listItemSelected", {point: null});
 			}
 			else {
 				//$(".listItem ").removeClass("active");
 				this.trigger("siblingItem:Unselect", '', this);
-				this.$el.addClass("active");
+				this.$el.addClass("bg-selected");
 				this.ui.infosCollapsePanel.collapse('show');
+				//this.ui.childCollapsePanel.collapse('show');
 				// setup view event to indicate selection
 				this.spawn("listItemSelected", {point: this.model});
 			}
@@ -136,6 +155,18 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 			}
 		},
 		
+		alarmItemListener: function (model, collection, options){
+			if( collection.length > 0){
+				if( collection.getByName("alarm")){
+					this.ui.alarmItem.addClass('hidden');
+				} else {
+					this.ui.alarmItem.removeClass('hidden');
+				}
+			} else {
+				this.ui.alarmItem.removeClass('hidden');
+			}
+		},
+		
 		collapseItemConverter : function(direction, value){
 			if(direction == 'ModelToView'){
 				if(value && value.length > 0 ){
@@ -150,6 +181,20 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 			if(direction == 'ModelToView'){
 				if(value && value.length > 0 ){
 					if( value.getByName("history")){
+						return "hidden";
+					} else {
+						return "";
+					}
+				} else {
+					return "";
+				}
+			}
+		},
+		
+		alarmItemConverter : function(direction, value){
+			if(direction == 'ModelToView'){
+				if(value && value.length > 0 ){
+					if( value.getByName("alarm")){
 						return "hidden";
 					} else {
 						return "";
@@ -183,7 +228,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 					if( statustoLower == Obix.status.DISABLED) return "glyphicon glyphicon-ban-circle";
 					if( statustoLower == Obix.status.FAULT) return "glyphicon glyphicon-alert";
 					if( statustoLower == Obix.status.DOWN) return "glyphicon glyphicon-warning-sign";
-					if( statustoLower == Obix.status.UNAKEDALARM) return "glyphicon glyphicon-exclamation-sign";
+					if( statustoLower == Obix.status.UNACKEDALARM) return "glyphicon glyphicon-exclamation-sign";
 					if( statustoLower == Obix.status.ALARM) return "glyphicon glyphicon-bell";
 					if( statustoLower == Obix.status.UNACKED) return "glyphicon glyphicon-exclamation-sign";
 					if( statustoLower == Obix.status.OVERRIDEN) return "glyphicon glyphicon-remove-circle";
@@ -199,7 +244,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 					if( statustoLower == Obix.status.DISABLED) return statusText[statustoLower];
 					if( statustoLower == Obix.status.FAULT) return statusText[statustoLower];
 					if( statustoLower == Obix.status.DOWN) return statusText[statustoLower];
-					if( statustoLower == Obix.status.UNAKEDALARM) return statusText[statustoLower];
+					if( statustoLower == Obix.status.UNACKEDALARM) return statusText[statustoLower];
 					if( statustoLower == Obix.status.ALARM) return statusText[statustoLower];
 					if( statustoLower == Obix.status.UNACKED) return statusText[statustoLower];
 					if( statustoLower == Obix.status.OVERRIDEN) return statusText[statustoLower];

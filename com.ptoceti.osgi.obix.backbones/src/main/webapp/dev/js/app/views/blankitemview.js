@@ -1,8 +1,9 @@
 define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'powerange', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ModelBinder, Courier, Powerange, unitText, statusText) {
 	
 	var BlankItemView = Backbone.Marionette.ItemView.extend({
-		tagName: "tr",
+		tagName: "div",
 		template: "blankitem",
+		className: "item",
 	
 		templateHelpers :  {
 			contentEditable : function() {

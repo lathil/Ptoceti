@@ -45,6 +45,8 @@ define([
 			"watches" : "goToWatches",
 			"histories" : "goToHistories",
 			"histories/:historyUri" : "goToHistoriesWithHistory",
+			"alarms" : "goToAlarms",
+			"alarms/:alarmUri" : "goToAlarmsWithAlarm",
 			"search" : "goToAddItemToWatch"
 		},
 

@@ -415,6 +415,26 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 				return new HistoryRollupRecord(attrs,option);
 			case "monitoredpoint":
 				return new MonitoredPoint(attrs,option);
+				
+				
+			case "alarm": 
+				return new Alarm(attrs, option);
+			case "ackalarm": 
+				return new AckAlarm(attrs, option);
+			case "alarmackout":
+				return new Alarmackout(attrs, option);
+			case "alarmackin": 
+				return new AlarmAckin(attrs, option);
+			case "statefulalarm":
+				return new StatefulAlarm(attrs, option);
+			case "pointalarm":
+				return new PointAlarm(attrs, option);
+			case "digitalarm": 
+				return new DigitAlarm(attrs, option);
+			case "rangealarm":
+				return new RangeAlarm(attrs,option);
+				
+				
 			default :
 				return new Obj(attrs, option);
 			}
@@ -893,7 +913,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			DISABLED : "disabled",
 			FAULT : "fault",
 			DOWN : "down",
-			UNAKEDALARM : "unackedAlarm",
+			UNACKEDALARM : "unackedalarm",
 			ALARM :"alarm",
 			UNACKED : "unacked",
 			OVERRIDEN :"overridden",
@@ -959,10 +979,17 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		},
 		
 		/*
-		 * Return WatchService 'Ref' type resource
+		 * Return HistoryService 'Ref' type resource
 		 */
 		getHistoryService : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('historyService');
+		},
+		
+		/*
+		 * Return HistoryService 'Ref' type resource
+		 */
+		getAlarmService : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('alarmService');
 		},
 
 		/*
@@ -1326,6 +1353,132 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		
 	});
 	
+	var Alarm = Obj.extend({
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'alarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'}]}
+		}),
+		
+		getSource : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('source');
+		},
+		
+		getTimeStamp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('timestamp');
+		},
+		
+		getAckOp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('ack');
+		},
+		
+		getAckTimestamp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('ackTimestamp');
+		},
+		
+		getAckUser : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('ackUser');
+		},
+		getNormalTimeStamp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('normalTimeStamp');
+		},
+		getAlarmValue : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('alarmValue');
+		}
+	});
+	
+	var AckAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'ackalarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:AckAlarm'}]}
+		})
+		
+	});
+	
+	var AlarmAckOut = Obj.extend({
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'alarmackout',
+			is : {uris: [{type: 'uri', val: 'obix:AlarmAckOut'}]}
+		}),
+	
+		getAlarm : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('alarm');
+		}
+	
+	});
+	
+	var AlarmAckIn = Obj.extend({
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'alarmackin',
+			is : {uris: [{type: 'uri', val: 'obix:AlarmAckIn'}]}
+		}),
+		
+		initialize : function(attrs, options) {
+			this.constructor.__super__.initialize.apply(this, arguments);
+		},
+		
+		getAckUser : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('ackUser');
+		}
+		
+	});
+	
+	var StatefullAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'statefulalarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:StatefulAlarm'}]}
+		})
+		
+	});
+	
+	var PointAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'pointalarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:PointAlarm'}]}
+		})
+		
+	});
+	
+	var DigitAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'digitalarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:PointAlarm'},{type: 'uri', val: 'obix:StatefulAlarm'},{type: 'uri', val: 'obix:obix:AckAlarm'},{type: 'uri', val: 'ptoceti:DigitAlarm'}]}
+		}),
+		
+		getAlarmLevel : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('alarmLevel');
+		}
+	});
+	
+	var RangeAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'rangealarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:PointAlarm'},{type: 'uri', val: 'obix:StatefulAlarm'},{type: 'uri', val: 'obix:obix:AckAlarm'},{type: 'uri', val: 'ptoceti:DigitAlarm'}]}
+		}),
+		
+		getMaxValue : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('maxValue');
+		},
+		
+		getMinValue : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('minValue');
+		}
+	});
+	
+	var AlarmService = Obj.extend({
+
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'alarmservice',
+			is : {uris: [{type: 'uri', val: 'ptoceti:AlarmService'}]}
+		}),
+
+		/*
+		 * Return Op 'make' operation for creating a new alarm
+		 */
+		getMakeOp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('make');
+		},
+	});
+	
 	var MonitoredPoint = Obj.extend({
 
 		defaults : _.extend({}, Obj.prototype.defaults, {
@@ -1399,6 +1552,18 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		historyRollupIn : HistoryRollupIn,
 		historyRollupOut : HistoryRollupOut,
 		historyRollupRecord : HistoryRollupRecord,
+		
+		alarm : Alarm,
+		ackalarm : AckAlarm,
+		alarmackout : AlarmAckOut,
+		alarmackin : AlarmAckIn,
+		statefulalarm : StatefullAlarm,
+		pointalarm : PointAlarm,
+		digitalarm : DigitAlarm,
+		rangealarm : RangeAlarm,
+		alarmService : AlarmService,
+		
+		
 		
 		monitoredPoint : MonitoredPoint,
 		measurePoint : MeasurePoint,

@@ -1,6 +1,6 @@
 <div  class="row">
 	<div class="col-md-12 col-sm-12 col-xs-12">
-		<p><label>{{historytext.histories}}</label><span name="count" class="badge pull-right"/></p>
+		<p><label>{{alarmtext.alarms}}</label><span name="count" class="badge pull-right"/></p>
 	</div>
 </div>
 <div class="row">
@@ -8,10 +8,10 @@
 		<p>
 		<div class="btn-group">
 			<button id="removeButton" type="button" class="btn btn-default {{#unless onXsMedia }} btn-lg {{/unless}}" disabled="disabled">
-			  <span class="glyphicon glyphicon-minus"></span> {{historytext.remove}}
+			  <span class="glyphicon glyphicon-minus"></span> {{alarmtext.remove}}
 			</button>
 			<button id="reloadButton" type="button" class="btn btn-default {{#unless onXsMedia }} btn-lg {{/unless}}">
-			  <span class="glyphicon glyphicon-refresh"></span> {{historytext.reload}}
+			  <span class="glyphicon glyphicon-refresh"></span> {{alarmtext.reload}}
 			</button>
 		</div>
 		</p>
@@ -19,6 +19,6 @@
 </div>
 
 
-<div id="historyList" class="row">
+<div id="alarmList" class="row">
 	
 </div>

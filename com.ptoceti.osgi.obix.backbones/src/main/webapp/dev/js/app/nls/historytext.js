@@ -8,11 +8,11 @@ define({
 	    		"histories" : "Histories: ",
 	    		"items" : "Items: "
 	    	},
-	    	"watchtextxs":{
-	    		"remove" : "",
-	    		"reload" : "",
-	    		"create" : "",
-	    		"play" : "",
+	    	"historytextxs":{
+	    		"remove" : "Remove",
+	    		"reload" : "Reload",
+	    		"create" : "New",
+	    		"play" : "Inspect",
 	    		"histories" : "Histories: ",
 	    		"items" : "Items: "
 	    	}

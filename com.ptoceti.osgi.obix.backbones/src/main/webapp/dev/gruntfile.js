@@ -232,7 +232,14 @@ module.exports = function(grunt) {
 										name : 'views/watchview',
 										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaenquire', 'modelbinder', 'courier', 'bootstrap','modernizr' ]
 									},
-									
+									{
+										name : 'views/alarmitemview',
+										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'moment', 'modernizr', 'bootstrap', 'jquery.enterkeyevent','modernizr' ]
+									},
+									{
+										name : 'views/alarmview',
+										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaenquire', 'modelbinder', 'courier', 'bootstrap','modernizr' ]
+									},
 									{
 										name : 'main',
 										include : [ "i18n", "text", 'courier','moment', 'mediaenquire','jquery.enterkeyevent','powerange' ]

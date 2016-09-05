@@ -1,9 +1,9 @@
 define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'views/baseitemview', 'i18n!nls/statetext', "i18n!nls/statustext", 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ModelBinder, Courier, BaseItemView, stateText, statusText) {
 	
 	var SwitchItemView = BaseItemView.extend({
-		tagName: "tr",
+		tagName: "div",
 		template: "switchitem",
-		className: "switchItem listItem",
+		className: "item",
 		
 		ui : {
 			infosCollapsePanel : "[name=\"infoPanel\"]",
@@ -15,7 +15,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		
 		// setup lister for pur DOM event handling
 		events : {
-			"click td" : "itemSelected",
+			"click [name='listItem']" : "itemSelected",
 			"click [name='deleteItem']" : "onItemDelete",
 			"click [name='recordItem']" : "onItemRecord",
 			"hidden.bs.collapse [name='childPanel']" : "onChildCollapsed",
@@ -38,13 +38,14 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			}
 		},
 		
-		switchClicked : function(){
+		switchClicked : function(event){
 			this.model.save({val: this.model.get("val") == "true" ? "false" : "true" }, {
 				success : this.lobbyLoaded,
 				error : _.bind(function(model, response){
 					console.log('Error loading lobby');
 				}, this)
 			})
+			event.stopImmediatePropagation();
 		},
 		
 		switchCheckedConverter : function(direction, value, attributeName, model, els){

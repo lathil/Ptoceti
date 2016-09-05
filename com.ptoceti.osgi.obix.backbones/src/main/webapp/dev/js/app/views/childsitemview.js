@@ -2,9 +2,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 		function(Backbone, Marionette, _, $, Courier, mediaEnquire, Modernizr, PageableObj, localizedPaginationText) {
 	
 	var ChildsItemView = Marionette.CollectionView.extend({
-		template:"childsitem",
-		
 		tagName:"div",
+		template:"childsitem",
 		
 		ui : {
 		

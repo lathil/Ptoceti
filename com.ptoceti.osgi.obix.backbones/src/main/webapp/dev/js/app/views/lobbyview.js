@@ -100,6 +100,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 	        "listItemSelected" : "onItemSelected",
 	        "itemDelete" : "onItemDelete",
 	        "itemRecord" : "onItemRecord",
+	        "itemAlarm"	: "onItemAlarm",
 	        "refLinkNavigate" : "onRefLinkNavigated"
 	    },
 		
@@ -125,6 +126,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		onRefLinkNavigated : function( message) {
 			if( message.data.point.hasContract('obix:History')){
 				ventAggr.trigger("app:goToHistoriesWithHistory", message.data.point.getHref().getVal());
+			} else if( message.data.point.hasContract('obix:Alarm')){
+				ventAggr.trigger("app:goToAlarmsWithAlarm", message.data.point.getHref().getVal());
 			}
 		},
 		
@@ -145,6 +148,10 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		
 		onItemRecord : function(message){
 			ventAggr.trigger("history:createHistory", message.data.point);
+		},
+		
+		onItemAlarm : function(message){
+			ventAggr.trigger("alarm:createAlarm", message.data.point);
 		},
 		
 		onUpdatedItemsValues: function(updatedCollection) {

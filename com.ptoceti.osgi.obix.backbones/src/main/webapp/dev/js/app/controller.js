@@ -30,8 +30,8 @@
  * 
  * 
  */
-define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/obixview','models/obix', 'models/watcheslocal', 'models/watches', 'models/histories', 'models/historyrollupoutlocal','models/compositehistory', 'jscookie'], function(
-		$, Backbone, Marionette, _, ventAggr, oauth2, ObixView, Obix, WatchesLocal, Watches, Histories, HistoryRollupOutLocal, CompositeHistory, Cookie ) {
+define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2', 'views/obixview','models/obix', 'models/watcheslocal', 'models/watches', 'models/histories', 'models/historyrollupoutlocal','models/compositehistory','models/alarms', 'models/compositealarm', 'jscookie'], function(
+		$, Backbone, Marionette, _, ventAggr, oauth2, ObixView, Obix, WatchesLocal, Watches, Histories, HistoryRollupOutLocal, CompositeHistory, Alarms, CompositeAlarm, Cookie ) {
 
 	var AppController = Marionette.Controller.extend({
 
@@ -56,6 +56,8 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 			this.histories = new Histories();
 			// load previously saves history rollups
 			HistoryRollupOutLocal.fetch();
+			// create a collection that will hold all alarms
+			this.alarms = new Alarms();
 			
 			this.obixView = new ObixView();
 			this.rootRegion = options.rootRegion;
@@ -73,16 +75,18 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 			ventAggr.on("history:update", this.onUpdateHistory,this);
 			ventAggr.on("history:showHistory", this.onShowHistory,this);
 			ventAggr.on("controller:loadHistory", this.onLoadHistory, this);
+			ventAggr.on("controller:loadAlarm", this.onLoadAlarm, this);
 			ventAggr.on("controller:loadApp", this.loadApp, this);
 			ventAggr.on("controller:doSearch", this.onDoSearch, this);
 			ventAggr.on("controller:doAdditemToWatch", this.onAddItemToWatch, this);
 			
+			ventAggr.on("alarm:createAlarm", this.onCreateAlarm,this);
 			
 			ventAggr.on("oauth2:access", this.oauth2Access, this);
 			ventAggr.on("oauth2:error", this.oauth2Error, this);
 			ventAggr.on("controler:doLogin", this.doLogin, this);
 
-			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted', 'historyLoaded', 'historyDeleted', 'historyCreated', 'searchDone');
+			_.bindAll(this, 'lobbyLoaded', 'aboutLoaded', 'watchServiceLoaded', 'watchCreated', 'watchUpdated', 'watchDeleted', 'historyLoaded', 'historyDeleted', 'historyCreated', 'alarmLoaded', 'searchDone');
 			
 		},
 
@@ -208,6 +212,26 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 				}, this)
 			});
 			
+			// idem for alarmService
+			var alarmServiceRef = this.lobby.getAlarmService();
+			
+			this.alarmService = new Obix.alarmService({
+				href: alarmServiceRef.getHref()
+			}, {
+				urlRoot : this.restRoot
+			});
+			
+			this.alarmService.fetch({
+				headers : oauth2.getAuthorizationHeader(),
+				//assync load
+				success : this.alarmServiceLoaded,
+				error : _.bind(function(model,response, option){
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
+		            }					
+				},this)
+			});
+			
 			// ..and wait for responses.
 		},
 		
@@ -228,6 +252,15 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 		 * 
 		 */
 		historyServiceLoaded : function(model, response) {
+			
+		},
+		
+		/**
+		 *  AlarmService resource handler. Called once resource is loaded. Get hold of alarm.make resource 
+		 * 
+		 * 
+		 */
+		alarmServiceLoaded : function(model, response) {
 			
 		},
 		
@@ -612,6 +645,76 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 		},
 		
 		/**
+		 * Load an Alarm object from rest server. The uri of the resource is passed on as parameter
+		 * 
+		 */
+		onLoadAlarm : function(alarmRef) {
+			
+			var alarm;
+			if( !!alarmRef && this.alarms.length > 0 ){
+				alarm = this.alarms.find(function(element){
+					if( element.getAlarm()){
+						return element.getAlarm().getHref().getVal() == alarmRef;
+					} else {
+						return false;
+					}
+				})
+			}
+			
+			if( !alarm && alarmRef) {
+				var alarmHref = new Obix.uri();
+				alarmHref.setVal(alarmRef);
+				var alarm = new Obix.alarm({href : alarmHref}, {urlRoot : this.restRoot});
+				alarm.fetch({
+					headers: oauth2.getAuthorizationHeader(),
+					success: this.alarmLoaded
+				},this);
+			} else {
+				ventAggr.trigger("controller:updatedAlarmList", this.alarms);
+			}
+		},
+		
+		alarmLoaded : function(alarm, response) {
+			console.log('alarm loaded response');
+			var compositeAlarm = new CompositeAlarm();
+			compositeAlarm.set({id: alarm.getHref().getVal()})
+			compositeAlarm.setAlarm(alarm)
+			this.alarms.add(compositeAlarm);
+			ventAggr.trigger("controller:updatedAlarmList", this.alarms);
+		},
+		
+		/**
+		 * Send a request to the rest server to create a alarm object for a point.
+		 * The point is passed on as parameter
+		 * 
+		 */
+		onCreateAlarm : function(point) {
+			
+			var ref = new Obix.ref();
+			ref.setHref(point.getHref())
+			
+			var alarm  = new Obix.alarm({}, {
+				urlRoot : this.restRoot
+			});
+			
+			this.alarmService.getMakeOp().invoke(ref, alarm, {
+				headers: oauth2.getAuthorizationHeader(),
+				success : this.alarmCreated,
+				error : _.bind(function(model, response, option){
+					if (response == 'error' && (( model.status == 403 ) || (model.status == 401))) { // Not authorized
+						ventAggr.trigger("oauth2:error");
+		            }
+				}, this)
+			});
+			
+		},
+		
+		alarmCreated : function(){
+			ventAggr.trigger("watch:updateList");
+		},
+		
+		
+		/**
 		 * execute a search on server for a list of items
 		 */
 		onDoSearch : function(searchValue) {
@@ -705,6 +808,13 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 			this.obixView.showHistory(this.about, historyUri);
 		},
 		
+		goToAlarms : function() {
+			this.obixView.showAlarms(this.about);
+		},
+		
+		goToAlarmsWithAlarm : function(alarmUri){
+			this.obixView.showAlarms(this.about, alarmUri);
+		},
 		
 		goToAddItemToWatch : function(){
 			this.obixView.showSearch(this.about);

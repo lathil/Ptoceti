@@ -1,4 +1,4 @@
-<td>
+<div name="listItem">
 	<div class="row">
 		<div class="col-md-1 col-sm-1 col-xs-2">
 			<p style="display: inline-block"><span class="h4"><span name="icon" class="glyphicon glyphicon-home"/></span></p>
@@ -23,16 +23,19 @@
 			<p name="childCollapseItem"><a data-toggle="collapse" data-target="#childDetails{{elemId}}"><span name="childCollapseControl" class="glyphicon glyphicon-menu-down"/></a></p>
 		</div>
 	</div>
-	<div  id="childDetails{{elemId}}" name="childPanel" class="panel-collapse collapse">
+	<div id="childDetails{{elemId}}" name="childPanel" class="panel-collapse collapse">
 	</div>
-	<div  id="infoDetails{{elemId}}" name="infoPanel" class="panel-collapse collapse">
-		<div class=row">
-			<div class="col-md-6 col-sm-6 col-xs-6">
+	<div id="infoDetails{{elemId}}" name="infoPanel" class="panel-collapse collapse">
+		<div class="row">
+			<div class="col-md-4 col-sm-4 col-xs-4">
 				<a name="deleteItem"><span class="glyphicon glyphicon-minus"></a>
 			</div>
-			<div class="col-md-6 col-sm-6 col-xs-6">
+			<div class="col-md-4 col-sm-4 col-xs-4">
 				<a name="recordItem"><span class="glyphicon glyphicon-record"></a>
+			</div>
+			<div class="col-md-4 col-sm-4 col-xs-4">
+				<a name="alarmItem"><span class="glyphicon glyphicon-bell"></a>
 			</div>
 		</div>
 	</div>
-</td>
+</div>

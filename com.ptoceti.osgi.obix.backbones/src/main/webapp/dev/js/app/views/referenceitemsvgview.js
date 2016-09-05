@@ -1,9 +1,9 @@
 define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'd3', "i18n!nls/unittext","i18n!nls/statustext", 'bootstrap' ], function(Backbone, Marionette, _,$, Obix, ModelBinder, Courier, d3, unitText, statusText) {
 
 	var ReferenceItemSvgView = Backbone.Marionette.ItemView.extend({
-		tagName : "tr",
+		tagName : "div",
 		template : "referenceitemsvg",
-		className : "referenceItemsvg listItem",
+		className: "item",
 
 		templateHelpers : {
 			contentEditable : function() {
@@ -18,7 +18,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 
 		// setup lister for pur DOM event handling
 		events : {
-			"click td" : "itemSelected",
+			"click [name='listItem']" : "itemSelected",
 			"click [name='deleteItem']" : "onItemDelete"
 		},
 
@@ -153,8 +153,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			this.circle.attr("cx", x).attr("cy", y);
 		},
 
-		onItemDelete : function(){
+		onItemDelete : function(event){
 			this.spawn("itemDelete", {point: this.model});
+			event.stopImmediatePropagation();
 		},
 		
 		itemUnselected : function(){

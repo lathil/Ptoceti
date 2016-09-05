@@ -37,7 +37,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			//localTimeElem : "#localTime",
 			lobbyMenu : "#lobbyMenu",
 			watchesMenu : "#watchesMenu",
-			historyMenu : "#historyMenu"
+			historyMenu : "#historyMenu",
+			alarmMenu : "#alarmMenu"
 		},
 
 		
@@ -45,6 +46,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			"click #lobbyMenu" : "lobbyMenuClicked",
 			"click #watchesMenu" : "watchesMenuClicked",
 			"click #historyMenu" : "historyMenuClicked",
+			"click #alarmMenu" : "alarmMenuClicked",
 			"click #logout" : "goToIntro"
 			//"click .navbar-collapse.in" : function(e) {if($(e.target).is('a')){$(this).collapse('hide');}}
 		},
@@ -101,6 +103,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			this.ui.lobbyMenu.parent().addClass('active');
 			this.ui.watchesMenu.parent().removeClass('active');
 			this.ui.historyMenu.parent().removeClass('active');
+			this.ui.alarmMenu.parent().removeClass('active');
 			ventAggr.trigger("app:goToLobby");
 			
 		},
@@ -109,6 +112,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			this.ui.lobbyMenu.parent().removeClass('active');
 			this.ui.watchesMenu.parent().addClass('active');
 			this.ui.historyMenu.parent().removeClass('active');
+			this.ui.alarmMenu.parent().removeClass('active');
 			ventAggr.trigger("app:goToWatches");
 		},
 		
@@ -116,25 +120,44 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'moment'
 			this.ui.lobbyMenu.parent().removeClass('active');
 			this.ui.watchesMenu.parent().removeClass('active');
 			this.ui.historyMenu.parent().addClass('active');
+			this.ui.alarmMenu.parent().removeClass('active');
 			ventAggr.trigger("app:goToHistories");
+		},
+		
+		alarmMenuClicked : function() {
+			this.ui.lobbyMenu.parent().removeClass('active');
+			this.ui.watchesMenu.parent().removeClass('active');
+			this.ui.historyMenu.parent().removeClass('active');
+			this.ui.alarmMenu.parent().addClass('active');
+			ventAggr.trigger("app:goToAlarms");
 		},
 		
 		activeLobbyMenu : function(){
 			this.ui.lobbyMenu.parent().addClass('active');
 			this.ui.watchesMenu.parent().removeClass('active');
 			this.ui.historyMenu.parent().removeClass('active');
+			this.ui.alarmMenu.parent().removeClass('active');
 		},
 		
 		activeWatchesMenu : function(){
 			this.ui.lobbyMenu.parent().removeClass('active');
 			this.ui.watchesMenu.parent().addClass('active');
 			this.ui.historyMenu.parent().removeClass('active');
+			this.ui.alarmMenu.parent().removeClass('active');
 		},
 		
 		activeHistoryMenu : function(){
 			this.ui.lobbyMenu.parent().removeClass('active');
 			this.ui.watchesMenu.parent().removeClass('active');
 			this.ui.historyMenu.parent().addClass('active');
+			this.ui.alarmMenu.parent().removeClass('active');
+		},
+		
+		activeAlarmMenu : function(){
+			this.ui.lobbyMenu.parent().removeClass('active');
+			this.ui.watchesMenu.parent().removeClass('active');
+			this.ui.historyMenu.parent().removeClass('active');
+			this.ui.alarmMenu.parent().addClass('active');
 		}
 
 	});

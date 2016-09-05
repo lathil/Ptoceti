@@ -2,10 +2,9 @@
 define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'views/baseitemview', 'powerange', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ModelBinder, Courier, BaseItemView, Powerange, unitText, statusText) {
 	
 	var ReferenceItemView = BaseItemView.extend({
-		tagName: "tr",
+		tagName: "div",
 		template: "referenceitem",
-		className: "referenceItem listItem",
-	
+		className: "item",
 	
 		ui : {
 			infosCollapsePanel : "[name=\"infoPanel\"]",
@@ -18,7 +17,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		
 		// setup lister for pur DOM event handling
 		events : {
-			"click td" : "itemSelected",
+			"click [name='listItem']" : "itemSelected",
 			"click [name='deleteItem']" : "onItemDelete",
 			"click [name='recordItem']" : "onItemRecord",
 			"hidden.bs.collapse [name='childPanel']" : "onChildCollapsed",
@@ -28,10 +27,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		},
 		
 	
-		onRangeClick : function(){
+		onRangeClick : function(event){
 			if( this.model.hasChanged("val")){
 				this.model.save();
 			}
+			event.stopImmediatePropagation();
 		},
 		
 		// event handlers for the forward / bacward controls

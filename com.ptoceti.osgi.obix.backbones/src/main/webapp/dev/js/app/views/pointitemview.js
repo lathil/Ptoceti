@@ -1,10 +1,9 @@
 define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', 'views/baseitemview', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, BaseItemView, unitText, statusText) {
 	
 	var PointItemView = BaseItemView.extend({
-		tagName: "tr",
+		tagName: "div",
 		template: "pointitem",
-		className: "pointItem listItem",
-	
+		className: "item",
 		
 		initialize : function() {
 			// add this view to Backbone.Courier
@@ -25,6 +24,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 			this.collection.on('add remove', function(model, collection, options){
 				this.childSizeChanged(model, collection, options);
 				this.recordItemListener(model, collection, options);
+				this.alarmItemListener(model, collection, options);
 			}, this);
 		},
 		
@@ -47,12 +47,13 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 				name: {selector: '[name=displayName]', converter: this.nameConverter},
 				status: [{selector: '[name=status]',  elAttribute: 'class', converter: this.statusClassConverter}],
 				updateTimeStamp: {selector:'[name=timeStamp]', converter: this.lastTimeStamp},
-				childrens: [{selector: '[name=childCollapseItem]', elAttribute:'class', converter: this.collapseItemConverter}, {selector: '[name=recordItem]', elAttribute:'class', converter: this.recordItemConverter}]
+				childrens: [{selector: '[name=childCollapseItem]', elAttribute:'class', converter: this.collapseItemConverter}, {selector: '[name=recordItem]', elAttribute:'class', converter: this.recordItemConverter}, {selector: '[name=alarmItem]', elAttribute:'class', converter: this.alarmItemConverter}]
 			},{'changeTriggers': {'': 'change', '[contenteditable]': 'enterpress'}} );
 		},
 		
 		onItemRecord : function(){
 			this.spawn("itemRecord", {point: this.model});
+			event.stopImmediatePropagation()();
 		},
 		
 		valConverter : function(direction, value, attributeName, model) {

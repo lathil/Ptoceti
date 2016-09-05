@@ -39,15 +39,17 @@ body {
 	/*min-height: 100%;*/
 }
 .container {
-	padding-right: 15px;
-	padding-left: 15px;
+	padding-right: 0px;
+	padding-left: 0px;
 	margin-right: 5px;
 	margin-left: 5px;
 }
 
 #header {
-	margin-right: -15px;
-	margin-left: -15px;
+	padding-right: 0px;
+	padding-left: 0px;
+	margin-right: 0px;
+	margin-left: 0px;
 }
 
 .navbar {
@@ -128,6 +130,8 @@ body {
 	margin-top:20px;
 	margin-bottom:20px;
 }
+
+
 
 /* Medium devices */
 @media (min-width : 1200 px ) {
@@ -235,4 +239,14 @@ body {
   margin: -50px 0 0 0;
   text-align: center;
   line-height: 100px;
+}
+
+.bg-selected {
+	background-color: #DDD;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.item {
+	margin-bottom: 5px;
 }

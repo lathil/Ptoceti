@@ -164,6 +164,24 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 		}
 	});
 	
+	/**
+	 * Handles application level generated events that indicate to swicth to the alarm view. Check first that we are not on this same view
+	 * from Backbones history.
+	 * Delegate view switching to application controller
+	 */
+	ventAggr.on("app:goToAlarms", function() {
+		if( Backbone.history.fragment != "alarms" ) {
+			Backbone.history.navigate("alarms", {});
+			app.controller.goToAlarms();
+		}
+	});
+	
+	ventAggr.on("app:goToAlarmsWithAlarm", function(alarmUri){
+		if( Backbone.history.fragment != "alarms" + alarmUri ) {
+			Backbone.history.navigate("alarms" + alarmUri, {});
+			app.controller.goToAlarmsWithAlarm(alarmUri);
+		}
+	})
 	
 	
 	return app;

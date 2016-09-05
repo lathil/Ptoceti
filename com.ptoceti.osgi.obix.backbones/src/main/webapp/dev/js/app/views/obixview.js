@@ -138,6 +138,23 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 			});
 		},
 		
+		showAlarms: function(about, alarmUri){
+			var layout = this;
+			require(['views/alarmview', 'views/footerview','views/headerview'], function(AlarmView, FooterView, HeaderView) {
+				if (!(layout.header.currentView instanceof HeaderView)){
+					layout.header.show(new HeaderView({model : about}))
+				}
+				if (!(layout.footer.currentView instanceof FooterView)){
+					layout.footer.show(new FooterView({model : about}))
+				}
+				if(!layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.addClass('grow-enabled')
+				}
+				layout.content.show(new AlarmView({alarmUri: alarmUri}));
+				layout.header.currentView.activeAlarmMenu();
+			});
+		},
+		
 		showSearch: function(about){
 			var layout = this;
 			require(['views/searchview', 'views/footerview','views/headerview'], function(SearchView, FooterView, HeaderView) {

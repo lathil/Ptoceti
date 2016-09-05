@@ -1,8 +1,9 @@
 define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'models/historyrollupoutlocal', 'eventaggr','oauth2', 'modelbinder', 'courier', 'numeral', 'moment', 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, HistoryRollupOutLocal, ventAggr, oauth2, ModelBinder, Courier, Numeral, Moment) {
 	
 	var HistoryItemView = Backbone.Marionette.Layout.extend({
-		tagName: "tr",
+		tagName: "div",
 		template: "historyitem",
+		className: "item",
 	
 		templateHelpers :  {
 			elemId : function() {
@@ -25,7 +26,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		
 		// setup lister for pur DOM event handling
 		events : {
-			"click td" : "itemSelected",
+			"click [name='listItem']" : "itemSelected",
 			"click [name='deleteItem']" : "onItemDelete",
 			"hidden.bs.collapse [name='childPanel']" : "onChildCollapsed",
 			"show.bs.collapse [name='childPanel']" : "onChildShow",
@@ -110,28 +111,29 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			}
 		},
 		
-		onItemDelete : function(){
+		onItemDelete : function(event){
 			this.spawn("historyItemDelete", {history: this.model.getHistory()});
+			event.stopImmediatePropagation();
 		},
 		
 		itemUnselected : function(){
-			if( this.$el.hasClass("active")){
-				this.$el.removeClass("active");
+			if( this.$el.hasClass("bg-selected")){
+				this.$el.removeClass("bg-selected");
 				this.ui.infosCollapsePanel.collapse('hide');
 			}
 		},
 		
 		itemSelected : function(){
-			if( this.$el.hasClass("active")){
+			if( this.$el.hasClass("bg-selected")){
 				this.ui.infosCollapsePanel.collapse('hide');
-				this.$el.removeClass("active");
+				this.$el.removeClass("bg-selected");
 				// setup view event to clear selection
 				this.spawn("historyItemSelected", {history: null});
 			}
 			else {
 				//$(".watchItem ").removeClass("active");
 				this.trigger("siblingItem:Unselect", '', this);
-				this.$el.addClass("active");
+				this.$el.addClass("bg-selected");
 				this.ui.infosCollapsePanel.collapse('show');
 				// setup view event to indicate selection
 				this.spawn("historyItemSelected", {history: this.model});
@@ -174,7 +176,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			this.updateRollUpView();
 		},
 		
-		onNextPeriod : function(){
+		onNextPeriod : function(event){
 			if( this.model.getRollUp()){
 				
 				var endRecord = Moment(this.model.getRollUp().getEnd().getVal());
@@ -201,10 +203,10 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 					this.updateRollUpView();
 				}
 			}
-			
+			event.stopImmediatePropagation();
 		},
 		
-		onPreviousPeriod : function(){
+		onPreviousPeriod : function(event){
 			if( this.model.getRollUp()){
 				
 				var startRecord = Moment(this.model.getRollUp().getStart().getVal());
@@ -232,6 +234,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 					this.updateRollUpView();
 				}
 			}
+			event.stopImmediatePropagation();
 		},
 		
 		/**

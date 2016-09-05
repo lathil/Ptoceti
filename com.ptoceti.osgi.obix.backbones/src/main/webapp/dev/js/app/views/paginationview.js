@@ -30,7 +30,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 	var PaginView = Marionette.CompositeView.extend({
 		template:"pagination",
 		//itemView: PointItemView,
-		itemViewContainer: "tbody",
+		itemViewContainer: "[id='paginationContainer']",
 		
 		tagName:"div",
 		className: "col-md-12",
@@ -77,6 +77,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 			}
 			if( item.hasContract('ptoceti:compositehistory')){
 				return require('views/historyitemview');
+			}
+			if( item.hasContract('ptoceti:compositealarm')){
+				return require('views/alarmitemview');
 			}
 		},
 		
