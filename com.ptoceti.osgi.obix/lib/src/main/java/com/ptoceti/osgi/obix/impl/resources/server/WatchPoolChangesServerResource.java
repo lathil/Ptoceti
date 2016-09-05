@@ -29,17 +29,23 @@ package com.ptoceti.osgi.obix.impl.resources.server;
 
 
 import java.util.Calendar;
+import java.util.List;
 
 import org.osgi.service.log.LogService;
 import org.restlet.resource.Post;
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.AlarmCache;
 import com.ptoceti.osgi.obix.cache.WatchCache;
+import com.ptoceti.osgi.obix.contract.Alarm;
 import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.contract.WatchOut;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
 import com.ptoceti.osgi.obix.impl.service.Activator;
+import com.ptoceti.osgi.obix.object.Obj;
+import com.ptoceti.osgi.obix.object.Ref;
+import com.ptoceti.osgi.obix.object.Status;
 import com.ptoceti.osgi.obix.resources.ResourceException;
 import com.ptoceti.osgi.obix.resources.WatchPoolChangesResource;
 import com.ptoceti.osgi.obix.resources.WatchResource;
@@ -47,10 +53,12 @@ import com.ptoceti.osgi.obix.resources.WatchResource;
 public class WatchPoolChangesServerResource extends AbstractServerResource implements WatchPoolChangesResource {
 
 	private WatchCache cache;
+	private AlarmCache alarmCache;
 	
 	@Inject
-	public WatchPoolChangesServerResource(WatchCache cache) {
+	public WatchPoolChangesServerResource(WatchCache cache, AlarmCache alarmCache) {
 		this.cache = cache;
+		this.alarmCache = alarmCache;
 	}
 	
 	@Post("xml|json")
@@ -58,13 +66,25 @@ public class WatchPoolChangesServerResource extends AbstractServerResource imple
 		String watchUri = WatchResource.baseuri.concat("/").concat((String)getRequest().getAttributes().get(WatchResource.WATCH_URI)).concat("/");
 		try {
 			
-			//Long start = Calendar.getInstance().getTimeInMillis();
 			WatchOut result =  cache.poolChanges(watchUri);
-			
-			//Long end = Calendar.getInstance().getTimeInMillis();
-			
-			//Activator.log(LogService.LOG_INFO, "WatchPoolChangesServerResource poolChanges time: " +  Long.valueOf(end - start) + " ms ");
-			
+			List<Obj> objList = result.getValuesList().getChildrens();
+			for( Obj obj: objList){
+				// check if there is an alarm associated with this object
+				Ref alarmRef = (Ref)obj.getChildren("alarm");
+				if( alarmRef != null){
+					Alarm alarm = alarmCache.retrieve(alarmRef.getHref().getPath());
+					if( alarm != null){
+						// if yes, then check status
+						if( obj.getStatus().compareTo(alarm.getStatus()) != 0){
+							if( alarm.getStatus().compareTo(Status.UNACKED) == 0 || alarm.getStatus().compareTo(Status.UNACKEDALARM) == 0 || alarm.getStatus().compareTo(Status.ALARM) == 0){
+								obj.setStatus(alarm.getStatus());
+							} else if(obj.getStatus().compareTo(Status.UNACKED) == 0 || obj.getStatus().compareTo(Status.UNACKEDALARM) == 0 || obj.getStatus().compareTo(Status.ALARM) == 0) {
+								obj.setStatus(alarm.getStatus());
+							}
+						}
+					}
+				}
+			}
 			return result;
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".poolChanges", ex);

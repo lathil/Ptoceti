@@ -28,13 +28,16 @@ package com.ptoceti.osgi.obix.impl.service;
  */
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.regex.PatternSyntaxException;
 
 import org.osgi.service.log.LogService;
+import org.osgi.service.wireadmin.BasicEnvelope;
 import org.osgi.service.wireadmin.Envelope;
 import org.osgi.service.wireadmin.Wire;
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.AlarmCache;
 import com.ptoceti.osgi.obix.cache.HistoryCache;
 import com.ptoceti.osgi.obix.cache.ObjCache;
 import com.ptoceti.osgi.obix.contract.History;
@@ -45,7 +48,9 @@ import com.ptoceti.osgi.obix.custom.contract.DigitPoint;
 import com.ptoceti.osgi.obix.custom.contract.ReferencePoint;
 import com.ptoceti.osgi.obix.custom.contract.SwitchPoint;
 import com.ptoceti.osgi.obix.impl.back.converters.OsgiConverterFactory;
+import com.ptoceti.osgi.obix.impl.observer.AlarmObserver;
 import com.ptoceti.osgi.obix.impl.observer.HistoryObserver;
+import com.ptoceti.osgi.obix.impl.service.CommandHandler.AsyncCommand;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Uri;
@@ -59,10 +64,13 @@ public class EventUpdateHandler {
 	
 	private HistoryCache historyCache;
 	
+	private AlarmCache alarmCache;
+	
 	@Inject
-	public EventUpdateHandler(ObjCache cache, HistoryCache historyCache) {
+	public EventUpdateHandler(ObjCache cache, HistoryCache historyCache, AlarmCache alarmCache ) {
 		this.objCache = cache;
 		this.historyCache = historyCache;
+		this.alarmCache = alarmCache;
 	}
 	
 	/*
@@ -93,11 +101,34 @@ public class EventUpdateHandler {
 		href = ObjResource.uri + href;
 		// obj.setHref(new Uri("", href));
 
-		consumeObject(obj, href);
+		updateWith(obj, href);
 
 	}
 	
-	public void consumeObject(Val obj, String href) {
+	public void updateWith(Val obj, String href) {
+		Activator.getObixService().getExecutorService().submit(new AsyncUpdateCommand(obj, href));
+	}
+	
+	protected class AsyncUpdateCommand implements Callable {
+
+		Val obj;
+		String href;
+		
+		public AsyncUpdateCommand(Val obj, String href){
+			this.obj = obj;
+			this.href = href;
+		}
+		
+		@Override
+		public Object call() throws Exception {
+			updateObject(obj, href);
+			
+			return true;
+		}
+		
+	}
+	
+	private void updateObject(Val obj, String href) {
 		try {
 			// Preload object to fetch in cache
 			Obj cachedObj = objCache.getObixObj(new Uri("", href ));
@@ -118,6 +149,21 @@ public class EventUpdateHandler {
 						historyCache.addHistoryObserver(historyRef.getHref().getPath(), cachedObj);
 					}
 				}
+				Obj alarmRef = cachedObj.getChildren("alarm");
+				if( alarmRef != null && alarmRef instanceof Ref){
+					// check that if there is an alarm linked to this object, the observer exists.
+					List<IObserver<? super Obj>> observers = cachedObj.getObservers();
+					boolean found = false;
+					for( IObserver<? super Obj> observer : observers){
+						if( observer instanceof AlarmObserver){
+							found = true;
+							break;
+						}
+					}
+					if( !found){
+						alarmCache.addAlarmObserver(alarmRef.getHref().getPath(), cachedObj);
+					}
+				}
 			}
 			if( obj.getIs().containsContract(DigitPoint.contract)){
 				obj.setHref(new Uri("", href ));
@@ -131,43 +177,6 @@ public class EventUpdateHandler {
 			} else if( obj.getIs().containsContract(MeasurePoint.contract)){
 				obj.setHref(new Uri("", href ));
 				objCache.createUpdateObixObj(obj);
-				
-				/**
-				obj.setHref(new Uri("", href + "/point"));
-				Obj monitoredObj = objCache.getObixObj(new Uri("",href));
-				MonitoredPoint monitoredPoint = null;
-				Val sample = (Val)obj.cloneEmpty();
-				sample.setVal(obj.getVal());
-				
-				
-				if( monitoredObj != null && monitoredObj.getIs().containsContract(MonitoredPoint.contract))
-				{
-					monitoredPoint = new MonitoredPoint(monitoredObj);
-					
-					if( !((Val)monitoredPoint.getPoint()).getVal().equals(obj.getVal())){
-						
-						Val point = (Val)monitoredPoint.getPoint();
-						point.setVal(obj.getVal());
-						Obj updatedObj = objCache.updateObixObjAt(obj.getHref(), point);
-						historyCache.addRecord(monitoredPoint.getHistoryRef().getHref().getPath(), sample);
-						monitoredObj.setUpdateTimeStamp(updatedObj.getUpdateTimeStamp());
-					}
-				} else {
-					monitoredPoint = new MonitoredPoint();
-					monitoredPoint.setHref(new Uri("",href));
-					
-					monitoredPoint.setPoint(obj);
-					
-					History history = historyCache.make( obj.getContract());
-					Ref historyRef = new Ref();
-					historyRef.setHref(history.getHref());
-					monitoredPoint.setHistoryRef(historyRef);
-					
-					objCache.createObixObj(monitoredPoint);
-					historyCache.addRecord(monitoredPoint.getHistoryRef().getHref().getPath(), sample);
-				}
-				**/
-				
 				
 			} else {
 	
@@ -196,4 +205,6 @@ public class EventUpdateHandler {
 
 		return result;
 	}
+	
+	
 }

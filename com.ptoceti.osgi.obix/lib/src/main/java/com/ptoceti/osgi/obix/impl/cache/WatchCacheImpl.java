@@ -181,18 +181,6 @@ public class WatchCacheImpl extends ObjCacheImpl implements WatchCache {
 		for( Obj obj : changedObj){
 			watchOut.getValuesList().addChildren(obj);
 		}
-		/**
-		List<Obj> childs = currentWatch.getChildrens();
-		for( Obj child : childs){
-			if( child instanceof Uri){
-				Obj obj = getObixObj((Uri)child);
-				if( child.getUpdateTimeStamp() < obj.getUpdateTimeStamp()){
-					watchOut.getValuesList().addChildren(obj);
-					child.setUpdateTimeStamp(Calendar.getInstance().getTimeInMillis());
-				}
-			}
-		}
-		**/
 		return watchOut;
 	}
 

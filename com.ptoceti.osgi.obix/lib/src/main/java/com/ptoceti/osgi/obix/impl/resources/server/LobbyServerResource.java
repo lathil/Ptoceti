@@ -37,6 +37,7 @@ import org.restlet.resource.Get;
 
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.AboutResource;
+import com.ptoceti.osgi.obix.resources.AlarmServiceResource;
 import com.ptoceti.osgi.obix.resources.HistoryServiceResource;
 import com.ptoceti.osgi.obix.resources.LobbyResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
@@ -63,6 +64,8 @@ public class LobbyServerResource extends AbstractServerResource implements Lobby
 		lobby.setWatchService(new Uri("uri", WatchServiceResource.uri));
 		
 		lobby.setHistoryService(new Uri("uri", HistoryServiceResource.uri));
+		
+		lobby.setAlarmService(new Uri("uri", AlarmServiceResource.uri));
 		
 		lobby.getBatch().setHref(new Uri("uri",BatchServerResource.uri));
 		

@@ -27,6 +27,7 @@ package com.ptoceti.osgi.obix.impl.service;
  * #L%
  */
 
+import com.ptoceti.osgi.obix.impl.guice.GuiceContext;
 import com.ptoceti.osgi.obix.restlet.AppOwnerManager;
 import com.ptoceti.osgi.obix.restlet.Oauth2ApplicationFactory;
 import com.ptoceti.osgi.obix.restlet.Oauth2Servlet;
@@ -152,6 +153,8 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 	
 	private WireHandler wireHandler;
 	
+	private EventUpdateHandler eventUpdateHandler;
+	
 	private RestletListener restletListener;
 	
 	private String httpServiceSymbolicName;
@@ -182,7 +185,7 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 	protected synchronized void start() {
 
 		// create a default pool of 2 threads.
-		threadExecutor = Executors.newFixedThreadPool(2);
+		threadExecutor = Executors.newFixedThreadPool(4);
 		
 		obixHttpHandler = new ObixHttpHandler();
 		
@@ -201,6 +204,9 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 
 		Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName() +  ", Pid = " + (String) properties.get(Constants.SERVICE_PID));
 		wireHandler = new WireHandler();
+		
+		// Create the event update Handler only once
+		eventUpdateHandler = GuiceContext.Instance.getInjector().getInstance(EventUpdateHandler.class);
 		
 		// We need to get a reference to a data service. We need to get this
 		// reference dynamically by constructing
@@ -251,8 +257,17 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 	 * 
 	 * @return WireHandler the instance.
 	 */
-	protected WireHandler getWireHandler(){
+	public WireHandler getWireHandler(){
 		return wireHandler;
+	}
+	
+	/**
+	 * Get the instance of the event update Handler.
+	 * 
+	 * @return EventUpdateHandler the instance
+	 */
+	public EventUpdateHandler getEventUpdateHandler(){
+		return eventUpdateHandler;
 	}
 	
 	/**
@@ -260,7 +275,7 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 	 * 
 	 * @return
 	 */
-	protected ExecutorService getExecutorService(){
+	public ExecutorService getExecutorService(){
 		return threadExecutor;
 	}
 

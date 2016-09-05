@@ -48,6 +48,9 @@ import com.ptoceti.osgi.obix.impl.front.converters.XMLConverter;
 import com.ptoceti.osgi.obix.impl.guice.GuiceFinderFactory;
 import com.ptoceti.osgi.obix.impl.guice.GuiceRouter;
 import com.ptoceti.osgi.obix.impl.resources.server.AboutServerResource;
+import com.ptoceti.osgi.obix.impl.resources.server.AlarmAckServerResource;
+import com.ptoceti.osgi.obix.impl.resources.server.AlarmServerResource;
+import com.ptoceti.osgi.obix.impl.resources.server.AlarmServiceServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.BatchServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.HistoryQueryServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.HistoryRollupServerResource;
@@ -55,6 +58,8 @@ import com.ptoceti.osgi.obix.impl.resources.server.HistoryServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.HistoryServiceServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.LobbyServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.ObjServerResource;
+import com.ptoceti.osgi.obix.impl.resources.server.RangeAlarmMaxServerResource;
+import com.ptoceti.osgi.obix.impl.resources.server.RangeAlarmMinServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.SearchServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.WatchAddServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.WatchDeleteServerResource;
@@ -65,6 +70,8 @@ import com.ptoceti.osgi.obix.impl.resources.server.WatchServerResource;
 import com.ptoceti.osgi.obix.impl.resources.server.WatchServiceServerResource;
 import com.ptoceti.osgi.obix.impl.service.Activator;
 import com.ptoceti.osgi.obix.impl.service.ObixServiceImpl;
+import com.ptoceti.osgi.obix.resources.RangeAlarmMaxResource;
+import com.ptoceti.osgi.obix.resources.RangeAlarmMinResource;
 
 /**
  * Base class to build the restlet application with routes, converters and filters.
@@ -172,6 +179,12 @@ public class ObixApplicationFactory {
 		root.attach(HistoryServerResource.uri, HistoryServerResource.class);
 		root.attach(HistoryQueryServerResource.uri, HistoryQueryServerResource.class);
 		root.attach(HistoryRollupServerResource.uri, HistoryRollupServerResource.class);
+		
+		root.attach(AlarmServerResource.uri, AlarmServerResource.class);
+		root.attach(AlarmServiceServerResource.uri,AlarmServiceServerResource.class);
+		root.attach(AlarmAckServerResource.uri, AlarmAckServerResource.class);
+		root.attach(RangeAlarmMaxResource.uri, RangeAlarmMaxServerResource.class);
+		root.attach(RangeAlarmMinResource.uri, RangeAlarmMinServerResource.class);
 		
 		// Last route. 
 		TemplateRoute route = root.attach( ObjServerResource.uri + "{+href}", ObjServerResource.class);

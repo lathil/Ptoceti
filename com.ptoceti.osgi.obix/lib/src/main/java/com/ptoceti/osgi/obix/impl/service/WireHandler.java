@@ -269,14 +269,16 @@ public class WireHandler implements Consumer, Producer {
 
 		EventUpdateHandler evtHandler = GuiceContext.Instance.getInjector().getInstance(EventUpdateHandler.class);
 		
+		
+		
 		if (object instanceof Envelope[]) {
 			Envelope[] envelopes = (Envelope[]) object;
 			for (int i = 0; i < envelopes.length; i++) {
 				Envelope env = envelopes[i];
-				evtHandler.update(env, wire);
+				Activator.getObixService().getEventUpdateHandler().update(env, wire);
 			}
 		} else if (object instanceof Envelope) {
-			evtHandler.update((Envelope) object, wire);
+			Activator.getObixService().getEventUpdateHandler().update((Envelope) object, wire);
 		}
 	}
 	

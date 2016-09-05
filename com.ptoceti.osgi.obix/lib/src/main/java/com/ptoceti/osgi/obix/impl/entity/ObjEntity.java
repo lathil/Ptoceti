@@ -223,6 +223,22 @@ public class ObjEntity extends AbstractEntity {
 
 	}
 	
+	public void deleteChildByName( String name) throws EntityException {
+		
+		List<ObjEntity> childList = getChilds();
+		
+		for(int i = 0; i < childList.size(); i++){
+			ObjEntity child = childList.get(i);
+			if( child.getObixObject().getName().equals(name)){
+				
+				childList.remove(i);
+				child.delete();
+				break;
+			}
+		}
+		
+	}
+
 	public void deleteChilds() throws EntityException {
 		
 		ArrayList<Object> params = new ArrayList<Object>();

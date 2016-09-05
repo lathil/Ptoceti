@@ -110,7 +110,7 @@ public class HistoryDomainImpl extends AbstractDomain implements  HistoryDomain{
 				}
 			}
 		} catch(EntityException ex) {
-			throw new DomainException("Exception in " + this.getClass().getName() + ".getHistory", ex);
+			throw new DomainException("Exception in " + this.getClass().getName() + ".remove", ex);
 		}
 		
 	}

@@ -14,7 +14,7 @@ public class WatchObserver implements IObserver<Obj> {
 	
 	@Override
 	public void notify(Obj observable, ObservableEvent event) {
-		if( event.equals(ObservableEvent.CHANGED)){
+		if( event.equals(ObservableEvent.VALCHANGED) || event.equals(ObservableEvent.STATUSCHANGED)){
 			synchronized(lock){
 				if(!changedObjs.contains(observable)){
 					changedObjs.add(observable);

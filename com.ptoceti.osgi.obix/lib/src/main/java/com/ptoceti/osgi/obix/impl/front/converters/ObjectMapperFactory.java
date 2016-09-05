@@ -41,6 +41,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ptoceti.osgi.obix.contract.About;
+import com.ptoceti.osgi.obix.contract.Alarm;
+import com.ptoceti.osgi.obix.contract.AlarmAckIn;
+import com.ptoceti.osgi.obix.contract.AlarmAckOut;
 import com.ptoceti.osgi.obix.contract.Batch;
 import com.ptoceti.osgi.obix.contract.BatchIn;
 import com.ptoceti.osgi.obix.contract.BatchOut;
@@ -56,8 +59,8 @@ import com.ptoceti.osgi.obix.contract.Lobby;
 import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.contract.Point;
 import com.ptoceti.osgi.obix.contract.Read;
-import com.ptoceti.osgi.obix.contract.Search;
-import com.ptoceti.osgi.obix.contract.SearchOut;
+import com.ptoceti.osgi.obix.custom.contract.Search;
+import com.ptoceti.osgi.obix.custom.contract.SearchOut;
 import com.ptoceti.osgi.obix.contract.Unit;
 import com.ptoceti.osgi.obix.contract.Watch;
 import com.ptoceti.osgi.obix.contract.WatchIn;
@@ -172,6 +175,9 @@ public class ObjectMapperFactory {
 	 	@Type(value=HistoryRollupIn.class,name="historyrollupin"),
 	 	@Type(value=HistoryRollupOut.class,name="historyrollupout"),
 	 	@Type(value=HistoryRollupRecord.class,name="historyrolluprecord"),
+	 	@Type(value=Alarm.class,name="alarm"),
+	 	@Type(value=AlarmAckIn.class, name="alarmackin"),
+	 	@Type(value=AlarmAckOut.class, name="alarmackout"),
 	 	
 	 	@Type(value=Search.class, name="search"),
 	 	@Type(value=SearchOut.class, name="searchout"),
