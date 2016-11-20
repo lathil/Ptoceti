@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
+	<OCD description="Configuration of InfluxDb service" name="PtocetiInfluxDb service"  id="com.ptoceti.osgi.influxdb.impl.InfluxDbServiceImpl">
+		<AD name="InfluxDb url" path" id="com.ptoceti.osgi.influxdb.url" required="true" type="String" default="InfluxDbServiceImpl"/>
+		<AD name="InfluxDb db name" path" id="com.ptoceti.osgi.influxdb.dbname" required="true" type="String" default="InfluxDbServiceImpl"/>
+	</OCD>
+	<Designate pid="com.ptoceti.osgi.influxdb.impl.InfluxDbServiceImpl">
+	   <Object ocdref="com.ptoceti.osgi.influxdb.impl.InfluxDbServiceImpl"/>
+	</Designate>
+</MetaData>
