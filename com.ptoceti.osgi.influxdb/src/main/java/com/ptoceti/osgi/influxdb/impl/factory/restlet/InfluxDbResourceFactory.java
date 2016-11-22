@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.influxdb.impl;
+package com.ptoceti.osgi.influxdb.impl.factory.restlet;
 
 import java.util.Dictionary;
 
@@ -7,10 +7,11 @@ import org.restlet.Context;
 import org.restlet.engine.Engine;
 import org.restlet.resource.ClientResource;
 
-import com.ptoceti.osgi.influxdb.impl.client.resources.PingResource;
-import com.ptoceti.osgi.influxdb.impl.client.resources.QueryResource;
-import com.ptoceti.osgi.influxdb.impl.client.resources.WriteResource;
-import com.ptoceti.osgi.influxdb.impl.converter.InfluxDbConverter;
+import com.ptoceti.osgi.influxdb.impl.InfluxDbServiceImpl;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.converter.InfluxDbConverter;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.resources.PingResource;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.resources.QueryResource;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.resources.WriteResource;
 import com.ptoceti.osgi.influxdb.ql.Query;
 
 public class InfluxDbResourceFactory {
@@ -40,7 +41,7 @@ public class InfluxDbResourceFactory {
 	this.configProps = properties;
     }
 
-    protected void resetConfig(Dictionary<String, ?> properties) {
+    public void resetConfig(Dictionary<String, ?> properties) {
 	this.configProps = properties;
     }
 
@@ -59,7 +60,7 @@ public class InfluxDbResourceFactory {
      * @param username Sets the username for authentication if you’ve enabled authentication.
      * @return the configured resource
      */
-    protected WriteResource getWriteResource(String consistency, String database, String password, String precision, String retentionPolicy, String username) {
+    public WriteResource getWriteResource(String consistency, String database, String password, String precision, String retentionPolicy, String username) {
 
 	ClientResource clientResource = new ClientResource((String) configProps.get(InfluxDbServiceImpl.INFLUXDBURL));
 	
@@ -100,7 +101,7 @@ public class InfluxDbResourceFactory {
      * 
      * @return
      */
-    protected WriteResource getWriteResource() {
+    public WriteResource getWriteResource() {
 	return getWriteResource(null, null, null, null,null, null);
     }
 
@@ -113,7 +114,7 @@ public class InfluxDbResourceFactory {
      * 
      * @return  QueryResource the result of the query
      */
-    protected QueryResource getQueryResource() {
+    public QueryResource getQueryResource() {
 
 	ClientResource clientResource = new ClientResource((String) configProps.get(InfluxDbServiceImpl.INFLUXDBURL));
 	clientResource.addSegment(QueryResource.path);
@@ -133,7 +134,7 @@ public class InfluxDbResourceFactory {
      * @param query the SELECT or SHOW query
      * @return QueryResource the result of the query
      */
-    protected QueryResource getQueryResource(Query query) {
+    public QueryResource getQueryResource(Query query) {
 
 	ClientResource clientResource = new ClientResource((String) configProps.get(InfluxDbServiceImpl.INFLUXDBURL));
 	clientResource.addSegment(QueryResource.path);
@@ -146,7 +147,7 @@ public class InfluxDbResourceFactory {
 
     }
 
-    protected PingResource getPingResource() {
+    public PingResource getPingResource() {
 
 	ClientResource clientResource = new ClientResource((String) configProps.get(InfluxDbServiceImpl.INFLUXDBURL));
 

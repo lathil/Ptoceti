@@ -1,10 +1,11 @@
-package com.ptoceti.osgi.influxdb.impl.client.resources;
+package com.ptoceti.osgi.influxdb.impl.client.restlet.resources;
 
 import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
 
 import com.ptoceti.osgi.influxdb.Batch;
 import com.ptoceti.osgi.influxdb.Point;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.exception.InfluxDbApiNotFoundException;
 
 
 public interface WriteResource {

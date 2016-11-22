@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.influxdb.impl.client.resources;
+package com.ptoceti.osgi.influxdb.impl.client.restlet.exception;
 
 import java.util.List;
 
@@ -6,8 +6,8 @@ import org.restlet.resource.Status;
 
 import com.ptoceti.osgi.influxdb.Result;
 
-@Status(value = 400, serialize = true)
-public class InfluxDbApiBadrequestException  extends RuntimeException{
+@Status(value = 404, serialize = true)
+public class InfluxDbApiNotFoundException extends RuntimeException {
 
     /**
      * 
@@ -30,4 +30,5 @@ public class InfluxDbApiBadrequestException  extends RuntimeException{
     public void setResults(List<Result> results) {
 	this.results = results;
     }
+  
 }

@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.influxdb.impl.converter;
+package com.ptoceti.osgi.influxdb.converter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;

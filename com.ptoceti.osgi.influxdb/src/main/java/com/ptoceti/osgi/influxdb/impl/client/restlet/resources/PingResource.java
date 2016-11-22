@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.influxdb.impl.client.resources;
+package com.ptoceti.osgi.influxdb.impl.client.restlet.resources;
 
 import org.restlet.resource.Get;
 import org.restlet.resource.ResourceException;

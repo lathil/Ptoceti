@@ -1,21 +1,20 @@
-package com.ptoceti.osgi.influxdb.impl.converter;
+package com.ptoceti.osgi.influxdb.impl.client.restlet.converter;
 
 import java.io.IOException;
 import java.io.Writer;
 
 import org.osgi.service.log.LogService;
 import org.restlet.data.MediaType;
+import org.restlet.engine.util.StringUtils;
 import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
 import org.restlet.resource.Resource;
 
-import com.ptoceti.osgi.influxdb.Batch;
-import com.ptoceti.osgi.influxdb.Point;
 import com.ptoceti.osgi.influxdb.impl.Activator;
+import com.ptoceti.osgi.influxdb.ql.Query;
 
-
-public class InfluxDbLineProtocolRepresentation<T> extends WriterRepresentation {
-
+public class InfluxDbUrlEncodedRepresentation<T> extends WriterRepresentation{
+    
     /** The (parsed) object to format. */
     private T object;
 
@@ -27,30 +26,17 @@ public class InfluxDbLineProtocolRepresentation<T> extends WriterRepresentation 
 
     private Resource resource;
     
-    private LineProtocol lineProtocol;
 
-    public InfluxDbLineProtocolRepresentation(MediaType mediaType, T object, Resource resource) {
+    public InfluxDbUrlEncodedRepresentation(MediaType mediaType, T object, Resource resource) {
 	this(mediaType);
 	this.object = object;
 	this.objectClass = (Class<T>) ((object == null) ? null : object.getClass());
 	this.influxdbRepresentation = null;
 	this.resource = resource;
-	// this.objectMapper = null;
     }
 
-    public InfluxDbLineProtocolRepresentation(Representation representation, Class<T> objectClass, Resource resource) {
-	this(representation.getMediaType());
-	this.object = null;
-	this.objectClass = objectClass;
-	this.influxdbRepresentation = representation;
-	this.resource = resource;
-	// this.objectMapper = null;
-    }
-
-
-    public InfluxDbLineProtocolRepresentation(MediaType mediaType) {
+    public InfluxDbUrlEncodedRepresentation(MediaType mediaType) {
 	super(mediaType);
-	lineProtocol = new LineProtocol();
     }
 
     @Override
@@ -60,17 +46,16 @@ public class InfluxDbLineProtocolRepresentation<T> extends WriterRepresentation 
 	else if (this.object != null)
 	    try {
 		
-		if( object instanceof Point){
-		    writer.write(lineProtocol.toLine((Point)this.object));
-		} else if( object instanceof Batch){
-		    writer.write(lineProtocol.toLine((Batch)this.object));
-		}
+		if( object instanceof Query){
+		    String formParam = "q=" + ((Query)this.object).toQL();
+		    writer.write( formParam);
+		} 
 		
 	    } catch (Exception e) {
 		Activator.log(LogService.LOG_ERROR, "Erreur serializing influxdb representation: " + e.getMessage());
 		e.printStackTrace();
 	    }
-
+	
     }
 
 }

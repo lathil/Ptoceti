@@ -12,6 +12,7 @@ import org.osgi.service.log.LogService;
 import com.ptoceti.osgi.influxdb.InfluxDbService;
 import com.ptoceti.osgi.influxdb.Point;
 //import com.ptoceti.osgi.influxdb.impl.client.resources.WriteResource;
+import com.ptoceti.osgi.influxdb.impl.factory.restlet.InfluxDbResourceFactory;
 
 public class InfluxDbServiceImpl implements ManagedService, InfluxDbService {
 
