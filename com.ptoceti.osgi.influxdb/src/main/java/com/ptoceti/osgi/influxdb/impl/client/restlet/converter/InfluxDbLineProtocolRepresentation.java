@@ -3,7 +3,6 @@ package com.ptoceti.osgi.influxdb.impl.client.restlet.converter;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.osgi.service.log.LogService;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
 import org.restlet.representation.WriterRepresentation;
@@ -12,8 +11,6 @@ import org.restlet.resource.Resource;
 import com.ptoceti.osgi.influxdb.Batch;
 import com.ptoceti.osgi.influxdb.Point;
 import com.ptoceti.osgi.influxdb.converter.LineProtocol;
-import com.ptoceti.osgi.influxdb.impl.Activator;
-
 
 public class InfluxDbLineProtocolRepresentation<T> extends WriterRepresentation {
 
@@ -27,7 +24,7 @@ public class InfluxDbLineProtocolRepresentation<T> extends WriterRepresentation 
     private Representation influxdbRepresentation;
 
     private Resource resource;
-    
+
     private LineProtocol lineProtocol;
 
     public InfluxDbLineProtocolRepresentation(MediaType mediaType, T object, Resource resource) {
@@ -48,7 +45,6 @@ public class InfluxDbLineProtocolRepresentation<T> extends WriterRepresentation 
 	// this.objectMapper = null;
     }
 
-
     public InfluxDbLineProtocolRepresentation(MediaType mediaType) {
 	super(mediaType);
 	lineProtocol = new LineProtocol();
@@ -58,19 +54,15 @@ public class InfluxDbLineProtocolRepresentation<T> extends WriterRepresentation 
     public void write(Writer writer) throws IOException {
 	if (this.influxdbRepresentation != null)
 	    this.influxdbRepresentation.write(writer);
-	else if (this.object != null)
-	    try {
-		
-		if( object instanceof Point){
-		    writer.write(lineProtocol.toLine((Point)this.object));
-		} else if( object instanceof Batch){
-		    writer.write(lineProtocol.toLine((Batch)this.object));
-		}
-		
-	    } catch (Exception e) {
-		Activator.log(LogService.LOG_ERROR, "Erreur serializing influxdb representation: " + e.getMessage());
-		e.printStackTrace();
+	else if (this.object != null) {
+
+	    if (object instanceof Point) {
+		writer.write(lineProtocol.toLine((Point) this.object));
+	    } else if (object instanceof Batch) {
+		writer.write(lineProtocol.toLine((Batch) this.object));
 	    }
+
+	}
 
     }
 

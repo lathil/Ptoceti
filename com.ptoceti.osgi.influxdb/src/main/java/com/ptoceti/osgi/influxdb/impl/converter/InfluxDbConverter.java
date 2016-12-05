@@ -1,4 +1,4 @@
-package com.ptoceti.osgi.influxdb.impl.client.restlet.converter;
+package com.ptoceti.osgi.influxdb.impl.converter;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,6 +12,8 @@ import org.restlet.resource.Resource;
 
 import com.ptoceti.osgi.influxdb.Batch;
 import com.ptoceti.osgi.influxdb.Point;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.converter.InfluxDbLineProtocolRepresentation;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.converter.InfluxDbUrlEncodedRepresentation;
 import com.ptoceti.osgi.influxdb.ql.Query;
 
 public class InfluxDbConverter extends ConverterHelper {

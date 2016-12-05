@@ -9,5 +9,5 @@ public interface PingResource {
     static String  path = "ping";
     
     @Get
-    void get();
+    public void ping();
 }

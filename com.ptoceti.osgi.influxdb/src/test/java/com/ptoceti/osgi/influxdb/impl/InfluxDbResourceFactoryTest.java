@@ -2,14 +2,13 @@ package com.ptoceti.osgi.influxdb.impl;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -32,13 +31,14 @@ import com.ptoceti.osgi.influxdb.Result;
 import com.ptoceti.osgi.influxdb.RetentionPolicySerie;
 import com.ptoceti.osgi.influxdb.Serie;
 import com.ptoceti.osgi.influxdb.SerieWrapper;
-import com.ptoceti.osgi.influxdb.impl.InfluxDbResourceFactory;
-import com.ptoceti.osgi.influxdb.impl.InfluxDbServiceImpl;
-import com.ptoceti.osgi.influxdb.impl.client.resources.InfluxDbApiBadrequestException;
-import com.ptoceti.osgi.influxdb.impl.client.resources.InfluxDbApiNotFoundException;
-import com.ptoceti.osgi.influxdb.impl.client.resources.QueryResource;
-import com.ptoceti.osgi.influxdb.impl.client.resources.WriteResource;
-import com.ptoceti.osgi.influxdb.impl.converter.LineProtocol;
+import com.ptoceti.osgi.influxdb.converter.LineProtocol;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.exception.InfluxDbApiBadrequestException;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.exception.InfluxDbApiNotFoundException;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.resources.PingResource;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.resources.QueryResource;
+import com.ptoceti.osgi.influxdb.impl.client.restlet.resources.WriteResource;
+import com.ptoceti.osgi.influxdb.impl.factory.restlet.InfluxDbFactoryBuilder;
+import com.ptoceti.osgi.influxdb.impl.factory.restlet.InfluxDbResourceFactory;
 import com.ptoceti.osgi.influxdb.ql.Privilege;
 import com.ptoceti.osgi.influxdb.ql.Query;
 import com.ptoceti.osgi.influxdb.ql.QueryBuilder;
@@ -52,19 +52,15 @@ public class InfluxDbResourceFactoryTest {
     public static final String TESTADMINUSER = "testadminuser";
     public static final String TESTADMINUSERPASSWORD = "testadminuserpassword";
     public static final String TESTRETENTIONPOLICY100WNAME = "policy100w";
+    public static final String TESTRETENTIONPOLICY200WNAME = "policy200w";
     public static final String TESTRETENTIONPOLICY1WNAME = "policy1w";
 
     // The factory use during the tests for creating endpoints
     protected static InfluxDbResourceFactory factory;
 
     @BeforeClass
-    public static void setup() {
-
-	Dictionary<String, Object> properties = new Hashtable<String, Object>();
-	properties.put(InfluxDbServiceImpl.INFLUXDBURL, "http://127.0.0.1:8086");
-	properties.put(InfluxDbServiceImpl.INFLUXDBNAME, TESTDATABASENAME);
-	factory = new InfluxDbResourceFactory(properties);
-
+    public static void setup() throws MalformedURLException {
+	factory = InfluxDbFactoryBuilder.build(new URL("http://127.0.0.1:8086")).dbName(TESTDATABASENAME).getFactory();
     }
 
     @AfterClass
@@ -72,12 +68,21 @@ public class InfluxDbResourceFactoryTest {
 
     }
 
+    
+    @Test
+    public void test1001pingDatabaseTest(){
+	
+	PingResource pResource = factory.getPingResource();
+	pResource.ping();
+	
+    }
+    
     /**
      * Settup test Database
      * 
      */
     @Test
-    public void test1000createTestDataBase() {
+    public void test1002createTestDataBase() {
 
 	// first get list of already exixting databases in the server
 	Query query = QueryBuilder.Query().ShowDataBases().getQuery();
@@ -119,7 +124,7 @@ public class InfluxDbResourceFactoryTest {
     }
 
     @Test
-    public void test1002CreateRetentionPolicy() {
+    public void test1003CreateRetentionPolicy() {
 
 	QueryResource resource = factory.getQueryResource();
 	Query query = QueryBuilder.Query().CreateRetentionPolicy(TESTRETENTIONPOLICY100WNAME).On(TESTDATABASENAME)
@@ -133,10 +138,23 @@ public class InfluxDbResourceFactoryTest {
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Assert.fail("Error creating retention policy 1: " + ex.getError() + " for query: " + query.toQL());
 	}
+	
+	resource = factory.getQueryResource();
+	query = QueryBuilder.Query().CreateRetentionPolicy(TESTRETENTIONPOLICY200WNAME).On(TESTDATABASENAME)
+		.Duration("200w").Replication("1").Default().getQuery();
+	results = null;
+
+	try {
+	    results = resource.post(query);
+	} catch (ResourceException ex) {
+	    Assert.fail("Error creating retention policy 2: " + ex);
+	} catch (InfluxDbApiBadrequestException ex) {
+	    Assert.fail("Error creating retention policy 2: " + ex.getError() + " for query: " + query.toQL());
+	}
     }
 
     @Test
-    public void test1003ModifyRetentionPolicy() {
+    public void test1004ModifyRetentionPolicy() {
 	QueryResource resource = factory.getQueryResource();
 	Query query = QueryBuilder.Query().AlterRetentionPolicy(TESTRETENTIONPOLICY1WNAME).On(TESTDATABASENAME)
 		.Duration("10w").Replication("1").getQuery();
@@ -163,7 +181,7 @@ public class InfluxDbResourceFactoryTest {
 	    RetentionPolicySerie retentionSerie = new RetentionPolicySerie(QueryResultsHelper.getSerie(0, results
 		    .getResults().get(0)));
 
-	    Assert.assertEquals("Number of retention policies does not matches", 2, retentionSerie.size());
+	    Assert.assertEquals("Number of retention policies does not matches", 3, retentionSerie.size());
 
 	}
 
@@ -175,7 +193,7 @@ public class InfluxDbResourceFactoryTest {
      * 
      */
     @Test
-    public void test1004CreateUser() {
+    public void test1005CreateUser() {
 
 	QueryResource resource = factory.getQueryResource();
 	Query query = QueryBuilder.Query().CreateUser(TESTUSER1).WithPassword(TESTUSER1PASSWORD).getQuery();
@@ -219,10 +237,10 @@ public class InfluxDbResourceFactoryTest {
     }
 
     @Test
-    public void test1004CreateContinuousQuery(){
+    public void test1006CreateContinuousQuery(){
 	QueryResource resource = factory.getQueryResource();
-	Query query = QueryBuilder.Query().CreateContinuousQuery("1h_WaterLevel").On(TESTDATABASENAME).Begin(
-		QueryBuilder.Query().Select("").Into("").From("").GroupBy("").getQuery()).End().getQuery();
+	Query query = QueryBuilder.Query().CreateContinuousQuery("OneHour_WaterLevel").On(TESTDATABASENAME).Begin(
+		QueryBuilder.Query().Select("mean(\"water_level\")").Into(TESTRETENTIONPOLICY200WNAME + ".h2o_feet_200").From(TESTRETENTIONPOLICY100WNAME + ".h2o_feet").GroupBy("time(1h)").getQuery()).End().getQuery();
 	QueryResults results = null;
 
 	try {
@@ -289,9 +307,9 @@ public class InfluxDbResourceFactoryTest {
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Assert.fail("Error droping retention policy 1: " + ex.getError() + " for query: " + query.toQL());
 	}
-
+	
 	resource = factory.getQueryResource();
-	query = QueryBuilder.Query().DropRetentionPolicy(TESTRETENTIONPOLICY1WNAME).On(TESTDATABASENAME).getQuery();
+	query = QueryBuilder.Query().DropRetentionPolicy(TESTRETENTIONPOLICY200WNAME).On(TESTDATABASENAME).getQuery();
 
 	try {
 	    results = resource.post(query);
@@ -299,6 +317,17 @@ public class InfluxDbResourceFactoryTest {
 	    Assert.fail("Error droping retention policy 2: " + ex);
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Assert.fail("Error droping retention policy 2: " + ex.getError() + " for query: " + query.toQL());
+	}
+
+	resource = factory.getQueryResource();
+	query = QueryBuilder.Query().DropRetentionPolicy(TESTRETENTIONPOLICY1WNAME).On(TESTDATABASENAME).getQuery();
+
+	try {
+	    results = resource.post(query);
+	} catch (ResourceException ex) {
+	    Assert.fail("Error droping retention policy 3: " + ex);
+	} catch (InfluxDbApiBadrequestException ex) {
+	    Assert.fail("Error droping retention policy 3: " + ex.getError() + " for query: " + query.toQL());
 	}
     }
 
