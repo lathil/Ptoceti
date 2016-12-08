@@ -559,5 +559,6 @@
 		<module>com.ptoceti.osgi.dfrobot.sensornode</module>
 	    <module>com.ptoceti.osgi.mqtt</module>
 	    <module>com.ptoceti.osgi.assembly</module>
+	    <module>com.ptoceti.osgi.timeseries</module>
 	</modules>
 </project>
