@@ -379,6 +379,8 @@
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.packageadmin/1.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.obr/1.0.0</param>
 							
+							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-client/9.2.6.v20141205</param>
+							
 							
 							<!--  
 							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet/${restlet.version}@10</param>
@@ -404,6 +406,7 @@
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.1.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.1.0-SNAPSHOT@nostart</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.mqtt/1.1.0-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.timeseries/1.1.0-SNAPSHOT@update</param>
 							
 						</provision>
 					</configuration>

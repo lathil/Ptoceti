@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
+	<OCD description="Configuration of InfluxDb service" name="Ptoceti InfluxDb service"  id="com.ptoceti.osgi.timeseries.impl.InfluxDbFactoryService">
+		<AD name="InfluxDb url" id="com.ptoceti.osgi.influxdb.url" required="true" type="String" default="http://127.0.0.1:8086"/>
+		<AD name="InfluxDb db name" id="com.ptoceti.osgi.influxdb.dbname" required="true" type="String" default="timeseries"/>
+		<AD name="Immediate policy duration" id="com.ptoceti.osgi.timeseries.policy.immediate.duration" required="true" type="String" default="1d"/>
+		<AD name="Short policy duration" id="com.ptoceti.osgi.timeseries.policy.short.duration" required="true" type="String" default="1w"/>
+		<AD name="Medium policy duration" id="com.ptoceti.osgi.timeseries.policy.medium.duration" required="true" type="String" default="52w"/>
+		<AD name="Long policy duration" id="com.ptoceti.osgi.timeseries.policy.long.duration" required="true" type="String" default="520w"/>
+		<AD name="Immediate aggregate duration" id="com.ptoceti.osgi.timeseries.aggregate.immediate.duration" required="true" type="String" default="15m"/>
+		<AD name="Short aggregate duration" id="com.ptoceti.osgi.timeseries.aggregate.short.duration" required="true" type="String" default="30m"/>
+		<AD name="Medium aggregate duration" id="com.ptoceti.osgi.timeseries.aggregate.medium.duration" required="true" type="String" default="2h"/>
+	</OCD>
+	<Designate pid="com.ptoceti.osgi.timeseries.impl.InfluxDbFactoryService">
+	   <Object ocdref="com.ptoceti.osgi.timeseries.impl.InfluxDbFactoryService"/>
+	</Designate>
+</MetaData>
