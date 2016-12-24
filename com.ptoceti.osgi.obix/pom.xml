@@ -26,7 +26,11 @@
 	<dependencyManagement>
 		<dependencies>
 
-			
+			<dependency>
+				<groupId>org.knopflerfish.bundle</groupId>
+				<artifactId>kxml-LIB</artifactId>
+				<version>2.3.0.kf3</version>
+			</dependency>
 
 			<!-- 
 			<dependency>
@@ -36,7 +40,91 @@
 			</dependency>
 			 -->
 			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.servlet</artifactId>
+				<version>${restlet.version}</version>
+				 
+				<exclusions>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
+					</exclusion>
+				</exclusions>
+				 
+			</dependency>
 			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.oauth</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.crypto</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+			
+
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.slf4j</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.jackson</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+		
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.osgi</artifactId>
+				<version>${restlet.version}</version>
+				 
+				<exclusions>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
+					</exclusion>
+				</exclusions>
+				 
+			</dependency>
+			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.jetty</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.google.inject</groupId>
+				<artifactId>guice</artifactId>
+				<version>2.0-no_aop</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>17.0</version>
+			</dependency>
+
 
 			<dependency>
 				<groupId>com.ptoceti</groupId>
@@ -55,6 +143,14 @@
 				<artifactId>com.ptoceti.osgi.control</artifactId>
 				<version>1.1.0-SNAPSHOT</version>
 			</dependency>
+			
+			<dependency>
+				<groupId>com.ptoceti</groupId>
+				<artifactId>com.ptoceti.osgi.timeseries</artifactId>
+				<version>1.1.0-SNAPSHOT</version>
+			</dependency>
+			
+			
 
 		</dependencies>
 	</dependencyManagement>

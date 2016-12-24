@@ -35,6 +35,7 @@ import com.ptoceti.osgi.obix.restlet.ObixApplicationFactory;
 import com.ptoceti.osgi.obix.restlet.ObixRestComponent;
 import com.ptoceti.osgi.obix.restlet.ObixServlet;
 import com.ptoceti.osgi.obix.service.ObixService;
+import com.ptoceti.osgi.timeseries.TimeSeriesService;
 
 import com.ptoceti.osgi.data.JdbcDevice;
 
@@ -53,7 +54,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
 
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -85,7 +85,6 @@ import org.restlet.ext.oauth.internal.TokenManager;
 import org.restlet.ext.oauth.internal.memory.MemoryClientManager;
 import org.restlet.ext.oauth.internal.memory.MemoryTokenManager;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
-
 
 /**
  * A ManagedService class providing Obix (Open Building Information eXchange)
@@ -121,6 +120,8 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 	private HttpServiceListener httpSrvLst;
 	// The data service listener
 	private DataDeviceListener dataDeviceLst;
+	    // The time series listener
+    private TimeSeriesListener timeSeriesLst;
 	
 	// the path under which the service is accessible.
 	private String obixServletPath;
@@ -226,6 +227,22 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 			// filter string.
 		}
 
+		String timeSeriesServiceFilter = "(objectclass=" + TimeSeriesService.class.getName() + ")";
+		try {
+	    timeSeriesLst = new TimeSeriesListener(this);
+	    Activator.bc.addServiceListener(timeSeriesLst, timeSeriesServiceFilter);
+	    // in case the service is already registered, we send a REGISTER
+	    // event to the listener.
+	    ServiceReference timeSerDataSrv[] = Activator.bc.getServiceReferences(TimeSeriesService.class.getName(),
+		    null);
+	    if (timeSerDataSrv != null) {
+		timeSeriesLst.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, timeSerDataSrv[0]));
+	    }
+	} catch (InvalidSyntaxException e) {
+	    // We know there shouldn't be an exception here since we made the
+	    // filter string.
+	}
+	
 		String servletfilter = "(objectclass=" + HttpService.class.getName() + ")";
 		try {
 			httpSrvLst = new HttpServiceListener();
@@ -424,45 +441,6 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 		return buf.toString();
 	}
 
-	public class DataDeviceListener implements ServiceListener {
-		private ObixServiceImpl serviceImpl = null;
-
-		public DataDeviceListener(ObixServiceImpl serviceImpl) {
-			this.serviceImpl = serviceImpl;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework
-		 * .ServiceEvent)
-		 */
-		public void serviceChanged(ServiceEvent event) {
-			ServiceReference sr = event.getServiceReference();
-			switch (event.getType()) {
-			case ServiceEvent.REGISTERED: {
-				ObixDataHandler.getInstance().setDataDevice((JdbcDevice) Activator.bc.getService(sr));
-				Activator.log(LogService.LOG_INFO, "Getting instance of service: "
-								+ JdbcDevice.class.getName() + ","
-								+ Constants.SERVICE_PID + "="
-								+ (String) sr.getProperty(Constants.SERVICE_PID));
-				startDatabase();
-			}
-				break;
-			case ServiceEvent.UNREGISTERING: {
-				Activator.log(LogService.LOG_INFO, "Releasing service: " + JdbcDevice.class.getName() + ","
-						+ Constants.SERVICE_PID + "="
-						+ (String) sr.getProperty(Constants.SERVICE_PID));
-
-				// httpService.unregister(obixServletPath);
-				ObixDataHandler.getInstance().setDataDevice(null);
-				databaseInitialised = false;
-			}
-				break;
-			}
-		}
-	}
 
 	protected synchronized void startRestService() {
 		if ((obixServletPath != null)
@@ -614,6 +592,83 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 		return clientManager.findById(id) != null;
 	}
 
+	public class DataDeviceListener implements ServiceListener {
+		private ObixServiceImpl serviceImpl = null;
+
+		public DataDeviceListener(ObixServiceImpl serviceImpl) {
+			this.serviceImpl = serviceImpl;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework
+		 * .ServiceEvent)
+		 */
+		public void serviceChanged(ServiceEvent event) {
+			ServiceReference sr = event.getServiceReference();
+			switch (event.getType()) {
+			case ServiceEvent.REGISTERED: {
+				ObixDataHandler.getInstance().setDataDevice((JdbcDevice) Activator.bc.getService(sr));
+				Activator.log(LogService.LOG_INFO, "Getting instance of service: "
+								+ JdbcDevice.class.getName() + ","
+								+ Constants.SERVICE_PID + "="
+								+ (String) sr.getProperty(Constants.SERVICE_PID));
+				startDatabase();
+			}
+				break;
+			case ServiceEvent.UNREGISTERING: {
+				Activator.log(LogService.LOG_INFO, "Releasing service: " + JdbcDevice.class.getName() + ","
+						+ Constants.SERVICE_PID + "="
+						+ (String) sr.getProperty(Constants.SERVICE_PID));
+
+				// httpService.unregister(obixServletPath);
+				ObixDataHandler.getInstance().setDataDevice(null);
+				databaseInitialised = false;
+			}
+				break;
+			}
+		}
+	}
+
+	/**
+     * Listener that listen to the TimeSeries service register and unregister
+     * events.
+     * 
+     * @author LATHIL
+     * 
+     */
+    public class TimeSeriesListener implements ServiceListener {
+
+	private ObixServiceImpl serviceImpl = null;
+
+	public TimeSeriesListener(ObixServiceImpl serviceImpl) {
+	    this.serviceImpl = serviceImpl;
+	}
+
+	public void serviceChanged(ServiceEvent event) {
+	    ServiceReference sr = event.getServiceReference();
+	    switch (event.getType()) {
+	    case ServiceEvent.REGISTERED: {
+		ObixTimeSeriesHandler.getInstance().setTimeSeriesService(
+			(TimeSeriesService) Activator.bc.getService(sr));
+		Activator.log(LogService.LOG_INFO, "Getting instance of service: " + TimeSeriesService.class.getName()
+			+ "," + Constants.SERVICE_PID + "=" + (String) sr.getProperty(Constants.SERVICE_PID));
+	    }
+		break;
+	    case ServiceEvent.UNREGISTERING: {
+		Activator.log(LogService.LOG_INFO, "Releasing service: " + TimeSeriesService.class.getName() + ","
+			+ Constants.SERVICE_PID + "=" + (String) sr.getProperty(Constants.SERVICE_PID));
+
+		// httpService.unregister(obixServletPath);
+		ObixTimeSeriesHandler.getInstance().setTimeSeriesService(null);
+	    }
+		break;
+	    }
+	}
+
+    }
 	/**
 	 * Listener that listen to the Http service register and unregister events.
 	 * 
