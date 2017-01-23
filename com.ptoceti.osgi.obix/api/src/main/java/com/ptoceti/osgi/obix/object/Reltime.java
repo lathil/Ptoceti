@@ -43,7 +43,11 @@ public class Reltime extends Val {
 	// private static final String xsduration =
 	// "-?P(?=\\d+|T)(\\d+Y)?(\\d+M)?(\\d+D)?(T(?=\\d+)(\\d+H)?(\\d+M)?(\\d+S)?)?";
 
+<<<<<<< Upstream, based on develop
 	public static final Contract contract = new Contract("obix:reltime");
+=======
+	protected static final Contract contract = new Contract("obix:reltime");
+>>>>>>> 65471ee Removed cloning of input values in history / changed contract visibility in base obix objects
 	
 	protected Reltime max;
 	protected Reltime min;

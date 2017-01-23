@@ -42,7 +42,11 @@ public class Bool extends Val{
 	 */
 	private static final long serialVersionUID = 5703560627132064965L;
 
+<<<<<<< Upstream, based on develop
 	public static final Contract contract = new Contract("obix:bool");
+=======
+	protected static final Contract contract = new Contract("obix:bool");
+>>>>>>> 65471ee Removed cloning of input values in history / changed contract visibility in base obix objects
 	
 	protected Uri range;
 	

@@ -41,7 +41,11 @@ public class Int extends Val {
 	 */
 	private static final long serialVersionUID = 499008084834546740L;
 
+<<<<<<< Upstream, based on develop
 	public static final Contract contract = new Contract("obix:int");
+=======
+	protected static final Contract contract = new Contract("obix:int");
+>>>>>>> 65471ee Removed cloning of input values in history / changed contract visibility in base obix objects
 	
 	protected Integer min;
 	protected Integer max;

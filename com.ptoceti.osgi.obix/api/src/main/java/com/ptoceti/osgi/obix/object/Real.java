@@ -40,7 +40,11 @@ public class Real extends Val {
 	 */
 	private static final long serialVersionUID = -9068900088523384313L;
 
+<<<<<<< Upstream, based on develop
 	public static final Contract contract = new Contract("obix:real");
+=======
+	protected static final Contract contract = new Contract("obix:real");
+>>>>>>> 65471ee Removed cloning of input values in history / changed contract visibility in base obix objects
 	
 	protected Double min;
 	protected Double max;
