@@ -94,7 +94,7 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
  * @author lor
  * 
  */
-public class ObixServiceImpl  implements ObixService, ManagedService {
+public class ObixServiceImpl implements ObixService, ManagedService {
 
 	// a reference to the service registration for the Controller object.
 	ServiceRegistration sReg = null;
@@ -592,47 +592,44 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 		return clientManager.findById(id) != null;
 	}
 
-	public class DataDeviceListener implements ServiceListener {
-		private ObixServiceImpl serviceImpl = null;
+    public class DataDeviceListener implements ServiceListener {
+	private ObixServiceImpl serviceImpl = null;
 
-		public DataDeviceListener(ObixServiceImpl serviceImpl) {
-			this.serviceImpl = serviceImpl;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework
-		 * .ServiceEvent)
-		 */
-		public void serviceChanged(ServiceEvent event) {
-			ServiceReference sr = event.getServiceReference();
-			switch (event.getType()) {
-			case ServiceEvent.REGISTERED: {
-				ObixDataHandler.getInstance().setDataDevice((JdbcDevice) Activator.bc.getService(sr));
-				Activator.log(LogService.LOG_INFO, "Getting instance of service: "
-								+ JdbcDevice.class.getName() + ","
-								+ Constants.SERVICE_PID + "="
-								+ (String) sr.getProperty(Constants.SERVICE_PID));
-				startDatabase();
-			}
-				break;
-			case ServiceEvent.UNREGISTERING: {
-				Activator.log(LogService.LOG_INFO, "Releasing service: " + JdbcDevice.class.getName() + ","
-						+ Constants.SERVICE_PID + "="
-						+ (String) sr.getProperty(Constants.SERVICE_PID));
-
-				// httpService.unregister(obixServletPath);
-				ObixDataHandler.getInstance().setDataDevice(null);
-				databaseInitialised = false;
-			}
-				break;
-			}
-		}
+	public DataDeviceListener(ObixServiceImpl serviceImpl) {
+	    this.serviceImpl = serviceImpl;
 	}
 
-	/**
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework
+	 * .ServiceEvent)
+	 */
+	public void serviceChanged(ServiceEvent event) {
+	    ServiceReference sr = event.getServiceReference();
+	    switch (event.getType()) {
+	    case ServiceEvent.REGISTERED: {
+		ObixDataHandler.getInstance().setDataDevice((JdbcDevice) Activator.bc.getService(sr));
+		Activator.log(LogService.LOG_INFO, "Getting instance of service: " + JdbcDevice.class.getName() + ","
+			+ Constants.SERVICE_PID + "=" + (String) sr.getProperty(Constants.SERVICE_PID));
+		startDatabase();
+	    }
+		break;
+	    case ServiceEvent.UNREGISTERING: {
+		Activator.log(LogService.LOG_INFO, "Releasing service: " + JdbcDevice.class.getName() + ","
+			+ Constants.SERVICE_PID + "=" + (String) sr.getProperty(Constants.SERVICE_PID));
+
+		// httpService.unregister(obixServletPath);
+		ObixDataHandler.getInstance().setDataDevice(null);
+		databaseInitialised = false;
+	    }
+		break;
+	    }
+	}
+    }
+
+    /**
      * Listener that listen to the TimeSeries service register and unregister
      * events.
      * 
@@ -669,48 +666,80 @@ public class ObixServiceImpl  implements ObixService, ManagedService {
 	}
 
     }
-	/**
-	 * Listener that listen to the Http service register and unregister events.
+
+    /**
+     * Listener that listen to the Http service register and unregister events.
+     * 
+     * @author lor
+     * 
+     */
+    public class HttpServiceListener implements ServiceListener {
+
+	public HttpServiceListener() {
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @author lor
-	 *
+	 * @see
+	 * org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework
+	 * .ServiceEvent)
 	 */
-	public class HttpServiceListener implements ServiceListener {
+	public void serviceChanged(ServiceEvent event) {
+	    ServiceReference sr = event.getServiceReference();
+	    switch (event.getType()) {
+	    case ServiceEvent.REGISTERED: {
+		obixHttpHandler.setHttpService((HttpService) Activator.bc.getService(sr));
+		startRestService();
+		Activator.log(LogService.LOG_INFO, "Getting instance of service: " + HttpService.class.getName() + ","
+			+ Constants.SERVICE_PID + "=" + (String) sr.getProperty(Constants.SERVICE_PID) + " from "
+			+ sr.getBundle().getSymbolicName());
 
-		public HttpServiceListener() {
+		// keep track of HttpService name for filling About resource
+		// info
+		setHttpServiceSymbolicName(sr.getBundle().getSymbolicName());
+
+	    }
+		break;
+	    case ServiceEvent.UNREGISTERING: {
+		Activator.log(LogService.LOG_INFO, "Releasing service: " + HttpService.class.getName() + ","
+			+ Constants.SERVICE_PID + "=" + (String) sr.getProperty(Constants.SERVICE_PID));
+
+		// httpService.unregister(obixServletPath);
+		obixHttpHandler.setHttpService(null);
+
+		setHttpServiceSymbolicName(null);
+	    }
+		break;
+	    }
+	}
+    }
+
+    /**
+     * 
+     * Listener that detect when the restlet main bundle has started. Necessary
+     * as this one re-init list of services and converters ...
+     * 
+     * @author lor
+     * 
+     */
+    public class RestletListener implements BundleListener {
+	@Override
+	public void bundleChanged(BundleEvent event) {
+	    if (event.getBundle().getSymbolicName().equals(RESTLETSYMBOLICNAME)) {
+		if (event.getType() == BundleEvent.STARTED) {
+		    restletHasStarted = true;
+		    Activator.log(LogService.LOG_INFO, "Restlet started event detected.");
+		    Engine.getInstance().setLoggerFacade(new Slf4jLoggerFacade());
+		    startRestService();
+		} else {
+		    restletHasStarted = false;
 		}
+	    }
+	}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.osgi.framework.ServiceListener#serviceChanged(org.osgi.framework
-		 * .ServiceEvent)
-		 */
-		public void serviceChanged(ServiceEvent event) {
-			ServiceReference sr = event.getServiceReference();
-			switch (event.getType()) {
-			case ServiceEvent.REGISTERED: {
-				obixHttpHandler.setHttpService((HttpService) Activator.bc.getService(sr));
-				startRestService();
-				Activator.log(LogService.LOG_INFO, "Getting instance of service: "
-								+ HttpService.class.getName() + ","
-								+ Constants.SERVICE_PID + "="
-								+ (String) sr.getProperty(Constants.SERVICE_PID) + " from "
-								+ sr.getBundle().getSymbolicName());
-				
-				// keep track of HttpService name for filling About resource info
-				setHttpServiceSymbolicName(sr.getBundle().getSymbolicName());
-				
-			}
-				break;
-			case ServiceEvent.UNREGISTERING: {
-				Activator.log(LogService.LOG_INFO, "Releasing service: "
-						+ HttpService.class.getName() + ","
-						+ Constants.SERVICE_PID + "="
-						+ (String) sr.getProperty(Constants.SERVICE_PID));
-
-				// httpService.unregister(obixServletPath);
+    }
+}
 				obixHttpHandler.setHttpService(null);
 				
 				setHttpServiceSymbolicName(null);

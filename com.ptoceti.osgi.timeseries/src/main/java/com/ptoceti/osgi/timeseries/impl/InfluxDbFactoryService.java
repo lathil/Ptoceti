@@ -11,8 +11,8 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.log.LogService;
 
-import com.ptoceti.osgi.influxdb.impl.factory.restlet.InfluxDbFactoryBuilder;
-import com.ptoceti.osgi.influxdb.impl.factory.restlet.InfluxDbResourceFactory;
+import com.ptoceti.influxdb.factory.InfluxDbFactoryBuilder;
+import com.ptoceti.influxdb.factory.InfluxDbResourceFactory;
 import com.ptoceti.osgi.timeseries.TimeSeriesService;
 
 public class InfluxDbFactoryService implements ManagedService {
