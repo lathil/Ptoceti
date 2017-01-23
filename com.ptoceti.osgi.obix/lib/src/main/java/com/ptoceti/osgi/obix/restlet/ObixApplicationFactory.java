@@ -27,6 +27,7 @@ package com.ptoceti.osgi.obix.restlet;
  * #L%
  */
 
+import java.util.List;
 import java.util.Map;
 
 import org.osgi.service.log.LogService;
@@ -35,6 +36,8 @@ import org.restlet.Context;
 import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Reference;
 import org.restlet.engine.Engine;
+import org.restlet.engine.converter.ConverterHelper;
+import org.restlet.ext.jackson.JacksonConverter;
 import org.restlet.ext.oauth.TokenVerifier;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
@@ -44,6 +47,7 @@ import org.restlet.security.Role;
 import org.restlet.security.RoleAuthorizer;
 
 import com.ptoceti.osgi.obix.impl.front.converters.JSonConverter;
+import com.ptoceti.osgi.obix.impl.front.converters.JacksonCustomConverter;
 import com.ptoceti.osgi.obix.impl.front.converters.XMLConverter;
 import com.ptoceti.osgi.obix.impl.guice.GuiceFinderFactory;
 import com.ptoceti.osgi.obix.impl.guice.GuiceRouter;
@@ -113,6 +117,17 @@ public class ObixApplicationFactory {
 		
 		JSonConverter jsonConverter = new JSonConverter();
 		Engine.getInstance().getRegisteredConverters().add(jsonConverter);
+		
+		// remove standart JacksonConverter
+		List<ConverterHelper> converters = Engine.getInstance().getRegisteredConverters();
+                for (ConverterHelper converter : converters) {
+                    if (converter instanceof JacksonConverter) {
+                        converters.remove(converter);
+                        break;
+                    }
+                }
+                // and add our that add special mixins
+                converters.add(new JacksonCustomConverter());
 		
 		application = new Application();
 		Context context = new Context();

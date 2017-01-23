@@ -178,6 +178,15 @@
 				 
 			</dependency>
 		
+		<!-- 
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-client</artifactId>
+					<version>9.2.6.v20141205</version>
+		</dependency>
+		 -->
+		
+		
 		<dependency>
 			<groupId>org.restlet.osgi</groupId>
 			<artifactId>org.restlet.ext.jetty</artifactId>

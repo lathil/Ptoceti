@@ -27,9 +27,9 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  * #L%
  */
 
-
 import java.util.List;
 
+import org.osgi.service.log.LogService;
 import org.restlet.resource.Post;
 
 import com.google.inject.Inject;
@@ -42,42 +42,45 @@ import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.resources.HistoryResource;
 import com.ptoceti.osgi.obix.resources.HistoryRollupResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
+import com.ptoceti.osgi.timeseries.impl.Activator;
 
 public class HistoryRollupServerResource extends AbstractServerResource implements HistoryRollupResource {
 
-	private HistoryCache cache;
-	
-	@Inject
-	public HistoryRollupServerResource(HistoryCache cache) {
-		this.cache = cache;
-	}
-	
-	@Post
-	public HistoryRollupOut rollupHistory(HistoryRollupIn in) throws ResourceException{
-		
-		String historyUri = HistoryResource.baseuri.concat("/").concat((String)getRequest().getAttributes().get(HistoryResource.HISTORY_URI)).concat("/");
+    private HistoryCache cache;
 
-		HistoryRollupOut result = new HistoryRollupOut();
-		
-		try {
-			
-			List<HistoryRollupRecord> records = cache.getRollUprecords(historyUri, in.getLimit(), in.getStart(), in.getEnd(), in.getInterval());
-			if( records.size() > 0) {
-				
-				result.setStart(records.get(0).getStart());
-				result.setEnd(records.get(records.size() - 1).getEnd());
-				result.setCount(records.size());
-				
-				for( HistoryRollupRecord record : records){
-					result.getDataList().addChildren(record);
-				}
-			}
-			
-		}  catch( DomainException ex) {
-			throw new ResourceException("Exception in " + this.getClass().getName() + ".queryHistory", ex);
+    @Inject
+    public HistoryRollupServerResource(HistoryCache cache) {
+	this.cache = cache;
+    }
+
+    @Post
+    public HistoryRollupOut rollupHistory(HistoryRollupIn in) throws ResourceException {
+
+	String historyUri = HistoryResource.baseuri.concat("/")
+		.concat((String) getRequest().getAttributes().get(HistoryResource.HISTORY_URI)).concat("/");
+
+	HistoryRollupOut result = new HistoryRollupOut();
+
+	try {
+	    // start is the oldest timestamp, end is the newest timestamp
+	    List<HistoryRollupRecord> records = cache.getRollUprecords(historyUri, in.getLimit(), in.getStart(),
+		    in.getEnd(), in.getInterval());
+	    if (records.size() > 0) {
+
+		result.setStart(records.get(0).getStart());
+		result.setEnd(records.get(records.size() - 1).getEnd());
+		result.setCount(records.size());
+
+		for (HistoryRollupRecord record : records) {
+		    result.getDataList().addChildren(record);
 		}
-		
-		return result;
+	    }
+
+	} catch (DomainException ex) {
+	    throw new ResourceException("Exception in " + this.getClass().getName() + ".getRollUprecords", ex);
 	}
+
+	return result;
+    }
 
 }
