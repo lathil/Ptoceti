@@ -174,5 +174,6 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 	});
 	
 	
+	
 	return ObixView;
 });

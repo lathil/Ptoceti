@@ -183,6 +183,7 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 			app.controller.goToAlarmsWithAlarm(alarmUri);
 		}
 	})
+
 	
 	
 	return app;

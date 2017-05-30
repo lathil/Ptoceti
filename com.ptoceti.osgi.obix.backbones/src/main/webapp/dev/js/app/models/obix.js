@@ -979,7 +979,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		},
 		
 		/*
-		 * Return HistoryService 'Ref' type resource
+		 * Return WatchService 'Ref' type resource
 		 */
 		getHistoryService : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('historyService');
@@ -1017,7 +1017,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 
 		defaults : _.extend({}, Obj.prototype.defaults, {
 			type : 'searchout',
-			is : {uris: [{type: 'uri', val: 'ptoceti:SearchOut'}]}
+			is : {uris: [{type: 'uri', val: 'obix:SearchOut'}]}
 		}),
 		
 		getValueList : function() {
@@ -1143,7 +1143,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 
 		defaults : _.extend({}, Obj.prototype.defaults, {
 			type : 'historyservice',
-			is : {uris: [{type: 'uri', val: 'ptoceti:HistoryService'}]}
+			is : {uris: [{type: 'uri', val: 'obix:HistoryService'}]}
 		}),
 
 		/*

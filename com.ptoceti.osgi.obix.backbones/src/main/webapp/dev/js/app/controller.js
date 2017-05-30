@@ -821,6 +821,7 @@ define(['jquery', 'backbone', 'marionette', 'underscore', 'eventaggr', 'oauth2',
 		}
 
 	});
+	
 
 	return AppController;
 });

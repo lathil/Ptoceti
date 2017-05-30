@@ -77,6 +77,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 			}
 		},
 		
+		
 		/**
 		fetchHistory : function( historyRef ){
 			var region = this.refRegion;

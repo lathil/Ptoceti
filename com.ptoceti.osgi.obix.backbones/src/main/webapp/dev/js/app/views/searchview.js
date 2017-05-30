@@ -150,3 +150,4 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 
 	return SearchView;
 });
+
