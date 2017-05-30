@@ -266,7 +266,7 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		synchronized void update( ModbusDriver mdbDriver, int id ) {
 			// ensure we got a driver
 			if( mdbDriver != null && count > 0) {
-				int regs[] = mdbDriver.readHoldingRegisters((byte)id, offset, count);
+				int regs[] = mdbDriver.readInputRegisters((byte)id, offset, count);
 				if( regs != null && (regs.length == count)) {
 					registers = regs;
 					updateTime = System.currentTimeMillis();
