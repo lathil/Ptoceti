@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <org.osgi.service.wireadmin.WireAdmin>
 	<!-- Configuration for Sending to and from modbus -->
+	<!-- 
 	<org.osgi.service.wireadmin.Wire>
 		<wireadmin.producer.pid>com.ptoceti.osgi.obix.impl.WireHandler</wireadmin.producer.pid>
 		<wireadmin.consumer.consumer.filter><![CDATA[(&(&(objectClass=org.osgi.service.wireadmin.Producer)(objectClass=org.osgi.service.wireadmin.Consumer)(objectClass=com.ptoceti.osgi.modbusdevice.ModbusDevice))(wireadmin.consumer.composite=modbusdevice1))]]></wireadmin.consumer.consumer.filter>
@@ -9,7 +10,7 @@
 		<wireadmin.consumer.producer.filter><![CDATA[(&(&(objectClass=org.osgi.service.wireadmin.Producer)(objectClass=org.osgi.service.wireadmin.Consumer)(objectClass=com.ptoceti.osgi.modbusdevice.ModbusDevice))(wireadmin.producer.composite=modbusdevice1))]]></wireadmin.consumer.producer.filter>
 		<wireadmin.consumer.pid>com.ptoceti.osgi.obix.impl.service.WireHandler</wireadmin.consumer.pid>
 	</org.osgi.service.wireadmin.Wire>
-	
+	 -->
 	<!--  Configuration for sending Sensor Node & Pi to Obix
 	<org.osgi.service.wireadmin.Wire>
 		<wireadmin.consumer.producer.filter><![CDATA[(&(&(objectClass=org.osgi.service.wireadmin.Producer)(objectClass=com.ptoceti.osgi.dfrobot.sensornode.impl.SensorNode))(wireadmin.producer.composite=sensordevice1))]]></wireadmin.consumer.producer.filter>
@@ -20,14 +21,16 @@
 		<wireadmin.consumer.pid>com.ptoceti.osgi.obix.impl.service.WireHandler</wireadmin.consumer.pid>
 	</org.osgi.service.wireadmin.Wire> 
 	-->
-	<!--  Configuration for sending through Mqtt from Modbus to Obix
+	<!--  Configuration for sending through Mqtt from Modbus to Obix -->
+	<!-- 
 	<org.osgi.service.wireadmin.Wire>
 		<wireadmin.consumer.producer.filter><![CDATA[(&(objectClass=org.osgi.service.wireadmin.Producer)(objectClass=com.ptoceti.osgi.modbusdevice.ModbusDevice)(wireadmin.producer.composite=modbusdevice1))]]></wireadmin.consumer.producer.filter>
 		<wireadmin.consumer.consumer.filter><![CDATA[(&(objectClass=org.osgi.service.wireadmin.Consumer)(objectClass=com.ptoceti.osgi.mqtt.impl.MqttClientWrapper)(wireadmin.consumer.composite=mqttclient1))]]></wireadmin.consumer.consumer.filter>
 	</org.osgi.service.wireadmin.Wire>   
+	 -->
 	<org.osgi.service.wireadmin.Wire>
-		<wireadmin.consumer.producer.filter><![CDATA[(&(objectClass=org.osgi.service.wireadmin.Producer)(objectClass=com.ptoceti.osgi.mqtt.impl.MqttClientWrapper)(wireadmin.producer.composite=mqttclient1))]]></wireadmin.consumer.producer.filter>
+		<wireadmin.consumer.producer.filter><![CDATA[(&(objectClass=org.osgi.service.wireadmin.Producer)(objectClass=org.osgi.service.wireadmin.Consumer)(objectClass=com.ptoceti.osgi.mqtt.impl.MqttClientWrapper)(wireadmin.producer.composite=mqttclient1))]]></wireadmin.consumer.producer.filter>
 		<wireadmin.consumer.pid>com.ptoceti.osgi.obix.impl.service.WireHandler</wireadmin.consumer.pid>
 	</org.osgi.service.wireadmin.Wire>
-	-->
+	
 </org.osgi.service.wireadmin.WireAdmin>
