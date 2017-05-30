@@ -54,7 +54,7 @@
 				<artifactId>license-maven-plugin</artifactId>
 				<configuration>
 					<roots>
-						<root>src/main/java</root>
+						<root>src/main/java/com</root>
 						<root>src/test</root>
 					</roots>
 				</configuration>
