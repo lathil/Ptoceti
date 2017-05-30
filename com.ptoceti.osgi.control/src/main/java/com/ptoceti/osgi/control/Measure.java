@@ -140,7 +140,6 @@ public class Measure {
 				sb.append(u);
 			}
 			result = sb.toString();
-			name = toString();
 		}
 		return result;
 	}
