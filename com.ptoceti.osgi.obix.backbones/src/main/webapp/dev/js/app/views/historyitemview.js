@@ -1,4 +1,5 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'models/historyrollupoutlocal', 'eventaggr','oauth2', 'modelbinder', 'courier', 'numeral', 'moment', 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, HistoryRollupOutLocal, ventAggr, oauth2, ModelBinder, Courier, Numeral, Moment) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'models/historyrollupoutlocal', 'mediaenquire', 'eventaggr','oauth2', 'modelbinder', 'courier', 'numeral', 'moment', "i18n!nls/itemtext", 'bootstrap' ],
+		function(Backbone, Marionette, _, $, Obix, HistoryRollupOutLocal, mediaEnquire, ventAggr, oauth2, ModelBinder, Courier, Numeral, Moment, itemText) {
 	
 	var HistoryItemView = Backbone.Marionette.Layout.extend({
 		tagName: "div",
@@ -11,7 +12,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			},
 			contentEditable : function() {
 				return Modernizr.contenteditable;
-			}
+			},
+			onXsMedia : function() {
+				return this.onXsMedia;
+			},
+			itemtext : this.onXsMedia ? itemText.itemtextxs : itemText.itemtext
 		},
 		
 		ui : {
@@ -47,7 +52,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			// indicate that the contents must be shown once the rollup has been retrieved.
 			this.mustShowContents = false;
 			
-			_.bindAll(this, 'showContents','onChildCollapsed','onChildShown', 'onChildShow');
+			_.bindAll(this, 'showContents','onChildCollapsed','onChildShown', 'onChildShow','enterXs','quitXs');
+			
+			this.onXsMedia = false;
+			this.xsQueryHandler = {match : this.enterXs, unmatched: this.quitXs};
+			mediaEnquire.registerXs(this.xsQueryHandler);
 			
 			this.on('itemUnselected', this.itemUnselected, this);
 			this.model.getHistory().on('change:displayName', this.saveChanges, this);
@@ -68,8 +77,17 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			this.model.getRollUp().save();
 			ventAggr.off(this.model.getHistory().getHref().getVal().replace(/\//gi,"-") + ":updateRollup", this.loadLast1HRollUp, this);
 			this.off('itemUnselected', this.itemUnselected, this);
+			mediaEnquire.unregisterXs(this.xsQueryHandler);
 			this.historybinder.unbind();
 			
+		},
+		
+		enterXs : function(){
+			this.onXsMedia = true;
+		},
+		
+		quitXs : function(){
+			this.onXsMedia = false;
 		},
 		
 		/**
@@ -326,7 +344,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		historyRollUpUpdate : function(historyRollupOut, response, options) {
 			var region = this.rollUpRegion;
 			
-			if( historyRollupOut && historyRollupOut.getData().getChildrens().length > 0) {
+			if( historyRollupOut && historyRollupOut.getData() && historyRollupOut.getData().getChildrens().length > 0) {
 				
 				var rollUpStart = Moment( historyRollupOut.getStart().getVal());
 				var rollUpEnd = Moment( historyRollupOut.getEnd().getVal());
@@ -444,28 +462,29 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		updateRollUpView : function(){
 			var region = this.rollUpRegion;
 			
+			if( this.model.getRollUp() && this.model.getRollUp().getData()){
 			
-			var rollupRecords = this.model.getRollUp().getData().getChildrens().filter(function(rollupRecord){
-				var recordStart = Moment(rollupRecord.getStart().getVal());
-				var recordEnd = Moment(rollupRecord.getEnd().getVal());
+				var rollupRecords = this.model.getRollUp().getData().getChildrens().filter(function(rollupRecord){
+					var recordStart = Moment(rollupRecord.getStart().getVal());
+					var recordEnd = Moment(rollupRecord.getEnd().getVal());
+					
+					if((recordStart.isSame(this.startChartDate) || recordStart.isAfter(this.startChartDate) && recordStart.isBefore( this.endChartDate))
+						 && (recordEnd.isSame(this.endChartDate) || recordEnd.isBefore(this.endChartDate) && recordEnd.isAfter( this.startChartDate))){
+						return true;
+					}
+					
+					return false;
+				}, this);
 				
-				if((recordStart.isSame(this.startChartDate) || recordStart.isAfter(this.startChartDate) && recordStart.isBefore( this.endChartDate))
-					 && (recordEnd.isSame(this.endChartDate) || recordEnd.isBefore(this.endChartDate) && recordEnd.isAfter( this.startChartDate))){
-					return true;
-				}
 				
-				return false;
-			}, this);
-			
-			
-			require(['views/historyrollupview'], function(HistoryRollUpView){
-				if( region.currentView == null){
-					region.show(new HistoryRollUpView({collection: new Backbone.Collection(rollupRecords)}));
-				} else {
-					region.currentView.updateItemValues(new Backbone.Collection(rollupRecords));
-				} 
-			});
-			
+				require(['views/historyrollupview'], function(HistoryRollUpView){
+					if( region.currentView == null){
+						region.show(new HistoryRollUpView({collection: new Backbone.Collection(rollupRecords)}));
+					} else {
+						region.currentView.updateItemValues(new Backbone.Collection(rollupRecords));
+					} 
+				});
+			}
 			// ensure we do not have another timeout already set
 			if( this.updateRollupTimer != null ) clearTimeout(this.updateRollupTimer);
 			this.updateRollupTimer = setTimeout( _.bind(function(){

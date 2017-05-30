@@ -67,17 +67,20 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 
     	        },
 
     	        tickFormatX : function(x) {
-    	            return  Moment(x).format('HH');
+    	            return  Moment(x).format('HH:mm');
     	        },
     	        
-    	        paddingLeft : 20,
+    	        paddingLeft : 0,
     	        paddingTop : 10,
     	        paddingRight : 0,
     	        paddingBottom : 20,
     	        
-    	        axisPaddingLeft : 10,
+    	        //axisPaddingLeft : 0,
     	        
-    	        tickHintY : 5
+    	        tickHintY : 0,
+    	        tickFormatY : function(x) {
+    	            return  "";
+    	        },
 	    	};
 	    	 
 	    	this.historyChart = new xChart('line', this.getChartData(), '#' + this.cid +' > [name=\'chartfigure\']', opts);

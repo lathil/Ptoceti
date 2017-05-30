@@ -1,4 +1,5 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'oauth2', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', 'modernizr', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, oauth2, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, Modernizr, unitText, statusText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'oauth2', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', 'modernizr', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ],
+		function(Backbone, Marionette, _, $, oauth2, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, Modernizr, unitText, statusText) {
 	
 	var MonitoredItemView = Backbone.Marionette.Layout.extend({
 		tagName: "tr",

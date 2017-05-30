@@ -153,96 +153,119 @@ module.exports = function(grunt) {
 
 							modules : [
 									{
-										name : 'views/footerview',
-										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'moment', "i18n","text",'modernizr' ]
-									},
-									{
-										name : 'views/headerview',
-										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'moment', "i18n","text",'modernizr' ]
-									},
-									{
-										name : 'views/historyrollupchartview',
-										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'models/obix','modelbinder',  'mediaenquire','moment', 'courier', 'd3', 'd3.global', 'xchart', 'normalize', "i18n", "text", 'modernizr' ]
-									},
-									{
-										name : 'views/historyrollupview',
-										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'models/obix', 'modelbinder', 'moment','courier', 'modernizr', "i18n","text" ]
-									},
-									{
-										name : 'views/historyview',
-										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'courier', "i18n","text",'modernizr' ]
-									},
-									{
-										name : 'views/introitemview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'moment', 'models/obix', 'modelbinder',  'courier', 'bootstrap','modernizr' ]
-									},
-									{
-										name : 'views/introview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr','models/obix','modernizr']
-									},
-									{
-										name : 'views/landingview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder',  'moment', 'mediaenquire', 'bootstrap','modernizr']
-									},
-									{
-										name : 'views/lobbyview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaenquire','modelbinder', 'courier', 'bootstrap','modernizr']
-									},
-									{
-										name : 'views/monitoreditemview',
-										exclude : [ 'backbone', 'marionette','underscore', 'jquery','bootstrap', 'models/obix','modelbinder', 'mediaenquire','moment', 'courier','modernizr','jquery.enterkeyevent', "i18n","text" ]
-									},
-									{
-										name : 'views/obixview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder', 'bootstrap', 'modernizr']
-									},
-									{
-										name : 'views/paginationview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenquire', 'modernizr' ]
-									},
-									{
-										name : 'views/pointitemview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'bootstrap','modernizr']
-									},
-									{
-										name : 'views/progressview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder','modernizr' ]
-									},
-									{
-										name : 'views/referenceitemsvgview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'bootstrap','modernizr','d3', 'd3.global', ]
-									},
-									{
-										name : 'views/referenceitemview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'bootstrap','modernizr', 'powerange' ],
-									},
-									{
-										name : 'views/stateitemview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'bootstrap','modernizr'  ]
-									},
-									{
-										name : 'views/switchitemview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'bootstrap','modernizr' ]
-									},
-									{
-										name : 'views/watchitemview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'moment', 'modernizr', 'bootstrap', 'jquery.enterkeyevent','modernizr' ]
-									},
-									{
-										name : 'views/watchview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaenquire', 'modelbinder', 'courier', 'bootstrap','modernizr' ]
-									},
-									{
 										name : 'views/alarmitemview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'moment', 'modernizr', 'bootstrap', 'jquery.enterkeyevent','modernizr' ]
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','eventaggr','modelbinder','courier','moment','modernizr','bootstrap',"i18n","text", 'jquery.enterkeyevent' ]
 									},
 									{
 										name : 'views/alarmview',
-										exclude : [ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaenquire', 'modelbinder', 'courier', 'bootstrap','modernizr' ]
+										exclude : [ 'backbone','marionette','underscore','jquery','eventaggr','mediaenquire','modelbinder','courier','modernizr',"i18n",'bootstrap' ]
 									},
 									{
+										name : 'views/blankitemview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','modelbinder','courier','eventaggr','mediaenquire','modernizr',"i18n",'bootstrap' ]
+									},
+									{
+										name : 'views/footerview',
+										exclude : [ 'backbone','marionette','underscore','jquery','bootstrap','moment',"i18n","text",'modernizr' ]
+									},
+									{
+										name : 'views/headerview',
+										exclude : [ 'backbone','marionette','underscore','jquery','bootstrap','moment',"i18n","text",'modernizr' ]
+									},
+									{
+										name : 'views/historyitemview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','mediaenquire','modelbinder','courier','moment','modernizr',"i18n","text",'bootstrap']
+									},
+									{
+										name : 'views/historyrollupchartview',
+										exclude : [ 'backbone','marionette','underscore','jquery','courier','moment','mediaenquire','d3','d3.global','xchart','bootstrap','models/obix','modelbinder','normalize',"i18n","text",'modernizr' ]
+									},
+									{
+										name : 'views/historyrollupview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','mediaenquire','modelbinder','courier','moment','modernizr',"i18n","text",'bootstrap']
+									},
+									{
+										name : 'views/historyview',
+										exclude : [ 'backbone','marionette','underscore','jquery','mediaenquire','modelbinder','courier','models/obix',"i18n","text",'bootstrap','modernizr' ]
+									},
+									{
+										name : 'views/introitemview',
+										exclude : [ 'backbone','marionette','underscore','jquery','moment','models/obix','modelbinder','courier',"i18n","text",'bootstrap','modernizr' ]
+									},
+									{
+										name : 'views/introview',
+										exclude : [ 'backbone','marionette','underscore','jquery','eventaggr','models/obix','modernizr']
+									},
+									{
+										name : 'views/landingview',
+										exclude : [ 'backbone','marionette','underscore','jquery','eventaggr','modelbinder', 'moment','mediaenquire','bootstrap','modernizr']
+									},
+									{
+										name : 'views/lobbyview',
+										exclude : [ 'backbone','marionette','underscore','jquery','eventaggr','mediaenquire','modelbinder','courier','models/obix',"i18n","text",'bootstrap','modernizr']
+									},
+									{
+										name : 'views/loginview',
+										exclude : [ 'backbone','marionette','underscore','jquery','eventaggr','courier','bootstrap']
+									},
+									{
+										name : 'views/monitoreditemview',
+										exclude : [ 'backbone','marionette','underscore', 'jquery','models/obix','mediaenquire','modelbinder','courier','moment','modernizr', "i18n","text",'jquery.enterkeyevent','bootstrap'  ]
+									},
+									{
+										name : 'views/obixview',
+										exclude : [ 'backbone','marionette','underscore','jquery','eventaggr','modelbinder','models/obix','bootstrap','modernizr']
+									},
+									{
+										name : 'views/paginationview',
+										exclude : [ 'backbone','marionette','underscore','jquery','courier','mediaenquire','modernizr', 'models/obix',"i18n","text" ]
+									},
+									{
+										name : 'views/pointitemview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','mediaenquire','modelbinder','courier','moment',"i18n","text",'bootstrap','modernizr']
+									},
+									{
+										name : 'views/progressview',
+										exclude : [ 'backbone','marionette','underscore','jquery','eventaggr','modelbinder','modernizr' ]
+									},
+									{
+										name : 'views/referenceitemsvgview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','modelbinder','courier','bootstrap','modernizr','d3','d3.global' ]
+									},
+									{
+										name : 'views/referenceitemview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','modelbinder','courier','powerange',"i18n","text",'bootstrap','modernizr'],
+									}, 
+									{
+										name : 'views/refitemview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','modelbinder','courier','bootstrap'],
+									},
+									{
+										name : 'views/searchview',
+										exclude : [ 'backbone','marionette','underscore','jquery','eventaggr','mediaenquire','modelbinder','courier','models/obix','modernizr',"i18n","text",'bootstrap']
+									},
+									{
+										name : 'views/stateitemview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','modelbinder','courier','bootstrap','modernizr'  ]
+									},
+									{
+										name : 'views/switchitemview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','modelbinder','courier','bootstrap','modernizr' ]
+									},
+									{
+										name : 'views/watchitemview',
+										exclude : [ 'backbone','marionette','underscore','jquery','models/obix','eventaggr','modelbinder','courier','moment','modernizr',"i18n","text",'bootstrap','jquery.enterkeyevent' ]
+									},
+									{
+										name : 'views/watchview',
+										exclude : [ 'backbone','marionette','underscore','jquery','eventaggr','mediaenquire','modelbinder','courier','models/obix',"i18n","text",'bootstrap','modernizr' ]
+									},
+									
+									
+									
+									{
 										name : 'main',
-										include : [ "i18n", "text", 'courier','moment', 'mediaenquire','jquery.enterkeyevent','powerange' ]
+										include : [ 'models/obix',"i18n", "text", 'courier','moment', 'mediaenquire','jquery.enterkeyevent','powerange' ]
 									}
 									
 

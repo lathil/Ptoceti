@@ -1,4 +1,5 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', 'views/baseitemview', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, BaseItemView, unitText, statusText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', 'views/baseitemview', "i18n!nls/unittext", "i18n!nls/statustext","i18n!nls/itemtext", 'bootstrap', 'jquery.enterkeyevent' ],
+		function(Backbone, Marionette, _, $, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, BaseItemView, unitText, statusText, itemText) {
 	
 	var PointItemView = BaseItemView.extend({
 		tagName: "div",
@@ -53,7 +54,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		
 		onItemRecord : function(){
 			this.spawn("itemRecord", {point: this.model});
-			event.stopImmediatePropagation()();
+			event.stopImmediatePropagation();
 		},
 		
 		valConverter : function(direction, value, attributeName, model) {

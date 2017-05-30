@@ -1,4 +1,4 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, unitText, statusText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', "i18n!nls/unittext", "i18n!nls/statustext", "i18n!nls/itemtext",'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, unitText, statusText,itemText) {
 	
 	var BaseItemView = Backbone.Marionette.Layout.extend({
 	
@@ -11,7 +11,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 			},
 			onXsMedia : function() {
 				return this.onXsMedia;
-			}
+			},
+			itemtext : this.onXsMedia ? itemText.itemtextxs : itemText.itemtext
 		},
 		
 		regions: {
@@ -117,12 +118,12 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		
 		itemSelected : function(event){
 			if( this.$el.hasClass("bg-selected")){
-				this.ui.infosCollapsePanel.collapse('hide');
+				//this.ui.infosCollapsePanel.collapse('hide');
 				//this.ui.childCollapsePanel.collapse('hide');
 				
-				this.$el.removeClass("bg-selected");
+				//this.$el.removeClass("bg-selected");
 				// setup view event to clear selection
-				this.spawn("listItemSelected", {point: null});
+				//this.spawn("listItemSelected", {point: null});
 			}
 			else {
 				//$(".listItem ").removeClass("active");

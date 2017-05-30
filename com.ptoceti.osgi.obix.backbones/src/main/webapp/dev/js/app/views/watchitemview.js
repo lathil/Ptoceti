@@ -24,7 +24,8 @@
  * limitations under the License.
  * #L%
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'moment', 'modernizr', "i18n!nls/watchtext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, Obix, ventAggr, ModelBinder, Courier, Moment, Modernizr,localizedWatchText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'moment', 'modernizr', "i18n!nls/watchtext", 'bootstrap', 'jquery.enterkeyevent' ], 
+		function(Backbone, Marionette, _, $, Obix, ventAggr, ModelBinder, Courier, Moment, Modernizr,watchText) {
 	
 	var WatchItemView = Backbone.Marionette.ItemView.extend({
 		tagName: "div",
@@ -32,7 +33,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 		className: "item",
 	
 		templateHelpers : {
-			watchtext : localizedWatchText.watchtext,
+			watchtext : watchText.watchtext,
 			contentEditable : function() {
 				return Modernizr.contenteditable;
 			}

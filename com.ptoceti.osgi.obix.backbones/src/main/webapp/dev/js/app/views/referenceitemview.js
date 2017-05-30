@@ -1,5 +1,6 @@
 
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'views/baseitemview', 'powerange', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ModelBinder, Courier, BaseItemView, Powerange, unitText, statusText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'modelbinder', 'courier', 'views/baseitemview', 'powerange', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap' ], 
+		function(Backbone, Marionette, _, $, Obix, ModelBinder, Courier, BaseItemView, Powerange, unitText, statusText) {
 	
 	var ReferenceItemView = BaseItemView.extend({
 		tagName: "div",

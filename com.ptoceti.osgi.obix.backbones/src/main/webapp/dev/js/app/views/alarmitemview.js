@@ -1,4 +1,5 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'oauth2', 'modelbinder', 'courier', 'moment', 'mediaenquire', 'modernizr',  "i18n!nls/alarmtext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, Obix, ventAggr, oauth2, ModelBinder, Courier, Moment, mediaEnquire, Modernizr,  localizedAlarmText, statusText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'oauth2', 'modelbinder', 'courier', 'moment', 'mediaenquire', 'modernizr',  "i18n!nls/alarmtext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ],
+		function(Backbone, Marionette, _, $, Obix, ventAggr, oauth2, ModelBinder, Courier, Moment, mediaEnquire, Modernizr,  alarmText, statusText) {
 	
 	var AlarmItemView = Backbone.Marionette.Layout.extend({
 		tagName: "div",
@@ -6,7 +7,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 		className: "item",
 	
 		templateHelpers : {
-			alarmtext : localizedAlarmText.alarmtext,
+			alarmtext : alarmText.alarmtext,
 			elemId : function() {
 				return this.alarm.getHref().getVal().replace(/\//gi,"-");
 			},

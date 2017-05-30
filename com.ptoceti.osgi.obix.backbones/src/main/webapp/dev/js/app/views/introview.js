@@ -1,4 +1,5 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr','models/obix', 'models/pageableobjs', 'models/introviewmodel', 'views/introitemview' ], function(Backbone, Marionette, _, $, ventAggr, Obix, PageableObj, IntroViewModel) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr','models/obix', 'models/pageableobjs', 'models/introviewmodel', 'views/introitemview' ],
+		function(Backbone, Marionette, _, $, ventAggr, Obix, PageableObj, IntroViewModel) {
 	
 	var IntroView = Marionette.CompositeView.extend({
 		template: 'intro',

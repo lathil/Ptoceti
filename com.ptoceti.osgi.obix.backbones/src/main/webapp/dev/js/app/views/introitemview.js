@@ -24,7 +24,8 @@
  * limitations under the License.
  * #L%
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'moment', 'models/obix', 'modelbinder', 'courier', 'numeral', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap' ], function(Backbone, Marionette, _, $, Moment, Obix, ModelBinder, Courier, Numeral, unitText, statusText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'moment', 'models/obix', 'modelbinder', 'courier', 'numeral', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap' ],
+		function(Backbone, Marionette, _, $, Moment, Obix, ModelBinder, Courier, Numeral, unitText, statusText) {
 	
 	
 	var IntroItemView = Backbone.Marionette.ItemView.extend({

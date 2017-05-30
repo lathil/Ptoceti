@@ -35,6 +35,7 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 
 	app.root = '/';
 
+	//app.restRoot = 'http://192.168.10.6:8080/obix/rest/'
 	app.restRoot = window.location.protocol + '//' +  window.location.hostname + (window.location.port ? (':' + window.location.port) : '') + '/obix/rest/';
 
 	// only one main region in root template.

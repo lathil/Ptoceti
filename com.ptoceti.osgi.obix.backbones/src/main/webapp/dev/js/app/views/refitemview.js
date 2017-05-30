@@ -1,4 +1,5 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, ventAggr, ModelBinder, Courier) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'bootstrap' ],
+		function(Backbone, Marionette, _, $, Obix, ventAggr, ModelBinder, Courier) {
 	
 	var RefItemView = Backbone.Marionette.ItemView.extend({
 		tagName:"div",
@@ -38,7 +39,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 		// event handler call after the view has been rendered
 		onRender : function(){
 			this.modelbinder.bind(this.model, this.el, {
-				name: {selector: '[name=reflink]', converter: this.nameConverter},
+				name: {selector: '[name=reflinkname]', converter: this.nameConverter},
 			} );
 		},
 		

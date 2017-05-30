@@ -1,4 +1,5 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'models/historyrollupviewmodel', 'mediaenquire', 'modelbinder', 'courier', 'moment' , 'numeral', 'modernizr',  "i18n!nls/unittext", "i18n!nls/rolluptext", 'bootstrap' ], function(Backbone, Marionette, _, $, Obix, HistoryRollupViewModel, mediaEnquire, ModelBinder, Courier, Moment , Numeral, Modernizr, unitText, localizedRollupText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'models/historyrollupviewmodel', 'mediaenquire', 'modelbinder', 'courier', 'moment' , 'numeral', 'modernizr',  "i18n!nls/unittext", "i18n!nls/rolluptext", 'bootstrap' ],
+		function(Backbone, Marionette, _, $, Obix, HistoryRollupViewModel, mediaEnquire, ModelBinder, Courier, Moment , Numeral, Modernizr, unitText, localizedRollupText) {
 	
 	var HistoryRollUpView = Backbone.Marionette.Layout.extend({
 		tagName: "div",

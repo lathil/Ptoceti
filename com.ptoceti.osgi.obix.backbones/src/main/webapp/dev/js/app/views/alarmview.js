@@ -2,7 +2,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		function(Backbone, Marionette, _, $, ventAggr, mediaEnquire, ModelBinder, Courier, AlarmViewModel, AlarmItemView, localizedAlarmText ) {
 	
 	var AlarmView = Marionette.Layout.extend({
-		template : 'Alarm',
+		template : 'alarm',
 		
 		ui : {
 			reloadButton : "#reloadButton",
