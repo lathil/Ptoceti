@@ -58,6 +58,7 @@ public class MeasureConverter implements OsgiObixConverter<MeasurePoint>{
 		StatusCode statusCode = ((Measure) in).getStatus();
 		obixMeasure.setStatus(statusCode == StatusCode.OK ? Status.OK : Status.FAULT);
 		obixMeasure.setIs(MeasurePoint.contract);
+		obixMeasure.setWritable(Boolean.FALSE);
 		return obixMeasure;
 	}
 	

@@ -60,6 +60,7 @@ public class ReferenceConverter implements OsgiObixConverter<ReferencePoint>{
 		obixReference.setMax(Double.valueOf(((Reference) in).getMax()));
 		obixReference.setMin(Double.valueOf(((Reference) in).getMin()));
 		obixReference.setIs(ReferencePoint.contract);
+		obixReference.setWritable(Boolean.TRUE);
 		return obixReference;
 	}
 
