@@ -71,7 +71,7 @@ public class WatchPoolRefreshServerResource extends AbstractServerResource imple
 					Alarm alarm = alarmCache.retrieve(alarmRef.getHref().getPath());
 					if( alarm != null){
 						// if yes, then check status
-						if( obj.getStatus().compareTo(alarm.getStatus()) != 0){
+						if( obj.getStatus() != null && alarm.getStatus() != null && obj.getStatus().compareTo(alarm.getStatus()) != 0){
 							if( alarm.getStatus().compareTo(Status.UNACKED) == 0 || alarm.getStatus().compareTo(Status.UNACKEDALARM) == 0 || alarm.getStatus().compareTo(Status.ALARM) == 0){
 								obj.setStatus(alarm.getStatus());
 							} else if(obj.getStatus().compareTo(Status.UNACKED) == 0 || obj.getStatus().compareTo(Status.UNACKEDALARM) == 0 || obj.getStatus().compareTo(Status.ALARM) == 0) {
