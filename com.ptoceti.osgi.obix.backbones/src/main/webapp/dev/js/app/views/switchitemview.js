@@ -7,8 +7,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		
 		ui : {
 			infosCollapsePanel : "[name=\"infoPanel\"]",
+			childCollapsePanel : "[name=\"childPanel\"]",
 			childCollapseControlElem : "[name=\"childCollapseControl\"]",
-			recordItem : "[name=\"recordItem\"]",
 			childCollapseItem : "[name=\"childCollapseItem\"]",
 			switchinput : "[name=\"switchinput\"]"
 		},
@@ -17,7 +17,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		events : {
 			"click [name='listItem']" : "itemSelected",
 			"click [name='deleteItem']" : "onItemDelete",
-			"click [name='recordItem']" : "onItemRecord",
+			"click [name='childCollapseItem']" : "onChildCollapse",
 			"hidden.bs.collapse [name='childPanel']" : "onChildCollapsed",
 			"show.bs.collapse [name='childPanel']" : "onChildShow",
 			"shown.bs.collapse [name='childPanel']" : "onChildShown",

@@ -9,8 +9,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 	
 		ui : {
 			infosCollapsePanel : "[name=\"infoPanel\"]",
+			childCollapsePanel : "[name=\"childPanel\"]",
 			childCollapseControlElem : "[name=\"childCollapseControl\"]",
-			recordItem : "[name=\"recordItem\"]",
 			childCollapseItem : "[name=\"childCollapseItem\"]",
 			rangeSlider :  "[name=\"range\"]"
 		},
@@ -20,11 +20,12 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 		events : {
 			"click [name='listItem']" : "itemSelected",
 			"click [name='deleteItem']" : "onItemDelete",
-			"click [name='recordItem']" : "onItemRecord",
+			"click [name='childCollapseItem']" : "onChildCollapse",
 			"hidden.bs.collapse [name='childPanel']" : "onChildCollapsed",
 			"show.bs.collapse [name='childPanel']" : "onChildShow",
 			"shown.bs.collapse [name='childPanel']" : "onChildShown",
-			"touchend .range-handle" : "onRangeClick"
+			"touchend .range-handle" : "onRangeClick",
+			"mouseup .range-handle" : "onRangeClick"
 		},
 		
 	
@@ -32,7 +33,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'model
 			if( this.model.hasChanged("val")){
 				this.model.save();
 			}
-			event.stopImmediatePropagation();
+			//event.stopImmediatePropagation();
 		},
 		
 		// event handlers for the forward / bacward controls
