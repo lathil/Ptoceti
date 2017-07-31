@@ -66,9 +66,9 @@ public class ForceSingleCoilMessageResponse extends ModbusMessageResponse {
 	
 		try {
 			coilAddress = in.read() << 8;
-			coilAddress =+ in.read();
+			coilAddress += in.read();
 			coilValue = in.read() << 8;
-			coilValue =+ in.read();
+			coilValue += in.read();
 		} catch ( IOException e ) { return false; }
 		
 		return true;

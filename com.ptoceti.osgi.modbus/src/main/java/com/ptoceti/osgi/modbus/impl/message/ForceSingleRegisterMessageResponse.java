@@ -65,9 +65,9 @@ public class ForceSingleRegisterMessageResponse extends ModbusMessageResponse {
 	
 		try {
 			registerAdress = in.read() << 8;
-			registerAdress =+ in.read();
+			registerAdress += in.read();
 			registerValue = in.read() << 8;
-			registerValue =+ in.read();
+			registerValue += in.read();
 		} catch ( IOException e ) { return false; }
 		
 		return true;

@@ -135,7 +135,7 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		/**
 		 * Setup the size and starting offset of the buffer array.
 		 *
-		 * @param count The number of bytes to read.
+		 * @param count The number of registers to read.
 		 * @param offset The adress of the first byte to read in the device adress space.
 		 */
 		public void init(int offset, int count){
@@ -217,7 +217,7 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		/**
 		 * Setup the size and starting offset of the buffer array.
 		 *
-		 * @param count The number of bytes to read.
+		 * @param count The number of registers to read.
 		 * @param offset The adress of the first byte to read in the device adress space.
 		 */
 		public void init(int offset, int count){
@@ -393,7 +393,7 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 		}
 		
 		public synchronized void write(int adress, int size, int value){
-			
+			writeRequests.add(new WriteRequest(adress, value));
 		}
 
 		public long getLastUpdateTime() {
@@ -412,7 +412,7 @@ public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
 			if( mdbDriver != null && count > 0) {
 				while( !writeRequests.isEmpty()){
 					WriteRequest req = writeRequests.get(0);
-					boolean ok = mdbDriver.forceSingleCoil((byte)id, req.getAdress(), req.getValue() > 1 ? true : false);
+					boolean ok = mdbDriver.forceSingleCoil((byte)id, req.getAdress(), req.getValue() > 0 ? true : false);
 					if(ok){
 						writeRequests.remove(0);
 					} else {

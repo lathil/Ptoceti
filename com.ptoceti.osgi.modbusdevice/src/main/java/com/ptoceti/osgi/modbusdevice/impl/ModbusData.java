@@ -75,5 +75,9 @@ public abstract class ModbusData {
 		return adress;
 	}
 	
+	public int getLength(){
+		return length;
+	}
+	
 	
 }

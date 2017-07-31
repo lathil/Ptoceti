@@ -67,7 +67,7 @@ public class ReadHoldingRegistersMessageResponse extends ModbusMessageResponse {
 		
 		try {
 			int byteCount = in.read();
-			arrayList = new int[ byteCount];
+			arrayList = new int[ byteCount / 2];
 			for(int i = 0 ; i < ( byteCount / 2 ) ; i++ ) {
 				arrayList[i] = (in.read() << 8);
 				arrayList[i] = arrayList[i] + in.read();

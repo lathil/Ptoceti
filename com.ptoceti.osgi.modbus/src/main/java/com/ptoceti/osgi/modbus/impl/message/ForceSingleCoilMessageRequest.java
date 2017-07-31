@@ -72,7 +72,7 @@ public class ForceSingleCoilMessageRequest extends ModbusMessageRequest {
 		try {
 			out.write(( coilAdress & 0xFF00 ) >>> 8);
 			out.write( coilAdress & 0x00FF);
-			out.write(( coilValue & 0xFF000 ) >>> 8);
+			out.write(( coilValue & 0xFF00 ) >>> 8);
 			out.write( coilValue & 0x00FF);
 		} catch (IOException e ) {
 			return false;
