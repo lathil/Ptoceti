@@ -40,7 +40,7 @@ public class Uri extends Val {
 	 */
 	private static final long serialVersionUID = 8040144014174027501L;
 	
-	protected static final Contract contract = new Contract("obix:uri");
+	public static final Contract contract = new Contract("obix:uri");
 	
 	public Uri(){
 		super();

@@ -740,35 +740,4 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 
     }
 }
-				obixHttpHandler.setHttpService(null);
-				
-				setHttpServiceSymbolicName(null);
-			}
-				break;
-			}
-		}
-	}
-	
-	/**
-	 * 
-	 * Listener that detect when the restlet main bundle has started. Necessary as this one re-init list of services and converters ...
-	 * @author lor
-	 *
-	 */
-	public class RestletListener implements BundleListener {
-		@Override
-		public void bundleChanged(BundleEvent event) {
-			 if( event.getBundle().getSymbolicName().equals(RESTLETSYMBOLICNAME) ){
-				 if( event.getType() == BundleEvent.STARTED){
-					 restletHasStarted = true;
-					 Activator.log(LogService.LOG_INFO, "Restlet started event detected.");
-					 Engine.getInstance().setLoggerFacade(new Slf4jLoggerFacade());
-					 startRestService();
-				 } else {
-					 restletHasStarted = false;
-				 }
-			 }
-		}
-		
-	}
-}
+

@@ -391,7 +391,7 @@
 			
 							<!-- <param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param> -->
 							
-    						<param>scan-bundle:mvn:com.h2database/h2/1.4.190@nostart</param>
+    						<!--  <param>scan-bundle:mvn:com.h2database/h2/1.4.190@nostart</param>-->
     						
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.2.0-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.control/1.2.0-SNAPSHOT@update</param>
