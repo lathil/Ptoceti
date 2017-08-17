@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.ptoceti</groupId>
 		<artifactId>com.ptoceti.parent</artifactId>
-		<version>1.1.0</version>
+		<version>1.1.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -189,7 +189,7 @@
 		<dependency>
 			<groupId>com.ptoceti</groupId>
 			<artifactId>com.ptoceti.osgi.modbus</artifactId>
-			<version>1.1.0</version>
+			<version>1.1.1-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>rxtxcomm-API</artifactId>
@@ -226,7 +226,7 @@
 		<dependency>
 			<groupId>com.ptoceti</groupId>
 			<artifactId>com.ptoceti.osgi.obix.backbones</artifactId>
-			<version>1.1.0</version>
+			<version>1.1.1-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>javax.servlet-api</artifactId>
