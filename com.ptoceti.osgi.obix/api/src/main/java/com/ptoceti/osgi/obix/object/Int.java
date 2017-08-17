@@ -42,7 +42,7 @@ public class Int extends Val {
 	private static final long serialVersionUID = 499008084834546740L;
 
 	public static final Contract contract = new Contract("obix:int");
-	
+
 	protected Integer min;
 	protected Integer max;
 	protected Uri unit;
