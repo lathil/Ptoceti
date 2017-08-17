@@ -1,0 +1,42 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+
+	<id>Assembly</id>
+	<formats>
+		<format>zip</format>
+		<format>tar.gz</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<dependencySets>
+		<dependencySet>
+			<includes>
+				<include>com.ptoceti:*</include>
+			</includes>
+			<excludes>
+				<exclude>org.osgi:*</exclude>
+				<exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.contexts:*</exclude>
+				<exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.di:*</exclude>
+			</excludes>
+			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+		</dependencySet>
+		<dependencySet>
+			<includes>
+				<include>*</include>
+			</includes>
+			<excludes>
+				<exclude>com.ptoceti:*</exclude>
+				<exclude>org.osgi:*</exclude>
+				<exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.contexts:*</exclude>
+				<exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.di:*</exclude>
+			</excludes>
+		</dependencySet>
+
+	</dependencySets>
+	<files>
+		<file>
+			<source>LICENSE.txt</source>
+			<outputDirectory>.</outputDirectory>
+		</file>
+	</files>
+</assembly>

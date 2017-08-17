@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>com.ptoceti.parent</artifactId>
 		<groupId>com.ptoceti</groupId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.1.0</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -54,7 +54,7 @@
 				<artifactId>license-maven-plugin</artifactId>
 				<configuration>
 					<roots>
-						<root>src/main/java</root>
+						<root>src/main/java/com</root>
 						<root>src/test</root>
 					</roots>
 				</configuration>

@@ -1,5 +1,32 @@
 package com.ptoceti.osgi.obix.impl.cache;
 
+/*
+ * #%L
+ * **********************************************************************
+ * ORGANIZATION : ptoceti
+ * PROJECT : Obix-Lib
+ * FILENAME : ObjCacheImpl.java
+ * 
+ * This file is part of the Ptoceti project. More information about
+ * this project can be found here: http://www.ptoceti.com/
+ * **********************************************************************
+ * %%
+ * Copyright (C) 2013 - 2015 ptoceti
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -54,16 +81,27 @@ public class ObjCacheImpl extends AbstractCache implements ObjCache{
 
 	@Override
 	public Obj updateObixObjAt(Uri href, Obj updateObj) throws DomainException {
-		Obj result = objDomain.updateObixObjAt(href, updateObj);
-		cache.put(result.getHref().getPath(), result);
-		return result;
+		Obj obj = getObixObj(href);
+		if( obj != null){
+			if (obj.updateWith(updateObj)){
+				objDomain.updateObixObjAt(href, updateObj);
+			}
+		}
+		return obj;
 	}
 
 	@Override
 	public Obj createUpdateObixObj(Obj updateObj) throws DomainException {
-		Obj result = objDomain.createUpdateObixObj(updateObj);
-		cache.put(result.getHref().getPath(), result);
-		return result;
+		Obj obj = getObixObj(updateObj.getHref());
+		if( obj == null){
+			obj = objDomain.createUpdateObixObj(updateObj);
+			cache.put(obj.getHref().getPath(), obj);
+		} else {
+			if (obj.updateWith(updateObj)){
+				objDomain.updateObixObjAt(updateObj.getHref(), updateObj);
+			}
+		}
+		return obj;
 	}
 
 	

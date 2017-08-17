@@ -1,5 +1,5 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 'mediaenquire', 'xchart', 'd3.global',  'bootstrap', 'css!../assets/xcharts/xcharts.css' ],
-		function(Backbone, Marionette, _, $, Courier, Moment, mediaEnquire, xChart, d3 ) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 'mediaenquire', 'd3', 'xchart' ,  'bootstrap', 'css!../assets/xcharts/xcharts.css' ],
+		function(Backbone, Marionette, _, $, Courier, Moment, mediaEnquire, d3, xChart ) {
 
 	var HistoryRollupChartView = Marionette.Layout.extend({
 		template : 'historyrollupchart',
@@ -57,6 +57,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 
 	     */
 	    onShow : function() {
 	    	
+	    	console.log('request history rollup');
 	    	var width = this.ui.chartfigure.width();
 	    	this.ui.chartfigure.height( width / ( this.onXsMedia ? 16/9 : 32/9));
 	    	 
@@ -66,17 +67,20 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 
     	        },
 
     	        tickFormatX : function(x) {
-    	            return  Moment(x).format('HH');
+    	            return  Moment(x).format('HH:mm');
     	        },
     	        
-    	        paddingLeft : 20,
+    	        paddingLeft : 0,
     	        paddingTop : 10,
     	        paddingRight : 0,
     	        paddingBottom : 20,
     	        
-    	        axisPaddingLeft : 10,
+    	        //axisPaddingLeft : 0,
     	        
-    	        tickHintY : 5
+    	        tickHintY : 0,
+    	        tickFormatY : function(x) {
+    	            return  "";
+    	        },
 	    	};
 	    	 
 	    	this.historyChart = new xChart('line', this.getChartData(), '#' + this.cid +' > [name=\'chartfigure\']', opts);
@@ -85,7 +89,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 
 	    updateItemValues : function(historyRollupColl) {
 	    	
 	    	
-	    	this.collection.set( historyRollupColl.models, {add: true, remove: false, merge : true});
+	    	this.collection.set( historyRollupColl.models, {add: true, remove: true, merge : true});
 	    	this.historyChart.setData(this.getChartData());
 	    },
 	    
@@ -100,10 +104,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'moment', 
 	    	var min =  Number.MAX_VALUE;
 	    	
 	    	_.each(this.collection.models, function(historyRecord, index, list) {
-	    		var value = parseInt(historyRecord.getAvg().getVal());
+	    		var valueMin = parseInt(historyRecord.getMin().getVal());
+	    		var valueMax = parseInt(historyRecord.getMax().getVal());
 	    		
-	    		if( value > max ) max = value;
-	    		if( value < min ) min = value;
+	    		if( valueMax > max ) max = valueMax;
+	    		if( valueMin < min ) min = valueMin;
 	    		
 	    		set.push({ x : new Date(historyRecord.getStart().getVal()), y : historyRecord.getAvg().getVal()})
 	    	},this);

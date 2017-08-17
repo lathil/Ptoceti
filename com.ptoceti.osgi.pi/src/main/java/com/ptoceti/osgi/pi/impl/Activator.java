@@ -11,7 +11,7 @@ package com.ptoceti.osgi.pi.impl;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,8 @@ package com.ptoceti.osgi.pi.impl;
  * #L%
  */
 
+
+import java.net.URL;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -105,6 +107,18 @@ public class Activator implements BundleActivator{
 	static public void log( int logLevel, String message ) {
 		if( logSer != null )
 			logSer.log( logLevel, message );
+	}
+	
+	/**
+	 * Fetch the resource from the bundle's resources and open a stream on it.
+	 * 
+	 * @param resourceName
+	 * @return URL
+	 * 
+	 */
+	static public URL getResourceStream(String resourceName) {
+
+		return bc.getBundle().getResource(resourceName);
 	}
 
 	/**

@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class List extends Obj{
 	 */
 	private static final long serialVersionUID = -810927237123727542L;
 
-	private static final Contract contract = new Contract("obix:list");
+	public static final Contract contract = new Contract("obix:list");
 	
 	protected Contract of;
 	

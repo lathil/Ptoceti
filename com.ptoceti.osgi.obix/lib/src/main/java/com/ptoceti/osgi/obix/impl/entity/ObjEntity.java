@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.impl.entity;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,8 +63,11 @@ public class ObjEntity extends AbstractEntity {
 	private static final String SEARCH_OBJ_BY_PARENT_ID = "select object.* from object where object.parent_id=?";
 	private static final String SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP = "select object.* from object where object.parent_id=? and created_ts > ? and created_ts <= ?";
 	private static final String SEARCH_OBJ_BY_CONTRACT_ID = "select object.* from object where object.contract_id = ?";
+	
+	private static final String SEARCH_OBJ_BY_DISPLAYNAME = "select object.* from object where uri_hash not null and uri like '/%' and displayname like (?)";
 
 	private static final String DELETE_OBJ = "delete from object where object.id=?";
+	private static final String DELETE_CHILD_OBJ = "delete from object where object.parent_id=?";
 
 	private static final String UPDATE_OBJ = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ? where id = ? ";
 
@@ -87,6 +90,7 @@ public class ObjEntity extends AbstractEntity {
 	protected static final String COL_MODIFIED_TS = "modified_ts";
 	
 	protected static final String COL_OBJ_VALUE_INT = "value_int";
+	protected static final String COL_OBJ_VALUE_TS = "value_ts";
 	protected static final String COL_OBJ_VALUE_TEXT = "value_text";
 	protected static final String COL_OBJ_VALUE_BOOL = "value_bool";
 	protected static final String COL_OBJ_VALUE_REAL = "value_real";
@@ -184,7 +188,7 @@ public class ObjEntity extends AbstractEntity {
 		params.add(getObixObject().getName());
 		
 		Uri hrefUri = getObixObject().getHref();
-		if (hrefUri != null) {
+		if (hrefUri != null && getObjtype() != EntityType.Ref) {
 			params.add(getObixObject().getHref().getVal());
 			params.add(hrefUri.getVal().hashCode());
 		} else {
@@ -217,6 +221,29 @@ public class ObjEntity extends AbstractEntity {
 		
 		return params;
 
+	}
+	
+	public void deleteChildByName( String name) throws EntityException {
+		
+		List<ObjEntity> childList = getChilds();
+		
+		for(int i = 0; i < childList.size(); i++){
+			ObjEntity child = childList.get(i);
+			if( child.getObixObject().getName().equals(name)){
+				
+				childList.remove(i);
+				child.delete();
+				break;
+			}
+		}
+		
+	}
+
+	public void deleteChilds() throws EntityException {
+		
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add(this.getId());
+		update(DELETE_CHILD_OBJ, params.toArray(), null);
 	}
 	
 	/**
@@ -330,6 +357,8 @@ public class ObjEntity extends AbstractEntity {
 		query(SEARCH_OBJ_BY_HREF, params.toArray(), new ObjResultSetHandler<ObjEntity>(this));
 	}
 	
+	
+	
 	public List<ObjEntity> fetchByHrefs(List<Uri> uris) throws EntityException{
 		
 		List<ObjEntity> results = new ArrayList<ObjEntity>();
@@ -390,6 +419,38 @@ public class ObjEntity extends AbstractEntity {
 		return resultObjEntity;
 	}
 
+	public List<ObjEntity> fetchByDisplayName() throws EntityException{
+		
+		List<ObjEntity> results = new ArrayList<ObjEntity>();
+		
+		ArrayList<Object> params = new ArrayList<Object>();
+		params.add("%" + getObixObject().getDisplayName() + "%");
+		
+		queryMultiple(SEARCH_OBJ_BY_DISPLAYNAME, params.toArray(), new ObjResultSetMultipleHandler<ObjEntity>(results));
+		
+		for( int i = 0; i < results.size();i++){
+			ObjEntity objEnt = (ObjEntity)results.get(i);
+
+			if (objEnt.getObj_contract_id() != null) {
+				ContractEntity contractEntity = new ContractEntity(objEnt.getObj_contract_id());
+				contractEntity.fetch();
+				objEnt.getObixObject().setIs(contractEntity.getObixContract());
+			}
+			
+			if(!objEnt.getObjtype().equals(EntityType.Obj) && !objEnt.isDetailsfetched()) {
+				// re-map it according to it type to the right obj (Int, Real, ... )
+				ObjEntity resultObjEntity = objEnt.subClassToType( objEnt);
+				if( resultObjEntity instanceof ValEntity) {
+					((ValEntity)resultObjEntity).fetchDetails();
+				}
+				results.set(i, resultObjEntity);
+			}
+		}
+		
+		return results; 
+		
+	}
+
 	public boolean fetchByObjectId() throws EntityException {
 
 		ArrayList<Object> params = new ArrayList<Object>();
@@ -440,8 +501,8 @@ public class ObjEntity extends AbstractEntity {
 					// re-map it according to it type to the right obj (Int, Real, ... )
 					ObjEntity subentity = subClassToType( objEnt);
 					if( subentity != null) objEnt = subentity;
-					if( subentity instanceof ValEntity) {
-						((ValEntity)subentity).fetchDetails();
+					if( objEnt instanceof ValEntity) {
+						((ValEntity)objEnt).fetchDetails();
 					}
 				}
 				
@@ -516,8 +577,8 @@ public class ObjEntity extends AbstractEntity {
 
 			List<Object> params = new ArrayList<Object>();
 			params.add(getId());
-			params.add(millisFrom);
-			params.add(millisTo);
+			params.add(new Date(millisFrom));
+			params.add(new Date(millisTo));
 			
 			queryMultiple(SEARCH_OBJ_BY_PARENT_ID_AND_TIMESTAMP, params.toArray(), new ObjResultSetMultipleHandler<ObjEntity>(childsList));
 		}
@@ -827,6 +888,7 @@ public class ObjEntity extends AbstractEntity {
 		inContractId = rootObject.getInContractId();
 		ofContractId = rootObject.getOfContractId();
 		obixObject = rootObject.getObixObject();
+		fetched = rootObject.isFetched(); 
 	}
 
 	public class ObjResultSetMultipleHandler<T extends ObjEntity> extends ResultSetMultipleHandler {
@@ -845,7 +907,7 @@ public class ObjEntity extends AbstractEntity {
 				entity.setId(id);
 			
 			entity.setObj_uri(getString(rs, COL_OBJ_URI));
-			if( entity.getObj_uri() != null){
+			if( entity.getObj_uri() != null && getObjtype() != EntityType.Ref){
 				Uri href = new Uri("", entity.getObj_uri());
 				entity.getObixObject().setHref(href);
 			}
@@ -884,10 +946,10 @@ public class ObjEntity extends AbstractEntity {
 			
 			switch(fetchType.getIdent().intValue()){
 				case 2 : // abstime
-					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_INT));
+					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_TS));
 					break;
 				case 3 : //boolean
-					((Str) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_BOOL));
+					((Bool) entity.getObixObject()).setVal(getBoolean(rs, COL_OBJ_VALUE_BOOL));
 					break;
 				case 5: //enum
 					((com.ptoceti.osgi.obix.object.Enum)entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT));
@@ -908,14 +970,17 @@ public class ObjEntity extends AbstractEntity {
 					((com.ptoceti.osgi.obix.object.List)entity.getObixObject()).setMin( getInteger(rs, COL_OBJ_MIN));
 					break;
 				case 9: //real
-					((Real) entity.getObixObject()).setMax(getFloat(rs, COL_OBJ_MAX_REAL));
-					((Real) entity.getObixObject()).setMin(getFloat(rs, COL_OBJ_MIN_REAL));
+					((Real) entity.getObixObject()).setMax(getDouble(rs, COL_OBJ_MAX_REAL));
+					((Real) entity.getObixObject()).setMin(getDouble(rs, COL_OBJ_MIN_REAL));
 					((Real) entity.getObixObject()).setVal(getDouble(rs, COL_OBJ_VALUE_REAL));
 					((Real) entity.getObixObject()).setPrecision(getInteger(rs, COL_OBJ_PRECISION));
 					if( entity.getUnit() != null && !entity.getUnit().isEmpty()){
 						Uri unit = new Uri("", entity.getUnit());
 						((Real)entity.getObixObject()).setUnit(unit);
 					}
+					break;
+				case 10: //ref
+					((Ref) entity.getObixObject()).setHref(new Uri("", (getString(rs, COL_OBJ_VALUE_TEXT))));
 					break;
 				case 11: //realtime
 					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));
@@ -963,7 +1028,7 @@ public class ObjEntity extends AbstractEntity {
 				entity.setId(id);
 			
 			entity.setObj_uri(getString(rs, COL_OBJ_URI));
-			if( entity.getObj_uri() != null){
+			if( entity.getObj_uri() != null && getObjtype() != EntityType.Ref){
 				Uri href = new Uri("", entity.getObj_uri());
 				entity.getObixObject().setHref(href);
 			}
@@ -1001,10 +1066,10 @@ public class ObjEntity extends AbstractEntity {
 			
 			switch(fetchType.getIdent().intValue()){
 				case 2 : // abstime
-					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_INT));
+					((Abstime) entity.getObixObject()).setVal(getDate(rs, COL_OBJ_VALUE_TS));
 					break;
 				case 3 : //boolean
-					((Str) entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_BOOL));
+					((Bool) entity.getObixObject()).setVal(getBoolean(rs, COL_OBJ_VALUE_BOOL));
 					break;
 				case 5: //enum
 					((com.ptoceti.osgi.obix.object.Enum)entity.getObixObject()).setVal(getString(rs, COL_OBJ_VALUE_TEXT));
@@ -1025,14 +1090,17 @@ public class ObjEntity extends AbstractEntity {
 					((com.ptoceti.osgi.obix.object.List)entity.getObixObject()).setMin( getInteger(rs, COL_OBJ_MIN));
 					break;
 				case 9: //real
-					((Real) entity.getObixObject()).setMax(getFloat(rs, COL_OBJ_MAX_REAL));
-					((Real) entity.getObixObject()).setMin(getFloat(rs, COL_OBJ_MIN_REAL));
+					((Real) entity.getObixObject()).setMax(getDouble(rs, COL_OBJ_MAX_REAL));
+					((Real) entity.getObixObject()).setMin(getDouble(rs, COL_OBJ_MIN_REAL));
 					((Real) entity.getObixObject()).setVal(getDouble(rs, COL_OBJ_VALUE_REAL));
 					((Real) entity.getObixObject()).setPrecision(getInteger(rs, COL_OBJ_PRECISION));
 					if( entity.getUnit() != null && !entity.getUnit().isEmpty()){
 						Uri unit = new Uri("", entity.getUnit());
 						((Real)entity.getObixObject()).setUnit(unit);
 					}
+					break;
+				case 10: //ref
+					((Ref) entity.getObixObject()).setHref(new Uri("", (getString(rs, COL_OBJ_VALUE_TEXT))));
 					break;
 				case 11: //realtime
 					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));

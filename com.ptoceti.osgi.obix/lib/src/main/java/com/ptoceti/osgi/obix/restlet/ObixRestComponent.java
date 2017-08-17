@@ -1,35 +1,42 @@
 package com.ptoceti.osgi.obix.restlet;
 
-import java.util.Map;
+/*
+ * #%L
+ * **********************************************************************
+ * ORGANIZATION : ptoceti
+ * PROJECT : Obix-Lib
+ * FILENAME : ObixRestComponent.java
+ * 
+ * This file is part of the Ptoceti project. More information about
+ * this project can be found here: http://www.ptoceti.com/
+ * **********************************************************************
+ * %%
+ * Copyright (C) 2013 - 2015 ptoceti
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 
+
+import org.osgi.service.log.LogService;
 import org.restlet.Application;
 import org.restlet.Component;
-import org.restlet.Context;
 import org.restlet.Server;
 import org.restlet.data.Protocol;
-import org.restlet.engine.Engine;
-import org.restlet.routing.Template;
-import org.restlet.routing.TemplateRoute;
-import org.restlet.routing.Variable;
 
-import com.ptoceti.osgi.obix.impl.converters.JSonConverter;
-import com.ptoceti.osgi.obix.impl.converters.XMLConverter;
-import com.ptoceti.osgi.obix.impl.guice.GuiceFinderFactory;
-import com.ptoceti.osgi.obix.impl.guice.GuiceRouter;
-import com.ptoceti.osgi.obix.impl.resources.server.AboutServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.BatchServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.HistoryQueryServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.HistoryRollupServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.HistoryServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.LobbyServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.ObjServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.WatchAddServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.WatchDeleteServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.WatchPoolChangesServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.WatchPoolRefreshServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.WatchRemoveServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.WatchServerResource;
-import com.ptoceti.osgi.obix.impl.resources.server.WatchServiceServerResource;
+
+import com.ptoceti.osgi.obix.impl.service.Activator;
+
 
 /**
  * A Restlet Container that wrap up all resources and serves through the local http server.
@@ -68,45 +75,20 @@ public class ObixRestComponent {
 	 * Main component that wrapp the application, server connector and filters
 	 */
 	private Component component;
-	/**
-	 * The application that dispatches requests to router
-	 */
-	private Application application;
-	/**
-	 * Guice rooter for dependencies injection inside the resources
-	 */
-	private GuiceRouter root;
-	/**
-	 * Guice factory
-	 */
-	private GuiceFinderFactory guiceFinderFactory;
+	
+	
+	private Application obixApplication;
+	
+	
 	
 	/**
 	 * Create Restlet main Application, giving it guice rooter, other routes and a cors filter 
 	 */
-	public ObixRestComponent(){
+	public ObixRestComponent(String oautLocalServerPath){
 	
-		application = new Application();
-		Context context = new Context();
-		application.setContext(context);
-		
-		XMLConverter obixConverter = new XMLConverter();
-		Engine.getInstance().getRegisteredConverters().add( obixConverter);
-		
-		JSonConverter jsonConverter = new JSonConverter();
-		Engine.getInstance().getRegisteredConverters().add(jsonConverter);
-		
-		guiceFinderFactory = new GuiceFinderFactory();
-		
-		root = new GuiceRouter(context);
-		root.setFinderFactory(guiceFinderFactory);
-		
-		addRoutes();
-		
-		OriginServerFilter corsFilter = new OriginServerFilter(root.getContext());
-		corsFilter.setNext(root);
-		
-		application.setInboundRoot(corsFilter);
+		ObixApplicationFactory factory = new ObixApplicationFactory(oautLocalServerPath, false);
+		obixApplication = factory.getApplication();
+
 	}
 	
 	/**
@@ -120,15 +102,16 @@ public class ObixRestComponent {
 		if( component == null) {
 			component = new Component();
 		} else {
-			component.getDefaultHost().detach(application);
+			component.getDefaultHost().detach(obixApplication);
 		}
 		
 		Server server = component.getServers().add(Protocol.HTTP, port.intValue());
 		server.getContext().getParameters().add(JETTY_HTTP_CONNECTOR_TYPE, JETTY_HTTP_CONNECTOR_TYPE_NIO);
 		server.getContext().getParameters().add(MAX_THREADS, Integer.toString(5));
-		component.getDefaultHost().attach(path, application);
+		component.getDefaultHost().attach(path, obixApplication);
 		
 		component.start();
+		Activator.log(LogService.LOG_INFO, "Restlet application started.");
 	}
 	
 	/**
@@ -141,32 +124,5 @@ public class ObixRestComponent {
 		}
 	}
 	
-	/**
-	 * Bind all resources to routes. Override this if you need to.
-	 */
-	public void addRoutes(){
-		
-		root.attach(AboutServerResource.uri, AboutServerResource.class);
-		root.attach(LobbyServerResource.uri, LobbyServerResource.class);
-		root.attach(BatchServerResource.uri, BatchServerResource.class);
-		
-		root.attach(WatchServiceServerResource.uri, WatchServiceServerResource.class);
-		
-		root.attach(WatchAddServerResource.uri, WatchAddServerResource.class);
-		root.attach(WatchDeleteServerResource.uri, WatchDeleteServerResource.class);
-		root.attach(WatchPoolChangesServerResource.uri, WatchPoolChangesServerResource.class);
-		root.attach(WatchPoolRefreshServerResource.uri, WatchPoolRefreshServerResource.class);
-		root.attach(WatchRemoveServerResource.uri, WatchRemoveServerResource.class);
-		root.attach(WatchServerResource.uri, WatchServerResource.class);
-		
-		root.attach(HistoryServerResource.uri, HistoryServerResource.class);
-		root.attach(HistoryQueryServerResource.uri, HistoryQueryServerResource.class);
-		root.attach(HistoryRollupServerResource.uri, HistoryRollupServerResource.class);
-		
-		// Last route. 
-		TemplateRoute route = root.attach( ObjServerResource.uri + "{+href}", ObjServerResource.class);
-		route.setMatchingMode(Template.MODE_STARTS_WITH);
-		Map<String, Variable> variables = route.getTemplate().getVariables();
-		variables.put("href",new Variable(Variable.TYPE_URI_PATH));
-	}
+	
 }

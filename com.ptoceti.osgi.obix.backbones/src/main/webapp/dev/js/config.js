@@ -13,9 +13,11 @@ Modernizr.load({
 
 	baseUrl: 'app/',
 	
+	urlArgs : "v=110", 
+	
 	paths : {
 		// libraries
-		jquery : '../lib/jquery/jquery',
+		jquery :  '../lib/jquery/jquery',
 		underscore : '../lib/underscore/underscore',
 		backbone : '../lib/backbone/backbone',
 		"backbone.wreqr" : '../lib/backbone.wreqr/lib/amd/backbone.wreqr',
@@ -23,6 +25,7 @@ Modernizr.load({
 		marionette : '../lib/backbone.marionette/lib/backbone.marionette',
 		handlebars : '../lib/handlebars/handlebars',
 		modelbinder : '../lib/Backbone.ModelBinder/Backbone.ModelBinder',
+		collectionbinder : '../lib/Backbone.ModelBinder/Backbone.CollectionBinder',
 		pageable : '../lib/backbone-pageable/lib/backbone-pageable',
 		localstorage : "../lib/backbone.localstorage/backbone.localStorage",
 		moment : "../lib/momentjs/moment",
@@ -40,23 +43,28 @@ Modernizr.load({
 		'marionette.handlebars' : 'pluggins/marionette.handlebars',
 		"jquery.enterkeyevent" : 'pluggins/jquery.enterkeyevent',
 		"d3.global" : 'pluggins/d3.global',
+		"oauth2" : 'pluggins/backbones.oauth2',
 			
 		// helpers
 		'handlebars.helpers' : 'helpers/handlebars.helpers',
 		
 		//assets
 		'courier' : 'assets/backbone.courier/backbone.courier',
-		xchart : 'assets/xcharts/xcharts'
-
+		xchart : 'assets/xcharts/xcharts',
+		powerange : '../lib/powerange/powerange',
+		numeral : "../lib/numeral/numeral",
+		jscookie : "../lib/js-cookie/js.cookie",
+		md5 : "../lib/js-md5/md5"
 	},
 	
-	/*
+	
 	map: {
 		  '*': {
-		    'css': 'requirecss', // or whatever the path to require-css is
+			//Backbone.CollectionBinder require Backbone.Modelbinder, not modelbinder
+		    'Backbone.ModelBinder': 'modelbinder'
 		  }
 	},
-	**/
+	
 
 	shim : {
 		underscore : {

@@ -1,5 +1,33 @@
 package com.ptoceti.osgi.control;
 
+/*
+ * #%L
+ * **********************************************************************
+ * ORGANIZATION : ptoceti
+ * PROJECT : Control
+ * FILENAME : Measure.java
+ * 
+ * This file is part of the Ptoceti project. More information about
+ * this project can be found here: http://www.ptoceti.com/
+ * **********************************************************************
+ * %%
+ * Copyright (C) 2013 - 2015 ptoceti
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+
 /**
  * A rework of org.osgi.util.measurement.Measurement that allows to take ExtendedUnit and so also non SI unit.
  * 
@@ -8,13 +36,17 @@ package com.ptoceti.osgi.control;
  */
 public class Measure {
 
-	private final double				value;
-	private final double				error;
-	private final long					time;
+	private double				value;
+	private double				error;
+	private long					time;
 	private StatusCode					status;
-	private final ExtendedUnit			unit;
+	private ExtendedUnit			unit;
 	private transient volatile String	name;
 	private transient volatile int		hashCode;
+	
+	public Measure(){
+		
+	}
 	
 	public Measure(double value, double error, ExtendedUnit unit, long time) {
 		this.value = value;
@@ -108,7 +140,6 @@ public class Measure {
 				sb.append(u);
 			}
 			result = sb.toString();
-			name = toString();
 		}
 		return result;
 	}
@@ -167,20 +198,42 @@ public class Measure {
 	public ExtendedUnit getUnit(){
 		return unit;
 	}
+	
+	public void setUnit(ExtendedUnit unit){
+		this.unit = unit;
+	}
+	
+	
 	public double getValue() {
 		return value;
+	}
+	
+	public void setValue(double value){
+		this.value = value;
 	}
 
 	public double getError() {
 		return error;
 	}
+	
+	public void setError(double error){
+		this.error = error;
+	}
 
 	public long getTime() {
 		return time;
 	}
+	
+	public void setTime(long time){
+		this.time = time;
+	}
 
 	public String getName() {
 		return name;
+	}
+	
+	public void setName(String name){
+		this.name = name;
 	}
 
 	public StatusCode getStatus() {

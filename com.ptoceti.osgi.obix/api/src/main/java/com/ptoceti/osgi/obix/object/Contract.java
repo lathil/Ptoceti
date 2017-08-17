@@ -1,5 +1,7 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
+
 /*
  * #%L
  * **********************************************************************
@@ -11,7 +13,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +30,7 @@ package com.ptoceti.osgi.obix.object;
  */
 
 
-public class Contract {
+public class Contract implements Cloneable{
 
 	protected Uri[] uris;
 	
@@ -37,9 +39,22 @@ public class Contract {
 	}
 
 	public Contract(String contractName) {
-		uris = new Uri[1];
-		uris[0] = new Uri("uri", contractName);	
+		
+		String[] urisString = contractName.split(",");
+		uris = new Uri[urisString.length];
+		for( int i = 0; i < urisString.length; i ++){
+			uris[i] = new Uri("uri", urisString[i].trim());	
+		}
+		
 	}
+	
+	public void addUri(Uri[] addedUris){
+		ArrayList<Uri> urisList = new ArrayList<Uri>();
+		for(int i = 0; i < this.uris.length; i ++) urisList.add(this.uris[i]);
+		for(int i = 0; i < addedUris.length; i ++) urisList.add(addedUris[i]);
+		this.uris = urisList.toArray(new Uri[urisList.size()]);
+	}
+	
 	
 	public void setUris(Uri[] uris) {
 		this.uris = new Uri[uris.length];
@@ -52,6 +67,23 @@ public class Contract {
 		return result;
 	}
 	
+	public Contract clone() throws CloneNotSupportedException {
+		Contract clone = (Contract)super.clone();
+		ArrayList<Uri> clonedUris = new ArrayList<Uri>();
+		for( Uri uri : uris){
+			clonedUris.add(uri);
+		}
+		clone.setUris(clonedUris.toArray(new Uri[clonedUris.size()]));
+		
+		return clone;
+	}
+	
+	public String toUniformString(){
+		StringBuffer result = new StringBuffer();
+		for(int i = 0;i < uris.length; i++) result.append(uris[i].getPath()).append(";");
+		return result.toString();
+	}
+	
 	public boolean containsContract( Contract in ) {
 		
 		boolean found = false;
@@ -61,7 +93,7 @@ public class Contract {
 			Uri uriIn = urisIn[i];
 			found = false;
 			for( int j = 0; j < uris.length; j ++) {
-				if( uriIn.getVal().toString().equals( uris[i].getVal().toString() )){
+				if( uriIn.getVal().toString().equals( uris[j].getVal().toString() )){
 					found = true;
 					break;
 				}
@@ -69,6 +101,17 @@ public class Contract {
 			if( ! found ) break;
 		}
 		return found;
+	}
+	
+	@Override
+	public boolean equals(Object other){
+	    if (other == null) return false;
+	    if (other == this) return true;
+	    if (!(other instanceof Contract))return false;
+	    
+	    if( this.containsContract((Contract)other)) return true;
+	    
+	    return false;
 	}
 	
 }

@@ -24,13 +24,13 @@
  * limitations under the License.
  * #L%
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenquire', 'models/pageableobjs', "i18n!nls/paginationtext"],
-		function(Backbone, Marionette, _, $, Courier, mediaEnquire, PageableObj, localizedPaginationText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenquire', 'modernizr', 'models/pageableobjs', "i18n!nls/paginationtext"],
+		function(Backbone, Marionette, _, $, Courier, mediaEnquire, Modernizr, PageableObj, localizedPaginationText) {
 	
 	var PaginView = Marionette.CompositeView.extend({
 		template:"pagination",
 		//itemView: PointItemView,
-		itemViewContainer: "tbody",
+		itemViewContainer: "[id='paginationContainer']",
 		
 		tagName:"div",
 		className: "col-md-12",
@@ -48,15 +48,38 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 		},
 		
 		getItemView: function(item){
-			
+			if( item.attributes.type && item.attributes.type == 'ref' ) {
+				return require('views/refitemview');
+			} 
 			if( item.hasContract('obix:Watch')) {
 				return require('views/watchitemview');
 			}
 			if( item.hasContract('obix:Point')) {
 				return require('views/pointitemview');
 			}
+			if( item.hasContract('obix:History')) {
+				return require('views/historyitemview');
+			}
+			if( item.hasContract('ptoceti:MeasurePoint')) {
+				return require('views/pointitemview');
+			}
 			if( item.hasContract('ptoceti:MonitoredPoint')) {
 				return require('views/monitoreditemview');
+			}
+			if( item.hasContract('ptoceti:ReferencePoint')) {
+				return require('views/referenceitemview');
+			}
+			if( item.hasContract('ptoceti:DigitPoint')) {
+				return require('views/stateitemview');
+			}
+			if( item.hasContract('ptoceti:SwitchPoint')) {
+				return require('views/switchitemview');
+			}
+			if( item.hasContract('ptoceti:compositehistory')){
+				return require('views/historyitemview');
+			}
+			if( item.hasContract('ptoceti:compositealarm')){
+				return require('views/alarmitemview');
 			}
 		},
 		
@@ -64,6 +87,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 		passMessages : {
 			"*" : '.'
 		},
+		
 		
 		templateHelpers : function() {
 			return {
@@ -82,8 +106,11 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 			
 			this.context = options.context;
 			
+			this.modelToOpenCid = options.modelToOpenCid;
+			
 			//this.hasTouchEvent = Modernizr.touch;
 			
+			this.on('itemview:siblingItem:Unselect', this.onItemViewItemUnselect, this);
 			_.bindAll(this, 'enterXs','quitXs');
 
 			this.onXsMedia = false;
@@ -115,7 +142,37 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 		 * Do extra cleaning here on view closing. Marionnette manage already most of it.
 		 */
 		onClose : function() {
+			this.off('itemview:siblingItem:Unselect', this.itemUnselected, this);
 			mediaEnquire.unregisterXs(this.xsQueryHandler);
+		},
+		
+		/**
+		 * Called after all items in the collection have been rendered.
+		 */
+		//onCompositeCollectionRendered : function(){
+		onCompositeRendered : function() {
+			// if there is a model to be open ..
+			if( this.modelToOpenCid ){
+				var childview = this.children.find(function(view){
+					if(view.model.id == this.modelToOpenCid ){
+						return true;
+					}
+					return false;
+				},this);
+				if(childview){
+					//... ask the matching view to show details
+					childview.showContents();
+				}
+			}
+		},
+		
+		
+		onItemViewItemUnselect : function(sourceView,msg) {
+			this.children.each( function(view){
+				if( sourceView !== view){
+					view.trigger('itemUnselected');
+				}
+			});
 		},
 		
 		enterXs : function(){
@@ -132,6 +189,10 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'courier', 'mediaenqu
 		
 		updateItemValues : function(updatedCollection) {
 			this.collection.set(updatedCollection.models,{add: false, remove: false, merge : true});
+		},
+		
+		removeItemFromList: function(item){
+			this.collection.remove(item.id);
 		},
 		
 		goToNextPage : function(){

@@ -35,7 +35,8 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 
 	app.root = '/';
 
-	app.restRoot = window.location.protocol + '//' +  window.location.hostname + ':8081/obix/rest/';
+	//app.restRoot = 'http://192.168.10.6:8080/obix/rest/'
+	app.restRoot = window.location.protocol + '//' +  window.location.hostname + (window.location.port ? (':' + window.location.port) : '') + '/obix/rest/';
 
 	// only one main region in root template.
 	app.addRegions({
@@ -69,23 +70,36 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 	app.on('start', function() {
 
 		// wait till controller has finished initializing views before trigerring redirection to lobby.
-		ventAggr.on("controller:viewInitialized", function() {
-			Backbone.history.start({
+		ventAggr.on("controller:rootLoaded", function() {
+			if(!Backbone.history.start({
 				pushState : false,
 				root : app.root
-			});
+			})) ventAggr.trigger("app:goToIntro");
 			
-			ventAggr.trigger("app:goToLobby");
 		});
 		
 	});
 
+	ventAggr.on("app:goToLogin", function() {
+		if( Backbone.history.fragment != "login" ) {
+			Backbone.history.navigate("login", {});
+		}
+		app.controller.goToLogin();
+		
+	});
 	
+	ventAggr.on("app:goToIntro", function() {
+		if( Backbone.history.fragment != "intro" ) {
+			Backbone.history.navigate("intro", {});
+		}
+		app.controller.goToIntro();
+		
+	});
 
 	/**
-	 * Handles application level gnerated events that indicate to swicth to the lobby view. Check first that we are not on this same view
+	 * Handles application level generated events that indicate to swicth to the lobby view. Check first that we are not on this same view
 	 * from Backbones history.
-	 * Delegate view switching to applcation controller
+	 * Delegate view switching to application controller
 	 */
 	ventAggr.on("app:goToLobby", function() {
 		if( Backbone.history.fragment != "lobby" ) {
@@ -115,6 +129,62 @@ define([ 'jquery', 'underscore', 'backbone', 'marionette', 'controller', 'router
 			app.controller.goToLobbyWithWatch( watchUri );
 		}
 	});
+	
+	/**
+	 * Handles application level generated events that indicate to swicth to the history view. Check first that we are not on this same view
+	 * from Backbones history.
+	 * Delegate view switching to application controller
+	 */
+	ventAggr.on("app:goToHistories", function() {
+		if( Backbone.history.fragment != "histories" ) {
+			Backbone.history.navigate("histories", {});
+			app.controller.goToHistories();
+		}
+	});
+	
+	/**
+	 * Handles application level generated events that indicate to swicth to the history view. Check first that we are not on this same view
+	 * from Backbones history.
+	 * Delegate view switching to application controller
+	 */
+	ventAggr.on("app:goToHistoriesWithHistory", function(historyUri) {
+		if( Backbone.history.fragment != "histories" + historyUri ) {
+			Backbone.history.navigate("histories" + historyUri, {});
+			app.controller.goToHistoriesWithHistory(historyUri);
+		}
+	});
+	
+	/**
+	 * Handle application event that ask to search for items to ad to the current lobby watch
+	 * 
+	 */
+	ventAggr.on("app:goToAddItemToWatch", function() {
+		if( Backbone.history.fragment != "search" ) {
+			Backbone.history.navigate("search", {});
+			app.controller.goToAddItemToWatch();
+		}
+	});
+	
+	/**
+	 * Handles application level generated events that indicate to swicth to the alarm view. Check first that we are not on this same view
+	 * from Backbones history.
+	 * Delegate view switching to application controller
+	 */
+	ventAggr.on("app:goToAlarms", function() {
+		if( Backbone.history.fragment != "alarms" ) {
+			Backbone.history.navigate("alarms", {});
+			app.controller.goToAlarms();
+		}
+	});
+	
+	ventAggr.on("app:goToAlarmsWithAlarm", function(alarmUri){
+		if( Backbone.history.fragment != "alarms" + alarmUri ) {
+			Backbone.history.navigate("alarms" + alarmUri, {});
+			app.controller.goToAlarmsWithAlarm(alarmUri);
+		}
+	})
+
+	
 	
 	return app;
 });

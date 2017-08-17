@@ -11,7 +11,7 @@ package com.ptoceti.osgi.data;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ public interface JdbcDevice  {
 	
 	public static final int MATCH_CLASS = 10;
 	
+	public String getDriverName();
 	public boolean setupDatabase(String databasePath, String setupScript );
 	public Connection getConnectionRx();
 	public Connection getConnectionRWx();

@@ -1,5 +1,10 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
+
 /*
  * #%L
  * **********************************************************************
@@ -11,7 +16,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +40,7 @@ public class Str extends Val {
 	 */
 	private static final long serialVersionUID = 3119088030461698870L;
 
-	private static final Contract contract = new Contract("obix:str");
+	public static final Contract contract = new Contract("obix:str");
 	
 	protected Integer min;
 	protected Integer max;
@@ -61,6 +66,40 @@ public class Str extends Val {
 		super( name, value);
 	}
 
+	@Override
+	public Obj clone() throws CloneNotSupportedException {
+		Str clone = (Str)super.clone();
+		
+		clone.setMax(this.getMax() != null ? new Integer(this.getMax()) : null);
+		clone.setMin(this.getMin() != null ? new Integer(this.getMin()) : null);
+		clone.setVal(this.getVal() != null ? new String( ((String)this.getVal())) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public synchronized boolean updateWith(Obj other){
+		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
+		
+		if( !Objects.equals(getMax(), ((Str)other).getMax())){
+			setMax(((Str)other).getMax());
+			different = true;
+		}
+		if( !Objects.equals(getMin(), ((Str)other).getMin())){
+			setMin(((Str)other).getMin());
+			different = true;
+		}
+		if(!Objects.equals(getVal(), ((Str)other).getVal())){
+			setVal(((Str)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
+			different = true;
+		}
+		
+		return super.updateWith(other, different, changeEvents);
+	}
+	
 	public void setMin(Integer min) {
 		this.min = min;
 	}
@@ -94,5 +133,10 @@ public class Str extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return ((String)this.val).compareTo((String)((Val)o).getVal());
 	}
 }

@@ -13,7 +13,7 @@ package com.ptoceti.osgi.modbus.impl.message;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,9 +66,9 @@ public class ForceSingleCoilMessageResponse extends ModbusMessageResponse {
 	
 		try {
 			coilAddress = in.read() << 8;
-			coilAddress =+ in.read();
+			coilAddress += in.read();
 			coilValue = in.read() << 8;
-			coilValue =+ in.read();
+			coilValue += in.read();
 		} catch ( IOException e ) { return false; }
 		
 		return true;

@@ -13,7 +13,7 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public abstract class ModbusData {
 
 	
 		
-	protected ModbusDataBufferDelegate reader;
+	protected ModbusDataBufferDelegate bufferDelegate;
 	
 	protected int adress = 0;
 	protected int length = 0;
@@ -52,11 +52,16 @@ public abstract class ModbusData {
 	protected String dataScope = null;
 	protected String dataIdentification = null;
 	
-	public void setReader( ModbusDataBufferDelegate mdbReader ){
-		reader = mdbReader;
+	protected double min;
+	protected double max;
+	
+	public void setDelegate( ModbusDataBufferDelegate mdbDelegate ){
+		bufferDelegate = mdbDelegate;
 	}
 	
 	public abstract Object getValue();
+	
+	public abstract void setValue(Object value);
 	
 	public String getScope() {
 		return dataScope;
@@ -68,6 +73,10 @@ public abstract class ModbusData {
 	
 	public int getAdress() {
 		return adress;
+	}
+	
+	public int getLength(){
+		return length;
 	}
 	
 	

@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,23 +28,20 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  */
 
 
-import java.util.List;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.contract.Lobby;
-import com.ptoceti.osgi.obix.custom.contract.MonitoredPoint;
-import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 
 import org.restlet.resource.Get;
 
-
-import com.ptoceti.osgi.obix.object.Obj;
-import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.AboutResource;
+import com.ptoceti.osgi.obix.resources.AlarmServiceResource;
+import com.ptoceti.osgi.obix.resources.HistoryServiceResource;
 import com.ptoceti.osgi.obix.resources.LobbyResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
+import com.ptoceti.osgi.obix.resources.SearchResource;
 import com.ptoceti.osgi.obix.resources.WatchServiceResource;
 
 public class LobbyServerResource extends AbstractServerResource implements LobbyResource{
@@ -66,21 +63,14 @@ public class LobbyServerResource extends AbstractServerResource implements Lobby
 		lobby.setAbout(new Uri("uri", AboutResource.uri));
 		lobby.setWatchService(new Uri("uri", WatchServiceResource.uri));
 		
+		lobby.setHistoryService(new Uri("uri", HistoryServiceResource.uri));
+		
+		lobby.setAlarmService(new Uri("uri", AlarmServiceResource.uri));
+		
 		lobby.getBatch().setHref(new Uri("uri",BatchServerResource.uri));
 		
-		try {
-			//Add all the points we could find.
-			
-			List<Obj> monitoredPointList = objDomain.getObixObjsByContract(MonitoredPoint.contract);
-			for(Obj monitoredPoint : monitoredPointList ){
-				Ref ref = new Ref();
-				ref.setHref(monitoredPoint.getHref());
-				ref.setIs(monitoredPoint.getIs());
-				lobby.addChildren(ref);
-			}
-		} catch( DomainException ex) {
-			throw new ResourceException("Exception in " + this.getClass().getName() + ".retrieve", ex);
-		}
+		lobby.getSearch().setHref(new Uri("uri",SearchResource.uri));
+		
 		
 		return lobby;
 	}

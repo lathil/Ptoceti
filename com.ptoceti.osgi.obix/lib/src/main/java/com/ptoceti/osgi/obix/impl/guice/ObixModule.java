@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.impl.guice;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,13 +33,16 @@ import com.google.common.cache.CacheBuilder;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.ptoceti.osgi.obix.cache.AlarmCache;
 import com.ptoceti.osgi.obix.cache.HistoryCache;
 import com.ptoceti.osgi.obix.cache.ObjCache;
 import com.ptoceti.osgi.obix.cache.WatchCache;
 import com.ptoceti.osgi.obix.domain.AboutDomain;
+import com.ptoceti.osgi.obix.domain.AlarmDomain;
 import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
+import com.ptoceti.osgi.obix.impl.cache.AlarmCacheImpl;
 import com.ptoceti.osgi.obix.impl.cache.HistoryCacheImpl;
 import com.ptoceti.osgi.obix.impl.cache.ObjCacheImpl;
 import com.ptoceti.osgi.obix.impl.cache.WatchCacheImpl;
@@ -72,9 +75,12 @@ public class ObixModule extends AbstractModule{
 		bind(ObjDomain.class).toProvider(ObjDomainProvider.class);
 		bind(WatchDomain.class).toProvider(WatchDomainProvider.class);
 		bind(HistoryDomain.class).toProvider(HistoryDomainProvider.class);
+		bind(AlarmDomain.class).toProvider(AlarmDomainProvider.class);
+		
 		bind(ObjCache.class).to(ObjCacheImpl.class);
 		bind(HistoryCache.class).to(HistoryCacheImpl.class);
 		bind(WatchCache.class).to(WatchCacheImpl.class);
+		bind(AlarmCache.class).to(AlarmCacheImpl.class);
 		
 	}
 	
@@ -91,6 +97,11 @@ public class ObixModule extends AbstractModule{
 	@Provides @Singleton
 	JdbcConnectionProxyFactory<HistoryDomain> historyDomainProxyFactoryProvider(){
 		return new JdbcConnectionProxyFactory<HistoryDomain>();
+	}
+	
+	@Provides @Singleton
+	JdbcConnectionProxyFactory<AlarmDomain> alarmDomainProxyFactoryProvider(){
+		return new JdbcConnectionProxyFactory<AlarmDomain>();
 	}
 	
 	@Provides @Singleton

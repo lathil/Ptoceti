@@ -13,7 +13,7 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,10 +78,17 @@ public class ModbusMeasurement extends ModbusData{
 	
 	public Object getValue() {
 	
-		int data = reader.read( adress, length);
-		Measure measurement = new Measure((double) data, 0.0, ExtendedUnit.findUnit(dataExpression), reader.getLastUpdateTime());
+		int data = bufferDelegate.read( adress, length);
+		Measure measurement = new Measure((double) data, 0.0, ExtendedUnit.findUnit(dataExpression), bufferDelegate.getLastUpdateTime());
 		
 		return measurement;
+		
+	}
+
+
+	@Override
+	public void setValue(Object value) {
+		bufferDelegate.write(adress, length, (int)((Measure) value).getValue());
 		
 	}
 	

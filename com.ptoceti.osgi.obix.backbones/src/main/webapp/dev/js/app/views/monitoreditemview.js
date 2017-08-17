@@ -1,9 +1,10 @@
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'moment', 'modernizr', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, Obix, mediaEnquire, ModelBinder, Courier, Moment, Modernizr, unitText, statusText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'oauth2', 'models/obix', 'mediaenquire', 'modelbinder', 'courier', 'numeral', 'moment', 'modernizr', "i18n!nls/unittext", "i18n!nls/statustext", 'bootstrap', 'jquery.enterkeyevent' ],
+		function(Backbone, Marionette, _, $, oauth2, Obix, mediaEnquire, ModelBinder, Courier, Numeral, Moment, Modernizr, unitText, statusText) {
 	
 	var MonitoredItemView = Backbone.Marionette.Layout.extend({
 		tagName: "tr",
 		template: "monitoringitem",
-		className: "monitoringItem",
+		className: "monitoringItem listItem",
 		
 		templateHelpers :  {
 			elemId : function() {
@@ -12,12 +13,15 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 			contentEditable : function() {
 				return Modernizr.contenteditable;
 			},
-			onXsMedia : this.onXsMedia
+			onXsMedia : function() {
+				return this.onXsMedia;
+			}
 		},
 		
 		
 		ui : {
 			detailsCollapseControlElem : "[name=\"detailsCollapseControl\"]",
+			infosCollapsePanel : "[name=\"infoPanel\"]"
 		},
 		
 		regions: {
@@ -27,6 +31,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		// setup lister for pur DOM event handling
 		events : {
 			"click td" : "itemSelected",
+			"click [name='deleteItem']" : "onItemDelete",
 			"hidden.bs.collapse [name='detailsPanel']" : "onDetailsCollapsed",
 			"show.bs.collapse [name='detailsPanel']" : "onDetailsShow",
 			"shown.bs.collapse [name='detailsPanel']" : "onDetailsShown"
@@ -40,6 +45,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 			this.timeStampBinder = new ModelBinder();
 			this.fetchHistory();
 			
+			this.on('itemUnselected', this.itemUnselected, this);
 			this.model.getChildrens().getByName('point').on('change:displayName', this.saveChanges, this);
 			
 			_.bindAll(this, 'onDetailsCollapsed','onDetailsShown', 'onDetailsShow', 'enterXs','quitXs');
@@ -63,8 +69,107 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		saveChanges : function(model, value, options){
 			// model bindel tag its change from the view by setting options.changeSource
 			if( options.changeSource == 'ModelBinder'){
-				console.log("saveChanges");
 				model.save();
+			}
+		},
+		
+		// event handler call after the view has been rendered
+		onRender : function(){
+			this.modelbinder.bind(this.model.getChildrens().getByName('point'), this.el, {
+				unit: {selector: '[name=unit]', converter: this.unitConverter},
+				val: {selector: '[name=val]', converter: this.valConverter},
+				status: [{selector: '[name=status]',  elAttribute: 'class', converter: this.statusClassConverter},{selector: '[name=statusText]', converter: this.statusConverter}],
+				displayName: {selector: '[name=displayName]', converter: this.nameConverter}
+			}, {'changeTriggers': {'': 'change', '[contenteditable]': 'enterpress'}}  );
+			
+			this.timeStampBinder.bind(this.model, this.el, {
+				updateTimeStamp: {selector:'[name=timeStamp]', converter: this.lastTimeStamp}
+			});
+			
+		},
+		
+		onItemDelete : function(){
+			this.spawn("itemDelete", {point: this.model});
+		},
+		
+		itemUnselected : function(){
+			if( this.$el.hasClass("active")){
+				this.$el.removeClass("active");
+				this.ui.infosCollapsePanel.collapse('hide');
+			}
+		},
+		
+		itemSelected : function(){
+			if( this.$el.hasClass("active")){
+				this.ui.infosCollapsePanel.collapse('hide');
+				this.$el.removeClass("active");
+				// setup view event to clear selection
+				this.spawn("listItemSelected", {point: null});
+			}
+			else {
+				//$(".listItem ").removeClass("active");
+				this.trigger("siblingItem:Unselect", '', this);
+				this.$el.addClass("active");
+				this.ui.infosCollapsePanel.collapse('show');
+				// setup view event to indicate selection
+				this.spawn("listItemSelected", {point: this.model});
+			}
+		},
+		
+		valConverter : function(direction, value, attributeName, model) {
+			if(direction == 'ModelToView'){
+				return Numeral( new Number(value)).format('0.[00]a');
+			}
+		},
+		
+		
+		unitConverter : function(direction, value){
+			if(direction == 'ModelToView' && !!value){
+				var unitContract = value.getVal();
+				if( unitContract.lastIndexOf("obix:Unit/") > -1){
+					return unitText[unitContract.substr(unitContract.lastIndexOf('/') + 1)];
+				}
+			}
+		},
+		
+		nameConverter : function(direction, value, attributeName, model){
+			if( direction =='ModelToView') {
+				if(value == '' || value == null ) return model.getName();
+				else return value;
+			} else {
+				return value;
+			}
+		},
+		
+		statusClassConverter : function( direction, value) {
+			if( direction == "ModelToView") {
+				if( value != null) {
+					var statustoLower = value.toLowerCase();
+					if( statustoLower == Obix.status.DISABLED) return "glyphicon glyphicon-ban-circle";
+					if( statustoLower == Obix.status.FAULT) return "glyphicon glyphicon-alert";
+					if( statustoLower == Obix.status.DOWN) return "glyphicon glyphicon-warning-sign";
+					if( statustoLower == Obix.status.UNAKEDALARM) return "glyphicon glyphicon-exclamation-sign";
+					if( statustoLower == Obix.status.ALARM) return "glyphicon glyphicon-bell";
+					if( statustoLower == Obix.status.UNACKED) return "glyphicon glyphicon-exclamation-sign";
+					if( statustoLower == Obix.status.OVERRIDEN) return "glyphicon glyphicon-remove-circle";
+					if( statustoLower == Obix.status.OK) return "glyphicon glyphicon-ok-circle";
+				}
+			}
+		},
+		
+		statusConverter : function( direction, value) {
+			if( direction == "ModelToView") {
+				if( value != null) {
+					var statustoLower = value.toLowerCase();
+					if( statustoLower == Obix.status.DISABLED) return statusText[statustoLower];
+					if( statustoLower == Obix.status.FAULT) return statusText[statustoLower];
+					if( statustoLower == Obix.status.DOWN) return statusText[statustoLower];
+					if( statustoLower == Obix.status.UNAKEDALARM) return statusText[statustoLower];
+					if( statustoLower == Obix.status.ALARM) return statusText[statustoLower];
+					if( statustoLower == Obix.status.UNACKED) return statusText[statustoLower];
+					if( statustoLower == Obix.status.OVERRIDEN) return statusText[statustoLower];
+					if( statustoLower == Obix.status.OK) return statusText[statustoLower];
+				}
 			}
 		},
 		
@@ -77,6 +182,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 			if( !!historyRef){
 				 var history = new Obix.history({href : historyRef.getHref()}, {urlRoot : this.model.urlRoot});
 				 history.fetch({
+					 headers: oauth2.getAuthorizationHeader(),
 					 success: _.bind(function(model, response) {
 						 this.history = model;
 					 },this)
@@ -122,6 +228,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 				console.log('request history rollup');
 				
 				this.history.getRollupOp().invoke(rollUpIn, new Obix.historyRollupOut(), {
+					headers: oauth2.getAuthorizationHeader(),
 					success : _.bind( this.historyRollUpUpdate, this )
 				});
 			}
@@ -155,30 +262,18 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 		onClose : function() {
 			this.modelbinder.unbind();
 			this.timeStampBinder.unbind();
+			this.off('itemUnselected', this.itemUnselected, this);
 			this.stopListening(this.model.getChildrens().getByName('point'), "change:val", this.onChangeValHistory);
 			mediaEnquire.unregisterXs(this.xsQueryHandler);
 		},
 		
-		// event handler call after the view has been rendered
-		onRender : function(){
-			this.modelbinder.bind(this.model.getChildrens().getByName('point'), this.el, {
-				unit: {selector: '[name=unit]', converter: this.unitConverter},
-				val: {selector: '[name=val]', converter: this.valConverter},
-				status: [{selector: '[name=status]',  elAttribute: 'class', converter: this.statusClassConverter},{selector: '[name=status]', converter: this.statusConverter}],
-				displayName: {selector: '[name=displayName]', converter: this.nameConverter}
-			}, {'changeTriggers': {'': 'change', '[contenteditable]': 'enterpress'}}  );
-			
-			this.timeStampBinder.bind(this.model, this.el, {
-				updateTimeStamp: {selector:'[name=timeStamp]', converter: this.lastTimeStamp}
-			});
-			
-		},
+		
 		/**
 		 * Event handler called once the detail panel has fully collapse
 		 */
 		onDetailsCollapsed : function() {
-			this.ui.detailsCollapseControlElem.removeClass('glyphicon-chevron-up');
-			this.ui.detailsCollapseControlElem.addClass('glyphicon-chevron-down');
+			this.ui.detailsCollapseControlElem.removeClass('glyphicon-menu-up');
+			this.ui.detailsCollapseControlElem.addClass('glyphicon-menu-down');
 			
 			// on close, stop listening for value change to avoid requesting update of history, theses are costly.
 			this.stopListening(this.model.getChildrens().getByName('point'), "change:val", this.onChangeValHistory);
@@ -203,76 +298,9 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'media
 			this.model.getChildrens().getByName('point').on("change:val", this.onChangeValHistory,this);
 		},
 		
-		itemSelected : function(){
-			if( this.$el.hasClass("active")){
-				this.$el.removeClass("active");
-				// setup view event to clear selection
-				this.spawn("pointItemSelected", {point: null});
-			}
-			else {
-				$(".pointItem ").removeClass("active");
-				this.$el.addClass("active");
-				// setup view event to indicate selection
-				this.spawn("pointItemSelected", {point: this.model});
-			}
-		},
-		
-		valConverter : function(direction, value, attributeName, model) {
-			if(direction == 'ModelToView'){
-				return ( new Number(value)).toLocaleString( undefined,{minimumFractionDigits: 0, maximumFractionDigits: 2});
-			}
-		},
 		
 		
-		unitConverter : function(direction, value){
-			if(direction == 'ModelToView' && !!value){
-				var unitContract = value.getVal();
-				if( unitContract.lastIndexOf("obix:Unit/") > -1){
-					return unitText[unitContract.substr(unitContract.lastIndexOf('/') + 1)];
-				}
-			}
-		},
 		
-		nameConverter : function(direction, value, attributeName, model){
-			if( direction =='ModelToView') {
-				if(value == '' || value == null ) return model.getName();
-				else return value;
-			} else {
-				return value;
-			}
-		},
-		
-		statusClassConverter : function( direction, value) {
-			if( direction == "ModelToView") {
-				if( value != null) {
-					var statustoLower = value.toLowerCase();
-					if( statustoLower == Obix.status.DISABLED) return "label label-default";
-					if( statustoLower == Obix.status.FAULT) return "label label-danger";
-					if( statustoLower == Obix.status.DOWN) return "label label-default";
-					if( statustoLower == Obix.status.UNAKEDALARM) return "label label-info";
-					if( statustoLower == Obix.status.ALARM) return "label label-warning";
-					if( statustoLower == Obix.status.UNACKED) return "label label-info";
-					if( statustoLower == Obix.status.OVERRIDEN) return "label label-primary";
-					if( statustoLower == Obix.status.OK) return "label label-success";
-				}
-			}
-		},
-		
-		statusConverter : function( direction, value) {
-			if( direction == "ModelToView") {
-				if( value != null) {
-					var statustoLower = value.toLowerCase();
-					if( statustoLower == Obix.status.DISABLED) return statusText[statustoLower];
-					if( statustoLower == Obix.status.FAULT) return statusText[statustoLower];
-					if( statustoLower == Obix.status.DOWN) return statusText[statustoLower];
-					if( statustoLower == Obix.status.UNAKEDALARM) return statusText[statustoLower];
-					if( statustoLower == Obix.status.ALARM) return statusText[statustoLower];
-					if( statustoLower == Obix.status.UNACKED) return statusText[statustoLower];
-					if( statustoLower == Obix.status.OVERRIDEN) return statusText[statustoLower];
-					if( statustoLower == Obix.status.OK) return statusText[statustoLower];
-				}
-			}
-		},
 		
 		lastTimeStamp : function(direction, value, attributeName, model ) {
 			if( direction == "ModelToView") {

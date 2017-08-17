@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.custom.contract;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,16 @@ package com.ptoceti.osgi.obix.custom.contract;
 
 import java.io.Serializable;
 
-import com.ptoceti.osgi.obix.contract.Point;
 import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Ref;
 
+/**
+ * A point that include a history and a measure
+ * 
+ * @author lor
+ *
+ */
 public class MonitoredPoint  extends Obj implements Serializable {
 
 	/**

@@ -2,7 +2,7 @@
 	<parent>
 	    <artifactId>com.ptoceti.parent</artifactId>
 	    <groupId>com.ptoceti</groupId>
-	    <version>1.0.1-SNAPSHOT</version>
+	    <version>1.1.0</version>
 	    <relativePath>..</relativePath>
 	  </parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -89,13 +89,19 @@
 		<dependency>
 			<groupId>com.ptoceti</groupId>
 			<artifactId>com.ptoceti.osgi.control</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.pi4j</groupId>
 			<artifactId>pi4j-core</artifactId>
 			<version>0.0.5</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.knopflerfish.bundle</groupId>
+			<artifactId>kxml-LIB</artifactId>
+			<version>2.3.0.kf3</version>
 		</dependency>
 
 	</dependencies>

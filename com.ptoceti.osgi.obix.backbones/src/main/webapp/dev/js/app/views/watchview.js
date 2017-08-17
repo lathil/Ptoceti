@@ -31,15 +31,15 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		template : 'watches',  
 
 		ui : {
-			reloadButton : "#reloadButton",
-			removeButton : "#removeButton",
-			createButton : "#createButton",
+			reloadButton : "[name=\"reloadButton\"]",
+			removeButton : "[name=\"removeButton\"]",
+			createButton : "[name=\"createButton\"]"
 		},
 
 		events : {
-			"click #reloadButton" : "reloadList",
-			"click #removeButton" : "removeFromList",
-			"click #createButton" : "createWatch",
+			"click [name='reloadButton']" : "reloadList",
+			"click [name='removeButton']" : "removeFromList",
+			"click [name='createButton']" : "createWatch",
 		},
 		
 		regions: {
@@ -104,6 +104,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 	    
 		// listener for view events coming from a subview
 		onMessages : {
+			"watchItemDelete" : "onWatchDelete",
 	        "watchItemSelected" : "onWatchSelected"
 	    },
 		
@@ -145,9 +146,13 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		reloadList : function() {
 			
 		},
-
+		
 		removeFromList : function() {
 			ventAggr.trigger("watch:removeWatch", this.watchSelected);
+		},
+
+		onWatchDelete : function( message ){
+			ventAggr.trigger("watch:removeWatch", message.data.watch);
 		},
 		
 		createWatch : function() {

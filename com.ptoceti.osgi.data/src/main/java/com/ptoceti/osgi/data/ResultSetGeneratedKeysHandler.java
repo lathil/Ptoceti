@@ -11,7 +11,7 @@ package com.ptoceti.osgi.data;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,14 @@ public class ResultSetGeneratedKeysHandler implements IResultSetGeneratedKeysHan
 	protected Integer getRowID(ResultSet rs) {
 		Integer result = null;
 		try {
-			int value = rs.getInt(ROW_ID);
-			if (!rs.wasNull())
+			ResultSet krs = rs.getStatement().getGeneratedKeys();
+			if( krs.next()){
+				int value = krs.getInt(1);
 				result = new Integer(value);
+			}
+			//int value = rs.getInt(ROW_ID);
+			//if (!rs.wasNull())
+			//	result = new Integer(value);
 
 		} catch (SQLException ex) {
 

@@ -12,7 +12,7 @@ package com.ptoceti.osgi.modbus.impl.connection;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 						serialPort.addEventListener(this);
 						serialPort.notifyOnDataAvailable(true);
 						// calculate the time between two frames depending on the baudrate setting.
-						frameDetector = new FrameDetector((int) Math.ceil( FRAME_SEPERATOR_LENGTH * 10 * 1000 / serialPort.getBaudRate()));
+						frameDetector = new FrameDetector((int) Math.ceil( FRAME_SEPERATOR_LENGTH * 10 * 10 * 1000 / serialPort.getBaudRate()));
 						// get hold of the inputs and outputs streams.
 						inStream = serialPort.getInputStream();
 						outStream = serialPort.getOutputStream();
@@ -180,6 +180,7 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 					ModbusMessageResponse respMessage = msg.getResponseMessage();
 					// if parsing was successfull, we can return the response message.
 					if( respMessage.readFrom( new ByteArrayInputStream(bytesIn.toByteArray())) == true ) response = respMessage;
+					Activator.log(LogService.LOG_DEBUG, "Received response: " + ModbusUtils.writeHex( bytesIn.toByteArray()));
 					hasNewFrame = false;
 				} else {
 					Activator.log(LogService.LOG_DEBUG, "Missing response frame.");
@@ -240,7 +241,7 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 		// recalculate the CRC on the whole received hex message - less the last 2 bytes that are the sent LRC
 		int calculatedCRC = ModbusUtils.calculateCRC( buff, buff.length - 2 );
 		// extract the CRC sent over with the frame. It is sent over as bytes
-		int receivedCRC = ( buff[buff.length - 2] << 8 ) + ((buff[buff.length - 1]) & 0x00FF);
+		int receivedCRC = (( 0x00FF & buff[buff.length - 2]) << 8 ) | (( 0x00FF & buff[buff.length - 1] ));
 		
 		// if the received crc equals the newly calculated, we consider that the frame is intact.
 		if( calculatedCRC == receivedCRC ) {
@@ -253,8 +254,6 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 			hasNewFrame = true;
 			// update the statistic counter
 			incrementFramesReceivedCounter();
-			// and notify any waiting thread that we got a new frame
-			notify();
 		}
 		else {
 			hasNewFrame = false;
@@ -266,6 +265,8 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 			} catch (IOException e ) { messageString = "Error converting binary message to Hex."; }
 			Activator.log(LogService.LOG_DEBUG, "Bad CRC on received frame: " + messageString );
 		}
+		// and notify any waiting thread that we have received a new frame, good or bad
+		notify();
 	}
 	
 	/**

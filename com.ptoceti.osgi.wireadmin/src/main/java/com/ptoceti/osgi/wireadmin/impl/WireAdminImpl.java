@@ -12,7 +12,7 @@ package com.ptoceti.osgi.wireadmin.impl;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -401,6 +401,11 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 			// the producer service is already up and running, we have a service reference to it.
 			ServiceReference producerServiceRef= (ServiceReference) producersTable.get( producerPID );
 			wire.setProducer( producerServiceRef );
+			// if the wire is now connected, update the list of its producers and consumers services
+			if( wire.isConnected()) {
+				asyncWireDispatcher.addConsumerWires(wire.getConsumer(), getConsumerWires(wire.getConsumerPID()));
+				asyncWireDispatcher.addProducerWires(wire.getProducer(), getProducerWires(wire.getProducerPID()));
+			}
 		}
 		
 		if(! consumerListenerList.contains(consumerPID)) {
@@ -428,6 +433,11 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 			// the consumer service is already up and running, we have a service reference to it.
 			ServiceReference consumerServiceRef= (ServiceReference) consumersTable.get( consumerPID );
 			wire.setConsumer( consumerServiceRef );
+			// if the wire is now connected, update the list of its producers and consumers services
+			if( wire.isConnected()) {
+				asyncWireDispatcher.addConsumerWires(wire.getConsumer(), getConsumerWires(wire.getConsumerPID()));
+				asyncWireDispatcher.addProducerWires(wire.getProducer(), getProducerWires(wire.getProducerPID()));
+			}
 		}
 	
 		Activator.log(LogService.LOG_INFO,
@@ -506,7 +516,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 					Activator.bc.addServiceListener( producerSerListener,  this.getProducerPidFilter()  );
 				}
 				
-				Activator.bc.addServiceListener( producerSerListener, disConWire.getProducerFilter().toString() );
+				//Activator.bc.addServiceListener( producerSerListener, disConWire.getProducerFilter().toString() );
 			} catch ( InvalidSyntaxException e ) {
 				Activator.log(LogService.LOG_ERROR, "Error in filter string while adding producer service listener." + e.toString());
 				return(null);

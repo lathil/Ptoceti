@@ -63,3 +63,5 @@
 /com.ptoceti.osgi.pi/target
 
 /runner
+/.DS_Store
+/bin/

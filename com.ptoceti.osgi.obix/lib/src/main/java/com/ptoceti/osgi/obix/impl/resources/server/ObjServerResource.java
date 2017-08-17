@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,21 +33,28 @@ import org.restlet.resource.Post;
 import org.restlet.resource.Put;
 
 import com.google.inject.Inject;
+import com.ptoceti.osgi.obix.cache.AlarmCache;
 import com.ptoceti.osgi.obix.cache.ObjCache;
+import com.ptoceti.osgi.obix.contract.Alarm;
 import com.ptoceti.osgi.obix.domain.DomainException;
-import com.ptoceti.osgi.obix.domain.ObjDomain;
+import com.ptoceti.osgi.obix.impl.service.CommandHandler;
 import com.ptoceti.osgi.obix.object.Obj;
+import com.ptoceti.osgi.obix.object.Ref;
+import com.ptoceti.osgi.obix.object.Status;
 import com.ptoceti.osgi.obix.object.Uri;
+import com.ptoceti.osgi.obix.object.Val;
 import com.ptoceti.osgi.obix.resources.ObjResource;
 import com.ptoceti.osgi.obix.resources.ResourceException;
 
 public class ObjServerResource extends AbstractServerResource implements ObjResource {
 
 	private ObjCache cache;
+	private AlarmCache alarmCache;
 	
 	@Inject
-	public ObjServerResource( ObjCache cache) {
+	public ObjServerResource( ObjCache cache, AlarmCache alarmCache) {
 		this.cache = cache;
+		this.alarmCache = alarmCache;
 	}
 	
 	@Get
@@ -58,6 +65,22 @@ public class ObjServerResource extends AbstractServerResource implements ObjReso
 		Obj obj = null;
 		try {
 			obj = cache.getObixObj(hrefUri);
+			// check if there is an alarm associated with this object
+			Ref alarmRef = (Ref)obj.getChildren("alarm");
+			if( alarmRef != null){
+				Alarm alarm = alarmCache.retrieve(alarmRef.getHref().getPath());
+				if( alarm != null){
+					// if yes, then check status
+					if( obj.getStatus().compareTo(alarm.getStatus()) != 0){
+						if( alarm.getStatus().compareTo(Status.UNACKED) == 0 || alarm.getStatus().compareTo(Status.UNACKEDALARM) == 0 || alarm.getStatus().compareTo(Status.ALARM) == 0){
+							obj.setStatus(alarm.getStatus());
+						} else if(obj.getStatus().compareTo(Status.UNACKED) == 0 || obj.getStatus().compareTo(Status.UNACKEDALARM) == 0 || obj.getStatus().compareTo(Status.ALARM) == 0) {
+							obj.setStatus(alarm.getStatus());
+						}
+					}
+				}
+			}
+			
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".retrieve", ex);
 		}
@@ -94,6 +117,11 @@ public class ObjServerResource extends AbstractServerResource implements ObjReso
 		Uri hrefUri = new Uri("href", uri + href);
 		
 		try {
+			if( objIn instanceof Val){
+				CommandHandler commandHandler = new CommandHandler();
+				commandHandler.sendCommand((Val)objIn);
+			}
+			
 			cache.updateObixObjAt(hrefUri, objIn);
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".update", ex);

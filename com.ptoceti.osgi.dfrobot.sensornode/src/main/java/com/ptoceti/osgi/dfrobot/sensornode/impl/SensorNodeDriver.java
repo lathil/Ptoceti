@@ -1,5 +1,33 @@
 package com.ptoceti.osgi.dfrobot.sensornode.impl;
 
+/*
+ * #%L
+ * **********************************************************************
+ * ORGANIZATION : ptoceti
+ * PROJECT : SensorNode
+ * FILENAME : SensorNodeDriver.java
+ * 
+ * This file is part of the Ptoceti project. More information about
+ * this project can be found here: http://www.ptoceti.com/
+ * **********************************************************************
+ * %%
+ * Copyright (C) 2013 - 2015 ptoceti
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+
 import gnu.io.CommPortIdentifier;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
@@ -229,6 +257,8 @@ public class SensorNodeDriver implements SerialPortEventListener {
 			bytesOut.write(CHECK_ALL_COMMAND);
 			bytesOut.write(SensorNodeDriverUtils.calculateLRC(bytesOut.toByteArray(), bytesOut.size())); // CRC
 			
+			//Activator.log(LogService.LOG_DEBUG, "Sending frame to sensor node: " + SensorNodeDriverUtils.writeHex(bytesOut.toByteArray()));
+			
 			outStream.write( bytesOut.toByteArray());
 			outStream.flush();
 			
@@ -247,6 +277,14 @@ public class SensorNodeDriver implements SerialPortEventListener {
 	 */
 	private void checkNewIncomingMessage() {
 		byte[] buff = bytesIn.toByteArray();
+		
+		/**
+		try {
+			Activator.log(LogService.LOG_DEBUG, "Receiced message from sensor node: " + SensorNodeDriverUtils.writeHex(buff));
+		} catch (IOException e) {
+		}
+		**/
+		
 		byte calculatedLrc = SensorNodeDriverUtils.calculateLRC(buff, buff.length - 1);
 		
 		List<Integer> result = new ArrayList<Integer>();

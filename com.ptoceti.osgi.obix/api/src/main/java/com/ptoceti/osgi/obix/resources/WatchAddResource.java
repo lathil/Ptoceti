@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.resources;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,13 @@ public interface WatchAddResource {
 	
 	public static String uri = WatchResource.uri.concat(baseuri);
 	
+	/**
+	 * Add ref to a obix resource to monitor to a watch
+	 * 
+	 * @param in a list of ref to monitor
+	 * @return
+	 * @throws ResourceException
+	 */
 	@Post
 	WatchOut addWatch(WatchIn in) throws ResourceException;
 }

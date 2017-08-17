@@ -1,0 +1,80 @@
+<div name="listItem">
+	<div class="row">
+		<div class="col-md-5 col-sm-8 col-xs-8">
+			<p><span name="displayName" class="h4" {{#if contentEditable }} contenteditable="true"{{/if}}>{{displayName}}</span></p>
+		</div>
+		<div class="col-md-3 col-md-2 col-xs-2">
+			<p name="childCollapseItem" class="h4 hidden"><a name="bootstrapCollapseItem" data-toggle="collapse" data-target="#childDetails{{elemId}}"><span name="childCollapseControl" class="glyphicon glyphicon-menu-down"/></a></p>
+		</div>
+		<div class="col-md-1 col-sm-2 col-xs-2">
+			<p style="display: inline-block"><span class="h4"><span name="status" class="glyphicon glyphicon-ok-circle"/><span name="statusText" class="hidden-xs"/></span></p>
+		</div>
+	</div>
+	
+	<div class="row">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<div  id="childDetails{{elemId}}" name="childPanel" class="panel-collapse collapse">
+					<div  id="rollupDetails{{elemId}}" name="rollupPanel" ></div>
+				</div>
+				<div name="spin">
+					<!--<h4 class="text-center"><i class="glyphicon glyphicon-refresh icon-spin"/></h4>-->
+				</div>
+			</div>
+	</div>
+	<div  id="infoDetails{{elemId}}" name="infoPanel" class="panel-collapse collapse">
+		<div class="row hidden" name="timeStampPanel">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<label name="timestamplabel">{{alarmtext.timestamp}}</label>
+				<p>
+					<span name="timestamp" class="h3" style="">{{timestamp}}</span>
+				</p>
+			</div>
+		</div>
+		<div class="row hidden" name="normalTimeStampPanel">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<label name="normaltimestamplabel">{{alarmtext.normaltimestamp}}</label>
+				<p>
+					<span name="normaltimestamp" class="h3" style="">{{normaltimestamp}}</span>
+				</p>
+			</div>
+		</div>
+		<div class="row" name="ackTimeStampPanel">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<label name="acktimestamplabel">{{alarmtext.acktimestamp}}</label>
+				<p>
+					<span name="acktimestamp" class="h3" style="">{{acktimestamp}}</span>
+				</p>
+			</div>
+		</div>
+		<div class="row" name="ackButtonPanel">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<p>
+					<button name="ackButton" type="button" class="btn btn-primary btn-block">{{alarmtext.ack}}</button>
+				</p>
+			</div>
+		</div>
+		
+		<div class="row hidden" name="maxPanel">
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				<div class="form-inline">
+					<label name="maxDisplayName">{{alarmtext.max}}</label>
+					<input name="maxval" type="number" class="h2">{{val}}</input>
+				</div>
+			</div>
+		</div>
+		<div class="row hidden" name="minPanel">
+			<div class="col-md-8 col-sm-8 col-xs-8">
+				<div class="form-inline">
+					<label name="minDisplayName">{{alarmtext.min}}</label>
+					<input name="minval" type="number" class="h2">{{val}}</input>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<a name="deleteItem" class="btn btn-primary btn-xs"><span class="text-primary"/>{{alarmtext.remove}}</a>
+			</div>
+		</div>
+	</div>
+</div>

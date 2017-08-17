@@ -1,5 +1,11 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
+
 /*
  * #%L
  * **********************************************************************
@@ -11,7 +17,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +41,7 @@ public class Int extends Val {
 	 */
 	private static final long serialVersionUID = 499008084834546740L;
 
-	private static final Contract contract = new Contract("obix:int");
+	public static final Contract contract = new Contract("obix:int");
 	
 	protected Integer min;
 	protected Integer max;
@@ -66,6 +72,41 @@ public class Int extends Val {
 		super(name, value);
 	}
 
+	@Override
+	public Obj clone() throws CloneNotSupportedException  {
+		Int clone = (Int)super.clone();
+		
+		clone.setMax(this.getMax() != null ? new Integer(this.getMax()) : null);
+		clone.setMin(this.getMin() != null ? new Integer(this.getMin()) : null);
+		clone.setUnit(this.getUnit() != null ? this.getUnit().clone() : null);
+		clone.setVal(this.getVal() != null ?  new Integer( ((Integer)this.getVal()).intValue()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public synchronized boolean updateWith(Obj other){
+		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
+		
+		if( !Objects.equals(getMax(), ((Int)other).getMax())){
+			setMax(((Int)other).getMax());
+			different = true;
+		}
+		if( !Objects.equals(getMin(), ((Int)other).getMin())){
+			setMin(((Int)other).getMin());
+			different = true;
+		}
+		if(!Objects.equals(getVal(), ((Int)other).getVal())){
+			setVal(((Int)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
+			different = true;
+		}
+		
+		return super.updateWith(other, different, changeEvents);
+	}
+	
 	public void setMin(Integer min) {
 		this.min = min;
 	}
@@ -122,5 +163,10 @@ public class Int extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		return ((Int)this.val).compareTo((Int)((Val)o).getVal());
 	}
 }

@@ -1,5 +1,10 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
+
 /*
  * #%L
  * **********************************************************************
@@ -11,7 +16,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +43,7 @@ public class Reltime extends Val {
 	// private static final String xsduration =
 	// "-?P(?=\\d+|T)(\\d+Y)?(\\d+M)?(\\d+D)?(T(?=\\d+)(\\d+H)?(\\d+M)?(\\d+S)?)?";
 
-	private static final Contract contract = new Contract("obix:reltime");
+	public static final Contract contract = new Contract("obix:reltime");
 	
 	protected Reltime max;
 	protected Reltime min;
@@ -64,6 +69,41 @@ public class Reltime extends Val {
 
 	public Reltime(String name, Long value) {
 		super(name, value);
+	}
+	
+	@Override
+	public Obj clone() throws CloneNotSupportedException {
+		Reltime clone = (Reltime)super.clone();
+		
+		clone.setMax(this.getMax() != null ? new Reltime(this.getMax()) : null);
+		clone.setMin(this.getMin() != null ? new Reltime(this.getMin()) : null);
+		clone.setVal(this.getVal() != null ? new Long( ((Long)this.getVal()).longValue()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public synchronized boolean updateWith(Obj other){
+		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
+		
+		if( !Objects.equals(getMax(), ((Reltime)other).getMax())){
+			setMax(((Reltime)other).getMax());
+			different = true;
+		}
+		if( !Objects.equals(getMin(), ((Reltime)other).getMin())){
+			setMin(((Reltime)other).getMin());
+			different = true;
+		}
+		if(!Objects.equals(getVal(), ((Reltime)other).getVal())){
+			setVal(((Reltime)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
+			different = true;
+		}
+		
+		
+		return super.updateWith(other, different, changeEvents);
 	}
 	
 	public void setMax(Reltime max) {
@@ -203,5 +243,10 @@ public class Reltime extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return ((Long)this.val).compareTo((Long)((Val)o).getVal());
 	}
 }

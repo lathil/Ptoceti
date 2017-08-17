@@ -39,10 +39,15 @@ define([
 		 *  Map routes to methods that must exists in coontroller injected at creation time.
 		 */
 		appRoutes : {
+			"intro" : "goToIntro",
 			"lobby" : "goToLobby",
 			"lobby/:watchUri" : "goToLobbyWithWatch",
 			"watches" : "goToWatches",
-			"history" : "goToHistory"
+			"histories" : "goToHistories",
+			"histories/:historyUri" : "goToHistoriesWithHistory",
+			"alarms" : "goToAlarms",
+			"alarms/:alarmUri" : "goToAlarmsWithAlarm",
+			"search" : "goToAddItemToWatch"
 		},
 
 		// standard routes can bind to AppRouter

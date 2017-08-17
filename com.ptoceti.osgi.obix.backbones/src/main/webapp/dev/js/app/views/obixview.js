@@ -29,8 +29,8 @@
  * Root layout for the complete IHM. Serves also as placeholder to declare all ihm dependencies.
  * 
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder', 'views/progressview', 'marionette.handlebars',  'handlebars.helpers','bootstrap' ],
-		function(Backbone, Marionette, _, $, ventAggr, ModelBinder, ProgressView ) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder','views/landingview', 'views/progressview', 'models/progressviewmodel','marionette.handlebars', 'handlebars.helpers','bootstrap' ],
+		function(Backbone, Marionette, _, $, ventAggr, ModelBinder, LandingView, ProgressView, ProgressViewModel ) {
 
 	var ObixView = Marionette.Layout.extend({
 		template : 'main',
@@ -42,30 +42,137 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbi
 		},
 		
 		initialize : function() {		
-			ventAggr.on("controller:startApp", this.opStartApp, this);
-			ventAggr.on("controller:updatedAbout", this.onUpdatedAbout, this);
+			ventAggr.on("controller:startApp", this.showProgress, this);
 		},
 		
-		opStartApp: function() {
-			this.content.show(new ProgressView());
+		onClose : function() {
+			ventAggr.off("controller:startApp",  this.showProgress, this);
 		},
 		
-		onUpdatedAbout: function (about) {
+		showProgress: function() {
 			
+			if (!(this.header.currentView instanceof LandingView)){
+				this.header.show(new LandingView({}))
+			}
+			
+			this.content.show(new ProgressView({model: new ProgressViewModel()}));
+			
+		},
+		
+		showIntro: function(){
 			var layout = this;
-			require(['views/headerview', 'views/footerview'],function(HeaderView, FooterView){
-				layout.header.show(new HeaderView({
-					model : about
-				}));
-				
-				layout.footer.show(new FooterView({
-					model : about
-				}));
+			require(['views/landingview','views/introview'], function(LandingView, IntroView) {
+				if (!(layout.header.currentView instanceof LandingView)){
+					layout.header.show(new LandingView({}))
+				}
+				if(layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.removeClass('grow-enabled')
+				}
+				layout.content.show(new IntroView());
 			});
-			
-		}
+		},
+		
+		showLogin: function(){
+			var layout = this;
+			require(['views/landingview','views/loginview'], function(LandingView, LoginView) {
+				if (!(layout.header.currentView instanceof LandingView)){
+					layout.header.show(new LandingView({}))
+				}
+				if(layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.removeClass('grow-enabled')
+				}
+				layout.content.show(new LoginView());
+			});
+		},
+		
+		showLobby: function(about, watch){
+			var layout = this;
+			require(['views/lobbyview', 'views/footerview','views/headerview'], function(LobbyView, FooterView, HeaderView) {
+				if (!(layout.header.currentView instanceof HeaderView)){
+					layout.header.show(new HeaderView({model : about}))
+				}
+				if (!(layout.footer.currentView instanceof FooterView)){
+					layout.footer.show(new FooterView({model : about}))
+				}
+				if( watch) {
+					if(!layout.content.$el.hasClass('grow-enabled')){
+						layout.content.$el.addClass('grow-enabled')
+					}
+					layout.content.show(new LobbyView({name: watch.getName(), displayName : watch.getDisplayName()}));
+					layout.header.currentView.activeLobbyMenu();
+				}
+			});
+		},
+		
+		showWatches: function( about){
+			var layout = this;
+			require(['views/watchview', 'views/footerview','views/headerview'], function(WatchView, FooterView, HeaderView) {
+				if (!(layout.header.currentView instanceof HeaderView)){
+					layout.header.show(new HeaderView({model : about}))
+				}
+				if (!(layout.footer.currentView instanceof FooterView)){
+					layout.footer.show(new FooterView({model : about}))
+				}
+				if(!layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.addClass('grow-enabled')
+				}
+				layout.content.show(new WatchView());
+				layout.header.currentView.activeWatchesMenu();
+			});
+		},
+		
+		showHistory: function(about, historyUri){
+			var layout = this;
+			require(['views/historyview', 'views/footerview','views/headerview'], function(HistoryView, FooterView, HeaderView) {
+				if (!(layout.header.currentView instanceof HeaderView)){
+					layout.header.show(new HeaderView({model : about}))
+				}
+				if (!(layout.footer.currentView instanceof FooterView)){
+					layout.footer.show(new FooterView({model : about}))
+				}
+				if(!layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.addClass('grow-enabled')
+				}
+				layout.content.show(new HistoryView({historyUri: historyUri}));
+				layout.header.currentView.activeHistoryMenu();
+			});
+		},
+		
+		showAlarms: function(about, alarmUri){
+			var layout = this;
+			require(['views/alarmview', 'views/footerview','views/headerview'], function(AlarmView, FooterView, HeaderView) {
+				if (!(layout.header.currentView instanceof HeaderView)){
+					layout.header.show(new HeaderView({model : about}))
+				}
+				if (!(layout.footer.currentView instanceof FooterView)){
+					layout.footer.show(new FooterView({model : about}))
+				}
+				if(!layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.addClass('grow-enabled')
+				}
+				layout.content.show(new AlarmView({alarmUri: alarmUri}));
+				layout.header.currentView.activeAlarmMenu();
+			});
+		},
+		
+		showSearch: function(about){
+			var layout = this;
+			require(['views/searchview', 'views/footerview','views/headerview'], function(SearchView, FooterView, HeaderView) {
+				if (!(layout.header.currentView instanceof HeaderView)){
+					layout.header.show(new HeaderView({model : about}))
+				}
+				if (!(layout.footer.currentView instanceof FooterView)){
+					layout.footer.show(new FooterView({model : about}))
+				}
+				if(!layout.content.$el.hasClass('grow-enabled')){
+					layout.content.$el.addClass('grow-enabled')
+				}
+				layout.content.show(new SearchView());
+			});
+		},
 	
 	});
+	
 	
 	
 	return ObixView;

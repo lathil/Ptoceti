@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<Pins>
+		<Pin>
+			<PinNumber>1</PinNumber>
+			<Identification>gpio01</Identification>
+			<Scope>pi.system.pin.out</Scope>
+			<DirectionIn>false</DirectionIn>
+			<Digital>true</Digital>
+		</Pin>
+		<Pin>
+			<PinNumber>2</PinNumber>
+			<Identification>gpio02</Identification>
+			<Scope>pi.system.pin.out</Scope>
+			<DirectionIn>false</DirectionIn>
+			<Digital>true</Digital>
+		</Pin>
+</Pins>

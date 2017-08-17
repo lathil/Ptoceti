@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.impl.domain;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import com.ptoceti.osgi.obix.object.Val;
 import com.ptoceti.osgi.obix.impl.entity.AbsTimeEntity;
 import com.ptoceti.osgi.obix.impl.entity.BoolEntity;
 import com.ptoceti.osgi.obix.impl.entity.EntityException;
+import com.ptoceti.osgi.obix.impl.entity.EntityType;
 import com.ptoceti.osgi.obix.impl.entity.EnumEntity;
 import com.ptoceti.osgi.obix.impl.entity.FeedEntity;
 import com.ptoceti.osgi.obix.impl.entity.IntEntity;
@@ -62,6 +63,30 @@ import com.ptoceti.osgi.obix.impl.entity.StrEntity;
 
 public class ObjDomainImpl extends AbstractDomain implements ObjDomain {
 
+	
+	public Obj getObixObjWithRefTo(Uri href) throws DomainException {
+		
+		Ref ref = new Ref("history", href);
+		RefEntity refEnt = new RefEntity(ref);
+		try {
+			if( refEnt.fetchByHref()){
+				
+				Integer parentId = refEnt.getParent_id();
+				
+				ObjEntity objEnt = new ObjEntity(new Obj());
+				objEnt.setId(parentId);
+				if( objEnt.fetchByObjectId()){
+					return objEnt.getObixObject();
+				}
+				
+			}
+		} catch(EntityException ex) {
+			throw new DomainException("Exception in " + this.getClass().getName() + ".getObixObj", ex);
+		}
+		
+		return null;
+	}
+	
 	
 	public Obj getObixObj(Uri href) throws DomainException {
 		
@@ -109,6 +134,26 @@ public class ObjDomainImpl extends AbstractDomain implements ObjDomain {
 		return objs;
 	}
 	
+	public List<Obj> getObixObjByDisplayName(String displayName) throws DomainException {
+		
+		Obj obixObj = new Obj();
+		obixObj.setDisplayName(displayName);
+		ObjEntity objEnt = new ObjEntity(obixObj);
+	
+		List<Obj> objs = new ArrayList<Obj>();
+		try {
+			List<ObjEntity> entityList = (List<ObjEntity>)objEnt.fetchByDisplayName();
+			
+			for( ObjEntity entity : entityList) {
+				objs.add(entity.getObixObject());
+			}
+		} catch(EntityException ex) {
+			throw new DomainException("Exception in " + this.getClass().getName() + ".getObixObjsByContract", ex);
+		}
+		
+		return objs;
+	}
+	
 	public Obj updateObixObjAt(Uri href, Obj updateObj) throws DomainException{
 	
 		ObjEntity objEnt = mapEntityToObj(updateObj);
@@ -125,6 +170,51 @@ public class ObjDomainImpl extends AbstractDomain implements ObjDomain {
 		}
 		
 		return objEnt.getObixObject();
+	}
+	
+	public boolean deleteChildObject(Uri href,String childName) throws DomainException{
+		Obj obixObj = new Obj();
+		obixObj.setHref(href);
+		ObjEntity objEnt = new ObjEntity(obixObj);
+		
+		try {
+			if( objEnt.fetchByHref())
+			{
+				objEnt.fetchChildrens();
+				
+				for( ObjEntity child: objEnt.getChilds()){
+					if( child.getObixObject().getName().equals(childName)){
+						child.delete();
+						break;
+					}
+				}
+				
+				return true;
+			}
+		} catch(EntityException ex) {
+			throw new DomainException("Exception in " + this.getClass().getName() + ".updateObixObjAt", ex);
+		}
+		
+		return false;
+	}
+	
+	public boolean addChildObject(Uri href, Obj childObj) throws DomainException{
+		
+		Obj obixObj = new Obj();
+		obixObj.setHref(href);
+		ObjEntity objEnt = new ObjEntity(obixObj);
+		
+		try {
+			if( objEnt.fetchByHref())
+			{
+				objEnt.addChildren(childObj);
+				return true;
+			}
+		} catch(EntityException ex) {
+			throw new DomainException("Exception in " + this.getClass().getName() + ".updateObixObjAt", ex);
+		}
+		
+		return false;
 	}
 	
 	public Obj createUpdateObixObj(Obj updateObj) throws DomainException{

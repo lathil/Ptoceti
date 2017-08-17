@@ -1,5 +1,33 @@
 package com.ptoceti.osgi.control;
 
+/*
+ * #%L
+ * **********************************************************************
+ * ORGANIZATION : ptoceti
+ * PROJECT : Control
+ * FILENAME : ExtendedUnit.java
+ * 
+ * This file is part of the Ptoceti project. More information about
+ * this project can be found here: http://www.ptoceti.com/
+ * **********************************************************************
+ * %%
+ * Copyright (C) 2013 - 2015 ptoceti
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+
 import java.util.HashMap;
 
 import org.osgi.util.measurement.Measurement;
@@ -96,9 +124,13 @@ public class ExtendedUnit {
 		return units.get(name);
 	}
 	
+	public ExtendedUnit(){
+		
+	}
+	
 	protected ExtendedUnit(Unit unit, boolean isSI, String nonSIName){
-		this.siUnit = unit;
-		this.isSI = isSI;
+		this.setSiUnit(unit);
+		this.setSI(isSI);
 		this.nonSIName = nonSIName;
 		this.offset = 0;
 		this.scale = 1;
@@ -112,11 +144,11 @@ public class ExtendedUnit {
 	
 	ExtendedUnit div ( ExtendedUnit unit){
 		
-		if( unit.isSI && isSI){
-			Measurement a = new Measurement(1,0,siUnit);
-			Measurement b = new Measurement(1,0,unit.getSIUnit());
+		if( unit.isSI() && isSI()){
+			Measurement a = new Measurement(1,0,getSiUnit());
+			Measurement b = new Measurement(1,0,unit.getSiUnit());
 			return new ExtendedUnit( a.div(b).getUnit(), true, null);
-		} else if( !unit.isSI && !isSI && (unit.nonSIName == nonSIName)) {
+		} else if( !unit.isSI() && !isSI() && (unit.getNonSIName() == getNonSIName())) {
 			return this;
 		} 
 		
@@ -125,11 +157,11 @@ public class ExtendedUnit {
 
 	ExtendedUnit mul( ExtendedUnit unit){
 		
-		if( unit.isSI && isSI){
-			Measurement a = new Measurement(1,0,siUnit);
-			Measurement b = new Measurement(1,0,unit.getSIUnit());
+		if( unit.isSI() && isSI()){
+			Measurement a = new Measurement(1,0,getSiUnit());
+			Measurement b = new Measurement(1,0,unit.getSiUnit());
 			return new ExtendedUnit( a.mul(b).getUnit(), true, null);
-		} else if( !unit.isSI && !isSI && (unit.nonSIName == nonSIName)) {
+		} else if( !unit.isSI() && !isSI() && (unit.getNonSIName() == getNonSIName())) {
 			return this;
 		} 
 		
@@ -138,11 +170,11 @@ public class ExtendedUnit {
 
 	ExtendedUnit add( ExtendedUnit unit){
 		
-		if( unit.isSI && isSI){
-			Measurement a = new Measurement(1,0,siUnit);
-			Measurement b = new Measurement(1,0,unit.getSIUnit());
+		if( unit.isSI() && isSI()){
+			Measurement a = new Measurement(1,0,getSiUnit());
+			Measurement b = new Measurement(1,0,unit.getSiUnit());
 			return new ExtendedUnit( a.add(b).getUnit(), true, null);
-		} else if( !unit.isSI && !isSI && (unit.nonSIName == nonSIName)) {
+		} else if( !unit.isSI() && !isSI() && (unit.getNonSIName() == getNonSIName())) {
 			return this;
 		} 
 		
@@ -151,41 +183,72 @@ public class ExtendedUnit {
 	
 	ExtendedUnit sub( ExtendedUnit unit){
 		
-		if( unit.isSI && isSI){
-			Measurement a = new Measurement(1,0,siUnit);
-			Measurement b = new Measurement(1,0,unit.getSIUnit());
+		if( unit.isSI() && isSI()){
+			Measurement a = new Measurement(1,0,getSiUnit());
+			Measurement b = new Measurement(1,0,unit.getSiUnit());
 			return new ExtendedUnit( a.sub(b).getUnit(), true, null);
-		} else if( !unit.isSI && !isSI && (unit.nonSIName == nonSIName)) {
+		} else if( !unit.isSI() && !isSI() && (unit.getNonSIName() == getNonSIName())) {
 			return this;
 		} 
 		
 		throw new ArithmeticException("Cannot add " + this + " to " + unit );
 	}
 	
-	Unit getSIUnit(){
+	@Override
+	public boolean equals( Object obj){
+		if ( this == obj) return true;
+		else if(!( obj instanceof ExtendedUnit)) return false;
+		else if( isSI() != ((ExtendedUnit)obj).isSI()) return false;
+		else if ( isSI() && ( getSiUnit().equals( ((ExtendedUnit)obj).getSiUnit()))) return true;
+		else if ( !isSI() && ( getNonSIName() == ((ExtendedUnit)obj).getNonSIName())) return true;
+		
+		return false;
+	}
+	
+	public Unit getSiUnit(){
 		return siUnit;
 	}
 	
-	public boolean equal( Object obj){
-		if ( this == obj) return true;
-		else if(!( obj instanceof ExtendedUnit)) return false;
-		else if( isSI != ((ExtendedUnit)obj).isSI) return false;
-		else if ( isSI && ( siUnit.equals( ((ExtendedUnit)obj).siUnit))) return true;
-		else if ( !isSI && ( nonSIName == ((ExtendedUnit)obj).nonSIName)) return true;
-		
-		return false;
+	public void setSiUnit(Unit siUnit) {
+		this.siUnit = siUnit;
 	}
 	
 	public double getScale(){
 		return scale;
 	}
 	
+	public void setScale(double scale){
+		this.scale = scale;
+	}
+	
 	public double getOffset(){
 		return offset;
 	}
 	
-	public String toString(){
-		if( isSI) return siUnit.toString();
-		else return nonSIName;
+	public void setOffset( double offset){
+		this.offset = offset;
 	}
+	
+	public String toString(){
+		if( isSI()) return getSiUnit().toString();
+		else return getNonSIName();
+	}
+
+	public String getNonSIName() {
+		return nonSIName;
+	}
+	
+	public void setNonSIName(String nonSIName){
+		this.nonSIName = nonSIName;
+	}
+
+	public boolean isSI() {
+		return isSI;
+	}
+
+	public void setSI(boolean isSI) {
+		this.isSI = isSI;
+	}
+
+	
 }

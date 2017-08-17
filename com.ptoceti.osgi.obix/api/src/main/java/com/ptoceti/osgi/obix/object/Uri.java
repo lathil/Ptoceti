@@ -1,5 +1,10 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
+
 /*
  * #%L
  * **********************************************************************
@@ -11,7 +16,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +40,7 @@ public class Uri extends Val {
 	 */
 	private static final long serialVersionUID = 8040144014174027501L;
 	
-	private static final Contract contract = new Contract("obix:uri");
+	public static final Contract contract = new Contract("obix:uri");
 	
 	public Uri(){
 		super();
@@ -58,6 +63,21 @@ public class Uri extends Val {
 		super (name, value);
 	}
 	
+	@Override
+	public synchronized boolean updateWith(Obj other){
+		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
+		
+		if(!Objects.equals(getVal(), ((Uri)other).getVal())){
+			setVal(((Uri)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
+			different = true;
+		}
+		
+		return super.updateWith(other, different, changeEvents);
+	}
+	
 	public String getPath() {
 		return (String) this.getVal();
 	}
@@ -65,6 +85,13 @@ public class Uri extends Val {
 	@Override
 	public Obj cloneEmpty() {
 		return new Uri();
+	}
+	
+	@Override
+	public Uri clone() throws CloneNotSupportedException  {
+		Uri clone = (Uri) super.clone();
+		clone.setVal(new String((String)this.getVal()));
+		return clone;
 	}
 	
 	public Val getDiff(Val val) {
@@ -80,5 +107,15 @@ public class Uri extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return super.equals(o) && getVal().equals(((Uri)o).getVal());
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return ((String)this.val).compareTo((String)((Val)o).getVal());
 	}
 }

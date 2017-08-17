@@ -1,5 +1,10 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
+
 /*
  * #%L
  * **********************************************************************
@@ -11,7 +16,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +42,7 @@ public class Bool extends Val{
 	 */
 	private static final long serialVersionUID = 5703560627132064965L;
 
-	private static final Contract contract = new Contract("obix:bool");
+	public static final Contract contract = new Contract("obix:bool");
 	
 	protected Uri range;
 	
@@ -60,6 +65,35 @@ public class Bool extends Val{
 		setVal(Boolean.FALSE);
 	}
 	
+	public Bool(String name, Boolean value) {
+		super(name);
+		setVal(value);
+	}
+	
+	@Override
+	public Obj clone() throws CloneNotSupportedException {
+		Bool clone = (Bool)super.clone();
+		
+		clone.setRange(this.getRange() != null ? this.getRange().clone(): null);
+		clone.setVal(this.getVal() != null ? new Boolean( ((Boolean)this.getVal()).booleanValue()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public synchronized boolean updateWith(Obj other){
+		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
+		
+		if(!Objects.equals(getVal(), ((Bool)other).getVal())){
+			setVal(((Bool)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
+			different = true;
+		}
+		
+		return super.updateWith(other, different, changeEvents);
+	}
 	
 	public void setRange(Uri range) {
 		this.range = range;
@@ -100,5 +134,10 @@ public class Bool extends Val{
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return ((Bool)this.val).compareTo((Bool)((Val)o).getVal());
 	}
 }

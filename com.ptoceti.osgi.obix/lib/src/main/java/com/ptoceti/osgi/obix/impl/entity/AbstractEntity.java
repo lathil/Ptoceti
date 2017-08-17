@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.impl.entity;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import com.ptoceti.osgi.data.IResultSetGeneratedKeysHandler;
 import com.ptoceti.osgi.data.IResultSetMultipleHandler;
 import com.ptoceti.osgi.data.IResultSetSingleHandler;
 import com.ptoceti.osgi.data.JdbcDevice;
-import com.ptoceti.osgi.obix.impl.ObixDataHandler;
+import com.ptoceti.osgi.obix.impl.service.ObixDataHandler;
 
 
 public class AbstractEntity {

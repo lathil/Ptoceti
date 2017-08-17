@@ -24,16 +24,29 @@
  * limitations under the License.
  * #L%
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'moment', 'modernizr', "i18n!nls/watchtext", 'bootstrap', 'jquery.enterkeyevent' ], function(Backbone, Marionette, _, $, Obix, ventAggr, ModelBinder, Courier, Moment, Modernizr,localizedWatchText) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'eventaggr', 'modelbinder', 'courier', 'moment', 'modernizr', "i18n!nls/watchtext", 'bootstrap', 'jquery.enterkeyevent' ], 
+		function(Backbone, Marionette, _, $, Obix, ventAggr, ModelBinder, Courier, Moment, Modernizr,watchText) {
 	
 	var WatchItemView = Backbone.Marionette.ItemView.extend({
-		tagName: "tr",
+		tagName: "div",
 		template: "watchitem",
-		className: "watchItem",
+		className: "item",
 	
+		templateHelpers : {
+			watchtext : watchText.watchtext,
+			contentEditable : function() {
+				return Modernizr.contenteditable;
+			}
+		},
+		
+		ui : {
+			infosCollapsePanel : "[name=\"infoPanel\"]"
+		},
+		
 		// setup lister for pur DOM event handling
 		events : {
-			"click td" : "itemSelected",
+			"click [name='listItem']" : "itemSelected",
+			"click [name='deleteItem']" : "onItemDelete",
 			"click [name=\'details\']" : "onDetailsClicked"
 		},
 		
@@ -44,14 +57,15 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 			this.watchbinder = new ModelBinder();
 			this.leaseBinder = new ModelBinder();
 			
+			this.on('itemUnselected', this.itemUnselected, this);
 			this.model.on('change:displayName', this.saveChanges, this);
 		},
 		
-		templateHelpers : {
-			watchtext : localizedWatchText.watchtext,
-			contentEditable : function() {
-				return Modernizr.contenteditable;
-			}
+		// event handler called after the view has been closed
+		onClose : function() {
+			this.off('itemUnselected', this.itemUnselected, this);
+			this.watchbinder.unbind();
+			this.leaseBinder.unbind();
 		},
 		
 		/**
@@ -63,12 +77,6 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 				console.log("saveChanges");
 				model.save();
 			}
-		},
-		
-		// event handler called after the view has been closed
-		onClose : function() {
-			this.watchbinder.unbind();
-			this.leaseBinder.unbind();
 		},
 		
 		// event handler call after the view has been rendered
@@ -86,23 +94,40 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'models/obix', 'event
 		 * The user has clicked on right arrow details, we redirect to lobby with this watch.
 		 * 
 		 */
-		onDetailsClicked : function(){
+		onDetailsClicked : function(event){
 			ventAggr.trigger("app:goToLobbyWithWatch", this.model.getHref().getVal());
+			event.stopImmediatePropagation();
+		},
+		
+		onItemDelete : function(event){
+			this.spawn("watchItemDelete", {watch: this.model});
+			event.stopImmediatePropagation();
+		},
+		
+		itemUnselected : function(){
+			if( this.$el.hasClass("bg-selected")){
+				this.$el.removeClass("bg-selected");
+				this.ui.infosCollapsePanel.collapse('hide');
+			}
 		},
 		
 		itemSelected : function(){
-			if( this.$el.hasClass("active")){
-				this.$el.removeClass("active");
+			if( this.$el.hasClass("bg-selected")){
+				this.ui.infosCollapsePanel.collapse('hide');
+				this.$el.removeClass("bg-selected");
 				// setup view event to clear selection
-				this.spawn("watchItemSelected", {watch: null});
+				this.spawn("watchItemSelected", {point: null});
 			}
 			else {
-				$(".watchItem ").removeClass("active");
-				this.$el.addClass("active");
+				//$(".watchItem ").removeClass("active");
+				this.trigger("siblingItem:Unselect", '', this);
+				this.$el.addClass("bg-selected");
+				this.ui.infosCollapsePanel.collapse('show');
 				// setup view event to indicate selection
-				this.spawn("watchItemSelected", {watch: this.model});
+				this.spawn("watchItemSelected", {point: this.model});
 			}
 		},
+		
 		
 		nameConverter : function(direction, value, attributeName, model){
 			if( direction =='ModelToView') {

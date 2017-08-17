@@ -1,4 +1,4 @@
-<td>
+<div name="listItem">
 	<div class="row">
 		<div class="col-md-5 col-sm-5 col-xs-6">
 			<p><span name="displayName" class="h4" {{#if contentEditable }} contenteditable="true"{{/if}}>{{displayName}}</span></p>
@@ -7,7 +7,14 @@
 			<p><span name="lease" class="h4">{{lease}}</span></p>
 		</div>
 		<div class="col-md-3 col-md-3 col-xs-2">
-			<p><a><span name="details" class="glyphicon glyphicon-chevron-right h3"/></a></p>
+			<p><a><span name="details" class="glyphicon glyphicon-menu-right"/></a></p>
 		</div>
 	</div>
-</td>
+	<div  id="monitoredInfos{{elemId}}" name="infoPanel" class="panel-collapse collapse">
+		<div class="row">
+			<div class="col-md-12 col-sm-12 col-xs-12">
+				<a name="deleteItem" class="btn btn-primary btn-xs "><span class=" text-primary"/>{{watchtext.remove}}</a>
+			</div>
+		</div>
+	</div>
+</div>

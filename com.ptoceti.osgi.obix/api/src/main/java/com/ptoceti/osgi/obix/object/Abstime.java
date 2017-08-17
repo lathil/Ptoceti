@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,11 @@ package com.ptoceti.osgi.obix.object;
  */
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
 
 
 public class Abstime extends Val {
@@ -38,7 +42,7 @@ public class Abstime extends Val {
 	 */
 	private static final long serialVersionUID = -4989961871886264857L;
 
-	private static final Contract contract = new Contract("obix:abstime");
+	public static final Contract contract = new Contract("obix:abstime");
 	
 	protected Abstime max;
 	protected Abstime min;
@@ -68,6 +72,40 @@ public class Abstime extends Val {
 
 	public Abstime(String name, Date millis) {
 		super(name, millis);
+	}
+	
+	@Override
+	public Obj clone() throws CloneNotSupportedException {
+		Abstime clone = (Abstime)super.clone();
+		
+		clone.setMax(this.getMax() != null ? new Abstime(this.getMax()) : null);
+		clone.setMin(this.getMin() != null ? new Abstime(this.getMin()) : null);
+		clone.setVal(this.getVal() != null ? new Date(((Date)this.getVal()).getTime()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public synchronized boolean updateWith(Obj other){
+		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
+		
+		if( !Objects.equals(getMax(), ((Abstime)other).getMax())){
+			setMax(((Abstime)other).getMax());
+			different = true;
+		}
+		if( !Objects.equals(getMin(), ((Abstime)other).getMin())){
+			setMin(((Abstime)other).getMin());
+			different = true;
+		}
+		if(!Objects.equals(getVal(), ((Abstime)other).getVal())){
+			setVal(((Abstime)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
+			different = true;
+		}
+		
+		return super.updateWith(other, different, changeEvents);
 	}
 	
 	public void setMax(Abstime max) {
@@ -182,5 +220,11 @@ public class Abstime extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		
+		return ((Date)this.val).compareTo((Date) ((Val)o).getVal());
 	}
 }

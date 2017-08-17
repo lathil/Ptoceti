@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.impl.domain;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import com.ptoceti.osgi.obix.contract.About;
 import com.ptoceti.osgi.obix.domain.AboutDomain;
 import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.object.Status;
-import com.ptoceti.osgi.obix.impl.Activator;
+import com.ptoceti.osgi.obix.impl.service.Activator;
 
 
 public class AboutDomainImpl extends AbstractDomain implements AboutDomain{

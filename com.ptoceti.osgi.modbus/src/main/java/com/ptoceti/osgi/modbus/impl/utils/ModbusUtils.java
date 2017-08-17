@@ -13,7 +13,7 @@ package com.ptoceti.osgi.modbus.impl.utils;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,22 +120,20 @@ public class ModbusUtils {
 	public static final int calculateCRC( byte[] buff, int count) {
 	
 		int crc = 0xFFFF;
-		int shifts = 0;
-		int flag = 0x0000;
+		boolean flag = false;
 		
 		for( int i = 0; i < buff.length && i < count ; i++) {
 			// exclusive OR the first 8 bit byte of the message with the low order byte of the 16 bit crc register,
 			// putting the result in the crc register.
 			crc = ( crc & 0xFF00 ) | (( crc ^ buff[i] ) & 0x00FF );
-			do {
+			for (int shifts = 0; shifts < 8; shifts++) {
 				// shift the crc register one bit to the right, zero-filling the msb. If the LSB was zero,
 				// repeat another shift. If the LSB was 1, exclusive XOR the CRC with the value 0xA001;
-				flag = crc & 0x0001;
+				flag = (crc & 0x0001) == 0x0001;
 				crc = crc >>> 1;
-				if( flag == 0x0001 ) crc = crc ^ 0xA001;
-				shifts++;
+				if( flag ) crc = crc ^ 0xA001;
 			// repeat till 8 shifts have been performed.
-			} while ( shifts < 8 );
+			};
 		}
 		// result is in crc. must swap low and high bytes.
 		return (( 0x00FF & crc) << 8 ) | (( 0xFF00 & crc ) >>> 8 );

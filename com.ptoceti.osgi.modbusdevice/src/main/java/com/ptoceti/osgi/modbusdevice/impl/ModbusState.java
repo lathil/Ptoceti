@@ -12,7 +12,7 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,11 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * #L%
  */
 
-import org.osgi.util.measurement.State;
 
 import java.util.Vector;
 import java.util.Date;
+
+import com.ptoceti.osgi.control.Digit;
 
 /**
  * ModbusState class
@@ -70,9 +71,14 @@ public class ModbusState extends ModbusData{
 	
 	public Object getValue() {
 	
-		int data = reader.read( adress, length);
-		State state = new State(data, "", (new Date()).getTime());
+		int data = bufferDelegate.read( adress, length);
+		Digit state = new Digit(data > 0 ? true : false, "");
 		
 		return state;
+	}
+
+	@Override
+	public void setValue(Object value) {
+		bufferDelegate.write(adress, length, ((Digit) value).getState() == true ? 1 : 0);
 	}
 }

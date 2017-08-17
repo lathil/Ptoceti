@@ -1,0 +1,340 @@
+
+/* Sticky footer styles
+-------------------------------------------------- */
+
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+}
+
+#root{
+	 height: 100%;
+}
+
+#root > div{
+	 height: 100%;
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+  min-height: 100%;
+  height: auto;
+  /* Negative indent footer by its height */
+  margin: 0 auto -60px;
+  /* Pad bottom by footer height */
+  padding: 0 0 60px;
+}
+
+#wrap > div{
+	 height: 100%;
+}
+
+/* Set the fixed height of the footer here */
+#sticky {
+  height: 60px;
+}
+
+#content {
+	/*min-height: 100%;*/
+}
+.container {
+	padding-right: 0px;
+	padding-left: 0px;
+	margin-right: 5px;
+	margin-left: 5px;
+}
+
+#header {
+	padding-right: 0px;
+	padding-left: 0px;
+	margin-right: 0px;
+	margin-left: 0px;
+}
+
+.navbar {
+	/*margin-bottom: 0px;*/
+}
+
+.text-white {
+	color: #fff;
+}
+
+.icon-white {
+	color: #fff;
+}
+
+.icon-large {
+	font-size: 1.5em;
+}
+
+.icon-spin {
+	animation-name: icon-spin;
+	animation-duration: 1.0s;
+  	animation-iteration-count: infinite;
+  	animation-timing-function: linear;
+}
+
+@-webkit-keyframes icon-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes icon-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+
+.vertical-space-between {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height:100%;
+}
+
+.vertical-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height:100%;
+}
+
+.grow-enabled {
+	flex-grow:1;
+}
+
+.horizontal-align {
+    display: flex;
+    align-items: center;
+}
+
+.large {
+      font-size: 48px;
+      font-family: inherit;
+      font-weight: 500;
+      line-height: 1.1;
+    }
+    
+.range-wrapper {
+	margin-top:20px;
+	margin-bottom:20px;
+}
+
+
+
+/* Medium devices */
+@media (min-width : 1200 px ) {
+	.radio, .checkbox {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+}
+
+/* Medium devices */
+@media (min-width : 992px ) and (max-width: 1199px) {
+	.radio, .checkbox {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+}
+
+/* small devices tablettes */
+@media (min-width: 768px) and (max-width: 991px) {
+	.radio, .checkbox {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+}
+
+/* extrat small devices */
+@media (max-width: 767px) {
+	
+	.h4 {
+		margin-top: 5px;
+		margin-bottom: 5px;
+	}
+	
+	.h3 {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+	
+	.h2 {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+	
+	.h1 {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	}
+	
+	p {
+		margin-top: 0px;
+		margin-right: 0px;
+		margin-bottom: 5px;
+		margin-left: 0px;
+	}
+	
+	.radio, .checkbox {
+		margin-top: 0px;
+		margin-bottom: 5px;
+	},
+	
+	.table {
+		margin-bottom: 5px;
+	}
+	
+
+	.jumbotron {
+		padding-top: 10px;
+		margin-bottom: 0px;
+	}
+	
+	.jumbotron h1,
+	.jumbotron .h1 {
+		font-size: 53px;
+	}
+
+	
+	.pagination {
+		margin-top: 5px;
+		margin-right: 0px;
+		margin-bottom: 5px;
+		margin-left: 0px;
+	}
+	
+	.pager {
+		margin-top: 5px;
+		margin-right: 0px;
+		margin-bottom: 5px;
+		margin-left: 0px;
+	}
+}
+
+.roundslider {
+  /*position: absolute;*/
+  padding-top: 10px;
+  padding-left: 10px;
+  /*overflow: hidden;*/
+  }
+
+.roundslider .value {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  margin: -50px 0 0 0;
+  text-align: center;
+  line-height: 100px;
+}
+
+.bg-selected{
+	border: 2px solid #000; /* THIS */
+  	border-radius: 4px; /* THIS */
+}
+
+.item {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-right: 5px;
+	padding-left: 5px;
+	margin-bottom: 5px;
+}
+
+.btn-round-lg{
+border-radius: 22.5px;
+}
+.btn-round{
+border-radius: 17px;
+}
+.btn-round-sm{
+border-radius: 15px;
+}
+.btn-round-xs{
+border-radius: 11px;
+padding-left: 10px;
+padding-right: 10px;
+}
+
+.btn-glyphicon { padding:4px; background:#ffffff; margin-right:2px; }
+.icon-btn { padding: 1px 15px 3px 2px; border-radius:50px;}
+
+.ui-widget-content {
+	border: 1px solid #bdc3c7;
+	background: #e1e1e1;
+	color: #222222;
+	margin-top: 4px;
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default{
+background:transparent !important;
+border:none !important;
+}
+.ui-slider .ui-slider-handle label{
+    background: #428bca;
+    border-radius: 20px;
+    width:5.2em;
+}
+
+.ui-slider .ui-slider-handle {
+	position: absolute;
+	z-index: 2;
+	width: 5.2em;
+	height: 100px;
+	cursor: default;
+	margin: 0 -40px auto !important;
+	text-align: center;	
+	line-height: 35px;
+	color: #FFFFFF;
+	font-size: 15px;
+    
+}
+
+.ui-slider .ui-slider-handle .glyphicon {
+	color: #FFFFFF;
+	margin: 0 3px; 
+	font-size: 11px;
+	opacity: 0.5;
+}
+
+.ui-corner-all {
+	border-radius: 20px;
+}
+
+.ui-slider-horizontal .ui-slider-handle {
+	top: -.9em;
+}
+
+.ui-state-default,
+.ui-widget-content .ui-state-default {
+	border: 1px solid #f9f9f9;
+	background: #3498db;
+}
+
+.ui-slider-horizontal .ui-slider-handle {
+	margin-left: -0.5em;
+}
+
+.ui-slider .ui-slider-handle {
+	cursor: pointer;
+}
+
+.ui-slider a,
+.ui-slider a:focus {
+	cursor: pointer;
+	outline: none;
+}
+

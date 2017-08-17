@@ -13,7 +13,7 @@ package com.ptoceti.osgi.modbus.impl.message;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class ReadHoldingRegistersMessageResponse extends ModbusMessageResponse {
 		
 		try {
 			int byteCount = in.read();
-			arrayList = new int[ byteCount];
+			arrayList = new int[ byteCount / 2];
 			for(int i = 0 ; i < ( byteCount / 2 ) ; i++ ) {
 				arrayList[i] = (in.read() << 8);
 				arrayList[i] = arrayList[i] + in.read();

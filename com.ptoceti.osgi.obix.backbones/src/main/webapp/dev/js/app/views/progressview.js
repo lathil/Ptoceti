@@ -24,10 +24,80 @@
  * limitations under the License.
  * #L%
  */
-define([ 'backbone', 'marionette', 'underscore', 'jquery' ], function(Backbone, Marionette, _, $) {
+define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'modelbinder', "i18n!nls/progresstext" ], function(Backbone, Marionette, _, $, ventAggr, ModelBinder, progressText) {
 	
 	var ProgressView = Backbone.Marionette.ItemView.extend({
-		template: 'progress'
+		template: 'progress',
+		tagName:"div",
+		
+		initialize : function() {
+			
+			ventAggr.on("controller:lobbyLoaded", this.onLobbyLoaded, this);
+			ventAggr.on("controller:updatedAbout", this.onUpdatedAbout, this);
+			ventAggr.on("controller:watchServiceLoaded", this.onWatchServiceLoaded, this);
+			ventAggr.on("controller:watchListLoaded", this.onWatchListLoaded, this);
+			
+			
+			// initialize Backbone.ModelBinder for dual binding
+			this.modelbinder = new ModelBinder();
+		},
+		
+		// event handler called after the view has been closed
+		onClose : function() {
+			ventAggr.off("controller:lobbyLoaded", this.onLobbyLoaded, this);
+			ventAggr.off("controller:updatedAbout", this.onUpdatedAbout, this);
+			ventAggr.off("controller:watchServiceLoaded", this.onWatchServiceLoaded, this);
+			ventAggr.off("controller:watchListLoaded", this.onWatchListLoaded, this);
+			
+			this.off('itemUnselected', this.itemUnselected, this);
+			this.modelbinder.unbind();
+		},
+		
+		// event handler call after the view has been rendered
+		onRender : function(){
+			this.modelbinder.bind(this.model, this.el, {
+				//progress: {selector: '[name=progressBar]', elAttribute:'style', converter: this.progressConverter},
+				progressMessage: {selector: '[name=progressMessage]', converter: this.messageConverter}
+			});
+		},
+		
+		onLobbyLoaded : function(){
+			this.model.set('progressMessage', 'lobbyloaded');
+			//this.model.set('progress', 40);
+		},
+		
+		onUpdatedAbout : function(){
+			this.model.set('progressMessage', 'aboutloaded');
+			//this.model.set('progress', 50);
+		},
+		
+		onWatchServiceLoaded : function(){
+			this.model.set('progressMessage', 'watchserviceloaded');
+			//this.model.set('progress', 60);
+		},
+		
+		onWatchListLoaded : function(){
+			this.model.set('progressMessage', 'watchlistloaded');
+			//this.model.set('progress', 80);
+		},
+		
+		progressConverter : function( direction, value, attributeName, model) {
+			if( direction == "ModelToView") {
+				if( value != null) {
+					return 'width: ' + model.get('progress') + '%;';
+				}
+			}
+		},
+		
+		messageConverter : function(direction, value, attributeName, model ) {
+			if( direction == "ModelToView") {
+				var message = model.get('progressMessage');
+				if( message != null)
+					return progressText[message];
+				
+			}
+		}
+		
 	});
 	
 	return ProgressView;

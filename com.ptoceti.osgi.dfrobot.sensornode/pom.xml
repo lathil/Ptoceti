@@ -3,7 +3,7 @@
 	<parent>
 		<artifactId>com.ptoceti.parent</artifactId>
 		<groupId>com.ptoceti</groupId>
-		<version>1.0.1-SNAPSHOT</version>
+		<version>1.1.0</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -88,13 +88,20 @@
 		<dependency>
 			<groupId>com.ptoceti</groupId>
 			<artifactId>com.ptoceti.osgi.control</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.ptoceti</groupId>
 			<artifactId>com.ptoceti.osgi.rxtx</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.knopflerfish.bundle</groupId>
+			<artifactId>rxtxcomm-API</artifactId> 
+			<version>2.1.7</version>
+			<scope>compile</scope>
 		</dependency>
 		
 		<dependency>

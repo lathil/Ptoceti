@@ -96,9 +96,19 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		parse : function(response, options) {
 			if (!!response) {
 
-				if (!response.href !== null) {
+				if (response.href) {
 					response.href = new Uri(response.href);
-				};
+					response.id = response.href.getVal();
+				} else if (options.url) {
+					var href = new Uri();
+					var url = options.url.substring( (_.result(this,'urlRoot')).length );
+					if( !(url.substr(0, 1) == '/')){
+						url = '/' + url;
+					}
+					href.setVal(url)
+					response.href = href;
+					response.id = response.href.getVal();
+				}
 				if (response.childrens !== null)
 					response.childrens = new Objs(response.childrens, {
 						urlRoot : _.result(this, 'urlRoot'),
@@ -240,6 +250,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 				if (this.getIs().get('uris').at(i).get('val') == contract)
 					return true;
 			}
+			return false;
 		},
 
 		setName : function(inName) {
@@ -348,7 +359,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		},
 		
 		parse : function(response, options) {
-			if (response !== null) {
+			if (response !== null && response != undefined) {
 				if (response.uris !== null)
 					response.childrens = new Objs(response.uris, {
 						urlRoot : _.result(this, 'urlRoot'),
@@ -402,6 +413,28 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 				return new HistoryRollupOut(attrs, option);
 			case "historyrolluprecord":
 				return new HistoryRollupRecord(attrs,option);
+			case "monitoredpoint":
+				return new MonitoredPoint(attrs,option);
+				
+				
+			case "alarm": 
+				return new Alarm(attrs, option);
+			case "ackalarm": 
+				return new AckAlarm(attrs, option);
+			case "alarmackout":
+				return new Alarmackout(attrs, option);
+			case "alarmackin": 
+				return new AlarmAckin(attrs, option);
+			case "statefulalarm":
+				return new StatefulAlarm(attrs, option);
+			case "pointalarm":
+				return new PointAlarm(attrs, option);
+			case "digitalarm": 
+				return new DigitAlarm(attrs, option);
+			case "rangealarm":
+				return new RangeAlarm(attrs,option);
+				
+				
 			default :
 				return new Obj(attrs, option);
 			}
@@ -569,7 +602,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			this.constructor.__super__.parse.apply(this, arguments);
 			if (response !== null) {
 
-				if (response.unit !== null) {
+				if (response.unit !== null && response != undefined) {
 					response.unit = new Uri(response.unit);
 				};
 			}
@@ -726,7 +759,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		
 		parse : function(response, options) {
 			this.constructor.__super__.parse.apply(this, arguments);
-			if (response !== null) {
+			if (response !== null && response != undefined) {
 
 				if (response.unit !== null) {
 					response.unit = new Uri(response.unit);
@@ -880,7 +913,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			DISABLED : "disabled",
 			FAULT : "fault",
 			DOWN : "down",
-			UNAKEDALARM : "unackedAlarm",
+			UNACKEDALARM : "unackedalarm",
 			ALARM :"alarm",
 			UNACKED : "unacked",
 			OVERRIDEN :"overridden",
@@ -944,12 +977,30 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		getWatchService : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('watchService');
 		},
+		
+		/*
+		 * Return WatchService 'Ref' type resource
+		 */
+		getHistoryService : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('historyService');
+		},
+		
+		/*
+		 * Return HistoryService 'Ref' type resource
+		 */
+		getAlarmService : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('alarmService');
+		},
 
 		/*
 		 * Return Batch 'op' type resource
 		 */
 		getBatchOp : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('batch');
+		},
+		
+		getSearchOp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('search');
 		}
 	});
 
@@ -961,6 +1012,19 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		}),
 		
 	});
+	
+	var SearchOut = Obj.extend({
+
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'searchout',
+			is : {uris: [{type: 'uri', val: 'obix:SearchOut'}]}
+		}),
+		
+		getValueList : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('results');
+		}
+	});
+	
 
 	var WatchService = Obj.extend({
 
@@ -976,6 +1040,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('make');
 		},
 	});
+	
 
 	var Watch = Obj.extend({
 
@@ -1074,6 +1139,21 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		}),
 	});
 	
+	var HistoryService = Obj.extend({
+
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'historyservice',
+			is : {uris: [{type: 'uri', val: 'obix:HistoryService'}]}
+		}),
+
+		/*
+		 * Return Op 'make' operation for creating a new watch
+		 */
+		getMakeOp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('make');
+		},
+	});
+	
 	var History = Obj.extend({
 		defaults : _.extend({}, Obj.prototype.defaults, {
 			type : 'history',
@@ -1152,6 +1232,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			is : {uris: [{type: 'uri', val: 'obix:HistoryQueryOut'}]}
 		}),
 		
+		
 		getCount : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('count');
 		},
@@ -1222,7 +1303,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 			type : 'historyrollupout',
 			is : {uris: [{type: 'uri', val: 'obix:HistoryRollupOut'}]}
 		}),
-		
+	
 		getData : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('data');
 		},
@@ -1272,6 +1353,132 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		
 	});
 	
+	var Alarm = Obj.extend({
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'alarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'}]}
+		}),
+		
+		getSource : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('source');
+		},
+		
+		getTimeStamp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('timestamp');
+		},
+		
+		getAckOp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('ack');
+		},
+		
+		getAckTimestamp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('ackTimestamp');
+		},
+		
+		getAckUser : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('ackUser');
+		},
+		getNormalTimeStamp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('normalTimeStamp');
+		},
+		getAlarmValue : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('alarmValue');
+		}
+	});
+	
+	var AckAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'ackalarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:AckAlarm'}]}
+		})
+		
+	});
+	
+	var AlarmAckOut = Obj.extend({
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'alarmackout',
+			is : {uris: [{type: 'uri', val: 'obix:AlarmAckOut'}]}
+		}),
+	
+		getAlarm : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('alarm');
+		}
+	
+	});
+	
+	var AlarmAckIn = Obj.extend({
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'alarmackin',
+			is : {uris: [{type: 'uri', val: 'obix:AlarmAckIn'}]}
+		}),
+		
+		initialize : function(attrs, options) {
+			this.constructor.__super__.initialize.apply(this, arguments);
+		},
+		
+		getAckUser : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('ackUser');
+		}
+		
+	});
+	
+	var StatefullAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'statefulalarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:StatefulAlarm'}]}
+		})
+		
+	});
+	
+	var PointAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'pointalarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:PointAlarm'}]}
+		})
+		
+	});
+	
+	var DigitAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'digitalarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:PointAlarm'},{type: 'uri', val: 'obix:StatefulAlarm'},{type: 'uri', val: 'obix:obix:AckAlarm'},{type: 'uri', val: 'ptoceti:DigitAlarm'}]}
+		}),
+		
+		getAlarmLevel : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('alarmLevel');
+		}
+	});
+	
+	var RangeAlarm = Alarm.extend({
+		defaults : _.extend({}, Alarm.prototype.defaults, {
+			type : 'rangealarm',
+			is : {uris: [{type: 'uri', val: 'obix:Alarm'},{type: 'uri', val: 'obix:PointAlarm'},{type: 'uri', val: 'obix:StatefulAlarm'},{type: 'uri', val: 'obix:obix:AckAlarm'},{type: 'uri', val: 'ptoceti:DigitAlarm'}]}
+		}),
+		
+		getMaxValue : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('maxValue');
+		},
+		
+		getMinValue : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('minValue');
+		}
+	});
+	
+	var AlarmService = Obj.extend({
+
+		defaults : _.extend({}, Obj.prototype.defaults, {
+			type : 'alarmservice',
+			is : {uris: [{type: 'uri', val: 'ptoceti:AlarmService'}]}
+		}),
+
+		/*
+		 * Return Op 'make' operation for creating a new alarm
+		 */
+		getMakeOp : function() {
+			return this.constructor.__super__.getChildrens.apply(this).getByName('make');
+		},
+	});
+	
 	var MonitoredPoint = Obj.extend({
 
 		defaults : _.extend({}, Obj.prototype.defaults, {
@@ -1286,6 +1493,24 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		getPoint : function() {
 			return this.constructor.__super__.getChildrens.apply(this).getByName('point');
 		}
+
+	});
+	
+	var MeasurePoint = Real.extend({
+
+		defaults : _.extend({}, Real.prototype.defaults, {
+			type : 'measurepoint',
+			is : {uris: [{type: 'uri', val: 'ptoceti:MeasurePoint'}]}
+		})
+
+	});
+	
+	var ReferencePoint = Real.extend({
+
+		defaults : _.extend({}, Real.prototype.defaults, {
+			type : 'referencepoint',
+			is : {uris: [{type: 'uri', val: 'ptoceti:ReferencePoint'}]}
+		})
 
 	});
 
@@ -1311,6 +1536,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		about : About,
 		lobby : Lobby,
 		nil : Nil,
+		searchOut : SearchOut,
 		watchService : WatchService,
 		watch : Watch,
 		watchIn : WatchIn,
@@ -1318,6 +1544,7 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		watchInItem : WatchInItem,
 		point : Point,
 		writablePoint : WritablePoint,
+		historyService : HistoryService,
 		history : History,
 		historyFilter : HistoryFilter,
 		historyRecord : HistoryRecord,
@@ -1326,7 +1553,21 @@ define([ 'backbone', 'underscore'], function(Backbone, _) {
 		historyRollupOut : HistoryRollupOut,
 		historyRollupRecord : HistoryRollupRecord,
 		
-		monitoredPoint : MonitoredPoint
+		alarm : Alarm,
+		ackalarm : AckAlarm,
+		alarmackout : AlarmAckOut,
+		alarmackin : AlarmAckIn,
+		statefulalarm : StatefullAlarm,
+		pointalarm : PointAlarm,
+		digitalarm : DigitAlarm,
+		rangealarm : RangeAlarm,
+		alarmService : AlarmService,
+		
+		
+		
+		monitoredPoint : MonitoredPoint,
+		measurePoint : MeasurePoint,
+		referencePoint : ReferencePoint
 
 	};
 });

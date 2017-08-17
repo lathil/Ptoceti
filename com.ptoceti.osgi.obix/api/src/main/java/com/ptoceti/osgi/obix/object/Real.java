@@ -1,5 +1,10 @@
 package com.ptoceti.osgi.obix.object;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
+import com.ptoceti.osgi.obix.observable.ObservableEvent;
+
 /*
  * #%L
  * **********************************************************************
@@ -11,7 +16,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +40,10 @@ public class Real extends Val {
 	 */
 	private static final long serialVersionUID = -9068900088523384313L;
 
-	private static final Contract contract = new Contract("obix:real");
+	public static final Contract contract = new Contract("obix:real");
 	
-	protected Float min;
-	protected Float max;
+	protected Double min;
+	protected Double max;
 	protected Uri unit;
 	protected Integer precision;
 
@@ -52,8 +57,8 @@ public class Real extends Val {
 	
 	public Real( Real model){
 		super(model);
-		if( model.min != null) min = new Float(model.min);
-		if( model.max != null) min = new Float(model.max);
+		if( model.min != null) min = new Double(model.min);
+		if( model.max != null) min = new Double(model.max);
 		if( model.unit != null) unit = new Uri(model.unit);
 		if( model.precision != null) precision = new Integer(model.precision);
 		if( model.val != null) val = new Double( ((Double)model.val).doubleValue());
@@ -67,19 +72,59 @@ public class Real extends Val {
 		super(name, value);
 	}
 	
-	public void setMin(Float min) {
+	@Override
+	public Obj clone() throws CloneNotSupportedException {
+		Real clone = (Real)super.clone();
+		
+		clone.setMax(this.getMax() != null ? new Double(this.getMax()) : null);
+		clone.setMin(this.getMin() != null ? new Double(this.getMin()) : null);
+		clone.setUnit(this.getUnit() != null ? this.getUnit().clone() : null);
+		clone.setPrecision(this.getPrecision() != null ? new Integer(this.getPrecision()) : null);
+		clone.setVal(this.getVal() != null ?   new Double( ((Double)this.getVal()).doubleValue()) : null);
+		
+		return clone;
+	}
+	
+	@Override
+	public synchronized boolean updateWith(Obj other){
+		boolean different = false;
+		
+		ArrayList<ObservableEvent> changeEvents = new ArrayList<ObservableEvent>();
+		
+		if( !Objects.equals(getMax(), ((Real)other).getMax())){
+			setMax(((Real)other).getMax());
+			different = true;
+		}
+		if( !Objects.equals(getMin(), ((Real)other).getMin())){
+			setMin(((Real)other).getMin());
+			different = true;
+		}
+		if( !Objects.equals(getPrecision(), ((Real)other).getPrecision())){
+			setPrecision(((Real)other).getPrecision());
+			different = true;
+		}
+		if(!Objects.equals(getVal(), ((Real)other).getVal())){
+			setVal(((Real)other).getVal());
+			changeEvents.add(ObservableEvent.VALCHANGED);
+			different = true;
+		}
+		
+		return super.updateWith(other, different, changeEvents);
+	}
+	
+	public void setMin(Double min) {
 		this.min = min;
 	}
 
-	public Float getMin() {
+	public Double getMin() {
 		return min;
 	}
 
-	public void setMax(Float max) {
+	public void setMax(Double max) {
 		this.max = max;
 	}
 
-	public Float getMax() {
+	public Double getMax() {
 		return max;
 	}
 
@@ -132,5 +177,10 @@ public class Real extends Val {
 	@Override
 	public Contract getContract(){
 		return contract;
+	}
+	
+	@Override
+	public int compareTo(Object o) {
+		return ((Double)this.val).compareTo((Double)((Val)o).getVal());
 	}
 }

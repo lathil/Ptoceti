@@ -11,7 +11,7 @@ package com.ptoceti.osgi.control;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,22 +27,62 @@ package com.ptoceti.osgi.control;
  * #L%
  */
 
-
+/**
+ * A command that represent a user settable value.
+ * 
+ * @author lor
+ *
+ */
 
 public class Reference {
 	
 	private double value;
+	private double min;
+	private double max;
 	private ExtendedUnit unit;
 	
+	public Reference(){
+		this( 0, ExtendedUnit.unity);
+	}
+	
 	public Reference(double value, ExtendedUnit unit){
+		this.value = value;
+		this.unit = (unit != null) ? unit : ExtendedUnit.unity;
 		
+		min = 0;
+		max = Double.MAX_VALUE;
 	}
 
 	public double getValue(){
 		return value;
 	}
 	
+	public void setValue(double value){
+		this.value = value;
+	}
+	
 	public ExtendedUnit getUnit(){
 		return unit;
 	}
+	
+	public void setUnit(ExtendedUnit unit){
+		this.unit = unit;
+	}
+
+	public double getMin() {
+		return min;
+	}
+
+	public void setMin(double min) {
+		this.min = min;
+	}
+
+	public double getMax() {
+		return max;
+	}
+
+	public void setMax(double max) {
+		this.max = max;
+	}
+	
 }

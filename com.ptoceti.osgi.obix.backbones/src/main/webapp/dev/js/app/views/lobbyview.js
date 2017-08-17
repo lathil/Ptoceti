@@ -31,13 +31,15 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		template : 'lobby',  
 
 		ui : {
-			reloadButton : "#reloadButton",
-			removeButton : "#removeButton"
+			reloadButton : "[name=\"reloadButton\"]",
+			removeButton : "[name=\"removeButton\"]",
+			addButton : "[name=\"addButton\"]"
 		},
 
 		events : {
-			"click #reloadButton" : "reloadWatch",
-			"click #removeButton" : "removeFromWatch"
+			"click [name='reloadButton']" : "reloadWatch",
+			"click [name='removeButton']" : "removeFromWatch",
+			"click [name='addButton']" :"addToWatch"
 		},
 		
 		regions: {
@@ -55,8 +57,8 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			this.model.set("name", options.name);
 			this.model.set("displayName", options.displayName);
 			
-			ventAggr.on("controller:updatedWatchPointList", this.onUpdatedPointsList, this);
-			ventAggr.on("controller:updatedWatchPointValues", this.onUpdatedPointsValues, this);
+			ventAggr.on("controller:updatedWatchItemsList", this.onUpdatedItemsList, this);
+			ventAggr.on("controller:updatedWatchItemsValues", this.onUpdatedItemsValues, this);
 			
 
 			_.bindAll(this, 'enterXs','quitXs');
@@ -86,15 +88,20 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		 * Do extra cleaning here on view closing. Marionnette manage already most of it.
 		 */
 		onClose : function() {
+			
 			this.modelbinder.unbind();
-			ventAggr.off("controller:updatedWatchPointList", this.onUpdatedPointsList, this);
-			ventAggr.off("controller:updatedWatchPointValues", this.onUpdatedPointsValues, this);
+			ventAggr.off("controller:updatedWatchItemsList", this.onUpdatedItemsList, this);
+			ventAggr.off("controller:updatedWatchItemsValues", this.onUpdatedItemsValues, this);
 			mediaEnquire.unregisterXs(this.xsQueryHandler);
 		},
 		
 		// listener for view events coming from a subview
 		onMessages : {
-	        "pointItemSelected" : "onItemSelected"
+	        "listItemSelected" : "onItemSelected",
+	        "itemDelete" : "onItemDelete",
+	        "itemRecord" : "onItemRecord",
+	        "itemAlarm"	: "onItemAlarm",
+	        "refLinkNavigate" : "onRefLinkNavigated"
 	    },
 		
 	    /**
@@ -116,6 +123,14 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			}
 		},
 		
+		onRefLinkNavigated : function( message) {
+			if( message.data.point.hasContract('obix:History')){
+				ventAggr.trigger("app:goToHistoriesWithHistory", message.data.point.getHref().getVal());
+			} else if( message.data.point.hasContract('obix:Alarm')){
+				ventAggr.trigger("app:goToAlarmsWithAlarm", message.data.point.getHref().getVal());
+			}
+		},
+		
 		onItemSelected : function( message ) {
 			
 			if( message.data.point != null) {
@@ -127,7 +142,19 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			}
 		},
 		
-		onUpdatedPointsValues: function(updatedCollection) {
+		onItemDelete : function( message ){
+			ventAggr.trigger("watch:removePoint", message.data.point);
+		},
+		
+		onItemRecord : function(message){
+			ventAggr.trigger("history:createHistory", message.data.point);
+		},
+		
+		onItemAlarm : function(message){
+			ventAggr.trigger("alarm:createAlarm", message.data.point);
+		},
+		
+		onUpdatedItemsValues: function(updatedCollection) {
 			var region = this.pointsListRegion;
 			
 			_.each(updatedCollection.models, function(element,index) {
@@ -135,7 +162,35 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			});
 			
 			this.model.set("count", updatedCollection.length);
-			require(['views/paginationview', 'views/monitoreditemview'], function(PaginView){
+			
+			var requiredModules = ['views/paginationview','views/blankitemview'];
+			_.each(updatedCollection.models, function(element,index) {
+				var nextView;
+				if( element.hasContract('obix:Point')) {
+					nextView = 'views/pointitemview';
+				}
+				if( element.hasContract('ptoceti:MeasurePoint')) {
+					nextView = 'views/pointitemview';
+				}
+				if( element.hasContract('ptoceti:MonitoredPoint')) {
+					nextView = 'views/monitoreditemview';
+				}
+				if( element.hasContract('ptoceti:ReferencePoint')) {
+					nextView = 'views/referenceitemview';
+				}
+				if( element.hasContract('ptoceti:DigitPoint')) {
+					nextView = 'views/stateitemview';
+				}
+				if( element.hasContract('ptoceti:SwitchPoint')) {
+					nextView = 'views/switchitemview';
+				}
+				
+				if( requiredModules.indexOf(nextView) < 0){
+					requiredModules.push(nextView);
+				}
+			});
+			
+			require(requiredModules, function(PaginView){
 				if( region.currentView == null){
 					region.show(new PaginView({template:"pagination", collection: updatedCollection, context: 'lobby'}));
 				} else {
@@ -151,7 +206,7 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			});
 		},
 		
-		onUpdatedPointsList: function(updatedCollection) {
+		onUpdatedItemsList: function(updatedCollection) {
 			var region = this.pointsListRegion;
 			
 			_.each(updatedCollection.models, function(element,index) {
@@ -160,7 +215,34 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 			
 			this.model.set("count", updatedCollection.length);
 			
-			require(['views/paginationview', 'views/monitoreditemview'], function(PaginView){
+			var requiredModules = ['views/paginationview','views/blankitemview'];
+			_.each(updatedCollection.models, function(element,index) {
+				var nextView;
+				if( element.hasContract('obix:Point')) {
+					nextView = 'views/pointitemview';
+				}
+				if( element.hasContract('ptoceti:MeasurePoint')) {
+					nextView = 'views/pointitemview';
+				}
+				if( element.hasContract('ptoceti:MonitoredPoint')) {
+					nextView = 'views/monitoreditemview';
+				}
+				if( element.hasContract('ptoceti:ReferencePoint')) {
+					nextView = 'views/referenceitemview';
+				}
+				if( element.hasContract('ptoceti:DigitPoint')) {
+					nextView = 'views/stateitemview';
+				}
+				if( element.hasContract('ptoceti:SwitchPoint')) {
+					nextView = 'views/switchitemview';
+				}
+				
+				if( requiredModules.indexOf(nextView) < 0){
+					requiredModules.push(nextView);
+				}
+			});
+			
+			require(requiredModules, function(PaginView){
 				if( region.currentView == null){
 					region.show(new PaginView({template:"pagination", collection: updatedCollection, context: 'lobby'}));
 				} else {
@@ -188,9 +270,17 @@ define([ 'backbone', 'marionette', 'underscore', 'jquery', 'eventaggr', 'mediaen
 		 */
 		removeFromWatch : function() {
 			ventAggr.trigger("watch:removePoint", this.pointSelected);
+		},
+		
+		/**
+		 * Binded to delete watch button. Send event to mediator to remove watch
+		 */
+		addToWatch : function() {
+			ventAggr.trigger("app:goToAddItemToWatch");
 		}
 		
 	});
+
 
 	return LobbyView;
 });

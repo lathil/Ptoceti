@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.object;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ public enum Status {
 	DISABLED( 1, "disabled"),
 	FAULT(2, "fault"),
 	DOWN( 3,"down"),
-	UNAKEDALARM( 4,"unackedAlarm"),
+	UNACKEDALARM( 4,"unackedalarm"),
 	ALARM( 5, "alarm"),
 	UNACKED( 6, "unacked"),
 	OVERRIDEN( 7,"overridden"),

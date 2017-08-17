@@ -11,7 +11,7 @@
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.jdbc.DataSourceFactory;
 import org.osgi.service.log.LogService;
+import org.sqlite.JDBC;
 import org.sqlite.OSInfo;
 
 
@@ -146,8 +147,8 @@ public class Activator implements BundleActivator{
 		
 		String[] dataSourceFactoryClazzes = new String[] {DataSourceFactory.class.getName()};
 		Hashtable<String, String> dataSourcesProperties = new Hashtable<String, String>();
-		dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_CLASS, com.ptoceti.osgi.sqlite.SQLiteJDBC.class.getName());
-		//dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_NAME, );
+		dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_CLASS, JDBC.class.getName());
+		dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_NAME, "Ptoceti SQLITE Jdbc Driver" );
 		dataSourcesProperties.put( DataSourceFactory.OSGI_JDBC_DRIVER_VERSION, String.valueOf(sqliteJDBC.getMajorVersion()).concat(".").concat(String.valueOf(sqliteJDBC.getMinorVersion())));
 		// register the data source factory
 		sqliDataSourceFactory = new SQLiteDataSourceFactory();

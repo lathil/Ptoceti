@@ -1,0 +1,39 @@
+<div name="listItem">
+	<div class="row">
+		<div class="col-md-1 col-sm-1 col-xs-2">
+			<p style="display: inline-block" ><span class="h4"><span name="icon" class="glyphicon glyphicon-home"/></span></p>
+		</div>
+		<div class="col-md-8 col-sm-8 col-xs-8">
+			<p style="display: inline-block">
+				<span class="h2"><span name="val">{{val}}</span><span name="unit">{{unit}}</span></span>
+			</p>
+			<div class="range-wrapper">
+				<input name="range" type="text" />
+			</div>
+		</div>
+		<div class="col-md-2 col-sm-2 hidden-xs">
+		</div>
+		<div class="col-md-1 col-sm-1 col-xs-2">
+			<p style="display: inline-block"><span class="h4"><span name="status" class="glyphicon glyphicon-ok-circle"/><span name="statusText" class="hidden-xs"/></span></p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-8 col-sm-8 col-xs-10">
+			<p><span name="displayName" {{#if contentEditable }}contenteditable="true"{{/if}}>{{displayName}}</span></p>
+		</div>
+		<div class="col-md-3 col-sm-3 hidden-xs">
+		</div>
+		<div class="col-md-1 col-sm-1 col-xs-2">
+			<p name="childCollapseItem" class="h4 hidden"><a data-toggle="collapse" data-target="#childDetails{{elemId}}"><span name="childCollapseControl" class="glyphicon glyphicon-menu-down"/></a></p>
+		</div>
+	</div>
+	<div id="childDetails{{elemId}}" name="childPanel" class="panel-collapse collapse">
+	</div>
+	<div id="infoDetails{{elemId}}" name="infoPanel" class="panel-collapse collapse">
+		<div class="row">
+			<div class="col-md-4 col-sm-4 col-xs-4">
+				<a name="deleteItem" class="btn btn-primary btn-xs btn-block"><span class=" text-primary"/>{{itemtext.remove}}</a>
+			</div>
+		</div>
+	</div>
+</div>

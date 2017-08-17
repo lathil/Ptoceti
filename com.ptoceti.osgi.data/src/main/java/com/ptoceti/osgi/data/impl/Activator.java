@@ -11,7 +11,7 @@ package com.ptoceti.osgi.data.impl;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,9 @@ public class Activator implements BundleActivator{
 	ServiceRegistration sReg = null;
 	// the DataSource factory service
 	private DataSourceFactory dataSourceFactory;
+	// The name of the jdbc driver used by the data source
+	private String dataSourceDriverName;
+	
 	
 	public Activator()
 	{
@@ -91,8 +94,9 @@ public class Activator implements BundleActivator{
 			throw new BundleException("Error in filter string while registering LogServiceListener." + e.toString());
 		}
 		
-		String dataSourceFactFilter = "(&(objectclass=" + DataSourceFactory.class.getName() + ")(" +
-				DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=com.ptoceti.osgi.sqlite.SQLiteJDBC))";
+		//String dataSourceFactFilter = "(&(objectclass=" + DataSourceFactory.class.getName() + ")(" +
+		//		DataSourceFactory.OSGI_JDBC_DRIVER_CLASS + "=com.ptoceti.osgi.sqlite.SQLiteJDBC))";
+		String dataSourceFactFilter = "(&(objectclass=" + DataSourceFactory.class.getName() + "))";
 		ServiceListener dataSourceFactoryServiceListener = new DataSourceFactoryServiceListener();
 		try {
 			bc.addServiceListener( dataSourceFactoryServiceListener, dataSourceFactFilter);
@@ -109,7 +113,7 @@ public class Activator implements BundleActivator{
 	
 	private void registerService() {
 		
-		JdbcDevice device = new JdbcDeviceImpl(dataSourceFactory);
+		JdbcDevice device = new JdbcDeviceImpl(dataSourceFactory, dataSourceDriverName);
 		
 		// register the class as a managed service.
 		String[] clazzes = new String[]{JdbcDevice.class.getName()};
@@ -208,12 +212,14 @@ public class Activator implements BundleActivator{
 				case ServiceEvent.REGISTERED: {
 					dataSourceFactory = ((DataSourceFactory) bc.getService(sr));
 					if( getDataSourceFactory() != null && logSer != null ){
+						dataSourceDriverName = (String)sr.getProperty(DataSourceFactory.OSGI_JDBC_DRIVER_CLASS);
 						registerService();
 					}
 				}
 				break;
 				case ServiceEvent.UNREGISTERING: {
 					dataSourceFactory = null;
+					dataSourceDriverName = null;
 				}
 				break;
 			}

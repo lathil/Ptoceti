@@ -11,7 +11,7 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  * this project can be found here: http://www.ptoceti.com/
  * **********************************************************************
  * %%
- * Copyright (C) 2013 - 2014 ptoceti
+ * Copyright (C) 2013 - 2015 ptoceti
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,13 @@ package com.ptoceti.osgi.obix.impl.resources.server;
  */
 
 
+import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 
 import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.cache.HistoryCache;
 import com.ptoceti.osgi.obix.contract.History;
+import com.ptoceti.osgi.obix.contract.Nil;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.resources.HistoryResource;
@@ -64,5 +66,17 @@ public class HistoryServerResource extends AbstractServerResource implements His
 		return history;
 		
 	}
-
+	
+	@Delete
+	public Nil remove() throws ResourceException {
+		
+		String historyUri = HistoryResource.baseuri.concat("/").concat((String)getRequest().getAttributes().get(HistoryResource.HISTORY_URI)).concat("/");
+		try {
+			cache.delete(historyUri);
+		} catch( DomainException ex) {
+			throw new ResourceException("Exception in " + this.getClass().getName() + ".deleteWatch", ex);
+		}
+	
+		return new Nil();
+	}
 }

@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ptoceti</groupId>
 	<artifactId>com.ptoceti.parent</artifactId>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.1.0</version>
 	<packaging>pom</packaging>
 	<name>com.ptoceti.obix</name>
 	<description>Parent project</description>
@@ -34,8 +35,10 @@
 		<pom.organization.url>www.ptoceti.com</pom.organization.url>
 		<bundles.configuration.location>../configurations</bundles.configuration.location>
 		
-		<restlet.version>2.2.1</restlet.version>
-		<pax-web.version>2.1.6</pax-web.version>
+		<restlet.version>2.3.0</restlet.version>
+		<pax-web.version>4.0.0</pax-web.version>
+		<jetty-version>9.2.6.v20141205</jetty-version>
+		<servlet-api.version>3.1.0</servlet-api.version>
 		<osgi.core.version>4.3.0</osgi.core.version>
 		<osgi.compendium.version>4.3.0</osgi.compendium.version>
 		<osgi.enterprise.version>4.2.0</osgi.enterprise.version>
@@ -64,57 +67,23 @@
 	
 	
 	<distributionManagement>
-		<downloadUrl>
-		</downloadUrl>
-		<!--  
-		<repository>
-	      <id>lathil-release</id>
-	      <name>lathil-cloudbees-release</name>
-	      <url>dav:https://repository-lathil.forge.cloudbees.com/release</url>
-	    </repository>
-	    <snapshotRepository>
-	      <id>lathil-snapshot</id>
-	      <name>lathil-cloudbees-snapshot</name>
-	      <url>dav:https://repository-lathil.forge.cloudbees.com/snapshot</url>
-	      <uniqueVersion>false</uniqueVersion>
-	    </snapshotRepository>
-		-->
-
+	
 		<!-- Publish versioned releases here -->
 		<repository>
 			<id>releases</id>
 			<name>Releases</name>
-			<url>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/releases</url>
+			<url>${releaseRepoUrl}</url>
 		</repository>
 
 		<!-- Publish snapshots here -->
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>Snapshots</name>
-			<url>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/snapshots</url>
+			<url>${snapshotRepoUrl}</url>
 		</snapshotRepository>
 	</distributionManagement>
 
 	<build>
-		<extensions>
-			<!-- Extension required to deploy a snapshot or a release to the CloudBees remote maven repository using Webdav -->
-			<extension>
-			<groupId>org.apache.maven.wagon</groupId>
-			<artifactId>wagon-webdav</artifactId>
-			<version>1.0-beta-2</version>
-			</extension>
-		</extensions>
-		<resources>
-			<resource>
-				<directory>${basedir}</directory>
-				<filtering>false</filtering>
-				<includes>
-					<include>LICENSE.txt</include>
-					<include>NOTICE.txt</include>
-					<include>README.md</include>
-				</includes>
-			</resource>
-		</resources>
 
 		<plugins>
 			<!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
@@ -133,6 +102,7 @@
 								<canUpdateLicense>true</canUpdateLicense>
 							</configuration>
 						</execution>
+						
 						<execution>
 							<id>append-license-file-headers</id>
 							<goals>
@@ -144,6 +114,7 @@
 								<descriptionTemplate>${basedir}/src/license/template.ftl</descriptionTemplate>
 							</configuration>
 						</execution>
+						
 					</executions>
 			</plugin>
 			
@@ -302,7 +273,7 @@
 					<version>1.5</version>
 					<executions>
 						<execution>
-							<id>check-license-file-headers</id>
+							<id>append-license-file-headers</id>
 							<goals>
 								<goal>check-file-header</goal>
 							</goals>
@@ -323,6 +294,66 @@
 						</execution>
 					</executions>
 				</plugin>
+				
+				<!-- RELASE WITH GIT FLOW -->
+				<plugin>
+					<groupId>external.atlassian.jgitflow</groupId>
+  					<artifactId>jgitflow-maven-plugin</artifactId>
+  					<version>1.0-m5.1</version>
+  					<configuration>
+  						<username>${gitUser}</username>
+      					<password>${gitPassword}</password>
+      					<flowInitContext>
+				         <masterBranchName>master</masterBranchName>
+				         <developBranchName>develop</developBranchName>
+				         <featureBranchPrefix>feature-</featureBranchPrefix>
+				         <releaseBranchPrefix>release-</releaseBranchPrefix>
+				         <hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
+				         <versionTagPrefix>version-</versionTagPrefix>
+				       </flowInitContext>
+				       <allowUntracked>true</allowUntracked>
+				       <autoVersionSubmodules>true</autoVersionSubmodules>
+				       <squash>true</squash>
+  					</configuration>
+				</plugin>
+				
+				
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											license-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.5,)
+										</versionRange>
+										<goals>
+											<goal>
+												check-file-header
+											</goal>
+											<goal>
+												update-project-license
+											</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
 
 				<plugin>
 					<groupId>org.ops4j</groupId>
@@ -331,22 +362,40 @@
 					<configuration>
 						<provision>
 							<param>--vmOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</param>
-							<param>--bootDelegation=com.sun.net.httpserver</param>
+							<param>--bootDelegation=com.sun.net.httpserver,javax.annotation.security</param>
 							<param>--usePersistedState=false</param>
 							<param>--platform=felix</param>
 							<param>--ee=JavaSE-1.7</param>
 							<param>--log=debug</param>
 							<param>--felix.webconsole.loglevel=1</param>
+							<param>--org.ops4j.pax.logging.DefaultServiceLog.level=INFO</param>
+							<param>--java.util.logging.config.file=blank</param>
 							
 							<param>scan-bundle:mvn:org.osgi/org.osgi.core/${osgi.core.version}</param>
 							<param>scan-bundle:mvn:org.osgi/org.osgi.compendium/${osgi.compendium.version}</param>
 							<param>scan-bundle:mvn:org.osgi/org.osgi.enterprise/${osgi.enterprise.version}</param>
 							
-							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-jetty-bundle/${pax-web.version}</param>
-							<param>scan-bundle:mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/${pax-web.version}</param>
+							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
+							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
+							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
+							<param>scan-bundle:mvn:javax.servlet/javax.servlet-api/3.1.0</param>
+							
 							<param>scan-bundle:mvn:org.ops4j.pax.confman/pax-confman-propsloader/0.2.3</param>
+										
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-api/1.4</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-service/1.4</param>
+							
+							
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.4.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.fileinstall/3.2.8</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>	
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.deploymentadmin/0.9.6</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.dependencymanager/3.1.0</param>	
+							
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.api/2.3.2</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.jetty/3.0.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.whiteboard/2.3.2</param>
+							
 							
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
@@ -355,34 +404,35 @@
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.obr/1.0.0</param>
 							
 							
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.4.0</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.fileinstall/3.2.8</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.deploymentadmin/0.9.6</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.dependencymanager/3.1.0</param>
-							
-							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet/${restlet.version}</param>
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.servlet/${restlet.version}</param>
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.jetty/${restlet.version}</param>
+							<!--  
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet/${restlet.version}@10</param>
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.servlet/${restlet.version}@10</param>
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.jetty/${restlet.version}@10</param>
+							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.osgi/${restlet.version}@10</param>
+							-->
 			
 							<!-- <param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param> -->
-							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
-							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.dfrobot.sensornode/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.0.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.0.0-SNAPSHOT@nostart</param>
+							
+    						<param>scan-bundle:mvn:com.h2database/h2/1.4.190@nostart</param>
+    						
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.control/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.dfrobot.sensornode/1.1.0-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.1.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.1.0-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.mqtt/1.1.0-SNAPSHOT@nostart</param>
+							
 						</provision>
 					</configuration>
 				</plugin>
+				
 			</plugins>
 		</pluginManagement>
 	</build>
@@ -408,6 +458,114 @@
 				<version>${osgi.enterprise.version}</version>
 			</dependency>
 
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.servlet</artifactId>
+				<version>${restlet.version}</version>
+				 
+				<exclusions>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
+					</exclusion>
+				</exclusions>
+				 
+			</dependency>
+			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.oauth</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.crypto</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.slf4j</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.osgi</artifactId>
+				<version>${restlet.version}</version>
+				 
+				<exclusions>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.restlet.osgi</groupId>
+						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
+					</exclusion>
+				</exclusions>
+				 
+			</dependency>
+			
+			<dependency>
+				<groupId>org.restlet.osgi</groupId>
+				<artifactId>org.restlet.ext.jetty</artifactId>
+				<version>${restlet.version}</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.google.inject</groupId>
+				<artifactId>guice</artifactId>
+				<version>2.0-no_aop</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>17.0</version>
+			</dependency>
+			
+			<dependency>
+		        <groupId>org.eclipse.paho</groupId>
+		        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+		        <version>1.0.2</version>
+		    </dependency>
+	    
+			<dependency>
+				<groupId>org.knopflerfish.bundle</groupId>
+				<artifactId>kxml-LIB</artifactId>
+				<version>2.3.0.kf3</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>2.2.0</version>
+			</dependency>
+	
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>2.2.0</version>
+			</dependency>
+	
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>2.2.0</version>
+			</dependency>
+		
 		</dependencies>
 	</dependencyManagement>
 
@@ -423,5 +581,7 @@
 		<module>com.ptoceti.osgi.wireadmin</module>
 		<module>com.ptoceti.osgi.pi</module>
 		<module>com.ptoceti.osgi.dfrobot.sensornode</module>
+	    <module>com.ptoceti.osgi.mqtt</module>
+	    <module>com.ptoceti.osgi.assembly</module>
 	</modules>
 </project>
