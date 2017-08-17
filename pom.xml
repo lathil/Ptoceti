@@ -72,14 +72,14 @@
 		<repository>
 			<id>releases</id>
 			<name>Releases</name>
-			<url>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/releases</url>
+			<url>${releaseRepoUrl}</url>
 		</repository>
 
 		<!-- Publish snapshots here -->
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>Snapshots</name>
-			<url>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/snapshots</url>
+			<url>${snapshotRepoUrl}</url>
 		</snapshotRepository>
 	</distributionManagement>
 
@@ -294,6 +294,29 @@
 						</execution>
 					</executions>
 				</plugin>
+				
+				<!-- RELASE WITH GIT FLOW -->
+				<plugin>
+					<groupId>external.atlassian.jgitflow</groupId>
+  					<artifactId>jgitflow-maven-plugin</artifactId>
+  					<version>1.0-m5.1</version>
+  					<configuration>
+  						<username>${gitUser}</username>
+      					<password>${gitPassword}</password>
+      					<flowInitContext>
+				         <masterBranchName>master</masterBranchName>
+				         <developBranchName>develop</developBranchName>
+				         <featureBranchPrefix>feature-</featureBranchPrefix>
+				         <releaseBranchPrefix>release-</releaseBranchPrefix>
+				         <hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
+				         <versionTagPrefix>version-</versionTagPrefix>
+				       </flowInitContext>
+				       <autoVersionSubmodules>true</autoVersionSubmodules>
+				       <squash>true</squash>
+  					</configuration>
+				</plugin>
+				
+				
 				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
