@@ -311,6 +311,7 @@
 				         <hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
 				         <versionTagPrefix>version-</versionTagPrefix>
 				       </flowInitContext>
+				       <allowUntracked>true</allowUntracked>
 				       <autoVersionSubmodules>true</autoVersionSubmodules>
 				       <squash>true</squash>
   					</configuration>
