@@ -50,9 +50,8 @@ public class HistoryRollupRecord extends Obj implements Serializable {
 	}
 	
 	public void setStart(Abstime timeStamp){
-		Abstime value = new Abstime(timeStamp);
-		value.setName("start");
-		addChildren(value);
+		timeStamp.setName("start");
+		addChildren(timeStamp);
 	}
 	
 	public Abstime getStart() {
@@ -60,9 +59,8 @@ public class HistoryRollupRecord extends Obj implements Serializable {
 	}
 	
 	public void setEnd(Abstime timeStamp){
-		Abstime value = new Abstime(timeStamp);
-		value.setName("end");
-		addChildren(value);
+		timeStamp.setName("end");
+		addChildren(timeStamp);
 	}
 	
 	public Abstime getEnd() {
@@ -71,9 +69,8 @@ public class HistoryRollupRecord extends Obj implements Serializable {
 	
 	
 	public void setMin(Real min){
-		Real value = new Real(min);
-		value.setName("min");
-		addChildren(value);
+		min.setName("min");
+		addChildren(min);
 	}
 	
 	public Real getMin() {
@@ -81,19 +78,17 @@ public class HistoryRollupRecord extends Obj implements Serializable {
 	}
 	
 	public void setMax(Real max){
-		Real value = new Real(max);
-		value.setName("max");
-		addChildren(value);
+		max.setName("max");
+		addChildren(max);
 	}
 	
 	public Real getMax() {
 		return (Real)getChildren("max");
 	}
 	
-	public void seAvg(Real avg){
-		Real value = new Real(avg);
-		value.setName("avg");
-		addChildren(value);
+	public void setAvg(Real avg){
+		avg.setName("avg");
+		addChildren(avg);
 	}
 	
 	public Real getAvg() {
@@ -101,9 +96,8 @@ public class HistoryRollupRecord extends Obj implements Serializable {
 	}
 	
 	public void setSum(Real sum){
-		Real value = new Real(sum);
-		value.setName("sum");
-		addChildren(value);
+		sum.setName("sum");
+		addChildren(sum);
 	}
 	
 	public Real getSum() {

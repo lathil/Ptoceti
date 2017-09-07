@@ -49,9 +49,8 @@ public class HistoryRecord extends Obj implements Serializable {
 	}
 	
 	public void setTimeStamp(Abstime timeStamp){
-		Abstime value = new Abstime(timeStamp);
-		value.setName("timestamp");
-		addChildren(value);
+	    	timeStamp.setName("timestamp");
+		addChildren(timeStamp);
 	}
 
 	public Abstime getTimeStamp() {
@@ -59,9 +58,8 @@ public class HistoryRecord extends Obj implements Serializable {
 	}
 	
 	public void setValue(Obj value) {
-		Obj val = new Obj(value);
-		val.setName("value");
-		addChildren(val);
+		value.setName("value");
+		addChildren(value);
 	}
 	
 	public Obj getValue() {

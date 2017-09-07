@@ -27,7 +27,6 @@ package com.ptoceti.osgi.obix.impl.front.converters;
  * #L%
  */
 
-
 import java.io.IOException;
 import java.util.List;
 
@@ -38,127 +37,120 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.Resource;
 
-public class JSonConverter extends ConverterHelper{
+public class JSonConverter extends ConverterHelper {
 
-	private static final VariantInfo VARIANT_JSON = new VariantInfo(
-	            MediaType.APPLICATION_JSON);
-	    
-	@Override
-	public List<Class<?>> getObjectClasses(Variant source) {
-		List<Class<?>> result = null;
+    private static final VariantInfo VARIANT_JSON = new VariantInfo(MediaType.APPLICATION_JSON);
 
-        if (VARIANT_JSON.isCompatible(source)) {
+    @Override
+    public List<Class<?>> getObjectClasses(Variant source) {
+	List<Class<?>> result = null;
 
-        	result = addObjectClass(result, Object.class);
-            result = addObjectClass(result, JSonRepresentation.class);
-        }
+	if (VARIANT_JSON.isCompatible(source)) {
 
-        return result;
+	    result = addObjectClass(result, Object.class);
+	    result = addObjectClass(result, JSonRepresentation.class);
 	}
 
-	@Override
-	public List<VariantInfo> getVariants(Class<?> source) {
-		List<VariantInfo> result = null;
+	return result;
+    }
 
-        if ( source != null) {
-            result = addVariant(result, VARIANT_JSON);
-        }
+    @Override
+    public List<VariantInfo> getVariants(Class<?> source) {
+	List<VariantInfo> result = null;
 
-        return result;
+	if (source != null) {
+	    result = addVariant(result, VARIANT_JSON);
 	}
 
-	@Override
-	public float score(Object source, Variant target, Resource arg2) {
-		float result = -1.0F;
+	return result;
+    }
 
-        if (source instanceof JSonRepresentation<?>) {
-            result = 1.0F;
-        } else {
-            if (target == null) {
-                result = 0.5F;
-            } else if (VARIANT_JSON.isCompatible(target)) {
-                result = 1.0F;
-            } else {
-                result = 0.5F;
-            }
-        }
+    @Override
+    public float score(Object source, Variant target, Resource arg2) {
+	float result = -1.0F;
 
-        return result;
+	if (source instanceof JSonRepresentation<?>) {
+	    result = 1.0F;
+	} else {
+	    if (target == null) {
+		result = 0.5F;
+	    } else if (VARIANT_JSON.isCompatible(target)) {
+		result = 1.0F;
+	    } else {
+		result = 0.5F;
+	    }
 	}
 
-	@Override
-	public <T> float score(Representation source, Class<T> target,
-			Resource resource) {
-		 float result = -1.0F;
+	return result;
+    }
 
-	        if (source instanceof JSonRepresentation<?>) {
-	            result = 1.0F;
-	        } else if ((target != null)
-	                && JSonRepresentation.class.isAssignableFrom(target)) {
-	            result = 1.0F;
-	        } else if (VARIANT_JSON.isCompatible(source)) {
-	            result = 1.0F;
-	        }
+    @Override
+    public <T> float score(Representation source, Class<T> target, Resource resource) {
+	float result = -1.0F;
 
-	        return result;
+	if (source instanceof JSonRepresentation<?>) {
+	    result = 1.0F;
+	} else if ((target != null) && JSonRepresentation.class.isAssignableFrom(target)) {
+	    result = 1.0F;
+	} else if (VARIANT_JSON.isCompatible(source)) {
+	    result = 1.0F;
 	}
 
-	@Override
-	public <T> T toObject(Representation source, Class<T> target,
-			Resource resource) throws IOException {
-		 Object result = null;
+	return result;
+    }
 
-	        // The source for the Jackson conversion
-	        JSonRepresentation<?> obixSource = null;
+    @Override
+    public <T> T toObject(Representation source, Class<T> target, Resource resource) throws IOException {
+	Object result = null;
 
-	        if (source instanceof JSonRepresentation) {
-	        	obixSource = (JSonRepresentation<?>) source;
-	        } else if (VARIANT_JSON.isCompatible(source)) {
-	        	obixSource = create(source, target, resource);
-	        }
+	// The source for the Jackson conversion
+	JSonRepresentation<?> obixSource = null;
 
-	        if (obixSource != null) {
-	            // Handle the conversion
-	            if ((target != null) && JSonRepresentation.class.isAssignableFrom(target)) {
-	                result = obixSource;
-	            } else {
-	                result = obixSource.getObject();
-	            }
-	        }
-
-	        return (T) result;
+	if (source instanceof JSonRepresentation) {
+	    obixSource = (JSonRepresentation<?>) source;
+	} else if (VARIANT_JSON.isCompatible(source)) {
+	    obixSource = create(source, target, resource);
 	}
 
-	@Override
-	public Representation toRepresentation(Object source, Variant target,
-			Resource resource) throws IOException {
-		Representation result = null;
-
-        if (source instanceof JSonRepresentation) {
-            result = (JSonRepresentation<?>) source;
-        } else {
-            if (target.getMediaType() == null) {
-                target.setMediaType(MediaType.APPLICATION_JSON);
-            }
-
-            if (VARIANT_JSON.isCompatible(target) ) {
-            	
-            	JSonRepresentation<Object> obixRepresentation = create(
-                        target.getMediaType(), source, resource);
-                result = obixRepresentation;
-            }
-        }
-        
-        return result;
+	if (obixSource != null) {
+	    // Handle the conversion
+	    if ((target != null) && JSonRepresentation.class.isAssignableFrom(target)) {
+		result = obixSource;
+	    } else {
+		result = obixSource.getObject();
+	    }
 	}
 
-	 protected <T> JSonRepresentation<T> create(MediaType mediaType, T source, Resource resource) {
-	        return new JSonRepresentation<T>(mediaType, source, resource);
-	 }
-	        
-    protected <T> JSonRepresentation<T> create(Representation source,
-            Class<T> objectClass, Resource resource) {
-        return new JSonRepresentation<T>(source, objectClass, resource);
+	return (T) result;
+    }
+
+    @Override
+    public Representation toRepresentation(Object source, Variant target, Resource resource) throws IOException {
+	Representation result = null;
+
+	if (source instanceof JSonRepresentation) {
+	    result = (JSonRepresentation<?>) source;
+	} else {
+	    if (target.getMediaType() == null) {
+		target.setMediaType(MediaType.APPLICATION_JSON);
+	    }
+
+	    if (VARIANT_JSON.isCompatible(target)) {
+
+		JSonRepresentation<Object> obixRepresentation = create(target.getMediaType(), source, resource);
+		result = obixRepresentation;
+	    }
 	}
+
+	return result;
+    }
+
+    protected <T> JSonRepresentation<T> create(MediaType mediaType, T source, Resource resource) {
+	return new JSonRepresentation<T>(mediaType, source, resource);
+    }
+
+    protected <T> JSonRepresentation<T> create(Representation source, Class<T> objectClass, Resource resource) {
+	return new JSonRepresentation<T>(source, objectClass, resource);
+    }
 
 }

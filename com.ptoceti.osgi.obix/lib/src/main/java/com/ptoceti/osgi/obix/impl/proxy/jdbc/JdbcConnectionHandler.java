@@ -104,6 +104,8 @@ public class JdbcConnectionHandler<T extends BaseDomain> implements InvocationHa
 					//}
 					
 				}
+			} else {
+			    result =  method.invoke(proxiedObject, params);
 			}
 		
 		return result;

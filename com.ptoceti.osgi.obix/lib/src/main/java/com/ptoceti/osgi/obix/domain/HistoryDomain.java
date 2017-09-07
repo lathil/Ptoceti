@@ -92,8 +92,7 @@ public interface HistoryDomain extends BaseDomain {
 	 * @return
 	 * @throws DomainException
 	 */
-	@JdbcConnection(type = ConnectionType.RX)
-	List<HistoryRecord> getRecords(String uri, Int limit, Abstime from, Abstime to) throws DomainException;
+	List<HistoryRecord> getRecords(String uri, Int limit, Abstime start, Abstime end) throws DomainException;
 	
 	/**
 	 * Get rollup record from a history
@@ -105,7 +104,6 @@ public interface HistoryDomain extends BaseDomain {
 	 * @return
 	 * @throws DomainException
 	 */
-	@JdbcConnection(type = ConnectionType.RX)
-	List<HistoryRollupRecord> getRollUprecords(String uri, Int limit, Abstime from, Abstime to, Reltime roolUpDuration) throws DomainException;
+	List<HistoryRollupRecord> getRollUprecords(String uri, Int limit, Abstime start, Abstime end, Reltime roolUpDuration) throws DomainException;
 	
 }

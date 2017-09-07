@@ -26,7 +26,7 @@
     	"powerange" : "0.0.2",
     	"numeral" : "1.5.3",
     	"js-cookie" : "2.0.4",
-    	"js-md5" : "1.1.1"
+    	"js-md5" : "2.6.0"
     },
      "exportsOverride":{
      	"jquery":{

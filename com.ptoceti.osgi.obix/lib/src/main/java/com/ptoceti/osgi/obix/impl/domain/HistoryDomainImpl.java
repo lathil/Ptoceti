@@ -42,6 +42,7 @@ import com.ptoceti.osgi.obix.impl.entity.EntityException;
 import com.ptoceti.osgi.obix.impl.entity.EntityType;
 import com.ptoceti.osgi.obix.impl.entity.ListEntity;
 import com.ptoceti.osgi.obix.impl.entity.ObjEntity;
+import com.ptoceti.osgi.obix.impl.service.ObixTimeSeriesHandler;
 import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Int;
@@ -50,11 +51,21 @@ import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
 import com.ptoceti.osgi.obix.resources.HistoryResource;
+import com.ptoceti.osgi.timeseries.TimeSeriesService;
 
 public class HistoryDomainImpl extends AbstractDomain implements  HistoryDomain{
 
 	@Override
 	public History make(Contract of,  String displayName) throws DomainException {
+
+	// try to get hold of the TimeSeries service
+	TimeSeriesService timesSerieService = ObixTimeSeriesHandler.getInstance().getTimeSeriesService();
+	if (timesSerieService == null) {
+	    // if we can't get the time series service, we can't create the
+	    // history.
+	    return null;
+	}
+
 		String timeStamp = (new Long (Calendar.getInstance().getTimeInMillis())).toString();
 		
 		History history = new History(timeStamp);
@@ -80,6 +91,8 @@ public class HistoryDomainImpl extends AbstractDomain implements  HistoryDomain{
 		ObjEntity objEnt = new ObjEntity(history);
 		try {
 			objEnt.create();
+	    String[] fieldNames = { "value" };
+	    timesSerieService.setupMeasurement(history.getHref().getPath(), fieldNames);
 		} catch(EntityException ex) {
 			throw new DomainException("Exception in " + this.getClass().getName() + ".make", ex);
 		}
@@ -99,9 +112,17 @@ public class HistoryDomainImpl extends AbstractDomain implements  HistoryDomain{
 				if( objEnt.getObixObject().containsContract(History.contract)) {
 					objEnt.fetchChildrens();
 					for( ObjEntity entity : (List<ObjEntity>) objEnt.getChilds()){
-						if( entity.getObixObject().getName() != null && entity.getObixObject().getName().equals("historyrecords")) {
+			if (entity.getObixObject().getName() != null
+				&& entity.getObixObject().getName().equals("historyrecords")) {
 							// we are on the records list, delete all childs
 							entity.deleteChilds();
+
+			    TimeSeriesService timesSerieService = ObixTimeSeriesHandler.getInstance()
+				    .getTimeSeriesService();
+			    if (timesSerieService != null) {
+				timesSerieService.dropMeasurement(uri);
+			    }
+
 							break;
 						}
 					}
@@ -110,7 +131,7 @@ public class HistoryDomainImpl extends AbstractDomain implements  HistoryDomain{
 				}
 			}
 		} catch(EntityException ex) {
-			throw new DomainException("Exception in " + this.getClass().getName() + ".remove", ex);
+	    throw new DomainException("Exception in " + this.getClass().getName() + ".getHistory", ex);
 		}
 		
 	}
@@ -155,153 +176,56 @@ public class HistoryDomainImpl extends AbstractDomain implements  HistoryDomain{
 			ObjEntity count = historyEntity.getChildByName("count");
 
 			if( recordsList.getObjtype().equals(EntityType.List) ){
-				// simply add the sample as history record. creation date will be the timestamp
-				
-				Val clone = (Val)value.clone();
-				
-				clone.setIs(null);
-				clone.setHref(null);
-				
-				recordsList.addChildren(clone);
-				
-				((Int)count.getObixObject()).setVal( new Integer(((Integer)((Int)count.getObixObject()).getVal()).intValue() + 1 ));
+		TimeSeriesService timesSerieService = ObixTimeSeriesHandler.getInstance().getTimeSeriesService();
+		if (timesSerieService != null) {
+		    // simply add the sample as history record. creation date
+		    // will be the timestamp
+		    timesSerieService.saveMeasurementRecord(uri, value);
+		    ((Int) count.getObixObject()).setVal(new Integer(((Integer) ((Int) count.getObixObject()).getVal())
+			    .intValue() + 1));
 				count.update();
 				((Abstime)end.getObixObject()).setVal(new Date());
 				end.update();
 			}
+	    }
 			
 		} catch(EntityException ex) {
-			throw new DomainException("Exception in " + this.getClass().getName() + ".addRecord", ex);
-		} catch (CloneNotSupportedException ex) {
 			throw new DomainException("Exception in " + this.getClass().getName() + ".addRecord", ex);
 		}
 		
 		
 	}
 
-	public List<HistoryRollupRecord> getRollUprecords(String uri, Int limit, Abstime from, Abstime to, Reltime roolUpDuration) throws DomainException{
+    public List<HistoryRollupRecord> getRollUprecords(String uri, Int limit, Abstime start, Abstime end,
+	    Reltime roolUpDuration) throws DomainException {
 		
 		List<HistoryRollupRecord> result = new ArrayList<HistoryRollupRecord>();
-		ObjEntity historyEntity = getHistory(uri);
 		
-		List<ObjEntity> childList = historyEntity.getChilds();
-		
-		long recordsLimit = ((Integer)limit.getVal()).longValue();
 		try {
-			
-			ListEntity recordsList = null;
-			for(int i = 0; i < childList.size(); i++){
-				ObjEntity child = (ObjEntity)childList.get(i);
-				if( child.getObjtype().equals(EntityType.List) && child.getObixObject().getName().equals("historyrecords")){
-					recordsList = (ListEntity) child;
-					break;
+	    TimeSeriesService timesSerieService = ObixTimeSeriesHandler.getInstance().getTimeSeriesService();
+	    if (timesSerieService != null) {
+		result = timesSerieService.loadMeasurementRollUpRecords(uri, (Date) start.getVal(),
+			(Date) end.getVal(), ((Integer) limit.getVal()));
 				}
+			
+	} catch (Exception ex) {
+	    throw new DomainException("Exception in " + this.getClass().getName() + ".getRollUprecords", ex);
 			}
-			
-			if( recordsList != null && recordsLimit > 0){
-				
-				long start = ((Date)from.getVal()).getTime();
-				long end = ((Date)to.getVal()).getTime();
-				long periode = ((Long)roolUpDuration.getVal()).longValue();
-				long nextEndPeriode = start + periode;
-				if( nextEndPeriode > end) nextEndPeriode = end;
-				do {
-					recordsList.fetchChildrensFilterByTimeStamp( start, nextEndPeriode );
-					
-					double min = 0;
-					double max = 0;
-					double avg = 0;
-					double sum = 0;
-					
-					List<ObjEntity> childObjEntity = recordsList.getChilds();
-					
-					int count = childObjEntity.size();
-					boolean hasSample = false;
-					
-					for( int i = 0; i < count; i++){
-						Object val = ((Val)((ObjEntity)childObjEntity.get(i)).getObixObject()).getVal();
-						double prim = 0;
-						if(val instanceof Integer || val instanceof Double) {
-							if( val instanceof Integer ) prim = ((Integer)val).doubleValue();
-							else if( val instanceof Double) prim = ((Double)val).doubleValue();
-							if( i == 0){
-								min = prim;
-								max = prim;
-										
-							} else {
-								if( prim < min) min = prim;
-								if( prim > max) max = prim;
-							}
-							avg += prim / (double)count;
-							sum += prim;
-							
-							hasSample = true;
-						}
-					}
-					
-					if( hasSample) {
-						HistoryRollupRecord record = new HistoryRollupRecord();
-						
-						record.setMax(new Real("", new Double(max)));
-						record.setMin(new Real("", new Double(min)));
-						record.setSum(new Real("", new Double(sum)));
-						record.seAvg(new Real("", new Double(avg)));
-						
-						record.setStart(new Abstime("", new Long(start)));
-						record.setEnd(new Abstime("", new Long(nextEndPeriode)));
-						
-						record.setName("historyrolluprecord-" + record.getStart().encodeVal()); 
-						
-						result.add(record);
-					}
-					
-					
-					if( nextEndPeriode < end){
-						start = nextEndPeriode + 1;
-						nextEndPeriode = nextEndPeriode + periode;
-						if( nextEndPeriode > end) nextEndPeriode = end;
-					}
-				} while (nextEndPeriode < end && result.size() < recordsLimit );
-			}
-			
-			
-		} catch(EntityException ex) {
-			throw new DomainException("Exception in " + this.getClass().getName() + ".getRecords", ex);
-		}
-		
 		return result;
 	}
 	
 	@Override
-	public List<HistoryRecord> getRecords(String uri, Int limit, Abstime from, Abstime to) throws DomainException{
+    public List<HistoryRecord> getRecords(String uri, Int limit, Abstime start, Abstime end) throws DomainException {
 		
 		List<HistoryRecord> result = new ArrayList<HistoryRecord>();
-		ObjEntity historyEntity = getHistory(uri);
 		
-		List<ObjEntity> childList = historyEntity.getChilds();
 		try {
-			for(int i = 0; i < childList.size(); i++){
-				ObjEntity child = (ObjEntity)childList.get(i);
-				if( child.getObjtype().equals(EntityType.List) && child.getObixObject().getName().equals("historyrecords")){
-					
-					 child.fetchChildrensFilterByTimeStamp( ((Date)from.getVal()).getTime(), ((Date)to.getVal()).getTime());
-					 
-					 List<ObjEntity> childObjEntity = child.getChilds();
-					 float step = ( childObjEntity.size() < ((Integer)limit.getVal()).intValue() ? ((Integer)limit.getVal()).floatValue() : ((float)childObjEntity.size() / ((Integer)limit.getVal()).floatValue()));
-					 float nextStep = 0;
-					 for( int j = 0; i < childObjEntity.size(); j = (int)((float)i + nextStep)){
-						 
-						 HistoryRecord record = new HistoryRecord();
-						 record.setValue( ((ObjEntity)childObjEntity.get(j)).getObixObject());
-						 record.setTimeStamp(new Abstime("",((ObjEntity)childObjEntity.get(j)).getCreationDate()));
-						 
-						 nextStep = nextStep + step;
+	    TimeSeriesService timesSerieService = ObixTimeSeriesHandler.getInstance().getTimeSeriesService();
+	    if (timesSerieService != null) {
+		result = timesSerieService.loadMeasurementRecords(uri, (Date) start.getVal(), (Date) end.getVal(),
+			((Integer) limit.getVal()));
 					 }
-						 
-					 break;
-				}
-			}
-		} catch(EntityException ex) {
+	} catch (Exception ex) {
 			throw new DomainException("Exception in " + this.getClass().getName() + ".getRecords", ex);
 		}
 		

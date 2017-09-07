@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>com.ptoceti.osgi.obix</artifactId>
 		<groupId>com.ptoceti</groupId>
-		<version>1.1.0</version>
+		<version>1.2.0</version>
 	</parent>
 
 	<artifactId>com.ptoceti.osgi.obix-lib</artifactId>
@@ -157,6 +157,11 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>org.restlet.osgi</groupId>
+			<artifactId>org.restlet.ext.jackson</artifactId>
+		</dependency>
+		
+		<dependency>
 				<groupId>org.restlet.osgi</groupId>
 				<artifactId>org.restlet.ext.osgi</artifactId>
 				 
@@ -172,6 +177,15 @@
 				</exclusions>
 				 
 			</dependency>
+		
+		<!-- 
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-client</artifactId>
+					<version>9.2.6.v20141205</version>
+		</dependency>
+		 -->
+		
 		
 		<dependency>
 			<groupId>org.restlet.osgi</groupId>
@@ -256,6 +270,11 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.ptoceti</groupId>
+			<artifactId>com.ptoceti.osgi.timeseries</artifactId>
+		</dependency>
+<!-- 
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 		</dependency>
@@ -269,7 +288,7 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
-
+ -->
 	</dependencies>
 
 </project>

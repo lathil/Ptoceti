@@ -168,18 +168,18 @@ public class HistoryCacheImpl extends ObjCacheImpl implements HistoryCache {
 	}
 
 	@Override
-	public List<HistoryRecord> getRecords(String uri, Int limit, Abstime from, Abstime to) throws DomainException {
-		return historyDomain.getRecords(uri, limit, from, to);
+	public List<HistoryRecord> getRecords(String uri, Int limit, Abstime start, Abstime end) throws DomainException {
+		return historyDomain.getRecords(uri, limit, start, end);
 	}
 
 	@Override
-	public List<HistoryRollupRecord> getRollUprecords(String uri, Int limit, Abstime from, Abstime to, Reltime roolUpDuration) throws DomainException {
+	public List<HistoryRollupRecord> getRollUprecords(String uri, Int limit, Abstime start, Abstime end, Reltime roolUpDuration) throws DomainException {
 		// get hold of history ...
 		History history = retrieve(uri);
 		// ... and object that has a reference to it
 		Obj refObj = objDomain.getObixObjWithRefTo(new Uri("ref", uri));
 		List<HistoryRollupRecord> rollUps = null;
-		rollUps = historyDomain.getRollUprecords(uri, limit, from, to, roolUpDuration);
+		rollUps = historyDomain.getRollUprecords(uri, limit, start, end, roolUpDuration);
 		
 		if( refObj != null && rollUps != null)	{
 			// if both found, get counterpart in cache ...
