@@ -1,0 +1,7 @@
+{
+	"/rest/": "/lobby",
+	"/rest/about" : "/about",
+	"/rest/watchservice" :  "/watchservice",
+	"/rest/historyservice" :  "/historyservice",
+	"/rest/alarmservice" :  "/alarmservice"
+}

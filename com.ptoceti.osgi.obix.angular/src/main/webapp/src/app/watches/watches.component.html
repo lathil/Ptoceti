@@ -1,0 +1,9 @@
+<div class="animated fadeIn">
+
+	<search (onAdd)="onAdd($event)" (onCreate)="onCreate($event)" (onRefresh)="onRefresh($event)" [contractFilter]="contractFilter" [objectFilterList]="watchList" ></search>
+
+	<div class="row">
+		<watchitem *ngFor="let watch of watchList" [watch]="watch" class="col-sm-6 col-md-4 col-lg-3 col-xl-3" (onRemove)="onRemove($event)"></watchitem>
+	</div>
+
+</div>

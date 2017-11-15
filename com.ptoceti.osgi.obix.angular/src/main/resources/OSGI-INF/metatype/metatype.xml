@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
+	<OCD description="Configuration of Obix Angular client" name="Ptoceti Obix Angular client"  id="com.ptoceti.osgi.obix.angular.impl.ClientApplicationHandler">
+		<AD name="Client path" id="com.ptoceti.osgi.obix.angular.clientpath" required="true" type="String" default="/obix/client/angular"/>
+		<AD name="Gzip resources" id="com.ptoceti.osgi.obix.angular.gzip" required="true" type="Boolean" default="true" />
+	</OCD>
+	<Designate pid="com.ptoceti.osgi.obix.angular.impl.ClientApplicationHandler">
+	   <Object ocdref="com.ptoceti.osgi.obix.angular.impl.ClientApplicationHandler"/>
+	</Designate>
+</MetaData>

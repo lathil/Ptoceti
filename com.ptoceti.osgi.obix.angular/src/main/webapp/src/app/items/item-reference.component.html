@@ -1,0 +1,13 @@
+<div class="card card-inverse bg-primary">
+	<div class="card-block pb-0">
+		<div class="float-right">
+				<i class="fa {{getStatusIcon()}} fa-lg"></i>
+				<a (click)="onRemoveClick()" class="fa fa-remove fa-lg"></a>
+		</div>
+		<h4 class="mb-0">{{obj.val}} {{getUnit()}}</h4>
+		<input type="range" [(ngModel)]="obj.val" (change)="onChange()" />
+		<p>{{obj.displayName || obj.name}}</p>
+		<div class="chart-wrapper px-3" style="height: 70px; width: 60px;">
+		</div>
+	</div>
+</div>

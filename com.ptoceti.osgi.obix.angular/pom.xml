@@ -1,0 +1,134 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.ptoceti</groupId>
+    <artifactId>com.ptoceti.parent</artifactId>
+    <version>1.2.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>com.ptoceti.osgi.obix.angular</artifactId>
+  
+  <packaging>bundle</packaging>
+
+	<name>Obix Angular</name>
+	<description>Ptoceti's Obix Angular client</description>
+
+	<properties>
+		<!-- Don't let your Mac use a crazy non-standard encoding -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.core</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.compendium</artifactId>
+		</dependency>
+	
+		<dependency>
+			<groupId>javax.servlet</groupId>
+		    <artifactId>javax.servlet-api</artifactId>
+		    <version>3.1.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.ptoceti</groupId>
+			<artifactId>com.ptoceti.osgi.obix-lib</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	<!-- 
+		<dependency>
+			<groupId>org.apache.felix</groupId>
+			<artifactId>org.apache.felix.http.whiteboard</artifactId>
+			<version>2.3.2</version>
+		</dependency>
+	 -->
+	 
+	</dependencies>
+	<build>
+
+		<!-- Generate compiled stuff in the folder used for development mode -->
+		<outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
+
+		<resources>
+			<resource>
+				<directory>${project.build.directory}</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>LICENSE.txt</include>
+					<include>NOTICE.txt</include>
+					<include>README.md</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+			</resource>
+			
+			<resource>
+				<directory>src/main/webapp/dist</directory>
+				<filtering>false</filtering>
+				<targetPath>webapp/dist</targetPath>
+			</resource>
+			
+		</resources>
+
+		<plugins>
+			<!-- JAVA COMPILER -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+
+			<!-- INCLUDE SOURCE JAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+			</plugin>
+			
+			<!-- INCLUDE JAVADOC JAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+			</plugin>
+
+			<!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>*.handlebars</exclude>
+					</excludes>
+					<roots>
+						<root>src/main/java</root>
+					</roots>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Export-Package>${pom.artifactId}</Export-Package>
+						<Private-Package>${pom.artifactId}.impl.*</Private-Package>
+						<Bundle-Activator>${pom.artifactId}.impl.Activator</Bundle-Activator>
+						<Include-Resource>/resources =
+							src/main/webapp/dist,/OSGI-INF=src/main/resources/OSGI-INF</Include-Resource>
+					</instructions>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</build>
+</project>

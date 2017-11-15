@@ -1,0 +1,4 @@
+{
+    /*"lobbyUrl": "http://localhost:8090/test/lobby.json"*/
+    "lobbyUrl": "http://localhost:8080/obix/rest/"
+}
