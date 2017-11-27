@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -15,13 +15,13 @@ import { Obj, Lobby } from './obix';
 @Injectable()
 export class LobbyService {
 
-    http: Http;
+    http: HttpClient;
     rootUrl : string;
     serviceUrl : string;
     storage: AsyncLocalStorage;
     cache : ReplaySubject<Lobby>;
 
-    constructor( http: Http, storage: AsyncLocalStorage) {
+    constructor( http: HttpClient, storage: AsyncLocalStorage) {
         this.http = http;
         this.storage = storage;
         // keep a cache of the lobby of only last value
@@ -45,7 +45,7 @@ export class LobbyService {
               //observer.complete();
             } else{
                 // not available, get it from backend server
-                this.http.get( serviceUrl ).map( this.handleLobbyResponse ).catch( this.handleError ).subscribe(lobby => {
+                this.http.get( serviceUrl).map( this.handleLobbyResponse ).subscribe(lobby => {
                     // and save it in local storage
                     this.storage.setItem(serviceUrl, lobby).subscribe(() => { this.cache.next(lobby);}, () => {});
                 });
@@ -55,23 +55,10 @@ export class LobbyService {
           });
     }
 
-    private handleLobbyResponse(response: Response ): Lobby {
+    private handleLobbyResponse(response: any ): Lobby {
         let lobby : Lobby = new Lobby;
-        lobby.parse(response.json());
+        lobby.parse(response);
         return lobby;
     }
 
-    private handleError( error: Response | any ) {
-        // In a real world app, you might use a remote logging infrastructure
-        let errMsg: string;
-        if ( error instanceof Response ) {
-            const body = error.json() || '';
-            const err = body.error || JSON.stringify( body );
-            errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-        } else {
-            errMsg = error.message ? error.message : error.toString();
-        }
-        console.error( errMsg );
-        return Observable.throw( errMsg );
-    }
 }

@@ -114,7 +114,7 @@ public final class ResourceServlet extends HttpServlet
          	}
          	
          	if( !hasClientIdCookie){
-         		String clientid = handler.getOauthPublicClientID("/index.html");
+         		String clientid = handler.getOauthPublicClientID();
          		Cookie cookie = new Cookie(COOKIECLIENTID, clientid);
          		cookie.setPath(req.getServletPath() + req.getPathInfo());
          		res.addCookie(cookie);

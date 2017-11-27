@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { APP_INITIALIZER } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
 
 
 import { AppComponent } from './app.component';
@@ -18,6 +19,19 @@ import { BreadcrumbsComponent } from './shared/breadcrumb.component';
 // Routing Module
 import { AppRoutingModule } from './app-routing.module';
 
+import { HttpClientModule } from '@angular/common/http';
+import { HttpModule } from '@angular/http';
+
+
+//Oauth2
+import { OAuthModule } from 'angular-oauth2-oidc';
+
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { TokenInterceptor } from './auth/token.interceptor';
+
+// Cookie
+import { CookieModule} from './cookie/cookie.module';
+
 // Feature Modules
 
 
@@ -32,10 +46,14 @@ import { ObixModule } from './obix/obix.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
+    OAuthModule.forRoot(),
     BsDropdownModule.forRoot(),
     TabsModule.forRoot(),
+    CookieModule,
     ChartsModule,
-    ObixModule
+    ObixModule,
+    HttpClientModule,
+    HttpModule
   ],
   declarations: [
     AppComponent,
@@ -48,8 +66,7 @@ import { ObixModule } from './obix/obix.module';
   ],
   providers: [{ provide: LocationStrategy, useClass: HashLocationStrategy}, AppConfig,
               { provide: APP_INITIALIZER, useFactory: (config: AppConfig) => () => config.load(), deps: [AppConfig], multi: true },
-              
-        ],
+              { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true }],
   bootstrap: [ AppComponent ]
 })
 export class AppModule { }

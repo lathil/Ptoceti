@@ -3,7 +3,7 @@
       
 import { NgModule }      from '@angular/core';
 
-import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 import { AsyncLocalStorageModule } from 'angular-async-local-storage';
 
 //Services
@@ -20,7 +20,7 @@ import { SearchService } from './obix.searchservice';
 
 @NgModule({
     imports: [
-              HttpModule,
+              HttpClientModule,
               AsyncLocalStorageModule
             ],
     providers: [

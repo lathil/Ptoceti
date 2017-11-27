@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { Http, Response, Headers, RequestOptions } from '@angular/http';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
 
 
 import { Observable } from 'rxjs/Observable';
@@ -49,7 +49,7 @@ export class WatchesService {
 
     static watchesListKey: string = 'watchesList';
 
-    http: Http;
+    http: HttpClient;
     rootUrl: string;
     serviceUrl: string;
     storage: AsyncLocalStorage;
@@ -58,7 +58,7 @@ export class WatchesService {
     watchContentStream: Subject<WatchContentAction>;
     searchService: SearchService;
 
-    constructor( http: Http, storage: AsyncLocalStorage, searchService: SearchService, ) {
+    constructor( http: HttpClient, storage: AsyncLocalStorage, searchService: SearchService, ) {
         this.http = http;
         this.storage = storage;
         this.cache = new ReplaySubject<WatchService>();
@@ -67,9 +67,9 @@ export class WatchesService {
         this.searchService = searchService;
     }
 
-    private handleWatchServiceResponse( response: Response ): WatchService {
+    private handleWatchServiceResponse( response: any ): WatchService {
         let result: WatchService = new WatchService;
-        result.parse( response.json() );
+        result.parse( response);
         return result;
     }
 
@@ -99,7 +99,7 @@ export class WatchesService {
                     this.cache.next( watchservice );
                 } else {
                     // not available, get it from backend server
-                    this.http.get( serviceUrl ).map( this.handleWatchServiceResponse ).catch( this.handleError ).subscribe( watchservice => {
+                    this.http.get( serviceUrl ).map( this.handleWatchServiceResponse ).subscribe( watchservice => {
                         // and save it in local storage
                         this.storage.setItem( serviceUrl, watchservice ).subscribe(() => { this.cache.next( watchservice ); }, () => { } );
                     } );
@@ -224,9 +224,8 @@ export class WatchesService {
     refreshWatch( watchUrl: string, observer: Observer<Watch> ) {
         this.http.get( watchUrl ).map( response => {
             let watchItem: Watch = new Watch();
-            watchItem.parse( response.json() ); return watchItem;
+            watchItem.parse( response ); return watchItem;
         } )
-            .catch( this.handleError )
             .subscribe( watch => {
                 // and save it in local storage
                 this.storage.setItem( watchUrl, watch ).subscribe(() => { observer.next( watch ); observer.complete(); }, () => { } );
@@ -244,8 +243,7 @@ export class WatchesService {
         this.getWatchService().subscribe( watchService => {
             let makeUrl: string = watchService.getMakeOp().getUrl( this.rootUrl );
             // create watchn on backen server
-            this.http.post( this.serviceUrl, null ).map( response => { let watchItem: Watch = new Watch(); watchItem.parse( response.json() ); return watchItem; } )
-                .catch( this.handleError )
+            this.http.post( this.serviceUrl, null ).map( response => { let watchItem: Watch = new Watch(); watchItem.parse( response ); return watchItem; } )
                 .subscribe(( watch: Watch ) => {
                     // once created, save it in local storage
                     this.storage.setItem( watch.getUrl( this.rootUrl ), watch )
@@ -274,14 +272,14 @@ export class WatchesService {
     saveWatch( watch: Watch ) {
         let watchUrl = watch.getUrl( this.rootUrl );
 
-        let headers: Headers = new Headers( {
+        let headers: HttpHeaders = new HttpHeaders( {
             'Content-Type': 'application/json',
             'Accept': 'q=0.8;application/json;q=0.9'
         } );
-        let options: RequestOptions = new RequestOptions( { headers: headers } );
 
-        this.http.put( watchUrl, JSON.stringify( watch, function( name, value ) { if ( name === "parent" ) return undefined; else return value; } ), options )
-            .catch( this.handleError )
+        this.http.put( watchUrl, JSON.stringify( watch, function( name, value ) { if ( name === "parent" ) return undefined; else return value; } ), {
+            headers: headers,
+        } )
             .subscribe(() => {
                 this.storage.setItem( watchUrl, watch ).subscribe(() => {
                     this.watchStream.next( new WatchAction( Action.Update, watch ) );
@@ -308,8 +306,7 @@ export class WatchesService {
                     // the watch expose it delete operation url
                     let deleteUrl: string = watchItem.getDeleteOp().getUrl( this.rootUrl );
                     // do the delete on backend server
-                    this.http.post( deleteUrl, null ).map( response => { let nil: Nil = new Nil(); nil.parse( response.json() ); return nil; } )
-                        .catch( this.handleError )
+                    this.http.post( deleteUrl, null ).map( response => { let nil: Nil = new Nil(); nil.parse( response ); return nil; } )
                         .subscribe(() => {
                             // then on success remove from local storage
                             this.storage.removeItem( watchUrl ).subscribe(() => {
@@ -440,8 +437,7 @@ export class WatchesService {
 
     refreshPoolRefresh( poolRefreshUrl ) {
         // do the delete on backend server
-        this.http.post( poolRefreshUrl, null ).map( response => { let watchOut: WatchOut = new WatchOut(); watchOut.parse( response.json() ); return watchOut; } )
-            .catch( this.handleError )
+        this.http.post( poolRefreshUrl, null ).map( response => { let watchOut: WatchOut = new WatchOut(); watchOut.parse( response ); return watchOut; } )
             .subscribe(( watchOut ) => {
 
                 let values: List = watchOut.getValueList();
@@ -477,8 +473,7 @@ export class WatchesService {
                 if ( watchItem != null ) {
                     // the watch expose it delete operation url
                     let poolChangesUrl: string = watchItem.getPoolChangesOp().getUrl( this.rootUrl );
-                    this.http.post( poolChangesUrl, null ).map( response => { let watchOut: WatchOut = new WatchOut(); watchOut.parse( response.json() ); return watchOut; } )
-                        .catch( this.handleError )
+                    this.http.post( poolChangesUrl, null ).map( response => { let watchOut: WatchOut = new WatchOut(); watchOut.parse( response ); return watchOut; } )
                         .subscribe(( watchOut ) => {
                             let valueList: List = watchOut.getValueList();
                             for ( let value of valueList.childrens ) {
@@ -513,8 +508,7 @@ export class WatchesService {
                     let addUrl: string = watchItem.getAddOp().getUrl( this.rootUrl );
                     let poolRefreshUrl: string = watchItem.getPoolRefreshOp().getUrl( this.rootUrl );
 
-                    this.http.post( addUrl, watchIn ).map( response => { let watchOutAdd: WatchOut = new WatchOut(); watchOutAdd.parse( response.json() ); return watchOutAdd; } )
-                        .catch( this.handleError )
+                    this.http.post( addUrl, watchIn ).map( response => { let watchOutAdd: WatchOut = new WatchOut(); watchOutAdd.parse( response ); return watchOutAdd; } )
                         .subscribe(( watchOutAdd ) => {
                             this.storage.getItem( poolRefreshUrl ).map( item => { if ( item != null ) { let watchOutStorage: WatchOut = new WatchOut(); watchOutStorage.parse( item ); return watchOutStorage; } } )
                                 .subscribe(( watchOutStorage ) => {
@@ -563,7 +557,6 @@ export class WatchesService {
                     let poolRefreshUrl: string = watchItem.getPoolRefreshOp().getUrl( this.rootUrl );
 
                     this.http.post( removeUrl, watchIn )
-                        .catch( this.handleError )
                         .subscribe(() => {
                             this.storage.getItem( poolRefreshUrl ).map( item => { if ( item != null ) { let watchOutStorage: WatchOut = new WatchOut(); watchOutStorage.parse( item ); return watchOutStorage; } } )
                                 .subscribe(( watchOutStorage ) => {
@@ -590,17 +583,4 @@ export class WatchesService {
 
     }
 
-    private handleError( error: Response | any ) {
-        // In a real world app, you might use a remote logging infrastructure
-        let errMsg: string;
-        if ( error instanceof Response ) {
-            const body = error.json() || '';
-            const err = body.error || JSON.stringify( body );
-            errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-        } else {
-            errMsg = error.message ? error.message : error.toString();
-        }
-        console.error( errMsg );
-        return Observable.throw( errMsg );
-    }
 }

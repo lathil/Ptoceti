@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -14,11 +14,11 @@ import { Obj, Ref,  SearchOut } from './obix';
 @Injectable()
 export class SearchService {
 
-    http: Http;
+    http: HttpClient;
     rootUrl : string;
     serviceUrl : string;
 
-    constructor( http: Http ) {
+    constructor( http: HttpClient ) {
         this.http = http;
     }
     
@@ -28,26 +28,12 @@ export class SearchService {
     }
     
     search(searchIn : Ref ) : Observable<SearchOut> {
-        return this.http.post( this.serviceUrl, searchIn ).map( this.handleSearchOutResponse ).catch( this.handleError );
+        return this.http.post( this.serviceUrl, searchIn ).map( this.handleSearchOutResponse );
     }
 
-    private handleSearchOutResponse(response: Response ): SearchOut {
+    private handleSearchOutResponse(response: any ): SearchOut {
         let searchOut : SearchOut = new SearchOut;
-        searchOut.parse(response.json());
+        searchOut.parse(response);
         return searchOut;
-    }
-
-    private handleError( error: Response | any ) {
-        // In a real world app, you might use a remote logging infrastructure
-        let errMsg: string;
-        if ( error instanceof Response ) {
-            const body = error.json() || '';
-            const err = body.error || JSON.stringify( body );
-            errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-        } else {
-            errMsg = error.message ? error.message : error.toString();
-        }
-        console.error( errMsg );
-        return Observable.throw( errMsg );
     }
 }

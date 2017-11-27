@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
@@ -15,21 +15,21 @@ import { Obj, HistoryService } from './obix';
 
 @Injectable()
 export class HistoriesService {
-    http: Http;
+    http: HttpClient;
     serviceUrl : string;
     rootUrl : string;
     storage: AsyncLocalStorage;
     cache : ReplaySubject<HistoryService>;
  
-    constructor( http: Http, storage: AsyncLocalStorage ) {
+    constructor( http: HttpClient, storage: AsyncLocalStorage ) {
         this.http = http;
         this.storage = storage;
         this.cache = new ReplaySubject<HistoryService>();
     }
     
-    private handleHistoryServiceResponse(response: Response ): HistoryService {
+    private handleHistoryServiceResponse(response: any ): HistoryService {
         let result : HistoryService = new HistoryService;
-        result.parse(response.json());
+        result.parse(response);
         return result;
     }
     
@@ -50,7 +50,7 @@ export class HistoriesService {
              this.cache.next(historyservice);
            } else{
                // not available, get it from backend server
-               this.http.get( serviceUrl ).map( this.handleHistoryServiceResponse ).catch( this.handleError ).subscribe(historyservice => {
+               this.http.get( serviceUrl ).map( this.handleHistoryServiceResponse ).subscribe(historyservice => {
                    // and save it in local storage
                    this.storage.setItem(serviceUrl, historyservice).subscribe(() => { this.cache.next(historyservice); }, () => {});
                });
@@ -59,19 +59,5 @@ export class HistoriesService {
              console.error( 'error reading from localstorage' );
          });
            
-    }
-    
-    private handleError( error: Response | any ) {
-        // In a real world app, you might use a remote logging infrastructure
-        let errMsg: string;
-        if ( error instanceof Response ) {
-            const body = error.json() || '';
-            const err = body.error || JSON.stringify( body );
-            errMsg = `${error.status} - ${error.statusText || ''} ${err}`;
-        } else {
-            errMsg = error.message ? error.message : error.toString();
-        }
-        console.error( errMsg );
-        return Observable.throw( errMsg );
     }
 }
