@@ -103,13 +103,12 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 	public static final String SERVICEPORT = "com.ptoceti.osgi.obixservice.servletport";
 	public static final String OAUTHPATH = "com.ptoceti.osgi.obixservice.oauthpath";
 	public static final String OAUTHSECURE = "com.ptoceti.osgi.obixservice.oauthsecure";
+	public static final String OAUTHTOKENEXPIREPERIOD = "com.ptoceti.osgi.obixservice.oauthtokenexpiredperiod";
 	
 	public static final String OAUTHOWNERNAME = "com.ptoceti.osgi.obixservice.oauth.owner.name";
 	public static final String OAUTHOWNERSECRET = "com.ptoceti.osgi.obixservice.oauth.owner.secret";
 	
-	public static final String RESOURCEPATH = "com.ptoceti.osgi.obixservice.resourcepath";
 	public static final String DATABASEPATH = "com.ptoceti.osgi.obixservice.databasepath";
-	public static final String EXTERNALRESOURCEPATH = "com.ptoceti.osgi.obixservice.externalresourcepath";
 	public static final String NBEXECUTORPOOLTHREADS = "com.ptoceti.osgi.obixservice.nbexecutorpoolthreads";
 	
 	public static final String REALM = "obixapplication";
@@ -129,12 +128,10 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 	private String oauthServletPath;
 	// indicate if resource muste be secure with oauth
 	private Boolean oauthSecure;
+	
+	private Integer oauthTokenExpiredPeriod;
 	// the port used for the service rest
 	private Integer obixServletPort;
-	// the path under which the resouces are accessibles.
-	private String obixResourcesPath;
-	// the path to the resources themselves.
-	private String obixExternalResourcesPath;
 	// the path to the database file
 	private String databasePath;
 	// falg to indicate if the database has benn initialised
@@ -166,7 +163,7 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 	
 	private AppOwnerManager ownerManager;
 	
-	private TokenManager tokenManager;
+	private MemoryTokenManager tokenManager;
 	
 	private Component component;
 
@@ -324,13 +321,17 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 			// for the http servlet.
 			obixServletPath = (String) props.get(SERVICEPATH);
 			oauthServletPath = (String) props.get(OAUTHPATH);
-			obixResourcesPath = (String) props.get(RESOURCEPATH);
 			databasePath = (String) props.get(DATABASEPATH);
-			obixExternalResourcesPath = (String) props.get(EXTERNALRESOURCEPATH);
 			
 			Object doOauthsecure = props.get(OAUTHSECURE);
 			oauthSecure = doOauthsecure instanceof Boolean ? (Boolean) doOauthsecure: Boolean.parseBoolean(doOauthsecure != null ? doOauthsecure.toString(): "false");
 		
+			
+			
+			Object period = props.get(OAUTHTOKENEXPIREPERIOD);
+			oauthTokenExpiredPeriod = period instanceof Integer ? (Integer) period : Integer.parseInt(period.toString());
+			tokenManager.setExpirePeriod(oauthTokenExpiredPeriod );
+			
 			String ownerName = (String)props.get(OAUTHOWNERNAME);
 			String ownerSecret = (String)props.get(OAUTHOWNERSECRET);
 			if( ownerName != null && ownerName.length() > 0 && ownerSecret != null && ownerSecret.length() > 0){
@@ -445,7 +446,6 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 	protected synchronized void startRestService() {
 		if ((obixServletPath != null)
 				&& (obixHttpHandler.getHttpService() != null)
-				&& (this.obixResourcesPath != null)
 				&& restletHasStarted && !restAppStarted) {
 
 			try {
@@ -493,18 +493,6 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 					obixHttpHandler.getHttpService().registerServlet( obixServletPath, obixServlet, null, defaultContext);
 					Activator.log(LogService.LOG_INFO, "Registered obix servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
 				}
-				
-				
-				if (!obixResourcesPath.startsWith("/")) obixResourcesPath = "/" + obixResourcesPath;
-				
-				if( obixExternalResourcesPath.startsWith("file:")) {
-					
-					FileSystemHttpContext fsHttpContext = new FileSystemHttpContext();
-					obixHttpHandler.getHttpService().registerResources( obixResourcesPath, obixExternalResourcesPath.substring("file:".length()), fsHttpContext);
-				} else obixHttpHandler.getHttpService().registerResources( obixResourcesPath, obixExternalResourcesPath, defaultContext);
-				
-				Activator.log(LogService.LOG_INFO, "Registered resources under alias: " + obixResourcesPath);
-				Activator.log(LogService.LOG_INFO, "Registered external resources under alias: " + obixExternalResourcesPath);
 
 				// flag that we have started the rest front
 				restAppStarted = true;
@@ -526,7 +514,6 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 			if ((obixServletPath != null) && (obixHttpHandler.getHttpService() != null)) {
 				try {
 					obixHttpHandler.getHttpService().unregister(obixServletPath);
-					obixHttpHandler.getHttpService().unregister(obixResourcesPath);
 					if(obixServlet != null){
 						Application app = obixServlet.getApplication();
 						if( app != null) app.stop();
