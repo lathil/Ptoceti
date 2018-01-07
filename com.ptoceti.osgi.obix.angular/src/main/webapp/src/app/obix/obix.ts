@@ -156,8 +156,21 @@ export class Obj {
         else if ( type == WatchOut.classType ) result = new WatchOut();
         else if ( type == WatchInItem.classType ) result = new WatchInItem();
         else if ( type == HistoryService.classType ) result = new HistoryService();
-        else if ( type == History.classType ) result = new History();
+        else if ( type == HistoryFilter.classType ) result = new HistoryFilter();
+        else if ( type == HistoryRecord.classType ) result = new HistoryRecord();
+        else if ( type == HistoryQueryOut.classType ) result = new HistoryQueryOut();
+        else if ( type == HistoryRollupIn.classType ) result = new HistoryRollupIn();
+        else if ( type == HistoryRollupOut.classType ) result = new HistoryRollupOut();
+        else if ( type == HistoryRollupRecord.classType ) result = new HistoryRollupRecord();
         else if ( type == AlarmService.classType ) result = new AlarmService();
+        else if ( type == Alarm.classType) result = new Alarm();
+        else if ( type == AckAlarm.classType) result = new AckAlarm();
+        else if ( type == AlarmAckIn.classType) result = new AlarmAckIn();
+        else if ( type == AlarmAckOut.classType) result = new AlarmAckOut();
+        else if ( type == DigitAlarm.classType) result = new DigitAlarm();
+        else if ( type == PointAlarm.classType) result = new PointAlarm();
+        else if ( type == RangeAlarm.classType) result = new RangeAlarm();
+        else if ( type == StatefullAlarm.classType) result = new StatefullAlarm();
         
        
         
@@ -467,7 +480,7 @@ export class Ref extends Obj {
 export class Reltime extends Obj {
     static classType: string = 'reltime';
     type: string = Reltime.classType;
-    val: number = null;
+    val: string = null;
     max: Reltime = null;
     min: Reltime = null;
     
@@ -780,6 +793,237 @@ export class History extends Obj{
         result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "rollup"}) as Op;
         return result;
     }
+    
+    getStart() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "start"}) as Abstime;
+        return result;
+    }
+    
+    getEnd() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "end"}) as Abstime;
+        return result;
+    }
+    
+    getCount() : Int {
+        let result : Int = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "count"}) as Int;
+        return result;
+    }
+}
+
+export class HistoryFilter extends Obj{
+    static classType: string = 'historyfilter';
+    type: string = HistoryFilter.classType;
+    is: Contract = new Contract( [ new Uri('obix:HistoryFilter')]);
+    
+    
+    getStart() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "start"}) as Abstime;
+        return result;
+    }
+    
+    setStart(start : Abstime) {
+        let index = this.childrens.findIndex(function(this, value, index, obj) : boolean {return value.name == "start"});
+        start.name = "start";
+        if( index < 0) {
+            this.childrens.push(start);
+        } else {
+            this.childrens[index] = start;
+        }
+    }
+    
+    getEnd() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "end"}) as Abstime;
+        return result;
+    }
+    
+    setEnd(end : Abstime) {
+        let index = this.childrens.findIndex(function(this, value, index, obj) : boolean {return value.name == "end"});
+        end.name = "end";
+        if( index < 0) {
+            this.childrens.push(end);
+        } else {
+            this.childrens[index] = end;
+        }
+    }
+    
+    getLimit() : Int {
+        let result : Int = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "limit"}) as Int;
+        return result;
+    }
+    
+    setLimit(limit : Int) {
+        let index = this.childrens.findIndex(function(this, value, index, obj) : boolean {return value.name == "limit"});
+        limit.name = "limit";
+        if( index < 0) {
+            this.childrens.push(limit);
+        } else {
+            this.childrens[index] = limit;
+        }
+    }
+}
+
+export class HistoryRecord extends Obj{
+    static classType: string = 'historyrecord';
+    type: string = HistoryRecord.classType;
+    is: Contract = new Contract( [ new Uri('obix:HistoryRecord')]);
+    
+    getTimeStamp() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "timestamp"}) as Abstime;
+        return result;
+    }
+    
+    getValue() : Obj {
+        let result : Obj = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "value"}) as Obj;
+        return result;
+    }
+}
+
+export class HistoryQueryOut extends Obj{
+    static classType: string = 'historyqueryout';
+    type: string = HistoryQueryOut.classType;
+    is: Contract = new Contract( [ new Uri('obix:HistoryQueryOut')]);
+    
+    getStart() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "start"}) as Abstime;
+        return result;
+    }
+    
+    getEnd() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "end"}) as Abstime;
+        return result;
+    }
+    
+    getCount() : Int {
+        let result : Int = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "count"}) as Int;
+        return result;
+    }
+    
+    getDataList() : List {
+        let result : List = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "data"}) as List;
+        return result;
+    }
+}
+
+export class HistoryRollupIn extends HistoryFilter{
+    static classType: string = 'historyrollupin';
+    type: string = HistoryRollupIn.classType;
+    is: Contract = new Contract( [ new Uri('obix:HistoryRollupIn')]);
+    
+    getInterval() : Reltime {
+        let result : Reltime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "interval"}) as Reltime;
+        return result;
+    }
+    
+    setInterval(interval : Reltime) {
+        let index = this.childrens.findIndex(function(this, value, index, obj) : boolean {return value.name == "interval"});
+        interval.name = "interval";
+        if( index < 0) {
+            this.childrens.push(interval);
+        } else {
+            this.childrens[index] = interval;
+        }
+    }
+}
+
+export class HistoryRollupOut extends HistoryFilter{
+    static classType: string = 'historyrollupout';
+    type: string = HistoryRollupOut.classType;
+    is: Contract = new Contract( [ new Uri('obix:HistoryRollupOut')]);
+    
+    getStart() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "start"}) as Abstime;
+        return result;
+    }
+    
+    getEnd() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "end"}) as Abstime;
+        return result;
+    }
+    
+    getCount() : Int {
+        let result : Int = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "count"}) as Int;
+        return result;
+    }
+    
+    setCount(count : Int) {
+        let index = this.childrens.findIndex(function(this, value, index, obj) : boolean {return value.name == "count"});
+        count.name = "count";
+        if( index < 0) {
+            this.childrens.push(count);
+        } else {
+            this.childrens[index] = count;
+        }
+    }
+    
+    getDataList() : List {
+        let result : List = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "data"}) as List;
+        return result;
+    }
+}
+
+export class HistoryRollupRecord extends Obj{
+    static classType: string = 'historyrolluprecord';
+    type: string = HistoryRollupRecord.classType;
+    is: Contract = new Contract( [ new Uri('obix:HistoryRollupRecord')]);
+    
+    getStart() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "start"}) as Abstime;
+        return result;
+    }
+    
+    getEnd() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "end"}) as Abstime;
+        return result;
+    }
+    
+    getCount() : Int {
+        let result : Int = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "count"}) as Int;
+        return result;
+    }
+    
+    getMin() : Real {
+        let result : Real = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "min"}) as Real;
+        return result;
+    }
+    
+    getMax() : Real {
+        let result : Real = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "max"}) as Real;
+        return result;
+    }
+    
+    getAvg() : Real {
+        let result : Real = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "avg"}) as Real;
+        return result;
+    }
+    
+    getSum() : Real {
+        let result : Real = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "sum"}) as Real;
+        return result;
+    }
 }
 
 export class AlarmService extends Obj{
@@ -794,3 +1038,126 @@ export class AlarmService extends Obj{
     }
     
 }
+
+export class Alarm extends Obj {
+    static classType: string = 'alarm';
+    type: string = Alarm.classType;
+    is: Contract = new Contract( [ new Uri('obix:Alarm')]);
+    
+    getSource() : Ref {
+        let result : Ref = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "source"}) as Ref;
+        return result;
+    }
+    
+    getTimeStamp() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "timestamp"}) as Abstime;
+        return result;
+    }
+    
+    getAckOp() : Op {
+        let result : Op = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "ack"}) as Op;
+        return result;
+    }
+    
+    getAckTimestamp() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "ackTimestamp"}) as Abstime;
+        return result;
+    }
+    
+    getAckUser() : Str {
+        let result : Str = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "ackUser"}) as Str;
+        return result;
+    }
+    
+    getNormalTimeStamp() : Abstime {
+        let result : Abstime = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "normalTimeStamp"}) as Abstime;
+        return result;
+    }
+    
+    getAlarmValue() : Obj {
+        let result : Obj = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "alarmValue"}) as Obj;
+        return result;
+    }
+}
+
+export class AckAlarm extends Alarm {
+    static classType: string = 'ackalarm';
+    type: string = AckAlarm.classType;
+    is: Contract = new Contract( [ new Uri('obix:Alarm'), new Uri('obix:AckAlarm')]);
+}
+
+export class AlarmAckOut extends Obj {
+    static classType: string = 'alarmackout';
+    type: string = AlarmAckOut.classType;
+    is: Contract = new Contract( [ new Uri('obix:AlarmAckOut')]);
+    
+    getAlarm() : Alarm {
+        let result : Alarm = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "alarm"}) as Alarm;
+        return result;
+    }
+}
+
+export class AlarmAckIn extends Obj {
+    static classType: string = 'alarmackin';
+    type: string = AlarmAckIn.classType;
+    is: Contract = new Contract( [ new Uri('obix:AlarmAckIn')]);
+    
+    getAckUser() : Str {
+        let result : Str = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "ackUser"}) as Str;
+        return result;
+    }
+}
+
+export class StatefullAlarm extends Alarm {
+    static classType: string = 'statefulalarm';
+    type: string = StatefullAlarm.classType;
+    is: Contract = new Contract( [ new Uri('obix:Alarm'), new Uri('obix:StatefullAlarm')]);
+}
+
+export class PointAlarm extends Alarm {
+    static classType: string = 'pointalarm';
+    type: string = PointAlarm.classType;
+    is: Contract = new Contract( [ new Uri('obix:Alarm'), new Uri('obix:PointAlarm')]);
+}
+
+export class DigitAlarm extends Alarm {
+    static classType: string = 'digitalarm';
+    type: string = DigitAlarm.classType;
+    is: Contract = new Contract( [ new Uri('obix:Alarm'), new Uri('obix:PointAlarm'), new Uri('obix:StatefulAlarm'),new Uri('obix:StatefulAlarm'), new Uri('obix:AckAlarm'), new Uri('ptoceti:DigitAlarm')]);
+
+    getAlarmLevel() : Int {
+        let result : Int = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "alarmLevel"}) as Int;
+        return result;
+    }
+}
+
+export class RangeAlarm extends Alarm {
+    static classType: string = 'digitalarm';
+    type: string = RangeAlarm.classType;
+    is: Contract = new Contract( [ new Uri('obix:Alarm'), new Uri('obix:PointAlarm'), new Uri('obix:StatefulAlarm'),new Uri('obix:StatefulAlarm'), new Uri('obix:AckAlarm'), new Uri('ptoceti:RangeAlarm')]);
+
+    getMaxValue() : Int {
+        let result : Int = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "maxValue"}) as Int;
+        return result;
+    }
+    
+    getMinValue() : Int {
+        let result : Int = null;
+        result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "minValue"}) as Int;
+        return result;
+    }
+}
+
+
+

@@ -91,7 +91,7 @@ export class AppComponent implements OnInit{
         //called after the constructor and called  after the first ngOnChanges() 
         
         
-        if( !this.oauthService.hasValidAccessToken() ){
+        if( !this.oauthService.hasValidAccessToken() && this.config.getConfig("secure") === "true"){
             this.router.navigate(['./pages/login'])
         }
         

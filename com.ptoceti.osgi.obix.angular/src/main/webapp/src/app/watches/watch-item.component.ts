@@ -1,8 +1,8 @@
 import { Component, OnInit, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { Observable  } from 'rxjs/Observable';
-import { Subscription  } from 'rxjs/Subscription';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 
 import { Obj, Ref, Watch, SearchOut, Status } from '../obix/obix';
@@ -10,6 +10,13 @@ import { Obj, Ref, Watch, SearchOut, Status } from '../obix/obix';
 import { WatchesService } from '../obix/obix.watchesservice';
 
 
+export class Period {
+    value: string;
+    name: string;
+    constructor( name: string, value: string ) {
+        this.name = name; this.value = value;
+    }
+}
 
 @Component( {
     selector: 'watchitem',
@@ -17,17 +24,24 @@ import { WatchesService } from '../obix/obix.watchesservice';
 } )
 export class WatchItemComponent implements OnInit, AfterViewInit {
 
-    @Input('watch') watch: Watch;
-
+    @Input( 'watch' ) watch: Watch;
     @Output() onRemove = new EventEmitter<Watch>();
     
     itemCount: Number = 0;
-    itemCountsubscription : Subscription ;
+    itemCountsubscription: Subscription;
     
+    
+    editPeriod: Period = null;
+    periods: Array<Period> = [{ name: "1 day", value: "P1D" }, { name: "1 week", value: "P1W" }, { name: "1 month", value: "P1M" }, { name: " 1 year", value: "P1Y" }];
+
+
+    isCollapsed: boolean = true;
+
     watchesService: WatchesService;
 
-    constructor( watchesService: WatchesService ) {
+    constructor( watchesService: WatchesService) {
         this.watchesService = watchesService;
+        
     }
 
     ngOnInit() {
@@ -35,20 +49,23 @@ export class WatchItemComponent implements OnInit, AfterViewInit {
     }
 
     ngOnDestroy() {
-        if (this.itemCountsubscription) {
+        if ( this.itemCountsubscription ) {
             this.itemCountsubscription.unsubscribe();
-          }
+        }
+        
     }
 
     ngAfterViewInit() {
-        this.itemCountsubscription = this.watchesService.getWatchCount(this.watch.href.val).subscribe((count) => {
+        this.itemCountsubscription = this.watchesService.getWatchCount( this.watch.href.val ).subscribe(( count ) => {
             this.itemCount = count;
-        });
+        } );
     }
-    
+
     onRemoveClick() {
-        this.onRemove.emit(this.watch);
+        this.onRemove.emit( this.watch );
     }
+
+
 
     getStatusIcon(): string {
 
@@ -66,5 +83,5 @@ export class WatchItemComponent implements OnInit, AfterViewInit {
 
         return "fa-check";
     }
-   
+
 }

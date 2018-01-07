@@ -4,5 +4,28 @@
 	<div class="row" >
 		<item-loader *ngFor="let obj of watchContentList" [obj]="obj" class="col-sm-6 col-md-4 col-lg-3 col-xl-3"  (onRemove)="onRemove($event)" (onEdit)="onEdit($event)"></item-loader>
 	</div>
-	
+	<div class="card">
+		<div class="card-block">
+	          <table class="table">
+	            <thead>
+	              <tr>
+	                <th>Name</th>
+	                <th></th>
+	                <th></th>
+	                <th><th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              <tr *ngFor="let obj of watchContentList" >    
+	                	<td class="align-middle"><itemeditname [item]="obj" (onSave)="onSave($event)"></itemeditname></td>
+	                	<td><button *ngIf="hasHistory(obj) == false" (click)="addHistory(obj)" class="btn btn-outline-primary btn-block"><span class="fa fa-history "></span><span class="d-none d-sm-block">Add History</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button>
+	                		<button *ngIf="hasHistory(obj)" (click)="removeHistory(obj)" class="btn btn-outline-primary btn-block"><span class="fa fa-history "></span><span class="d-none d-sm-block">Remove History</span><span class="fa fa-minus d-sm-none d-xs-inline  px-1"></span></button></td>
+	                	<td><button *ngIf="hasAlarm(obj) == false" (click)="addAlarm(obj)" class="btn btn-outline-primary btn-block"><span class="fa fa-bell  "></span><span class="d-none d-sm-block">Add Alarm</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button>
+	                		<button *ngIf="hasAlarm(obj)" (click)="removeAlarm(obj)" class="btn btn-outline-primary btn-block"><span class="fa fa-bell  "></span><span class="d-none d-sm-block">Remove Alarm</span><span class="fa fa-minus d-sm-none d-xs-inline  px-1"></span></button></td>
+	                	<td></td>
+	              </tr>
+	            </tbody>
+	          </table>
+		</div>
+	</div>
 </div>

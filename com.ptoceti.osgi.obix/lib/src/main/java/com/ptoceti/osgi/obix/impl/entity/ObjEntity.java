@@ -992,7 +992,7 @@ public class ObjEntity extends AbstractEntity {
 					((Ref) entity.getObixObject()).setHref(new Uri("", (getString(rs, COL_OBJ_VALUE_TEXT))));
 					break;
 				case 11: //realtime
-					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));
+					((Reltime) entity.getObixObject()).setVal(getString(rs,COL_OBJ_VALUE_TEXT));
 					break;
 				case 12: //str
 					((Str) entity.getObixObject()).setMax(getInteger(rs, COL_OBJ_MAX));
@@ -1112,7 +1112,7 @@ public class ObjEntity extends AbstractEntity {
 					((Ref) entity.getObixObject()).setHref(new Uri("", (getString(rs, COL_OBJ_VALUE_TEXT))));
 					break;
 				case 11: //realtime
-					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));
+					((Reltime) entity.getObixObject()).setVal(getString(rs,COL_OBJ_VALUE_TEXT));
 					break;
 				case 12: //str
 					((Str) entity.getObixObject()).setMax(getInteger(rs, COL_OBJ_MAX));

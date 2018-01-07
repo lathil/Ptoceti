@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChartsModule } from 'ng2-charts/ng2-charts';
 
 import { DashboardComponent } from './dashboard.component';
 import { DashboardWatchComponent} from './dashboard-watch.component';
@@ -12,7 +11,6 @@ import { ItemModule } from '../items/item.module';
   imports: [
     CommonModule,
     DashboardRoutingModule,
-    ChartsModule,
     SearchModule,
     ItemModule
   ],

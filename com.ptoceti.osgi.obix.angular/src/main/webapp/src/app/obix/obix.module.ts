@@ -16,6 +16,8 @@ import { HistoriesService } from './obix.historiesservice';
 import { AlarmsService } from './obix.alarmsservice';
 import { SearchService } from './obix.searchservice';
 
+import { Action } from '../obix/obix.services-commons';
+
 
 
 @NgModule({
@@ -23,6 +25,7 @@ import { SearchService } from './obix.searchservice';
               HttpClientModule,
               AsyncLocalStorageModule
             ],
+
     providers: [
                 { provide: LobbyService, useClass: LobbyService },
                 { provide : AboutService, useClass: AboutService},

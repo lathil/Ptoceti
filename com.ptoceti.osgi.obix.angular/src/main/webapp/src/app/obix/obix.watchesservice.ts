@@ -18,12 +18,8 @@ import { AsyncLocalStorage } from 'angular-async-local-storage';
 import { Obj, Contract, Ref, List, Uri, SearchOut, WatchService, Watch, WatchIn, WatchInItem, WatchOut, Nil } from './obix';
 import { SearchService } from '../obix/obix.searchservice';
 
-export enum Action {
-    Add,
-    Update,
-    Delete,
-    Reset
-}
+import { Action } from '../obix/obix.services-commons';
+
 
 export class WatchAction {
     action: Action;
@@ -77,10 +73,12 @@ export class WatchesService {
         return this.cache.asObservable();
     }
 
+    // items from add, update and delete whatch item
     getWatchStream(): Observable<WatchAction> {
         return this.watchStream.asObservable();
     }
 
+    // return items from watch poolchanges and poolrefresh
     getWatchContentStream(): Observable<WatchContentAction> {
         return this.watchContentStream.asObservable();
     }
@@ -325,6 +323,46 @@ export class WatchesService {
                                     }, ( error ) => { console.error( 'error reading from localstorage' + error ) } )
                             }, ( error ) => { console.error( 'error reading from localstorage' + error ) } )
                         } )
+                }
+            }, () => {
+                console.error( 'error reading from localstorage' );
+            } )
+    }
+    
+    
+    /**
+     * Remove watch from client side only not from backend 
+     * 
+     * 
+     * @param url
+     */
+    removeWatch( url ) {
+
+        let ref: Ref = new Ref(); ref.href = new Uri( url );
+        let watchUrl = ref.getUrl( this.rootUrl );
+
+        // retrieve full watch form local storage
+        this.storage.getItem( watchUrl )
+            .subscribe(( watchItem ) => {
+                if ( watchItem != null ) {
+                   
+                    // then on success remove from local storage
+                    this.storage.removeItem( watchUrl ).subscribe(() => {
+                        this.storage.getItem( WatchesService.watchesListKey )
+                            .map( item => { if ( item != null ) { let list: List = new List(); list.parse( item ); return list; } } )
+                            .subscribe(( list ) => {
+
+                                let elemIndex = list.childrens.findIndex( elem => elem.href.val == ref.href.val );
+                                if ( elemIndex > -1 ) {
+                                    list.childrens.splice( elemIndex, 1 );
+                                    // ... then update watch list
+                                    this.storage.setItem( WatchesService.watchesListKey, list )
+                                        // and finally send watch to stream.
+                                        .subscribe(() => { this.watchStream.next( new WatchAction( Action.Delete, watchItem ) ); } )
+                                }
+                            }, ( error ) => { console.error( 'error reading from localstorage' + error ) } )
+                    }, ( error ) => { console.error( 'error reading from localstorage' + error ) } )
+                        
                 }
             }, () => {
                 console.error( 'error reading from localstorage' );
@@ -582,5 +620,57 @@ export class WatchesService {
             )
 
     }
+    
+    /**
+     * Save an updated item to backend then in localstorage, and feedback to observers
+     * 
+     * @param obj
+     */
+    saveWatchItem( obj: Obj ) {
+        let objUrl = obj.getUrl( this.rootUrl );
 
+        let headers: HttpHeaders = new HttpHeaders( {
+            'Content-Type': 'application/json',
+            'Accept': 'q=0.8;application/json;q=0.9'
+        } );
+
+        this.http.put( objUrl, JSON.stringify( obj, function( name, value ) { if ( name === "parent" ) return undefined; else return value; } ), {
+            headers: headers,
+        }).subscribe(() => {
+            obj.timestamp = new Date();
+            this.storage.setItem( objUrl, obj ).subscribe(() => {
+                this.watchContentStream.next( new WatchContentAction( Action.Update, obj ) );
+            })
+                            
+        })
+    }
+    
+    /**
+     * Reload a watch item (an obj) from backend and saves it in local storage
+     * 
+     * @param obj
+     */
+    updateWatchItem(obj: Obj){
+        
+        let objUrl = obj.getUrl( this.rootUrl );
+        
+        this.http.get( objUrl ).map( response => {
+            let objItem: Obj = Obj.obixParse( response ); return objItem;
+        } )
+            .subscribe( obj => {
+                // and save it in local storage
+                obj.timestamp = new Date();
+                this.storage.setItem( objUrl, obj ).subscribe(() => {
+                    this.watchContentStream.next( new WatchContentAction( Action.Update, obj ) );
+                })
+        } )
+    }
+    
+    saveCurrentWatchId(id: string ){
+        this.storage.setItem("currentWatchID", id).subscribe(() => {});
+    }
+
+    getCurrentWatchID() : Observable<any>{
+        return this.storage.getItem("currentWatchID");
+    }
 }

@@ -6,11 +6,16 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { Obj, Ref, Watch, SearchOut, Contract, Uri } from '../obix/obix';
-import { WatchAction, Action, WatchesService } from '../obix/obix.watchesservice';
+import { WatchAction, WatchesService } from '../obix/obix.watchesservice';
+import { HistoryAction, HistoriesService } from '../obix/obix.historiesservice';
+import { AlarmAction, AlarmsService } from '../obix/obix.alarmsservice';
+
+import { Action } from '../obix/obix.services-commons';
 
 import { SearchComponent } from '../search/search.component';
 
 import { ItemLoader } from '../items/item-loader.component';
+import { ItemEditNameComponent } from '../items/item-editname.component';
 
 @Component( {
     templateUrl: 'dashboard-watch.component.html'
@@ -19,6 +24,9 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
 
     route: ActivatedRoute;
     watchesService: WatchesService;
+    historiesService: HistoriesService;
+    alarmsService : AlarmsService;
+    
 
     displayedWatch: Watch;
 
@@ -32,9 +40,11 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
 
     interval: any;
 
-    constructor( route: ActivatedRoute, watchesService: WatchesService ) {
+    constructor( route: ActivatedRoute, watchesService: WatchesService, historiesService: HistoriesService, alarmsService : AlarmsService ) {
         this.route = route;
         this.watchesService = watchesService;
+        this.historiesService = historiesService;
+        this.alarmsService = alarmsService;
         
         this.contractFilter = new Contract( [new Uri( "ptoceti:MeasurePoint" ), new Uri( "ptoceti:SwitchPoint" ), new Uri( "ptoceti:ReferencePoint" ), new Uri( "ptoceti:DigitPoint" )] );
     }
@@ -60,24 +70,24 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
         } );
 
         this.currentWatchUrl = this.route.snapshot.paramMap.get( 'url' );
-
-        /*
-        this.route.paramMap.switchMap(( params: ParamMap ) => {
-            let watchUrl = params.get( 'url' );
-        });
-        */
+        
+        this.watchesService.saveCurrentWatchId(this.currentWatchUrl);
     }
 
     ngOnDestroy() {
         if ( this.watchContentSubscription ) {
             this.watchContentSubscription.unsubscribe();
         }
+        
+        if( this.interval !== undefined){
+            clearInterval(this.interval);
+        }
     }
 
     ngAfterViewInit(): void {
         this.watchesService.getPoolRefresh( this.currentWatchUrl );
 
-        this.interval = setInterval(() => { this.doPoolChanges() }, 3000 );
+        //this.interval = setInterval(() => { this.doPoolChanges() }, 3000 );
     }
 
     /**
@@ -104,6 +114,58 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
     onRemove(obj: Obj){
         console.log( 'onRemove' );
         this.watchesService.removeWatchItem(this.currentWatchUrl, obj.href.val);
+    }
+    
+    onSave (obj: Obj) {
+        this.watchesService.saveWatchItem(obj);
+    }
+    
+    addHistory(obj: Obj) {
+        this.historiesService.createHistory(obj).subscribe((historyAction) => {
+            if( historyAction.action == Action.Add){
+                this.watchesService.updateWatchItem(obj);
+            }
+        });
+    }
+    
+    removeHistory(obj: Obj) {
+        let historyRef : Ref= obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "history"}) as Ref;
+    
+        this.historiesService.deleteHistoy(historyRef).subscribe((historyAction) => {
+            if( historyAction.action == Action.Delete){
+                this.watchesService.updateWatchItem(obj);
+            }
+        });
+    }
+    
+    hasHistory(obj :Obj): boolean{
+        let historyRef : Ref= obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "history"}) as Ref;
+        if( historyRef !== undefined) {
+            return true;
+        } else return false;
+    }
+    
+    addAlarm(obj: Obj) {
+        this.alarmsService.createAlarm(obj).subscribe((alarmAction) => {
+            if( alarmAction.action == Action.Add){
+                this.watchesService.updateWatchItem(obj);
+            }
+        });
+    }
+    
+    removeAlarm(obj: Obj) {
+        this.alarmsService.deleteAlarm(obj).subscribe((alarmAction) => {
+            if( alarmAction.action == Action.Delete){
+                this.watchesService.updateWatchItem(obj);
+            }
+        });
+    }
+    
+    hasAlarm(obj: Obj): boolean{
+        let alarmRef : Ref= obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "alarm"}) as Ref;
+        if( alarmRef !== undefined) {
+            return true;
+        } else return false;
     }
 
     doPoolChanges() {

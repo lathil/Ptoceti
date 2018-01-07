@@ -2,10 +2,15 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs/Subscription';
 
+import { WatchItemComponent} from './watch-item.component';
 
 import { Obj, Ref, Watch, SearchOut, Status, Contract, Uri } from '../obix/obix';
 
-import { WatchAction, Action, WatchesService } from '../obix/obix.watchesservice';
+import { WatchAction, WatchesService } from '../obix/obix.watchesservice';
+
+import { Action } from '../obix/obix.services-commons';
+
+import {InlineEditComponent} from '../shared/inline-edit.component';
 
 
 export class Period {
@@ -90,8 +95,16 @@ export class WatchesComponent implements OnInit, AfterViewInit {
         this.watchesService.createWatch();
     }
 
-    onRemove(watch: Watch) {
+    onDelete(watch: Watch) {
         this.watchesService.deleteWatch( watch.href.val );
+    }
+    
+    onRemove(watch: Watch) {
+        this.watchesService.removeWatch( watch.href.val );
+    }
+    
+    onSave (watch: Watch) {
+        this.watchesService.saveWatch(watch);
     }
 
 

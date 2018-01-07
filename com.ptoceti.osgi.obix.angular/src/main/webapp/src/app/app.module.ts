@@ -3,7 +3,7 @@ import { NgModule } from '@angular/core';
 import { LocationStrategy, HashLocationStrategy } from '@angular/common';
 import { APP_INITIALIZER } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { AppConfig }       from './app.config';
@@ -11,10 +11,12 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { NAV_DROPDOWN_DIRECTIVES } from './shared/nav-dropdown.directive';
 
-import { ChartsModule } from 'ng2-charts/ng2-charts';
+import {NgxChartsModule} from "@swimlane/ngx-charts";
+
 import { SIDEBAR_TOGGLE_DIRECTIVES } from './shared/sidebar.directive';
 import { AsideToggleDirective } from './shared/aside.directive';
 import { BreadcrumbsComponent } from './shared/breadcrumb.component';
+
 
 // Routing Module
 import { AppRoutingModule } from './app-routing.module';
@@ -49,8 +51,9 @@ import { ObixModule } from './obix/obix.module';
     OAuthModule.forRoot(),
     BsDropdownModule.forRoot(),
     TabsModule.forRoot(),
+    NgxChartsModule,
+    BrowserAnimationsModule,
     CookieModule,
-    ChartsModule,
     ObixModule,
     HttpClientModule,
     HttpModule

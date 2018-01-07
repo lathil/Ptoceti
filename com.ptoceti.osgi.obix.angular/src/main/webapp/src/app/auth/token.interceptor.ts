@@ -21,8 +21,7 @@ export class TokenInterceptor implements HttpInterceptor {
 
     constructor( injector: Injector) {
         //this.oauthService = oauthService;
-        //this.router = injector.get(Router);
-        //this.router = router;
+        this.router = injector.get(Router);
         this.injector = injector;
     }
 
@@ -45,7 +44,7 @@ export class TokenInterceptor implements HttpInterceptor {
             if ( err instanceof HttpErrorResponse ) {
                 if ( err.status === 401 || err.status === 403) {
                     // redirect to the login route
-                    this.router.navigate( ['./pages/login'] )
+                    this.router.navigate( ['./pages/login'],  { queryParams: { returnUrl: this.router.routerState.snapshot.url }} )
                 }
             }
         } );

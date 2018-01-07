@@ -20,6 +20,8 @@ module.exports = webpackMerge(commonConfig, {
   ],
 
   devServer: {
+	inline:true,
+	port: 8080,
     historyApiFallback: true,
     stats: 'minimal',
     setup(app){
@@ -27,11 +29,11 @@ module.exports = webpackMerge(commonConfig, {
 	    res.json({ env: 'development' });
 	    	}),
 	  app.get('/config.development.json', function(req, res) {
-		    res.json({  lobbyUrl : "http://localhost:8080/obix/rest/" });
+		    res.json({ secure:false, lobbyUrl : "http://localhost:8080/obix/rest/" });
 		  });
     },
     proxy: {
-    	  /*"/rest": "http://localhost:3004"*/
+    	  "/obix/rest": "http://localhost:3004"
     	}
   }
 });

@@ -1,13 +1,13 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChange, EventEmitter } from '@angular/core';
 
-import { Obj, Status } from '../obix/obix';
+import { Obj, Status, Ref } from '../obix/obix';
 
 @Component( {
     templateUrl: 'item.component.html'
 } )
 export class Item implements OnInit, OnChanges {
 
-    obj: any;
+    obj: Obj;
 
     static units = {
         "meter": "m",
@@ -57,7 +57,7 @@ export class Item implements OnInit, OnChanges {
 
     getUnit(): string {
 
-        let unitname: string = this.obj.unit.val;
+        let unitname: string = (this.obj as any).unit.val;
         if ( unitname.lastIndexOf( "obix:Unit/" ) > -1 ) {
             return Item.units[unitname.substr( unitname.lastIndexOf( '/' ) + 1 )];
         }
@@ -65,19 +65,23 @@ export class Item implements OnInit, OnChanges {
 
     getStatusIcon(): string {
 
-        let statustoLower = this.obj.status.toLowerCase();
-        if ( statustoLower == Status.DISABLED ) return "glyphicon fa-ban";
-        if ( statustoLower == Status.FAULT ) return "glyphicon fa-bomb";
-        if ( statustoLower == Status.DOWN ) return "glyphicon fa-exclamation-triangle";
-        if ( statustoLower == Status.UNAKEDALARM ) return "glyphicon fa-exclamation";
-        if ( statustoLower == Status.ALARM ) return "glyphicon fa-bell";
-        if ( statustoLower == Status.UNACKED ) return "glyphicon fa-exclamation";
-        if ( statustoLower == Status.OVERRIDEN ) return "glyphicon fa-eraser";
-        if ( statustoLower == Status.OK ) return "glyphicon fa-check";
+        if ( this.obj.status ) {
+            let statustoLower = this.obj.status.toLowerCase();
+            if ( statustoLower == Status.DISABLED ) return "glyphicon fa-ban";
+            if ( statustoLower == Status.FAULT ) return "glyphicon fa-bomb";
+            if ( statustoLower == Status.DOWN ) return "glyphicon fa-exclamation-triangle";
+            if ( statustoLower == Status.UNAKEDALARM ) return "glyphicon fa-exclamation";
+            if ( statustoLower == Status.ALARM ) return "glyphicon fa-bell";
+            if ( statustoLower == Status.UNACKED ) return "glyphicon fa-exclamation";
+            if ( statustoLower == Status.OVERRIDEN ) return "glyphicon fa-eraser";
+            if ( statustoLower == Status.OK ) return "glyphicon fa-check";
+        }
 
         return "fa-check";
     }
 
+   
+    
     onEditClick(){
         this.onEdit.emit( this.obj );
     }
