@@ -276,8 +276,8 @@ export class HistoriesService {
                     
                     let doit : any = false;
                     // already some records in local storage, use them
-                    //if( rollupOut !== undefined){
-                    if( doit){
+                    if( rollupOut !== undefined){
+                    //if( doit){
                         
                         let historyRollupRecords : Array<HistoryRollupRecord> = rollupOut.getDataList().childrens as Array<HistoryRollupRecord>;
                         let discardRecords : boolean = false;

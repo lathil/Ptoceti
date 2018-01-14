@@ -78,6 +78,10 @@ public final class ResourceServlet extends HttpServlet
         {
             target += "/" + target;
         }
+        
+        if( target.equals("/")){
+        	target = "/index.html";
+        }
 
         String resName = this.path + target;
         URL url = getServletContext().getResource(resName);

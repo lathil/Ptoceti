@@ -1,4 +1,4 @@
-import { Component, OnChanges, AfterViewInit, ElementRef, ViewChild, ViewEncapsulation, SimpleChanges, OnInit, Input } from '@angular/core';
+import { Component, OnChanges, AfterViewInit, ElementRef, ViewChild, ViewEncapsulation, SimpleChanges, OnInit, Input, HostListener } from '@angular/core';
 
 import * as D3 from 'd3';
 
@@ -23,7 +23,7 @@ export class LineChartComponent implements OnInit, OnChanges, AfterViewInit {
 
     @Input() data: Array<LineChartData>;
 
-    margin: any = { top: 0, bottom: 0, left: 0, right: 0 };
+    margin: any = { top: 0, bottom: 5, left: 0, right: 0 };
     chart: any;
     width: number;
     height: number;
@@ -70,29 +70,50 @@ export class LineChartComponent implements OnInit, OnChanges, AfterViewInit {
         this.yScale = D3.scaleLinear().range( [this.height, 0] );
 
     }
+    
+    @HostListener('window:resize', ['$event'])
+    resize(){
+        
+        let element = this.chartContainer.nativeElement;
+        this.width = element.offsetWidth - this.margin.left - this.margin.right;
+        this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
+        
+        D3.selectAll('svg')
+        .attr("width", this.width)
+        .attr("height", this.height);
+        
+        this.xScale = D3.scaleTime().range( [0, this.width] );
+        this.yScale = D3.scaleLinear().range( [this.height, 0] );
+        
+        this.updateChart();
+    }
 
     updateChart() {
         
-        this.xScale.domain(D3.extent(this.data, function(d: LineChartData) { return d.timeStamp}));
-        this.yScale.domain(D3.extent(this.data, function(d: LineChartData) { return d.data; }));
+        this.xScale.domain(D3.extent(this.data, function(d: LineChartData) { 
+            return d.timeStamp;
+            }));
+        
+        this.yScale.domain(D3.extent(this.data, function(d: LineChartData) { 
+            return d.data; 
+            }));
+        
         
         let self = this;
         let line = D3.line()
-            .curve( D3.curveLinear)
+            .curve(D3.curveBasis)
             .x(function(d: LineChartData) { 
-                return self.xScale(d.timeStamp); 
+                let p = self.xScale(d.timeStamp); 
+                return p;
             })
             .y(function(d: LineChartData) { 
-                return self.yScale(d.data); 
+                let q = self.yScale(d.data); 
+                return q
             });
         
-        this.chart.selectAll("linechart").exit().remove();
-        
-        this.chart.selectAll("linechart").data([this.data]).enter()
-            .append("path")
-            .attr("class", "line")
-            .attr("d", function(d){ 
-                return line(d);
-                });
+        let selection = this.chart.selectAll("path").data([this.data]).attr("d", function(d){return line(d);});
+        selection.enter().append("path").attr("class", "line").attr("d", function(d){return line(d);});
+        selection.exit().remove();
+       
     }
 }
