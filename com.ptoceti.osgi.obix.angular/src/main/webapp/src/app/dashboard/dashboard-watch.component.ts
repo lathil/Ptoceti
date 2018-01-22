@@ -5,7 +5,7 @@ import 'rxjs/add/operator/switchMap';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
-import { Obj, Ref, Watch, SearchOut, Contract, Uri } from '../obix/obix';
+import { Obj, Ref, Watch, SearchOut, Contract, Uri, MeasurePoint } from '../obix/obix';
 import { WatchAction, WatchesService } from '../obix/obix.watchesservice';
 import { HistoryAction, HistoriesService } from '../obix/obix.historiesservice';
 import { AlarmAction, AlarmsService } from '../obix/obix.alarmsservice';
@@ -128,6 +128,14 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
         });
     }
     
+    canHaveHistory(obj: Obj){
+       if( obj.is.contains( (new MeasurePoint()).is.uris[0])){
+           return true
+       } else {
+           return false;
+       }
+    }
+    
     removeHistory(obj: Obj) {
         let historyRef : Ref= obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "history"}) as Ref;
     
@@ -167,6 +175,14 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
             return true;
         } else return false;
     }
+    
+    canHaveAlarm(obj: Obj){
+        if( obj.is.contains( (new MeasurePoint()).is.uris[0])){
+            return true
+        } else {
+            return false;
+        }
+     }
 
     doPoolChanges() {
         this.watchesService.getPoolChanges( this.currentWatchUrl );

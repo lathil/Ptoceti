@@ -102,11 +102,11 @@ export class LineChartComponent implements OnInit, OnChanges, AfterViewInit {
         let self = this;
         let line = D3.line()
             .curve(D3.curveBasis)
-            .x(function(d: LineChartData) { 
+            .x( function(d: any){ 
                 let p = self.xScale(d.timeStamp); 
                 return p;
             })
-            .y(function(d: LineChartData) { 
+            .y( function(d: any) { 
                 let q = self.yScale(d.data); 
                 return q
             });

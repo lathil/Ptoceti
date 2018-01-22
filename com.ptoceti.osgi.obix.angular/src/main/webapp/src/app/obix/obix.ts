@@ -354,8 +354,8 @@ export class Int extends Obj {
     static classType: string = 'int';
     type: string = Int.classType;
     val: number = null;
-    max: Int = null;
-    min: Int = null;
+    max: number = null;
+    min: number = null;
     unit: Uri = null;
     
     parse( json: any ) {
@@ -366,15 +366,11 @@ export class Int extends Obj {
         }
         
         if ( json.hasOwnProperty( "min" ) && json["min"]) {
-            let min : Int = new Int();
-            min.parse(json["min"]);
-            this.min = min;
+            this.min = parseInt(json["min"]);
         }
         
         if ( json.hasOwnProperty( "max" ) && json["max"]) {
-            let max : Int = new Int();
-            max.parse(json["max"]);
-            this.max = max;
+            this.max = parseInt(json["max"]);
         }
         
         if ( json.hasOwnProperty( "unit" ) && json["unit"]) {
@@ -438,8 +434,8 @@ export class Real extends Obj {
     static classType: string = 'real';
     type: string = Real.classType;
     val: number = null;
-    max: Real = null;
-    min: Real = null;
+    max: number = null;
+    min: number = null;
     unit: Uri = null;
     precision: string = null;
     
@@ -451,15 +447,11 @@ export class Real extends Obj {
         }
         
         if ( json.hasOwnProperty( "min" ) && json["min"]) {
-            let min : Real = new Real();
-            min.parse(json["min"]);
-            this.min = min;
+            this.min = parseFloat(json["min"]);;
         }
         
         if ( json.hasOwnProperty( "max" ) && json["max"]) {
-            let max : Real = new Real();
-            max.parse(json["max"]);
-            this.max = max;
+            this.max = parseFloat(json["max"]);;
         }
         
         if ( json.hasOwnProperty( "unit" ) && json["unit"]) {
@@ -656,6 +648,36 @@ export class About extends Obj{
         result = this.childrens.find(function(this, value, index, obj) : boolean {return value.name == "serverName"}) as Str;
         return result;
     }
+}
+
+export class Point extends Obj{
+    static classType: string = 'point';
+    type: string = Point.classType;
+    is: Contract = new Contract( [ new Uri('obix:Point')]);
+}
+
+export class WritablePoint extends Obj{
+    static classType: string = 'writablepoint';
+    type: string = WritablePoint.classType;
+    is: Contract = new Contract( [ new Uri('obix:WritablePoint')]);
+}
+
+export class MeasurePoint extends Obj{
+    static classType: string = 'measurepoint';
+    type: string = MeasurePoint.classType;
+    is: Contract = new Contract( [ new Uri('ptoceti:MeasurePoint')]);
+}
+
+export class MonitoredPoint extends Obj{
+    static classType: string = 'monitoredpoint';
+    type: string = MonitoredPoint.classType;
+    is: Contract = new Contract( [ new Uri('ptoceti:MonitoredPoint')]);
+}
+
+export class ReferencePoint extends Real{
+    static classType: string = 'referencepoint';
+    type: string = ReferencePoint.classType;
+    is: Contract = new Contract( [ new Uri('ptoceti:ReferencePoint')]);
 }
 
 export class WatchService extends Obj{

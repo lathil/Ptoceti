@@ -19,6 +19,7 @@ export class ItemLoader implements OnInit, AfterViewInit , AfterContentInit, OnD
 
     @Output() onEdit = new EventEmitter<Obj>();
     @Output() onRemove = new EventEmitter<Obj>();
+    @Output() onSave = new EventEmitter<Obj>();
     
     cfr: ComponentFactoryResolver
 
@@ -61,6 +62,7 @@ export class ItemLoader implements OnInit, AfterViewInit , AfterContentInit, OnD
         
         this.componentRef.instance.onEdit.subscribe(this.onEdit);
         this.componentRef.instance.onRemove.subscribe(this.onRemove);
+        this.componentRef.instance.onSave.subscribe(this.onSave);
         
     }
     

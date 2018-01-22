@@ -44,6 +44,7 @@ export class Item implements OnInit, OnChanges {
     
     onEdit = new EventEmitter<Obj>();
     onRemove = new EventEmitter<Obj>();
+    onSave = new EventEmitter<Obj>();
 
     constructor() { }
 
