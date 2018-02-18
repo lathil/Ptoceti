@@ -17,12 +17,24 @@ import { Action } from '../obix/obix.services-commons';
 
 import { AsyncLocalStorage } from 'angular-async-local-storage';
 
-import { Obj, Ref, Contract, Int, Abstime, Reltime, Real, List, Uri, Nil, Op, HistoryService, HistoryRollupOut, HistoryRollupIn, HistoryRollupRecord, History } from './obix';
+import { SearchService } from '../obix/obix.searchservice';
+
+import { Obj, Ref, Contract, Int, Abstime, Reltime, Real, List, Uri, Nil, Op, SearchOut, HistoryService, HistoryRollupOut, HistoryRollupIn, HistoryRollupRecord, History } from './obix';
 
 
 export class HistoryAction {
     action: Action;
     history: History;
+    constructor( action: Action, history: History ) {
+        this.action = action;
+        this.history = history;
+    }
+}
+
+export class HistoryRollupAction {
+    action: Action;
+    history : History;
+    historyRollupRecords : Array<HistoryRollupRecord>;
     constructor( action: Action, history: History ) {
         this.action = action;
         this.history = history;
@@ -38,15 +50,22 @@ export class HistoriesService {
     serviceUrl : string;
     rootUrl : string;
     storage: AsyncLocalStorage;
+    
     cache : ReplaySubject<HistoryService>;
+    
+    searchService: SearchService;
  
     historyStream: Subject<HistoryAction>;
     
-    constructor( http: HttpClient, storage: AsyncLocalStorage ) {
+    historyRollupStream : Subject<HistoryRollupAction>;
+    
+    constructor( http: HttpClient, storage: AsyncLocalStorage, searchService: SearchService) {
         this.http = http;
         this.storage = storage;
         this.cache = new ReplaySubject<HistoryService>();
         this.historyStream = new Subject<HistoryAction>();
+        this.historyRollupStream = new Subject<HistoryRollupAction>();
+        this.searchService = searchService;
     }
     
     private handleHistoryServiceResponse(response: any ): HistoryService {
@@ -60,8 +79,12 @@ export class HistoriesService {
     }
     
     // items from add, update and delete history item
-    getWatchStream(): Observable<HistoryAction> {
+    getHistoryStream(): Observable<HistoryAction> {
         return this.historyStream.asObservable();
+    }
+    
+    getHistoryRollupStream(): Observable<HistoryRollupAction> {
+        return this.historyRollupStream.asObservable();
     }
     
     initialize( rootUrl : string, serviceUrl : string) {
@@ -86,6 +109,81 @@ export class HistoriesService {
              console.error( 'error reading from localstorage' );
          });
            
+    }
+    
+    /**
+     * Retrieve a series of histories as observables.
+     * The list of histories to be returned is fetched from local storage. If not found there a full list is retrieved from backend rest server.
+     * Emit each history obtained to observers
+     * 
+     */
+    getHistoriesList() {
+
+        this.storage.getItem( HistoriesService.historiesListKey )
+            .map( item => { if ( item != null ) { let list: List = new List(); list.parse( item ); return list; } } )
+            .subscribe(( list ) => {
+                if ( list != null ) {
+                    let observables: Array<Observable<History>> = [];
+                    for ( let listItem of list.childrens ) {
+                        observables.push( this.getHistory( listItem.getUrl( this.rootUrl ) ) );
+                    }
+                    Observable.concat<History>( ...observables ).subscribe(( watch ) => { this.historyStream.next( new HistoryAction( Action.Add, watch ) ) } );
+
+                } else {
+                    let searchRef: Ref = new Ref();
+                    searchRef.is = new Contract( [new Uri( 'obix:History' )] );
+
+                    this.searchService.search( searchRef )
+                        .map( item => { if ( item != null ) { let searchOut: SearchOut = new SearchOut(); searchOut.parse( item ); return searchOut; } } )
+                        .subscribe(( searchOut ) => {
+                            let searchList: List = searchOut.getValueList();
+                            this.storage.setItem( HistoriesService.historiesListKey, searchList ).subscribe(() => {
+
+                                let observables: Array<Observable<History>> = [];
+                                for ( let listItem of searchList.childrens ) {
+                                    observables.push( this.getHistory( listItem.getUrl( this.rootUrl ) ) );
+                                }
+                                Observable.concat<History>( ...observables ).subscribe(( history ) => { this.historyStream.next( new HistoryAction( Action.Add, history ) ) } );
+                            }, () => { } );
+                        } )
+
+
+                }
+
+            }, ( error ) => {
+                console.log( error );
+
+            } );
+
+    }
+    
+    /**
+     * Reload the full of list of histories from from backend server and update with it the list contained in local storage.
+     * Emit each history obtained to observers
+     * 
+     */
+    refreshHistoryList() {
+
+        let searchRef: Ref = new Ref();
+        searchRef.is = new Contract( [new Uri( 'obix:History' )] );
+
+        this.searchService.search( searchRef )
+            .map( item => { if ( item != null ) { let searchOut: SearchOut = new SearchOut(); searchOut.parse( item ); return searchOut; } } )
+            .subscribe(( searchOut ) => {
+                let searchList: List = searchOut.getValueList();
+                this.storage.setItem( HistoriesService.historiesListKey, searchList ).subscribe(() => {
+
+                    this.historyStream.next( new HistoryAction( Action.Reset, null ) );
+
+                    let observables: Array<Observable<History>> = [];
+                    for ( let listItem of searchList.childrens ) {
+                        let observer: ReplaySubject<History> = new ReplaySubject<History>();
+                        this.refreshHistory( listItem.getUrl( this.rootUrl ), observer );
+                        observables.push( observer.asObservable() );
+                    }
+                    Observable.concat<History>( ...observables ).subscribe(( watch ) => { this.historyStream.next( new HistoryAction( Action.Add, watch ) ) } );;
+                }, () => { } );
+            } )
     }
     
     /**
@@ -244,6 +342,256 @@ export class HistoriesService {
             // and save it in local storage
             this.storage.setItem( historyUrl, history ).subscribe(() => { observer.next( history ); observer.complete(); }, () => { } );
         } )
+    }
+    
+    hideHistoryRollup( historyRef : Ref ){
+        
+        this.getHistoryByRef(historyRef).subscribe((history)=>{
+            
+            let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Delete, history);
+            this.historyRollupStream.next(historyRollupAction); 
+        
+        });
+    }
+    
+    refreshHistoryRollup( historyRef : Ref, startRollup: Date, endRollup: Date){
+        
+        this.getHistoryByRef(historyRef).subscribe((history)=>{
+            let rollupOp : Op = history.getRollupOp();
+            
+            let end =  moment(endRollup);
+            let start = moment(startRollup);
+        
+            let startAbs : Abstime = new Abstime();
+            startAbs.val = start.toISOString();
+            let endAbs : Abstime = new Abstime();
+            endAbs.val = end.toISOString();
+            
+            let rollupName : string = rollupOp.getUrl(this.rootUrl) + startAbs.val + '-' + endAbs.val;
+            
+            this.storage.getItem(rollupName)
+            .map( item => { if ( item != null ) { let rollup: HistoryRollupOut = new HistoryRollupOut(); rollup.parse( item ); return rollup; }} )
+            .subscribe((rollupOut) =>{
+                
+                if( rollupOut !== undefined){
+                    // already something in localstorage
+                    let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Add, history);
+                    historyRollupAction.historyRollupRecords = rollupOut.getDataList().childrens as Array<HistoryRollupRecord>;
+                    this.historyRollupStream.next(historyRollupAction);
+                
+                } else {
+                    // nothing in localstorage get it from backend
+                 
+                    let rollupIn : HistoryRollupIn = new HistoryRollupIn();
+                
+                    let limit: Int = new Int(); limit.val = 50;
+                    rollupIn.setLimit(limit);
+                    rollupIn.setStart(startAbs);
+                    rollupIn.setEnd(endAbs);
+                    
+                    let interval : Reltime = new Reltime();
+                    interval.val = moment.duration(1,'hours').toISOString();
+                    rollupIn.setInterval(interval);
+                    
+                    this.http.post( rollupOp.getUrl(this.rootUrl), rollupIn )
+                        .map( response => { let roolupOutFromPost: HistoryRollupOut = new HistoryRollupOut(); roolupOutFromPost.parse( response ); return roolupOutFromPost; } )
+                        .subscribe((roolupOutFromPost) => {
+                            this.storage.setItem(rollupName, roolupOutFromPost).subscribe(() => {
+                                
+                                let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Add, history);
+                                historyRollupAction.historyRollupRecords = roolupOutFromPost.getDataList().childrens as Array<HistoryRollupRecord>;
+                                this.historyRollupStream.next(historyRollupAction);
+                            })
+                        }, (error) => {
+                            
+                        })
+                }
+                
+            }, (error) => {
+               
+            })
+            
+        }, (error) => {
+            
+        })
+    }
+    
+    /**
+     * Get a rollup of history records for the given period. Stores it locally under the given name
+     * Get records first from local storage. Get missing record of the period from backend storage. Filter contents of local storage based on given period.
+     * @param historyRef
+     * @param startRollup
+     * @param endRollup
+     * @param name
+     */
+    refreshNamedHistoryRollup( historyRef : Ref, startRollup: Date, endRollup: Date, name: string){
+        
+        this.getHistoryByRef(historyRef).subscribe((history)=>{
+            let rollupOp : Op = history.getRollupOp();
+            
+            let end =  moment(endRollup);
+            let start = moment(startRollup);
+        
+            let startAbs : Abstime = new Abstime();
+            startAbs.val = start.toISOString();
+            let endAbs : Abstime = new Abstime();
+            endAbs.val = end.toISOString();
+            
+            let rollupName : string = rollupOp.getUrl(this.rootUrl)  + name;
+            
+            this.storage.getItem(rollupName)
+            .map( item => { if ( item != null ) { let rollup: HistoryRollupOut = new HistoryRollupOut(); rollup.parse( item ); return rollup; }} )
+            .subscribe((rollupOut) =>{
+                
+                if( rollupOut !== undefined){
+                    // we need to filter the existing records
+                    let historyRollupRecords : Array<HistoryRollupRecord> = rollupOut.getDataList().childrens as Array<HistoryRollupRecord>;
+                    let discardRecords : boolean = false;
+                    let lastEndRecord : moment.Moment = null;
+                
+                    let filteredRecords = historyRollupRecords.filter(( rollupRecord ) => {
+                        let recordStart = moment(rollupRecord.getStart().val, moment.ISO_8601);
+                        let recordEnd = moment(rollupRecord.getEnd().val, moment.ISO_8601);
+                        if( lastEndRecord == null) {
+                            lastEndRecord = recordEnd;
+                        } else if( recordEnd.isAfter(lastEndRecord)){
+                            // remember end timestap of latest record
+                            lastEndRecord = recordEnd;
+                        }
+                        if( recordEnd.isBefore(start)){
+                            // record ended before beginning of 24h period, remove it
+                            discardRecords = true;
+                            return false;
+                        } else if(recordStart.isAfter(end)){
+                            discardRecords = true;
+                            return false;
+                        } else return true;
+                    });
+                    
+                    if(historyRollupRecords.length == 0){
+                        let rollupIn : HistoryRollupIn = new HistoryRollupIn();
+                    
+                        let limit: Int = new Int(); limit.val = 50;
+                        rollupIn.setLimit(limit);
+                        rollupIn.setStart(startAbs);
+                        rollupIn.setEnd(endAbs);
+                        
+                        let interval : Reltime = new Reltime();
+                        interval.val = moment.duration(1,'hours').toISOString();
+                        rollupIn.setInterval(interval);
+                        
+                        this.http.post( rollupOp.getUrl(this.rootUrl), rollupIn )
+                            .map( response => { let roolupOutFromPost: HistoryRollupOut = new HistoryRollupOut(); roolupOutFromPost.parse( response ); return roolupOutFromPost; } )
+                            .subscribe((roolupOutFromPost) => {
+                                this.storage.setItem(rollupName, roolupOutFromPost).subscribe(() => {
+                                    
+                                    let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Add, history);
+                                    historyRollupAction.historyRollupRecords = roolupOutFromPost.getDataList().childrens as Array<HistoryRollupRecord>;
+                                    this.historyRollupStream.next(historyRollupAction);
+                                })
+                            }, (error) => {
+                                
+                            })
+                    } else if( lastEndRecord.isBefore(end, 'hour')){
+                     // lacking recent one, try reload lasts records
+                        start = lastEndRecord.add(1, 'hour').startOf('hour');
+                        
+                        let rollupIn : HistoryRollupIn = new HistoryRollupIn();
+                        
+                        let limit: Int = new Int(); limit.val = 50;
+                        rollupIn.setLimit(limit);
+                        startAbs.val = start.toISOString();
+                        rollupIn.setStart(startAbs);
+                        rollupIn.setEnd(endAbs);
+                        
+                        let interval : Reltime = new Reltime();
+                        interval.val = moment.duration(1,'hours').toISOString();
+                        rollupIn.setInterval(interval);
+                        
+                        this.http.post( rollupOp.getUrl(this.rootUrl), rollupIn )
+                        .map( response => { let roolupResult: HistoryRollupOut = new HistoryRollupOut(); roolupResult.parse( response ); return roolupResult; } )
+                        .subscribe((roolupResult) => {
+                            
+                            // server sent us some data
+                            for( let rollupRecord of roolupResult.getDataList().childrens as Array<HistoryRollupRecord>){
+                                filteredRecords.push(rollupRecord);
+                            }
+                            
+                            roolupResult.getDataList().childrens = filteredRecords;
+                            roolupResult.setStart(filteredRecords[0].getStart());
+                            roolupResult.setEnd(filteredRecords[filteredRecords.length -1].getEnd());
+                            let count: Int = new Int();
+                            count.val = filteredRecords.length;
+                            roolupResult.setCount( count);
+                            
+                            this.storage.setItem(rollupName, roolupResult).subscribe(() => {
+                                let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Add, history);
+                                historyRollupAction.historyRollupRecords = filteredRecords;
+                                this.historyRollupStream.next(historyRollupAction);
+                            }, (error) => {
+                                
+                            })
+                            
+                        }, (error) => {
+                            
+                        })
+                    } else if (discardRecords) {
+                     // just remove old records ( older than )
+                        rollupOut.getDataList().childrens = filteredRecords;
+                        rollupOut.getStart().val = filteredRecords[0].getStart().val;
+                        rollupOut.getEnd().val = filteredRecords[filteredRecords.length -1].getEnd().val;
+                        rollupOut.getCount().val = filteredRecords.length;
+                        
+                        this.storage.setItem(rollupName, rollupOut).subscribe(() => {
+                            let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Add, history);
+                            historyRollupAction.historyRollupRecords = filteredRecords;
+                            this.historyRollupStream.next(historyRollupAction);
+                        }, (error) => {
+                            
+                        })
+                    } else {
+                     // up to date, resent it.
+                        let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Add, history);
+                        historyRollupAction.historyRollupRecords = filteredRecords;
+                        this.historyRollupStream.next(historyRollupAction);
+                    }
+                    
+                } else {
+                 // nothing in localstorage get it from backend
+                    
+                    let rollupIn : HistoryRollupIn = new HistoryRollupIn();
+                
+                    let limit: Int = new Int(); limit.val = 50;
+                    rollupIn.setLimit(limit);
+                    rollupIn.setStart(startAbs);
+                    rollupIn.setEnd(endAbs);
+                    
+                    let interval : Reltime = new Reltime();
+                    interval.val = moment.duration(1,'hours').toISOString();
+                    rollupIn.setInterval(interval);
+                    
+                    this.http.post( rollupOp.getUrl(this.rootUrl), rollupIn )
+                        .map( response => { let roolupOutFromPost: HistoryRollupOut = new HistoryRollupOut(); roolupOutFromPost.parse( response ); return roolupOutFromPost; } )
+                        .subscribe((roolupOutFromPost) => {
+                            this.storage.setItem(rollupName, roolupOutFromPost).subscribe(() => {
+                                
+                                let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Add, history);
+                                historyRollupAction.historyRollupRecords = roolupOutFromPost.getDataList().childrens as Array<HistoryRollupRecord>;
+                                this.historyRollupStream.next(historyRollupAction);
+                            })
+                        }, (error) => {
+                            
+                        })
+                }
+                
+            }, (error) => {
+                
+                
+            })
+            
+        }, (error) => {
+            
+        })
     }
     
     /**

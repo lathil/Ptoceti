@@ -20,6 +20,10 @@ export const routes: Routes = [
             {
                 path: 'watches',
                 loadChildren: './watches/watches.module#WatchesModule'
+            },
+            {
+                path: 'histories',
+                loadChildren: './histories/histories.module#HistoriesModule'
             }
         ]
     },

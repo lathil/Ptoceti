@@ -10,7 +10,7 @@ import { WatchAction, WatchesService } from '../obix/obix.watchesservice';
 
 import { Action } from '../obix/obix.services-commons';
 
-import {InlineEditComponent} from '../shared/inline-edit.component';
+//import {InlineEditComponent} from '../shared/inline-edit.component';
 
 
 export class Period {

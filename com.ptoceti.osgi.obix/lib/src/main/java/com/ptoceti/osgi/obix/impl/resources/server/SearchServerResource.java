@@ -28,7 +28,7 @@ private ObjDomain objDomain;
 	public SearchOut search(Ref query) throws ResourceException {
 		
 		SearchOut result = new SearchOut();
-		
+ 		
 		try {
 			// If query get a contract list, serach by contract ...
 			if( query.getIs().getUris() != null && query.getIs().getUris().length > 0){
@@ -36,12 +36,15 @@ private ObjDomain objDomain;
 				// ... and by display name if required
 				
 				for(Obj searchPoint : searchPointList ){
-					Ref ref = new Ref();
-					ref.setHref(searchPoint.getHref());
-					ref.setIs(searchPoint.getIs());
-					ref.setDisplayName(searchPoint.getDisplayName());
-					ref.setDisplay(searchPoint.getDisplay());
-					result.addValue(ref);
+					// do not return Ref objects
+					if( ! (searchPoint instanceof Ref )) {
+						Ref ref = new Ref();
+						ref.setHref(searchPoint.getHref());
+						ref.setIs(searchPoint.getIs());
+						ref.setDisplayName(searchPoint.getDisplayName());
+						ref.setDisplay(searchPoint.getDisplay());
+						result.addValue(ref);
+					}
 					
 				}
 				
@@ -51,16 +54,19 @@ private ObjDomain objDomain;
 			//.. otherwise juste search by display name
 				List<Obj> searchPointList = objDomain.getObixObjByDisplayName(query.getDisplayName());
 				for(Obj searchPoint : searchPointList ){
-					if( searchPoint.containsContract(MeasurePoint.contract)
-							|| searchPoint.containsContract(SwitchPoint.contract)
-							|| searchPoint.containsContract(ReferencePoint.contract)
-							|| searchPoint.containsContract(DigitPoint.contract)) {
-						Ref ref = new Ref();
-						ref.setHref(searchPoint.getHref());
-						ref.setIs(searchPoint.getIs());
-						ref.setDisplayName(searchPoint.getDisplayName());
-						ref.setDisplay(searchPoint.getDisplay());
-						result.addValue(ref);
+					// do not return Ref objects
+					if( ! (searchPoint instanceof Ref )) {
+						if( searchPoint.containsContract(MeasurePoint.contract)
+								|| searchPoint.containsContract(SwitchPoint.contract)
+								|| searchPoint.containsContract(ReferencePoint.contract)
+								|| searchPoint.containsContract(DigitPoint.contract)) {
+							Ref ref = new Ref();
+							ref.setHref(searchPoint.getHref());
+							ref.setIs(searchPoint.getIs());
+							ref.setDisplayName(searchPoint.getDisplayName());
+							ref.setDisplay(searchPoint.getDisplay());
+							result.addValue(ref);
+						}
 					}
 				}
 			}

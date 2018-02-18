@@ -1,0 +1,11 @@
+.d3-multiline-chart-container {
+	
+}
+.d3-multiline-chart-container .linechart .line {
+	fill: none;
+  stroke-width: 2px;
+}
+
+.d3-multiline-chart-container .linechart .area {
+    stroke-width: 0;
+}

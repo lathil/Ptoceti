@@ -1,0 +1,67 @@
+<div class="animated fadeIn">
+
+	<search (onAdd)="onAdd($event)" (onCreate)="onCreate($event)" (onRefresh)="onRefresh($event)" [contractFilter]="contractFilter" [objectFilterList]="historyList" ></search>
+
+	<div class="row justify-content-end">
+		<div class="col-sm-2 col-md-2 col-lg-2 col-xl-2">
+			<div class="card">
+				<div class="input-group">
+					<select class="form-control" name="dataSelect" [(ngModel)]="selectData" (ngModelChange)="changedDataType($event)">
+					    <option *ngFor="let dataType of dataTypes" [ngValue]="dataType">
+					        {{ dataType.name }}
+					    </option>
+					</select> 
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-6 col-md-6 col-lg-6 col-xl-6">
+			<div class="card">
+				<div class="input-group">
+					<input class="form-control" #drp="bsDaterangepicker" bsDaterangepicker [(ngModel)]="bsRangeValue"  (ngModelChange)="changeRange($event)" [maxDate]="bsRangeMaxValue" [disabled]="bsRangeDisabled">
+					<select class="form-control" name="rangeSelect" [(ngModel)]="selectRange" (ngModelChange)="changedRangeType($event)">
+					    <option *ngFor="let rangeType of rangeTypes" [ngValue]="rangeType">
+					        {{ rangeType.name }}
+					    </option>
+					</select> 
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+			<div class="card card-inverse bg-white">
+				<div class="card-block pb-0">
+					<d3-multiline-chart [data]="chartDataList" #d3multilineChart></d3-multiline-chart>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="card">
+		<div class="card-block">
+	          <table class="table">
+	            <thead>
+	              <tr>
+	                <th>Name</th>
+	                <th>Count</th>
+	                <th>Start</th>
+	                <th>End</th>
+	                <th>Show<th>
+	              </tr>
+	            </thead>
+	            <tbody>
+	              <tr *ngFor="let history of historyList" id={{history.href.val}} >    
+	                	<td class="align-middle">{{ history.displayName || history.name}}</td>
+	                	<td class="align-middle">{{history.getCount().val}}</td>
+	                	<td class="align-middle">{{history.getStart().val}}</td>
+	                	<td class="align-middle">{{history.getEnd().val}}</td>
+	                	<td><button class="btn btn-outline-primary btn-block" (click)="onDelete(history)"><span class="fa fa-trash "></span><span class="d-none d-sm-block">Delete history</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button></td>
+	                	<td class="align-middle">
+	                		<button *ngIf="isHistoryShown(history) == false" (click)="onShow(history)" class="btn btn-outline-primary btn-block"><span class="fa fa-bell  "></span><span class="d-none d-sm-block">Show history</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button>
+	                		<button *ngIf="isHistoryShown(history)" (click)="onHide(history)" class="btn btn-outline-primary btn-block"><span class="fa fa-bell  "></span><span class="d-none d-sm-block">Hide History</span><span class="fa fa-minus d-sm-none d-xs-inline  px-1"></span></button>
+		                </td>
+	              </tr>
+	            </tbody>
+	          </table>
+		</div>
+	</div>
+</div>
