@@ -156,7 +156,7 @@ public class ClientApplicationHandler  implements ManagedService {
 			filterSReg.unregister();
 			filterSReg = null;
 		}
-		
+		isInitialized = false;
 	}
 	
 	/**
