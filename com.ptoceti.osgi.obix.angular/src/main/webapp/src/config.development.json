@@ -1,5 +1,5 @@
 {
-    "secure":false,
+    "secure":true,
     "lobbyUrl": "http://localhost:8080/obix/rest/",
     "oauthTokenUrl": "http://localhost:8080/obix/oauth/token"
 }

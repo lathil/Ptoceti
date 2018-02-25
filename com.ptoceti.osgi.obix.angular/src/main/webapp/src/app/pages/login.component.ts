@@ -37,6 +37,7 @@ export class LoginComponent implements OnInit {
         this.oauthService.fetchTokenUsingPasswordFlow(this.login, Md5.hashStr(this.password).toString()).then((resp) =>{
             console.debug('login ok');
             this.router.navigateByUrl(this.returnUrl);
+            
         })
     }
 

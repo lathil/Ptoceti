@@ -70,8 +70,9 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
         } );
 
         this.currentWatchUrl = this.route.snapshot.paramMap.get( 'url' );
-        
-        this.watchesService.saveCurrentWatchId(this.currentWatchUrl);
+        if( this.currentWatchUrl.length > 0){
+            this.watchesService.saveCurrentWatchId(this.currentWatchUrl);
+        }
     }
 
     ngOnDestroy() {

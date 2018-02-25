@@ -6,7 +6,7 @@
 				<a (click)="onRemoveClick()" class="fa fa-remove fa-lg"></a>
 			</div>
 			<h4 class="mb-0">
-				{{itemCount}} items <span> <a class="btn bg-success" routerLinkActive="active" [routerLink]="['/dashboard/watch', watch.href.val]">
+				{{itemCount}} items <span> <a class="btn bg-success" routerLinkActive="active" [routerLink]="['/main/dashboard/watch', watch.href.val]">
 				 <i class="fa fa-arrow-circle-o-right fa-lg"></i></a></span>
 			</h4>
 			<p>{{watch.displayName || watch.name}}</p>

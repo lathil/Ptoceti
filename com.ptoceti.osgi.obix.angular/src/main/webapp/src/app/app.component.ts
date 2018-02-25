@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ViewEncapsulation } from '@angular/core';
 
-import { Router } from '@angular/router';
+import { Router, RouterState, ActivatedRoute, ParamMap } from '@angular/router';
 
 //Oauth2
 import { OAuthService  } from 'angular-oauth2-oidc';
@@ -23,6 +23,8 @@ import { AlarmsService } from './obix/obix.alarmsservice';
 
 
 import { Obj,Lobby, WatchService, HistoryService, AlarmService } from './obix/obix';
+import { Subscription } from "rxjs/Subscription";
+import { Observable } from "rxjs/Rx";
 
 
 @Component({
@@ -53,6 +55,7 @@ export class AppComponent implements OnInit{
     cookieService: CookieService;
     errorMessage: string;
 
+
     constructor (router: Router, oauthService: OAuthService, cookieService: CookieService, lobbyService : LobbyService, aboutService: AboutService, searchService :SearchService, watchesService : WatchesService, historiesService : HistoriesService, alarmsService : AlarmsService, config : AppConfig ){
         
         this.router = router;
@@ -68,8 +71,21 @@ export class AppComponent implements OnInit{
         this.cookieService = cookieService;
         this.config = config;
         
+        // fix window location
+        let location : any = window.location;
+        // keep current host if ref url is on localhost
+        let url : URL = new URL(this.config.getConfig('oauthTokenUrl'));
+        if( url.hostname == 'localhost'){
+            url.hostname = location.hostname;
+        }
+        // keep window location protocol
+        url.protocol = location.protocol;
+        url.port = location.port;
+        
         // url of the tojen provider
-        this.oauthService.tokenEndpoint = config.getConfig("oauthTokenUrl");
+        this.oauthService.tokenEndpoint = url.toString();
+        // other end will refuse if needed
+        this.oauthService.requireHttps = false;
         // URL of the SPA to redirect the user to after login
         this.oauthService.redirectUri = window.location.href;
         // The SPA's id. The SPA is registerd with this id at the auth-server
@@ -91,15 +107,26 @@ export class AppComponent implements OnInit{
         //called after the constructor and called  after the first ngOnChanges() 
         
         
-        if( !this.oauthService.hasValidAccessToken() && this.config.getConfig("secure") === "true"){
+        if( !this.oauthService.hasValidAccessToken() && this.config.getConfig("secure") === true){
             this.router.navigate(['./pages/login'])
         }
         
-        let rootUrl : string = this.config.getConfig('lobbyUrl');
-        let loobyRoot : string = this.config.getConfig('lobbyUrl');
+        // fix window location
+        let location : any = window.location;
+        // keep current host if ref url is on localhost
+        let url : URL = new URL(this.config.getConfig('lobbyUrl'));
+        if( url.hostname == 'localhost'){
+            url.hostname = location.hostname;
+        }
+        // keep window location protocol
+        url.protocol = location.protocol;
+        url.port = location.port;
+        
+        let rootUrl : string = url.toString();
+        let loobyRoot : string = url.toString();
     
         this.lobbyService.initialize(rootUrl, loobyRoot);
-        this.lobbyService.getLobby().subscribe(lobby => {
+        this.lobbyService.getLobby().flatMap( lobby => {
             this.lobby = lobby;
             
             let aboutUrl : string = this.lobby.getAbout().getUrl(rootUrl);
@@ -110,22 +137,27 @@ export class AppComponent implements OnInit{
             
             let watchserviceUrl : string = this.lobby.getWatchServiceRef().getUrl(rootUrl);
             this.watchesService.initialize(rootUrl, watchserviceUrl);
-            this.watchesService.getWatchService().subscribe( watchservice => {
-               this.watchservice = watchservice;
-            });
             
             let historyserviceUrl : string = this.lobby.getHistoryServiceRef().getUrl(rootUrl);
             this.historiesService.initialize(rootUrl, historyserviceUrl)
-            this.historiesService.getHistoryService().subscribe( historyservice => {
-                this.historyservice = historyservice;
-            });
             
             let alarmserviceUrl : string = this.lobby.getAlarmServiceRef().getUrl(rootUrl);
             this.alarmsService.initialize(rootUrl, alarmserviceUrl)
-            this.alarmsService.getAlarmService().subscribe( alarmservice => {
-               this.alarmservice = alarmservice;
-            });
             
+            return Observable.zip( this.watchesService.getWatchService(), this.historiesService.getHistoryService(), this.alarmsService.getAlarmService(),
+                    (watchservice: WatchService, historyservice: HistoryService, alarmservice: AlarmService) => {
+                        this.watchservice = watchservice;
+                        this.historyservice = historyservice;
+                        this.alarmservice = alarmservice;
+                    } )
+            
+        }).subscribe( () => {
+            console.log( 'Application is inilitalized.');
+            this.watchesService.getCurrentWatchID().subscribe((currentWatchId) => {
+                if( currentWatchId != null) {
+                    this.router.navigate(["main/dashboard/watch", currentWatchId]);
+                } else this.router.navigate(["main/watches"]);
+            })
         });
         
     }

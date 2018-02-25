@@ -44,19 +44,12 @@ export class FullLayoutComponent implements OnInit {
 
     ngOnInit(): void {
 
+        console.log( 'Full layout initialisation.');
 
         this.subscription = this.aboutService.getAbout().subscribe(( about ) => {
             this.productUrl = about.getProductUrl().val;
             this.productName = about.getProductName().val;
         } );
-
-        if ( this.router.routerState.snapshot.url == "/" ) {
-            this.watchesService.getCurrentWatchID().subscribe((currentWatchId) => {
-                if( currentWatchId != null) {
-                    this.router.navigate(["/dashboard/watch", currentWatchId]);
-                } else this.router.navigate(["watches"]);
-            })
-        }
     }
 
     ngOnDestroy() {

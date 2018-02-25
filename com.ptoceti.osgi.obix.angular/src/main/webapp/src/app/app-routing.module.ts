@@ -5,9 +5,14 @@ import { Routes, RouterModule } from '@angular/router';
 import { FullLayoutComponent } from './layouts/full-layout.component';
 import { SimpleLayoutComponent } from './layouts/simple-layout.component';
 
+import { AppComponent } from './app.component';
+
 export const routes: Routes = [
     {
-        path: '',
+        path: '',  component: AppComponent
+    },
+    {
+        path: 'main',
         component: FullLayoutComponent,
         data: {
             title: 'Home'
