@@ -2,9 +2,17 @@ import { Component, Input, OnInit, OnDestroy, AfterViewInit,  AfterContentInit, 
 
 import { Obj, Status, Real, Ref, HistoryRollupRecord } from '../obix/obix';
 import { HistoryAction, HistoriesService } from '../obix/obix.historiesservice';
+import { Action } from '../obix/obix.services-commons';
+
 import { Item } from './item.component';
 
+import { Subscription } from 'rxjs/Subscription';
+
+
 import { LineChartComponent, LineChartData } from '../d3/d3-line-chart.component';
+import { LineChartDataList, MultiLineChartComponent } from '../d3/d3-multiline-chart.component';
+
+import * as moment from 'moment'
 
 @Component( {
     templateUrl: 'item-measurement.component.html'
@@ -16,6 +24,8 @@ export class ItemMeasurement extends Item implements OnInit,AfterViewInit , Afte
 
     lineChartData : Array<LineChartData> = [];
 
+    historyRollupStreamSubscription : Subscription;
+
     @ViewChild('#d3lineChart')
     d3LineChart : LineChartComponent;
 
@@ -26,10 +36,27 @@ export class ItemMeasurement extends Item implements OnInit,AfterViewInit , Afte
     
     ngOnInit() {
         
+        this.historyRollupStreamSubscription = this.historiesService.getHistoryRollupStream().subscribe (historyRollupAction => {
+            if( historyRollupAction.action == Action.Add || historyRollupAction.action == Action.Update) {
+                   
+                let historyRef : Ref= this.obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "history"}) as Ref;
+                if( historyRollupAction.history.href.val = historyRef.href.val){
+                    let newChartData : Array<LineChartData> = [];
+                    for( let record of historyRollupAction.historyRollupRecords){
+                        //this.lineChartData.splice(0, this.lineChartData.length)
+                        newChartData.push( new LineChartData( record.getAvg().val, new Date(record.getStart().val)));
+                    }
+                    this.lineChartData = newChartData;
+                }
+            } 
+        });
+        
     }
     
     ngOnDestroy(): void {
-        
+        if( this.historyRollupStreamSubscription ) {
+            this.historyRollupStreamSubscription.unsubscribe();
+        }
     }
     
     ngAfterContentInit(): void {
@@ -51,20 +78,10 @@ export class ItemMeasurement extends Item implements OnInit,AfterViewInit , Afte
         let historyRef : Ref= this.obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "history"}) as Ref;
         if(historyRef !== undefined) {
             
-            this.historiesService.getLast24History(historyRef).subscribe((historyRollupOut) => {
-                
-                let historyRollupRecords : Array<HistoryRollupRecord> = historyRollupOut.getDataList().childrens as Array<HistoryRollupRecord>;
-                let newChartData : Array<LineChartData> = [];
-                for( let record of historyRollupRecords){
-                    //this.lineChartData.splice(0, this.lineChartData.length)
-                    newChartData.push( new LineChartData( record.getMax().val, new Date(record.getStart().val)));
-                }
-                this.lineChartData = newChartData;
-                
-            }, (error) => {
-                console.log( error );
-            })
-            
+            let end =  moment().millisecond(0);  
+            let start = moment(end).subtract(24,'hours').minute(0).second(0).millisecond(0);
+            let bsRangeValue = [start.toDate(), end.toDate()];
+            this.historiesService.refreshNamedHistoryRollup(historyRef, bsRangeValue[0], bsRangeValue[1], "24");
             
         }
     }

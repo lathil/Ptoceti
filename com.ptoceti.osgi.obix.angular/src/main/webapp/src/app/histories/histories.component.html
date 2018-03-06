@@ -52,12 +52,12 @@
 	              <tr *ngFor="let history of historyList" id={{history.href.val}} >    
 	                	<td class="align-middle">{{ history.displayName || history.name}}</td>
 	                	<td class="align-middle">{{history.getCount().val}}</td>
-	                	<td class="align-middle">{{history.getStart().val}}</td>
-	                	<td class="align-middle">{{history.getEnd().val}}</td>
-	                	<td><button class="btn btn-outline-primary btn-block" (click)="onDelete(history)"><span class="fa fa-trash "></span><span class="d-none d-sm-block">Delete history</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button></td>
+	                	<td class="align-middle">{{history.getStart().val | amCalendar}}</td>
+	                	<td class="align-middle">{{history.getEnd().val | amCalendar}}</td>
+	                	<td class="align-middle"><button class="btn btn-outline-primary btn-block" (click)="onDelete(history)"><span class="fa fa-trash pr-2"></span><span class="d-none d-sm-inline-block">Delete history</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button></td>
 	                	<td class="align-middle">
-	                		<button *ngIf="isHistoryShown(history) == false" (click)="onShow(history)" class="btn btn-outline-primary btn-block"><span class="fa fa-bell  "></span><span class="d-none d-sm-block">Show history</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button>
-	                		<button *ngIf="isHistoryShown(history)" (click)="onHide(history)" class="btn btn-outline-primary btn-block"><span class="fa fa-bell  "></span><span class="d-none d-sm-block">Hide History</span><span class="fa fa-minus d-sm-none d-xs-inline  px-1"></span></button>
+	                		<button *ngIf="isHistoryShown(history) == false" (click)="onShow(history)" class="btn btn-outline-primary btn-block"><span class="fa fa-bell  pr-2"></span><span class="d-none d-sm-inline-block">Show history</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button>
+	                		<button *ngIf="isHistoryShown(history)" (click)="onHide(history)" class="btn btn-outline-primary btn-block"><span class="fa fa-bell  pr-2"></span><span class="d-none d-sm-inline-block">Hide History</span><span class="fa fa-minus d-sm-none d-xs-inline  px-1"></span></button>
 		                </td>
 	              </tr>
 	            </tbody>

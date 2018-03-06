@@ -102,7 +102,7 @@ export class MultiLineChartComponent implements OnInit, OnChanges, AfterViewInit
         //this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
         this.height = newHeight - this.margin.top - this.margin.bottom;
 
-        D3.selectAll( 'svg' )
+        D3.select(element).select('svg')
             .attr( "width", this.width )
             .attr( "height", this.height );
 

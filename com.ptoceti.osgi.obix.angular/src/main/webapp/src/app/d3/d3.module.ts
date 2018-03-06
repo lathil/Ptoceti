@@ -8,9 +8,11 @@ import { LineChartComponent} from './d3-line-chart.component';
 import { MultiLineChartComponent} from './d3-multiline-chart.component';
 import { Ng2KnobDirective} from './angular2-knob.directive';
 
+import { BoundSensorModule } from 'angular-bound-sensor';
+
 @NgModule(
     {
-        imports: [ CommonModule, FormsModule, MomentModule ],
+        imports: [ CommonModule, FormsModule, MomentModule, BoundSensorModule ],
         declarations: [LineChartComponent, MultiLineChartComponent, Ng2KnobDirective],
         exports: [LineChartComponent, MultiLineChartComponent, Ng2KnobDirective]
     }

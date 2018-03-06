@@ -7,12 +7,15 @@ import { DashboardRoutingModule } from './dashboard-routing.module';
 import { SearchModule } from '../search/search.module';
 import { ItemModule } from '../items/item.module';
 
+import { D3Module} from '../d3/d3.module';
+
 @NgModule({
   imports: [
     CommonModule,
     DashboardRoutingModule,
     SearchModule,
-    ItemModule
+    ItemModule,
+    D3Module
   ],
   declarations: [ DashboardComponent, DashboardWatchComponent ]
 })

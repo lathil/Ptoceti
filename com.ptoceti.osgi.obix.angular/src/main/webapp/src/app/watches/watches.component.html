@@ -20,7 +20,7 @@
 	              <tr *ngFor="let watch of watchList" id={{watch.href.val}} >    
 	                	<td class="align-middle"><watcheditname [watch]="watch" (onSave)="onSave($event)"></watcheditname></td>
 	                	<td class="align-middle"><watcheditlease [watch]="watch" (onSave)="onSave($event)"></watcheditlease></td>
-	                	<td><button class="btn btn-outline-primary btn-block" (click)="onDelete(watch)"><span class="fa fa-trash "></span><span class="d-none d-sm-block">Delete watch</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button></td>
+	                	<td><button class="btn btn-outline-primary btn-block" (click)="onDelete(watch)"><span class="fa fa-trash pr-2"></span><span class="d-none d-sm-inline-block">Delete watch</span><span class="fa fa-plus d-sm-none d-xs-inline px-1"></span></button></td>
 	                	<td class="align-middle"><span>
 		                	<a class="nav-link" routerLinkActive="active" [routerLink]="['/main/dashboard/watch', watch.href.val]"><i class="fa fa-arrow-right fa-lg"></i></a>
 		                	</span>

@@ -78,7 +78,7 @@ export class LineChartComponent implements OnInit, OnChanges, AfterViewInit {
         this.width = element.offsetWidth - this.margin.left - this.margin.right;
         this.height = element.offsetHeight - this.margin.top - this.margin.bottom;
         
-        D3.selectAll('svg')
+        D3.select(element).select('svg')
         .attr("width", this.width)
         .attr("height", this.height);
         
