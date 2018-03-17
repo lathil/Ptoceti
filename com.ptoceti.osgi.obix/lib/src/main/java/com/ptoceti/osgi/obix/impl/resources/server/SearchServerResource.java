@@ -1,5 +1,6 @@
 package com.ptoceti.osgi.obix.impl.resources.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.inject.Inject;
@@ -43,7 +44,16 @@ private ObjDomain objDomain;
 						ref.setIs(searchPoint.getIs());
 						ref.setDisplayName(searchPoint.getDisplayName());
 						ref.setDisplay(searchPoint.getDisplay());
-						result.addValue(ref);
+						boolean found = false;
+						for( Obj item : result.getValuesList().getChildrens() ){
+							if( item.getHref().getVal().equals(ref.getHref().getVal())){
+								found = true;
+								break;
+							}
+						}
+						if( !found) {
+							result.addValue(ref);
+						}
 					}
 					
 				}
@@ -65,7 +75,16 @@ private ObjDomain objDomain;
 							ref.setIs(searchPoint.getIs());
 							ref.setDisplayName(searchPoint.getDisplayName());
 							ref.setDisplay(searchPoint.getDisplay());
-							result.addValue(ref);
+							boolean found = false;
+							for( Obj item : result.getValuesList().getChildrens() ){
+								if( item.getHref().getVal().equals(ref.getHref().getVal())){
+									found = true;
+									break;
+								}
+							}
+							if( !found) {
+								result.addValue(ref);
+							}
 						}
 					}
 				}
