@@ -517,20 +517,22 @@ export class HistoriesService {
                                 filteredRecords.push(rollupRecord);
                             }
                             
-                            roolupResult.getDataList().childrens = filteredRecords;
-                            roolupResult.setStart(filteredRecords[0].getStart());
-                            roolupResult.setEnd(filteredRecords[filteredRecords.length -1].getEnd());
-                            let count: Int = new Int();
-                            count.val = filteredRecords.length;
-                            roolupResult.setCount( count);
-                            
-                            this.storage.setItem(rollupName, roolupResult).subscribe(() => {
-                                let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Add, history);
-                                historyRollupAction.historyRollupRecords = filteredRecords;
-                                this.historyRollupStream.next(historyRollupAction);
-                            }, (error) => {
+                            if( filteredRecords.length > 0) {
+                                roolupResult.getDataList().childrens = filteredRecords;
+                                roolupResult.setStart(filteredRecords[0].getStart());
+                                roolupResult.setEnd(filteredRecords[filteredRecords.length -1].getEnd());
+                                let count: Int = new Int();
+                                count.val = filteredRecords.length;
+                                roolupResult.setCount( count);
                                 
-                            })
+                                this.storage.setItem(rollupName, roolupResult).subscribe(() => {
+                                    let historyRollupAction : HistoryRollupAction = new HistoryRollupAction(Action.Add, history);
+                                    historyRollupAction.historyRollupRecords = filteredRecords;
+                                    this.historyRollupStream.next(historyRollupAction);
+                                }, (error) => {
+                                    
+                                })
+                            }
                             
                         }, (error) => {
                             

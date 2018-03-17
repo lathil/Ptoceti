@@ -102,16 +102,18 @@ export class Obj {
                 this[prop] = contract;
             } else if (prop == "href"){
                 let href : Uri = new Uri();
-                if( json[prop]){
+                if( json[prop] && json[prop] !== ""){
                     href.parse(json[prop]);
+                    this[prop] = href;
                 }
-                this[prop] = href;
+                
             } else if (prop == "icon"){
                 let icon : Uri = new Uri();
-                if( json[prop]){
+                if( json[prop] && json[prop] !== ""){
                     icon.parse(json[prop]);
+                    this[prop] = icon;
                 }
-                this[prop] = icon;
+                
             } else if ( prop =='timestamp') {
                 if( json[prop]){
                     let date: Date = new Date(json[prop]);

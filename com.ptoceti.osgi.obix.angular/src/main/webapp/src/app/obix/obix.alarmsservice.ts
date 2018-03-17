@@ -15,14 +15,16 @@ import { Action } from '../obix/obix.services-commons';
 
 import { AsyncLocalStorage } from 'angular-async-local-storage';
 
-import { Obj, Ref, Contract, List, Uri, Nil, AlarmService, Alarm } from './obix';
+import { SearchService } from '../obix/obix.searchservice';
+
+import { Obj, Ref, Contract, List, Uri, Nil, SearchOut, AlarmService, Alarm } from './obix';
 
 export class AlarmAction {
     action: Action;
-    history: History;
+    alarm: Alarm;
     constructor( action: Action, alarm: Alarm ) {
         this.action = action;
-        this.history = history;
+        this.alarm = alarm;
     }
 }
 
@@ -37,13 +39,16 @@ export class AlarmsService {
     storage: AsyncLocalStorage;
     cache : ReplaySubject<AlarmService>;
     
+    searchService: SearchService;
+    
     alarmStream: Subject<AlarmAction>;
    
-    constructor( http: HttpClient, storage: AsyncLocalStorage ) {
+    constructor( http: HttpClient, storage: AsyncLocalStorage, searchService: SearchService ) {
         this.http = http;
         this.storage = storage;
         this.cache = new ReplaySubject<AlarmService>();
         this.alarmStream = new Subject<AlarmAction>();
+        this.searchService = searchService;
     }
     
     private handleAlarmServiceResponse(response: any ): AlarmService {
@@ -54,6 +59,11 @@ export class AlarmsService {
     
     getAlarmService(): Observable<AlarmService>{
         return this.cache.asObservable();
+    }
+    
+    // items from add, update and delete alarm item
+    getAlarmStream(): Observable<AlarmAction> {
+        return this.alarmStream.asObservable();
     }
     
     initialize( rootUrl : string, serviceUrl : string) {
@@ -78,6 +88,81 @@ export class AlarmsService {
              console.error( 'error reading from localstorage' );
          });
           
+    }
+    
+    /**
+     * Retrieve a series of alarms as observables.
+     * The list of alarms to be returned is fetched from local storage. If not found there a full list is retrieved from backend rest server.
+     * Emit each alarm obtained to observers
+     * 
+     */
+    getAlarmsList() {
+
+        this.storage.getItem( AlarmsService.alarmsListKey )
+            .map( item => { if ( item != null ) { let list: List = new List(); list.parse( item ); return list; } } )
+            .subscribe(( list ) => {
+                if ( list != null ) {
+                    let observables: Array<Observable<Alarm>> = [];
+                    for ( let listItem of list.childrens ) {
+                        observables.push( this.getAlarm( listItem.getUrl( this.rootUrl ) ) );
+                    }
+                    Observable.concat<Alarm>( ...observables ).subscribe(( alarm ) => { this.alarmStream.next( new AlarmAction( Action.Add, alarm ) ) } );
+
+                } else {
+                    let searchRef: Ref = new Ref();
+                    searchRef.is = new Contract( [new Uri( 'obix:Alarm' )] );
+
+                    this.searchService.search( searchRef )
+                        .map( item => { if ( item != null ) { let searchOut: SearchOut = new SearchOut(); searchOut.parse( item ); return searchOut; } } )
+                        .subscribe(( searchOut ) => {
+                            let searchList: List = searchOut.getValueList();
+                            this.storage.setItem( AlarmsService.alarmsListKey, searchList ).subscribe(() => {
+
+                                let observables: Array<Observable<Alarm>> = [];
+                                for ( let listItem of searchList.childrens ) {
+                                    observables.push( this.getAlarm( listItem.getUrl( this.rootUrl ) ) );
+                                }
+                                Observable.concat<Alarm>( ...observables ).subscribe(( alarm ) => { this.alarmStream.next( new AlarmAction( Action.Add, alarm ) ) } );
+                            }, () => { } );
+                        } )
+
+
+                }
+
+            }, ( error ) => {
+                console.log( error );
+
+            } );
+
+    }
+    
+    /**
+     * Reload the full of list of alarms from from backend server and update with it the list contained in local storage.
+     * Emit each alarm obtained to observers
+     * 
+     */
+    refreshAlarmList() {
+
+        let searchRef: Ref = new Ref();
+        searchRef.is = new Contract( [new Uri( 'obix:Alarm' )] );
+
+        this.searchService.search( searchRef )
+            .map( item => { if ( item != null ) { let searchOut: SearchOut = new SearchOut(); searchOut.parse( item ); return searchOut; } } )
+            .subscribe(( searchOut ) => {
+                let searchList: List = searchOut.getValueList();
+                this.storage.setItem( AlarmsService.alarmsListKey, searchList ).subscribe(() => {
+
+                    this.alarmStream.next( new AlarmAction( Action.Reset, null ) );
+
+                    let observables: Array<Observable<Alarm>> = [];
+                    for ( let listItem of searchList.childrens ) {
+                        let observer: ReplaySubject<Alarm> = new ReplaySubject<Alarm>();
+                        this.refreshAlarm( listItem.getUrl( this.rootUrl ), observer );
+                        observables.push( observer.asObservable() );
+                    }
+                    Observable.concat<Alarm>( ...observables ).subscribe(( alarm ) => { this.alarmStream.next( new AlarmAction( Action.Add, alarm ) ) } );;
+                }, () => { } );
+            } )
     }
     
     /**
@@ -186,7 +271,7 @@ export class AlarmsService {
      * @param alarmUrl the  url of the alarm to retrieve.
      * @returns Observable<Alarm>
      */
-    getHistory( alarmUrl ): Observable<Alarm> {
+    getAlarm( alarmUrl ): Observable<Alarm> {
 
         let result: ReplaySubject<Alarm> = new ReplaySubject<Alarm>();
 
