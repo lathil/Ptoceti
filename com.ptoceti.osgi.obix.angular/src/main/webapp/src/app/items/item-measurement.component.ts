@@ -40,7 +40,7 @@ export class ItemMeasurement extends Item implements OnInit,AfterViewInit , Afte
             if( historyRollupAction.action == Action.Add || historyRollupAction.action == Action.Update) {
                    
                 let historyRef : Ref= this.obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "history"}) as Ref;
-                if( historyRollupAction.history.href.val = historyRef.href.val){
+                if( historyRef && (historyRollupAction.history.href.val = historyRef.href.val)){
                     let newChartData : Array<LineChartData> = [];
                     for( let record of historyRollupAction.historyRollupRecords){
                         //this.lineChartData.splice(0, this.lineChartData.length)
