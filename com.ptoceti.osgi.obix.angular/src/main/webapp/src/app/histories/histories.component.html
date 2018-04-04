@@ -27,15 +27,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="row">
-		<div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-			<div class="card card-inverse bg-white">
-				<div class="card-block pb-0">
-					<d3-multiline-chart [fill]="true" [legend]="true" [data]="chartDataList" #d3multilineChart></d3-multiline-chart>
-				</div>
-			</div>
-		</div>
-	</div>
+	<historyitem *ngFor="let chartDataList of historyItemsDataList; let itemIndex=index; trackBy: trackHistoryItemById" [itemId]="itemIndex" [chartDataList]="chartDataList"  (onSplit)="onSplit($event)" (onRetract)="onRetract($event)"></historyitem>
 	<div class="card">
 		<div class="card-block">
 	          <table class="table">

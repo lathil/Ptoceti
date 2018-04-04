@@ -5,8 +5,8 @@ import { DashboardComponent } from './dashboard.component';
 import { DashboardWatchComponent } from './dashboard-watch.component';
 
 const routes: Routes = [
-    { path: 'watch/:url', component: DashboardWatchComponent },
-    { path: '', component: DashboardComponent, data: { title: 'Dashboard' } }
+    { path: 'watch/:url', component: DashboardWatchComponent, data: { title: 'Dashboard'  }},
+    { path: '', component: DashboardComponent }
 ];
 
 @NgModule( {

@@ -6,7 +6,8 @@ import { WatchesComponent } from './watches.component';
 const routes: Routes = [
   {
     path: '',
-    component: WatchesComponent
+    component: WatchesComponent,
+    data: { title: 'Watches' }
   }
 ];
 

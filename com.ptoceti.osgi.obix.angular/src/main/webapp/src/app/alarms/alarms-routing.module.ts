@@ -6,7 +6,8 @@ import { AlarmsComponent } from './alarms.component';
 const routes: Routes = [
   {
     path: '',
-    component: AlarmsComponent
+    component: AlarmsComponent,
+    data: { title: 'Alarms' }
   }
 ];
 

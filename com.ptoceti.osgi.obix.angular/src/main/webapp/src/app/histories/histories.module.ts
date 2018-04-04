@@ -12,6 +12,7 @@ import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
 
 import { HistoriesComponent} from './histories.component'
 import { HistoriesRoutingModule } from './histories-routing.module';
+import { HistoryItemComponent } from './history-item.component';
 
 import { SearchModule } from '../search/search.module';
 
@@ -20,7 +21,7 @@ import { SearchModule } from '../search/search.module';
     imports: [
         CommonModule, FormsModule, MomentModule, BsDatepickerModule.forRoot(), CollapseModule.forRoot(), HistoriesRoutingModule, SearchModule, D3Module   
     ],
-    declarations: [ HistoriesComponent ],
+    declarations: [ HistoriesComponent, HistoryItemComponent ],
     exports : []
   })
 export class HistoriesModule {

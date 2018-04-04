@@ -6,7 +6,8 @@ import { HistoriesComponent } from './histories.component';
 const routes: Routes = [
   {
     path: '',
-    component: HistoriesComponent
+    component: HistoriesComponent,
+    data: { title: 'Histories' }
   }
 ];
 

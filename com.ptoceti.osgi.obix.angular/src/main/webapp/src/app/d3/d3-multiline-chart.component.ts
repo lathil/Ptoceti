@@ -55,7 +55,7 @@ export class MultiLineChartComponent implements OnInit, OnChanges, AfterViewInit
 
     ngOnInit(): void {
         this.createChart();
-        if ( this.data.length > 1 ) {
+        if ( this.data.length > 0 ) {
             this.updateChart();
         }
     }
