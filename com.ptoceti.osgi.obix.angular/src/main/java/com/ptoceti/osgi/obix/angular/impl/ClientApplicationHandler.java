@@ -177,15 +177,15 @@ public class ClientApplicationHandler  implements ManagedService {
 			try {
 				registeredAlias = clientPath;
 				
-				if( externalResourcePath.startsWith("file:")){
+				if( externalResourcePath != null &&  externalResourcePath.startsWith("file:")){
 					FileSystemHttpContext fileHttpContexte =  new FileSystemHttpContext();
 					httpService.registerServlet(registeredAlias, new ResourceServlet(externalResourcePath.substring("file:".length()), doGzip.booleanValue(), this ), null, fileHttpContexte);
+					Activator.log(LogService.LOG_INFO, "Mapped " + externalResourcePath + " under alias " + registeredAlias);
 				} else {
 					httpService.registerServlet(registeredAlias, new ResourceServlet("/resources", doGzip.booleanValue(), this ), null, null);
+					Activator.log(LogService.LOG_INFO, "Mapped /resources under alias " + registeredAlias);
 				}
 				
-			
-				Activator.log(LogService.LOG_INFO, "Mapped /obix under alias " + registeredAlias);
 				
 				oauthClientId = obixService.createOauthPublicClientID(registeredAlias);
 				
