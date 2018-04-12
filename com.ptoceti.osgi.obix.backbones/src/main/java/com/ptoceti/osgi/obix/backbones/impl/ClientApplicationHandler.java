@@ -41,7 +41,7 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.service.log.LogService;
 
-import com.ptoceti.osgi.obix.angular.impl.Activator;
+import com.ptoceti.osgi.obix.backbones.impl.Activator;
 import com.ptoceti.osgi.obix.backbones.impl.FileSystemHttpContext;
 import com.ptoceti.osgi.obix.backbones.impl.ResourceServlet;
 import com.ptoceti.osgi.obix.service.ObixService;
