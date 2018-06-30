@@ -4,7 +4,7 @@
 				<i class="fa {{getStatusIcon()}} fa-lg"></i>
 				<a (click)="onRemoveClick()" class="fa fa-remove fa-lg"></a>
 		</div>
-		<div><span class="h4 mb-0">{{obj.val}} {{getUnit()}}</span></div>
+		<div><span class="h4 mb-0">{{valToPrecision()}} {{getUnit()}}</span></div>
 		<div *ngIf="obj.timestamp"><span class="mb-0" >{{obj.timestamp | amCalendar }}</span></div>
 		<p>{{obj.displayName || obj.name}}</p>
 		

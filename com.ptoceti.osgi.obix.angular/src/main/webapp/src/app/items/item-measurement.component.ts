@@ -40,7 +40,7 @@ export class ItemMeasurement extends Item implements OnInit,AfterViewInit , Afte
             if( historyRollupAction.action == Action.Add || historyRollupAction.action == Action.Update) {
                    
                 let historyRef : Ref= this.obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "history"}) as Ref;
-                if( historyRef && (historyRollupAction.history.href.val = historyRef.href.val)){
+                if( historyRef && (historyRollupAction.history.href.val == historyRef.href.val)){
                     let newChartData : Array<LineChartData> = [];
                     for( let record of historyRollupAction.historyRollupRecords){
                         //this.lineChartData.splice(0, this.lineChartData.length)
@@ -77,12 +77,12 @@ export class ItemMeasurement extends Item implements OnInit,AfterViewInit , Afte
     updateHistoryChart(){
         let historyRef : Ref= this.obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "history"}) as Ref;
         if(historyRef !== undefined) {
-            
-            let end =  moment().millisecond(0);  
-            let start = moment(end).subtract(24,'hours').minute(0).second(0).millisecond(0);
+
+            let end = moment().millisecond(0);
+            let start = moment(end).subtract(24, 'hours').minute(0).second(0).millisecond(0);
             let bsRangeValue = [start.toDate(), end.toDate()];
             this.historiesService.refreshNamedHistoryRollup(historyRef, bsRangeValue[0], bsRangeValue[1], "24");
-            
+
         }
     }
     
@@ -91,6 +91,10 @@ export class ItemMeasurement extends Item implements OnInit,AfterViewInit , Afte
         if( historyRef !== undefined) {
             return true;
         } else return false;
+    }
+
+    valToPrecision(): string {
+        return this.obj.val.toPrecision(4).replace(/(?:\.0+|(\.\d+?)0+)$/, "$1");
     }
 
 }
