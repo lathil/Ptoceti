@@ -80,7 +80,7 @@ export class AppComponent implements OnInit{
         }
         // keep window location protocol
         url.protocol = location.protocol;
-        url.port = location.port;
+        url.port = location.port || (location.protocol === 'https:' ? '443' : '80');
         
         // url of the tojen provider
         this.oauthService.tokenEndpoint = url.toString();
@@ -120,7 +120,7 @@ export class AppComponent implements OnInit{
         }
         // keep window location protocol
         url.protocol = location.protocol;
-        url.port = location.port;
+        url.port = location.port || (location.protocol === 'https:' ? '443' : '80');
         
         let rootUrl : string = url.toString();
         let loobyRoot : string = url.toString();
