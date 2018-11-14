@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
+    <OCD description="Ebus" name="Ptoceti Ebus driver" id="ocd">
+        <AD name="port" id="com.ptoceti.osgi.ebusdriver.port" required="true" type="String" />
+        <AD name="id" id="com.ptoceti.osgi.ebusdriver.id" required="true" type="Integer" />
+    </OCD>
+    <Designate factorypid="com.ptoceti.osgi.ebus.impl.EbusDriverFactory" pid="com.ptoceti.osgi.ebus.impl.EbusDriverFactory" bundle="*">
+        <Object ocdref="ocd"/>
+    </Designate>
+</MetaData>
+

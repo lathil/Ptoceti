@@ -588,6 +588,5 @@
 	    <module>com.ptoceti.osgi.mqtt</module>
 	    <module>com.ptoceti.osgi.assembly</module>
 	    <module>com.ptoceti.osgi.timeseries</module>
-	    <module>com.ptoceti.osgi.obix.angular</module>
 	</modules>
 </project>
