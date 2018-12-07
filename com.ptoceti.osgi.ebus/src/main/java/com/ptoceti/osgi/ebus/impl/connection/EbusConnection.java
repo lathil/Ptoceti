@@ -54,7 +54,7 @@ public abstract class EbusConnection {
     int responsePosition = -1;
 
 
-    void start(byte masterId, int lockCounterMaxValue){
+    public void start(byte masterId, int lockCounterMaxValue){
         this.masterId = masterId;
         this.lockCounterMaxValue = lockCounterMaxValue;
         resetLockCounter();
@@ -66,7 +66,7 @@ public abstract class EbusConnection {
     /**
      *
      */
-    void stop() {
+    public void stop() {
         messageSender.stop();
     }
 
@@ -88,7 +88,7 @@ public abstract class EbusConnection {
      * @param inBytes
      * @param nbToRead
      */
-    protected  void receivedBytes( byte[] inBytes, int nbToRead{
+    protected  void receivedBytes( byte[] inBytes, int nbToRead ){
         bytesInRaw.write( inBytes, 0, nbToRead);
     }
 
@@ -111,20 +111,24 @@ public abstract class EbusConnection {
     void notifyAck(int position) {
         synchronized (ackLock){
             ackPosition = position;
-            notifyAll();
+            ackLock.notifyAll();
         }
     }
 
     int waitForAck() throws InterruptedException {
         synchronized(ackLock) {
-            wait();
+            while( ackPosition < 0) {
+                ackLock.wait();
+            }
             return ackPosition;
         }
     }
 
     int waitForSync() throws  InterruptedException{
         synchronized (syncLock){
-            wait();
+            while(syncPosition < 0) {
+                syncLock.wait();
+            }
             return syncPosition;
         }
     }
@@ -132,51 +136,77 @@ public abstract class EbusConnection {
     void notifySync(int position) {
         synchronized (syncLock){
             syncPosition = position;
-            notifyAll();
+            syncLock.notifyAll();
         }
     }
 
     void notifyByte() {
         synchronized (byteLock){
-            notifyAll();
+            byteLock.notifyAll();
         }
     }
 
     void waitForByte() throws InterruptedException {
         synchronized(byteLock) {
-            wait();
+            byteLock.wait();
         }
     }
 
     void notifyResponse( int position){
         synchronized (responseLock){
             responsePosition = position;
-            notifyAll();
+            responseLock.notifyAll();
         }
     }
 
     int waiForResponse() throws InterruptedException{
         synchronized (responseLock){
-            wait();
+            responseLock.wait();
             return responsePosition;
         }
-    }
-
-    protected void resetLockCounter(){
-        this.lockCounter = this.lockCounterMaxValue;
     }
 
     byte getMasterId(){
         return masterId;
     }
 
+    /**
+     * Reset in buffer and position flags to not detected
+     */
     protected void resetBusListener(){
         bytesIn.reset();
         syncPosition = -1;
         ackPosition = -1;
-        resetLockCounter();
+        responsePosition = -1;
     }
 
+    /**
+     * Reset the lock counter to default value.
+     */
+    protected void resetLockCounter(){
+        this.lockCounter = this.lockCounterMaxValue;
+    }
+
+    /**
+     * Check if we can retry sending the message one time
+     * Limit is 1 retry allowed
+     * @param entry MessageEntry
+     */
+    protected void handleRetry(MessageEntry entry){
+        if( entry.getRetryCount() > 0) {
+            // notify we failed to send message
+            entry.listener.setMessageFailed();
+            // remove from queue
+            messagesQueue.remove();
+            // and reset ebus frames flags
+            resetBusListener();
+            resetLockCounter();
+        } else {
+            // retry one more time
+            entry.incrementRetryCount();
+            resetBusListener();
+        }
+    }
     /**
      * Runnable class that attempt to send messages present in the fifo queue.
      * It synchronized itselsf on sync signals comming on the bus.
@@ -205,29 +235,33 @@ public abstract class EbusConnection {
             while(!messageSenderThread.isInterrupted()){
                 // continuously wait for a sync byte on the bus
                 try {
-                    int syncNextPostion = waitForSync();
+                    int syncPosition = waitForSync();
 
-                    if( lockCounter > 0){
+                    // if not a sync that follow a collision (SYNC-ADD-AUTOSYNC)
+                    if( lockCounter > 0 && syncPosition == 0){
                         lockCounter--;
                     }
-
+                    // got message to send and it's our go
                     if( lockCounter == 0 && messagesQueue.size() > 0){
                         sendByte(masterId);
                         waitForByte();
                         byte senderId = bytesIn.get();
                         if( senderId != masterId ){
-                            // collision detected
-                            if( (senderId & 0x0F) == (masterId & 0x0F)){
-                                // priority class matchs that on the bus, another attemps alloxed next auto-sync
-                                collisionDetectedPreviousAllowedRetry = true;
-                            } else {
-                                collisionDetectedPreviousAllowedRetry = false;
+                            // collision detected, check if priority class match
+                            if( !((senderId & 0x0F) == (masterId & 0x0F))){
+                                // priority class does not matchs that on the bus
                                 resetLockCounter();
                             }
                         } else {
+                            // no collision, .. send message
                             sendMessage();
                         }
+                    } else {
+                        // nothing to send or not or turn to send, there might be another node starting to talk. listen here
+                        // if we want to.
                     }
+
+
 
                 } catch ( InterruptedException ex ) {
 
@@ -245,7 +279,7 @@ public abstract class EbusConnection {
          * is expecting a reply. Master to master is expecting only an ack, and broadcast nothing
          *
          */
-        private void sendMessage(){
+        protected void sendMessage(){
             // get the message at the top of the fifo
             MessageEntry entry = messagesQueue.peek();
             bytesOut.reset();
@@ -267,15 +301,24 @@ public abstract class EbusConnection {
                     messagesQueue.remove();
                     // and reset ebus frames flages
                     resetBusListener();
+                    resetLockCounter();
                     return;
                 }
 
             } catch (IOException ex){
-
+                Activator.log(LogService.LOG_ERROR, "Error sending frame: " + EbusUtils.writeHex(bytesOut.array()) + ", ex: " + ex.toString());
+                // retry one more time
+                handleRetry(entry);
+                return;
             }
 
             try {
-                waitForAck();
+                int ackPosition = waitForAck();
+                if( bytesIn.get( ackPosition) == ((byte)EbusMessage.NACK & 0xFF)) {
+                    // we got a nack
+                    handleRetry(entry);
+                    return;
+                }
                 // check if messaga is master to master
                 if (entry.message.isMasterToMasterMessage()) {
                     // if yes just send sync - no reply expected
@@ -284,8 +327,9 @@ public abstract class EbusConnection {
                     entry.listener.setResponse(null);
                     // remove the message at the top of the queue.
                     messagesQueue.remove();
-                    // and reset ebus frames flages
+                    // and reset ebus frames flags
                     resetBusListener();
+                    resetLockCounter();
                     return;
                 } else {
                     // message is master to slave. Expect response.
@@ -302,8 +346,11 @@ public abstract class EbusConnection {
                         messagesQueue.remove();
                         // and reset ebus frames flages
                         resetBusListener();
+                        resetLockCounter();
                     } catch (BadCrcException ex ){
                         // need to try resend
+                        Activator.log(LogService.LOG_INFO, "Bad Crc received: Check retry sending message");
+                        handleRetry(entry);
                     }
                 }
 
@@ -323,6 +370,8 @@ public abstract class EbusConnection {
         }
     }
 
+
+
     /**
      * Incoming messages to send are stored in a fifo queue in such entry. each entry stores the message
      * and a listener to notify when the message is sent.
@@ -332,6 +381,7 @@ public abstract class EbusConnection {
 
         EbusMessage message;
         EbusResponseListener listener;
+        int retryCount;
 
         /**
          * Create a queue entry
@@ -341,6 +391,15 @@ public abstract class EbusConnection {
         MessageEntry(EbusMessage message, EbusResponseListener listener){
             this.message = message;
             this.listener = listener;
+            this.retryCount = 0;
+        }
+
+        void incrementRetryCount(){
+            retryCount++;
+        }
+
+        int getRetryCount(){
+            return retryCount;
         }
     }
 
@@ -381,6 +440,10 @@ public abstract class EbusConnection {
                     for( int i = 0; i < buff.length; i++) {
                         byte nextByte = buff[i];
                         if( nextByte == (byte) (EbusMessage.SYNC & 0x00FF)){
+                            if( bytesIn.position() >= 2){
+                                // if this is not a SYNC-SENDERID-SYNC sync, it is the end of a frame. reset input buffer
+                                resetBusListener();
+                            }
                             bytesIn.put(nextByte);
                             notifySync(bytesIn.position() - 1);
                         } else if ( nextByte == (byte)(EbusMessage.ACK & 0x00FF)){

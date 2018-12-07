@@ -1,7 +1,9 @@
 package com.ptoceti.osgi.ebus.impl;
 
 import com.ptoceti.osgi.ebus.EbusDriver;
+import com.ptoceti.osgi.ebus.impl.connection.EbusResponseListener;
 import com.ptoceti.osgi.ebus.impl.connection.EbusSerialConnection;
+import com.ptoceti.osgi.ebus.impl.message.EbusMessage;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.log.LogService;
 
@@ -14,16 +16,18 @@ public class EbusDriverImpl implements EbusDriver {
     ServiceRegistration sReg;
     byte id;
     String portName;
+    int lockCounter;
 
     EbusSerialConnection ebusConnection;
 
-    EbusDriverImpl(int id, String portName) throws Exception{
+    EbusDriverImpl(int id, String portName, int lockCounter) {
 
-        this.setID((byte) id);
+        this.id = ((byte) id);
         this.portName = portName;
+        this.lockCounter = lockCounter;
     }
 
-    public void start() {
+    public void start() throws Exception{
 
         String[] clazzes = new String[] {
                 EbusDriver.class.getName()
@@ -34,10 +38,10 @@ public class EbusDriverImpl implements EbusDriver {
         props.put( org.osgi.framework.Constants.SERVICE_DESCRIPTION, "Ebus service implements a Device interface.");
         props.put( EbusDriver.EBUS_PORT, ebusConnection.getPortName());
 
-        sReg = Activator.bc.registerService( clazzes, this, props );
-
         ebusConnection = new EbusSerialConnection(portName);
-
+        // if serial connection start ok ..
+        ebusConnection.start(getID(), lockCounter);
+        sReg = Activator.bc.registerService( clazzes, this, props );
         Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName());
 
     }
@@ -45,19 +49,9 @@ public class EbusDriverImpl implements EbusDriver {
     public void stop() {
 
         if( ebusConnection != null ) ebusConnection.close();
-        sReg.unregister();
+        if( sReg != null ) sReg.unregister();
 
         Activator.log(LogService.LOG_INFO, "Unregistered " + this.getClass().getName());
-    }
-
-    /**
-     * Set the modbus identificator for this lodbus driver. The identificator is used when communicating
-     * on the bus.
-     *
-     * @param id: the ebus identificator
-     */
-    public void setID(byte id ) {
-        this.id = id;
     }
 
     /**
@@ -69,16 +63,19 @@ public class EbusDriverImpl implements EbusDriver {
         return this.id;
     }
 
-    Future sendMasterMasterMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload){
-
+    public Future sendMasterMasterMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload){
+        EbusMessage message = new EbusMessage( (byte)( destAddress & 0x00FF), (byte)( primaryCommand & 0x00FF), (byte)( secondaryCommand & 0x00FF), payload);
+        EbusResponseListener listener = ebusConnection.addMessageToSend(message);
     }
 
-    Future<byte[]> sendMasterSlaveMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload ){
-
+    public Future<byte[]> sendMasterSlaveMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload ){
+        EbusMessage message = new EbusMessage( (byte)( destAddress & 0x00FF), (byte)( primaryCommand & 0x00FF), (byte)( secondaryCommand & 0x00FF), payload);
+        EbusResponseListener listener = ebusConnection.addMessageToSend(message);
     }
 
-    Future sendBraodcastMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload){
-
+    public Future sendBroadcastMessage( int primaryCommand, int secondaryCommand, byte[] payload){
+        EbusMessage message = new EbusMessage( (byte)( EbusMessage.BROADCAST_ADD), (byte)( primaryCommand & 0x00FF), (byte)( secondaryCommand & 0x00FF), payload);
+        EbusResponseListener listener = ebusConnection.addMessageToSend(message);
     }
 
 }

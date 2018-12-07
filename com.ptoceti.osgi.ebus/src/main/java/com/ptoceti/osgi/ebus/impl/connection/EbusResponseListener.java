@@ -1,6 +1,5 @@
 package com.ptoceti.osgi.ebus.impl.connection;
 
-import com.ptoceti.osgi.ebus.impl.message.EbusMessage;
 import com.ptoceti.osgi.ebus.impl.message.EbusResponse;
 
 public class  EbusResponseListener {
@@ -8,6 +7,7 @@ public class  EbusResponseListener {
     Object waitResponseLock = new Object();
     EbusResponse response =  null;
     boolean hasResponse = false;
+    boolean messageFailed = false;
 
     public EbusResponseListener(){
 
@@ -26,6 +26,14 @@ public class  EbusResponseListener {
         synchronized (waitResponseLock){
             response = message;
             hasResponse = true;
+        }
+    }
+
+    public void setMessageFailed(){
+        synchronized (waitResponseLock){
+            response = null;
+            hasResponse = false;
+            messageFailed = true;
         }
     }
 }
