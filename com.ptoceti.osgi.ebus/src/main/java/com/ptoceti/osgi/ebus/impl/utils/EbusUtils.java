@@ -1,5 +1,7 @@
 package com.ptoceti.osgi.ebus.impl.utils;
 
+import com.ptoceti.osgi.ebus.impl.message.EbusMessage;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,11 +43,19 @@ public class EbusUtils {
     }
 
 
-    public static final String writeHex(byte[] buff) throws IOException {
+    public static final String writeHex(byte[] buff) {
 
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        writeHex( buff, 0, buff.length, bout );
-        return bout.toString();
+        StringBuffer sbuff = new StringBuffer();
+        writeHex( buff, 0, buff.length, sbuff );
+        return sbuff.toString();
+    }
+
+    public static final void writeHex(byte[] buff, int off, int len,  StringBuffer sbuff) {
+
+        for(int i = off; i < ( off + len ); i++ ){
+            writeHex( buff[i], sbuff );
+        }
+
     }
 
     public static final void writeHex(byte[] buff, int off, int len,  OutputStream out) throws IOException {
@@ -63,6 +73,13 @@ public class EbusUtils {
         out.write(theWord & 0x00FF);
     }
 
+    public static final void writeHex(byte in, StringBuffer buff){
+        int theWord = byteToHexWord( in );
+        StringWriter writer = new StringWriter();
+        writer.write((theWord & 0xFF00) >>> 8);
+        writer.write(theWord & 0x00FF);
+        buff.append(writer.toString());
+    }
     public static final String writeHex(byte in){
         int theWord = byteToHexWord( in );
         StringWriter writer = new StringWriter();
@@ -93,7 +110,7 @@ public class EbusUtils {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         for( int i = 0; i < in.length; i ++) {
-            if( in[i] == SYNC) {
+            if( in[i] == EbusMessage.SYNC) {
                 out.write( (byte)((SYNC_ESCAPE & 0xFF00) >>> 8));
                 out.write( (byte)((SYNC_ESCAPE & 0x00FF)));
             } else if ( in[i] == ((SYNC_ESCAPE & 0xFF00) >>> 8)){

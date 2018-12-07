@@ -19,37 +19,27 @@ public class EbusMessage {
     private byte subCommmand;
     private byte[] data;
 
+    public EbusMessage(byte destId, byte command, byte subCommand, byte[] data){
+        this.destId = destId;
+        this.command = command;
+        this.subCommmand = subCommand;
+        this.data = data;
+    }
 
     public byte getDestId() {
         return destId;
-    }
-
-    public void setDestId(byte destId) {
-        this.destId = destId;
     }
 
     public byte getCommand() {
         return command;
     }
 
-    public void setCommand(byte command) {
-        this.command = command;
-    }
-
     public byte getSubCommmand() {
         return subCommmand;
     }
 
-    public void setSubCommmand(byte subCommmand) {
-        this.subCommmand = subCommmand;
-    }
-
     public byte[] getData() {
         return data;
-    }
-
-    public void setData(byte[] data) {
-        this.data = data;
     }
 
     /**

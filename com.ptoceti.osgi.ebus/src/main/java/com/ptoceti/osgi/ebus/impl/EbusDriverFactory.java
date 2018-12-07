@@ -83,12 +83,15 @@ public class EbusDriverFactory implements org.osgi.service.cm.ManagedServiceFact
 
         String port = (String) properties.get(EbusDriver.EBUS_PORT);
         Object id = properties.get(EbusDriver.EBUS_ID);
-        Integer EbusID = id instanceof Integer ? (Integer) id: Integer.parseInt(id.toString());
+        Integer ebusID = id instanceof Integer ? (Integer) id: Integer.parseInt(id.toString());
+
+        Object lockCounter = properties.get(EbusDriver.EBUS_LOCKCOUNTER_MAX);
+        Integer ebusLockCounter = id instanceof Integer ? (Integer) lockCounter: Integer.parseInt(lockCounter.toString());
 
         // First check that we have all the configuration data necessary.
-        if((port != null ) && (EbusID != null)) {
+        if((port != null ) && (ebusID != null)) {
 
-            int EbusIDInt = ( EbusID ).intValue();
+            int EbusIDInt = ( ebusID ).intValue();
 
             // Then check that the configuration data is valid.
             if((EbusIDInt > 0) && (EbusIDInt <= 254 )) {
@@ -106,20 +109,18 @@ public class EbusDriverFactory implements org.osgi.service.cm.ManagedServiceFact
                 // then we need to create an new instance of a EbusDriver, either master or slave kind. There could be errors when 
                 // opening the serial port.
                 try {
-                    mdbDriver = new EbusDriverImpl(EbusIDInt, port);
+                    mdbDriver = new EbusDriverImpl(EbusIDInt, port, ebusLockCounter);
+                    // try to start
+                    mdbDriver.start();
+                    // keep track of this instance.
+                    EbusDrivers.put(pid, mdbDriver);
                     Activator.log(LogService.LOG_INFO,"Created EbusDriver type: " + mdbDriver.getClass().getName()
-                                + ", port: " + port + ", id: " + EbusID + ", service factory pid: " + pid);
+                                + ", port: " + port + ", id: " + ebusID + ", service factory pid: " + pid);
                 } catch ( Exception e ) {
                     Activator.log(LogService.LOG_INFO, "Could not create EbusDriver port. Reason: " + e.toString());
                     mdbDriver = null;
                 }
-                // if we managed to create the Ebus driver, we need to keep track of the instance.
-                if( mdbDriver != null ) {
-                    // keep track of this instance.
-                    EbusDrivers.put(pid, mdbDriver);
-                    // and ask it to self register.
-                    mdbDriver.start();
-                }
+
             }
             else {
                 Activator.log(LogService.LOG_INFO,"Cannot create EbusDriver service: bad configuration data.");
@@ -129,7 +130,7 @@ public class EbusDriverFactory implements org.osgi.service.cm.ManagedServiceFact
         else {
             String missingParam = "";
             if(port == null) missingParam = EbusDriver.EBUS_PORT;
-            else if (EbusID == null) missingParam = EbusDriver.EBUS_ID;
+            else if (ebusID == null) missingParam = EbusDriver.EBUS_ID;
             Activator.log(LogService.LOG_INFO,"Cannot create EbusDriver service: configuration data missing: " + missingParam);
         }
     }
