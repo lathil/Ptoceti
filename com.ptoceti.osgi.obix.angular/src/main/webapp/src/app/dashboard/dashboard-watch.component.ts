@@ -17,8 +17,6 @@ import { SearchComponent } from '../search/search.component';
 import { ItemLoader } from '../items/item-loader.component';
 import { ItemEditNameComponent } from '../items/item-editname.component';
 
-import { LineChartDataList, MultiLineChartComponent } from '../d3/d3-multiline-chart.component';
-import { LineChartData } from '../d3/d3-line-chart.component';
 
 import * as moment from 'moment'
 
@@ -45,13 +43,6 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
 
     interval: any;
 
-    //the D3 component for displaying histories
-    @ViewChild( '#d3multilineChart' )
-    d3LineChart: MultiLineChartComponent;
-    // the array for chart data for eachhistories
-    chartDataList: Array<LineChartDataList> = [];
-
-    historyRollupStreamSubscription : Subscription;
     
     constructor( route: ActivatedRoute, watchesService: WatchesService, historiesService: HistoriesService, alarmsService : AlarmsService ) {
         this.route = route;
@@ -86,43 +77,14 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
         if( this.currentWatchUrl.length > 0){
             this.watchesService.saveCurrentWatchId(this.currentWatchUrl);
         }
-        
-        this.historyRollupStreamSubscription = this.historiesService.getHistoryRollupStream().subscribe (historyRollupAction => {
-            if( historyRollupAction.action == Action.Add || historyRollupAction.action == Action.Update) {
-                    let newChartData : Array<LineChartData> = [];
-                    for( let record of historyRollupAction.historyRollupRecords){
-                        //this.lineChartData.splice(0, this.lineChartData.length)
-                        // average
-                        let val: any = record.getAvg().val;
-                        newChartData.push( new LineChartData( val, new Date(record.getStart().val)));
-                    }
-                    
-                    let list: LineChartDataList = new LineChartDataList(historyRollupAction.history.displayName);
-                    list.values = newChartData;
-                    
-                    let newChartDataList = new Array<LineChartDataList>();
-                    this.chartDataList.forEach(elem =>  {if( elem.name != list.name){newChartDataList.push(elem)}});
-                    newChartDataList.push(list);
-                    
-                    this.chartDataList = newChartDataList;
-                
-            } else if( historyRollupAction.action == Action.Delete ){
-                let newChartDataList = new Array<LineChartDataList>();
-                this.chartDataList.forEach(elem =>  {if( elem.name != historyRollupAction.history.displayName){newChartDataList.push(elem)}});
-                
-                this.chartDataList = newChartDataList;
-            }
-        });
+
     }
 
     ngOnDestroy() {
         if ( this.watchContentSubscription ) {
             this.watchContentSubscription.unsubscribe();
         }
-        
-        if( this.historyRollupStreamSubscription ) {
-            this.historyRollupStreamSubscription.unsubscribe();
-        }
+
         
         if( this.interval !== undefined){
             clearInterval(this.interval);
@@ -136,20 +98,6 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
         //this.interval = setInterval(() => { this.doPoolChanges() }, 3000 );
     }
 
-    /**
-     * Update the history chart with obj's history if it has one
-     * 
-     * @param obj
-     */
-    updateHistoryChart(obj: Obj){
-        let historyRef : Ref= obj.childrens.find(function(this, value, index, obj) : boolean {return value.name == "history"}) as Ref;
-        if( historyRef !== undefined) {
-            let end =  moment().millisecond(0);  
-            let start = moment(end).subtract(24,'hours').minute(0).second(0).millisecond(0);
-            let bsRangeValue = [start.toDate(), end.toDate()];
-            this.historiesService.refreshNamedHistoryRollup(historyRef, bsRangeValue[0], bsRangeValue[1], "24");
-        } 
-    }
     
     /**
      * Event listener for add action from search component

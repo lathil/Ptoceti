@@ -4,16 +4,7 @@
 	<div class="row" >
 		<item-loader *ngFor="let obj of watchContentList" [obj]="obj" class="col-sm-6 col-md-4 col-lg-3 col-xl-3"  (onRemove)="onRemove($event)" (onEdit)="onEdit($event)" (onSave)="onSave($event)"></item-loader>
 	</div>
-	
-	<div class="row">
-		<div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-			<div class="card card-inverse bg-white">
-				<div class="card-block pb-0">
-					<d3-multiline-chart [tooltip]="true" [fill]="false" [data]="chartDataList" #d3multilineChart></d3-multiline-chart>
-				</div>
-			</div>
-		</div>
-	</div>
+
 	
 	<div class="card">
 		<div class="card-block">
