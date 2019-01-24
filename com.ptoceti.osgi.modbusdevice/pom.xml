@@ -14,7 +14,7 @@
 	<description>Ptoceti's modbus device service</description>
 
 	<properties>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 
 	<build>
@@ -64,9 +64,9 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>${pom.artifactId}</Export-Package>
-						<Private-Package>${pom.artifactId}.impl</Private-Package>
-						<Bundle-Activator>${pom.artifactId}.impl.Activator</Bundle-Activator>
+						<Export-Package>${project.artifactId}</Export-Package>
+						<Private-Package>${project.artifactId}.impl</Private-Package>
+						<Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>

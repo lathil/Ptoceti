@@ -36,7 +36,7 @@ public class EbusDriverImpl implements EbusDriver {
         Dictionary props = new Hashtable();
         props.put( org.osgi.framework.Constants.SERVICE_PID, EbusDriver.class.getName());
         props.put( org.osgi.framework.Constants.SERVICE_DESCRIPTION, "Ebus service implements a Device interface.");
-        props.put( EbusDriver.EBUS_PORT, ebusConnection.getPortName());
+        props.put( EbusDriver.EBUS_PORT, portName);
 
         ebusConnection = new EbusSerialConnection(portName);
         // if serial connection start ok ..
@@ -63,19 +63,23 @@ public class EbusDriverImpl implements EbusDriver {
         return this.id;
     }
 
-    public Future sendMasterMasterMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload){
+    public EbusResponseListener sendMasterMasterMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload){
         EbusMessage message = new EbusMessage( (byte)( destAddress & 0x00FF), (byte)( primaryCommand & 0x00FF), (byte)( secondaryCommand & 0x00FF), payload);
         EbusResponseListener listener = ebusConnection.addMessageToSend(message);
+        return listener;
     }
 
-    public Future<byte[]> sendMasterSlaveMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload ){
+    public EbusResponseListener sendMasterSlaveMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload ){
         EbusMessage message = new EbusMessage( (byte)( destAddress & 0x00FF), (byte)( primaryCommand & 0x00FF), (byte)( secondaryCommand & 0x00FF), payload);
         EbusResponseListener listener = ebusConnection.addMessageToSend(message);
+        return listener;
     }
 
-    public Future sendBroadcastMessage( int primaryCommand, int secondaryCommand, byte[] payload){
+    public EbusResponseListener sendBroadcastMessage( int primaryCommand, int secondaryCommand, byte[] payload){
         EbusMessage message = new EbusMessage( (byte)( EbusMessage.BROADCAST_ADD), (byte)( primaryCommand & 0x00FF), (byte)( secondaryCommand & 0x00FF), payload);
         EbusResponseListener listener = ebusConnection.addMessageToSend(message);
+
+        return listener;
     }
 
 }

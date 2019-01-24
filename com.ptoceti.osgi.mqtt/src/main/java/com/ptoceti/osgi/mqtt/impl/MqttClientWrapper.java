@@ -90,7 +90,7 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 	 * 
 	 * @param pid the unique pid used to register the mqtt client with.
 	 * @param qos the mqtt quality of service to use.
-	 * @param persistanceDir the persistance file path to be used  with qos > 0
+	 * @param persistanceDir the persistance file path to be used  with qos superior to 0
 	 * @param compositeIdentity the wire admin composite identity
 	 * @param rootTopic the topic to place in front of wire scope to form the full topic.
 	 * @param messageFormaterServiceName the name of the IMqttMessageFomatter service to obtain.
@@ -273,7 +273,7 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 	 * This list id built by the WireAdmin from the configuration it has found. If the configuration
 	 * has been erased, this method is called with a null object.
 	 *
-	 * @param Wire[] an Array ow wires this Producer is connected to.
+	 * @param wires an Array ow wires this Producer is connected to.
 	 *
 	 */
 	public void consumersConnected( Wire[] wires ) {

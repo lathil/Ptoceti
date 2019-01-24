@@ -59,8 +59,8 @@ public class Activator implements BundleActivator{
 	 * logging whithin the bundle.
 	 *
 	 * If the method cannot get a reference to the logging service, a NullPointerException is thrown.
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
+	 * @throws BundleException on error starting
 	 */
 	public void start(BundleContext context) throws Exception {
 		// TODO Auto-generated method stub
@@ -87,8 +87,8 @@ public class Activator implements BundleActivator{
 	/**
 	 * Called by the framework when the bundle is stopped.
 	 *
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
+	 * @throws BundleException on error stopping
 	 */
 	public void stop( BundleContext context ) throws BundleException {
 	
@@ -112,8 +112,8 @@ public class Activator implements BundleActivator{
 	/**
 	 * Fetch the resource from the bundle's resources and open a stream on it.
 	 * 
-	 * @param resourceName
-	 * @return URL
+	 * @param resourceName name of the resoource to get a url from the bundle
+	 * @return URL of the resource
 	 * 
 	 */
 	static public URL getResourceStream(String resourceName) {

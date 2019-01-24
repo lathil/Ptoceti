@@ -15,7 +15,7 @@
 	<description>Ptoceti's Obix service</description>
 
 	<properties>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 
 	<build>
@@ -65,9 +65,9 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Private-Package>${pom.parent.artifactId}.impl.*</Private-Package>
-						<Bundle-Activator>${pom.parent.artifactId}.impl.service.Activator</Bundle-Activator>
-						<Bundle-DocURL>${pom.organization.url}</Bundle-DocURL>
+						<Private-Package>${project.parent.artifactId}.impl.*</Private-Package>
+						<Bundle-Activator>${project.parent.artifactId}.impl.service.Activator</Bundle-Activator>
+						<Bundle-DocURL>${project.organization.url}</Bundle-DocURL>
 					</instructions>
 				</configuration>
 			</plugin>

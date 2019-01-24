@@ -39,46 +39,46 @@ public interface ObjCache {
 	/**
 	 * Get Obix oject specified by given uri
 	 * 
-	 * @param href
-	 * @return
-	 * @throws DomainException
+	 * @param href ref to the object
+	 * @return Obj an obix Obj
+	 * @throws DomainException on accessing the object
 	 */
 	public Obj getObixObj(Uri href) throws DomainException;
 	
 	/**
 	 * Get all Obix ojects that responds to specified contract
 	 * 
-	 * @param contract
-	 * @return
-	 * @throws DomainException
+	 * @param contract describe the type of objects to be returned
+	 * @return List an list of obix Obj
+	 * @throws DomainException on accessing the object
 	 */
 	public List<Obj> getObixObjsByContract(Contract contract) throws DomainException;
 	
 	/**
 	 * Update an Obix oject at the uri specified
 	 * 
-	 * @param href
-	 * @param updatePbj
-	 * @return
-	 * @throws DomainException
+	 * @param href ref to the object
+	 * @param updatePbj  value to take as an update
+	 * @return Obj the updated object
+	 * @throws DomainException on accessing the object
 	 */
 	public Obj updateObixObjAt(Uri href, Obj updatePbj) throws DomainException;
 	
 	/**
 	 * Update an existing Obix object or if it does not exists, create it.
 	 * 
-	 * @param updateObj
-	 * @return
-	 * @throws DomainException
+	 * @param updateObj object to take as an update
+	 * @return Obj updated object
+	 * @throws DomainException on accessing the object
 	 */
 	public Obj createUpdateObixObj(Obj updateObj) throws DomainException;
 	
 	/**
 	 * Create a new Obix object
 	 * 
-	 * @param newObj
-	 * @return
-	 * @throws DomainException
+	 * @param newObj object to be taken as input
+	 * @return Obj object persisted
+	 * @throws DomainException on accessing the object
 	 */
 	public Obj createObixObj(Obj newObj) throws DomainException;
 }

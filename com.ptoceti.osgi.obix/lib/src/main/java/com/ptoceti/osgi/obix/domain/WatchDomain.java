@@ -42,17 +42,17 @@ public interface WatchDomain extends BaseDomain {
 
 	/**
 	 * Create a new watch
-	 * @return
-	 * @throws DomainException
+	 * @return Watch the new watch
+	 * @throws DomainException on accessing watch
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public Watch make() throws DomainException ;
 	
 	/**
 	 * Return a watch from the specified uri
-	 * @param uri
-	 * @return
-	 * @throws DomainException
+	 * @param uri the uri of the watch
+	 * @return Watch the retrived watch
+	 * @throws DomainException on accessing watch
 	 */
 	@JdbcConnection(type = ConnectionType.RX)
 	public Watch retrieve(String uri ) throws DomainException ;
@@ -62,7 +62,8 @@ public interface WatchDomain extends BaseDomain {
 	 * 
 	 * @param uri the uri of the watch
 	 * @param in the list og uri to monitor
-	 * @return a list containing the newly added objects.
+	 * @return List a list containing the newly added objects.
+	 * @throws DomainException on accessing watch
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public List<Uri> addWatch(String uri, WatchIn in) throws DomainException ;
@@ -71,24 +72,25 @@ public interface WatchDomain extends BaseDomain {
 	 *  delete a watch
 	 *  
 	 *  @param uri the uri of the watch to be deleted
+	 *  @throws DomainException on accessing watch
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public void deleteWatch(String uri) throws DomainException ;
 	
 	/**
 	 * return only the item of a watch that have been updated since last time
-	 * @param uri
-	 * @return
-	 * @throws DomainException
+	 * @param uri the uri of the watch
+	 * @return WatchOut the objects that have changed
+	 * @throws DomainException on accessing watch
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public WatchOut poolChanges(String uri) throws DomainException ;
 	
 	/**
 	 * return the full list of a watch
-	 * @param uri
-	 * @return
-	 * @throws DomainException
+	 * @param uri the uri of the watch
+	 * @return WatchOut the object monitored by the watch
+	 * @throws DomainException on accessing watch
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public WatchOut poolRefresh(String uri) throws DomainException ;
@@ -98,14 +100,16 @@ public interface WatchDomain extends BaseDomain {
 	 * 
 	 * @param uri the uri of the watch
 	 * @param in the list of uri to remove
-	 * @return List<Uri> a list of removed uris
+	 * @return List a list of removed uris
+	 * @throws DomainException on accessing watch
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public List<Uri> removeWatch(String uri, WatchIn in) throws DomainException ;
 	
 	/**
 	 * get a list of all the watches availables
-	 * @return
+	 * @return List a list of watches
+	 * @throws DomainException on accessing watch
 	 */
 	@JdbcConnection(type = ConnectionType.RX)
 	public List<Obj> getObixWatches() throws DomainException ;
@@ -113,9 +117,9 @@ public interface WatchDomain extends BaseDomain {
 	/**
 	 * Update a watch witha list of new item to monitor
 	 * 
-	 * @param uri
-	 * @param watchIn
-	 * @throws DomainException
+	 * @param uri the uri of the watch
+	 * @param watchIn the lis t of object to add to the watch
+	 * @throws DomainException on accessing watch
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public void update(String uri, Watch watchIn) throws DomainException;

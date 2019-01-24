@@ -74,8 +74,8 @@ public class Activator implements BundleActivator {
 	 * logging whithin the bundle.
 	 *
 	 * If the method cannot get a reference to the logging service, a NullPointerException is thrown.
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
+	 * @throws BundleException on error starting the service
 	 */
 	public void start(BundleContext context) throws BundleException {
 		
@@ -131,7 +131,7 @@ public class Activator implements BundleActivator {
 	/**
 	 * Get hold to the instance of the obix Service. Might not be started.
 	 * 
-	 * @return ObixService
+	 * @return ObixServiceImpl the service implementation
 	 */
 	public static ObixServiceImpl getObixService() {
 		return obixService;
@@ -140,8 +140,8 @@ public class Activator implements BundleActivator {
 	/**
 	 * Called by the framework when the bundle is stopped.
 	 *
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
+	 * @throws BundleException on error stoping the service
 	 */
 	public void stop( BundleContext context ) throws BundleException {
 	

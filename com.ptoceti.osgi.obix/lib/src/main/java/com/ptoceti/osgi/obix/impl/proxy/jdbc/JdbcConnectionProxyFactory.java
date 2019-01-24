@@ -50,7 +50,7 @@ public class JdbcConnectionProxyFactory<T extends BaseDomain> {
 	 * 
 	 * @param proxiedClass the class of the desired object the proxy should be wrapped around.
 	 * @param proxiedinterface the interface of the desired object the proxy should be wrapped around
-	 * @return
+	 * @return T the proxy
 	 */
 	@SuppressWarnings("unchecked")
 	public T createProxy ( Class< ? extends T> proxiedClass, Class<T> proxiedinterface ) {

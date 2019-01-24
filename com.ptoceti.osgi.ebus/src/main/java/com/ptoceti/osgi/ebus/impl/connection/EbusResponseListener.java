@@ -14,26 +14,28 @@ public class  EbusResponseListener {
     }
 
     public EbusResponse getResponse() throws  InterruptedException {
-        while (hasResponse == false) {
-            synchronized (waitResponseLock) {
-                wait();
+        synchronized (waitResponseLock) {
+            while (hasResponse == false) {
+                waitResponseLock.wait();
             }
         }
         return response;
     }
 
-    public void setResponse(EbusResponse message){
+    protected void setResponse(EbusResponse message){
         synchronized (waitResponseLock){
             response = message;
             hasResponse = true;
+            waitResponseLock.notify();
         }
     }
 
-    public void setMessageFailed(){
+    protected void setMessageFailed(){
         synchronized (waitResponseLock){
             response = null;
             hasResponse = false;
             messageFailed = true;
+            waitResponseLock.notify();
         }
     }
 }

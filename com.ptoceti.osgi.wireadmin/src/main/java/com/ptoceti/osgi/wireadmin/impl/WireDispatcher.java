@@ -101,8 +101,8 @@ public class WireDispatcher implements Runnable {
 	/**
 	 * Add the list of wireas to pass on to a producer. 
 	 * 
-	 * @producer The producer service
-	 * @wires[] The list of wires
+	 * @param producer producer service
+	 * @param wires The list of wires
 	 *
 	 */
 	public synchronized void addProducerWires( Producer producer, Wire wires[]){
@@ -114,8 +114,8 @@ public class WireDispatcher implements Runnable {
 	/**
 	 * Add the list of wireas to pass on to a consumer
 	 * 
-	 * @consumer The consumer service
-	 * @wires[] The list of wires
+	 * @param consumer The consumer service
+	 * @param wires The list of wires
 	 *
 	 */
 	public synchronized void addConsumerWires( Consumer consumer, Wire wires[]){
@@ -133,10 +133,10 @@ public class WireDispatcher implements Runnable {
 		/**
 		 * A DispatcherDetails record.
 		 * 
-		 * @isProducer A boolean to indicate whether the target is to be taken as a consumer or a producer.
+		 * @param isProducer A boolean to indicate whether the target is to be taken as a consumer or a producer.
 		 * This is important because services could implement botha consumer and a consumer
-		 * @target The Consumer or Producer or both service.
-		 * @wires[] The list of wires
+		 * @param target The Consumer or Producer or both service.
+		 * @param wires The list of wires
 		 *
 		 */
 		public DispatcherDetails( boolean isProducer, Object target, Wire wires[]) {

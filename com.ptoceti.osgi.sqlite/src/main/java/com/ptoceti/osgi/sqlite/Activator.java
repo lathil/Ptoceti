@@ -104,7 +104,7 @@ public class Activator implements BundleActivator{
 	 *
 	 * If the method cannot get a reference to the logging service, a NullPointerException is thrown.
 	 * @param context the bundle context
-	 * @throws BundleException
+	 * @throws BundleException thrown when error in loading native librairies
 	 */
 	public void start(final BundleContext context) throws BundleException {
 		

@@ -10,21 +10,22 @@ import com.ptoceti.osgi.obix.object.Val;
 public interface AlarmDomain extends BaseDomain {
 
 	/**
-	 * Create a hitory element
-	 * 
-	 * @param of
-	 * @return
-	 * @throws DomainException
+	 * Create a history element
+	 *
+	 * @param ref reference to the object the alarm must monitor
+	 * @param of input contract
+	 * @param displayName the name for the alarm
+	 * @return Alarm the new alarm
+	 * @throws DomainException on accessing persisted alarm
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	Alarm make(Ref ref, Contract of, String displayName) throws DomainException;
 	
 	/**
-	 * Remove a hitory element
+	 * Remove a history element
 	 * 
-	 * @param of
-	 * @return
-	 * @throws DomainException
+	 * @param uri uri of the alarm
+	 * @throws DomainException on accessing persisted alarm
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	void remove(String uri) throws DomainException;
@@ -32,17 +33,19 @@ public interface AlarmDomain extends BaseDomain {
 	/**
 	 * Return a history and its configuration froml the specified urlHistoryDomain
 	 * 
-	 * @param uri
-	 * @return
-	 * @throws DomainException
+	 * @param uri uri of the alarm
+	 * @return Alarm fetched alarm
+	 * @throws DomainException on accessing persisted alarm
 	 */
 	@JdbcConnection(type = ConnectionType.RX)
 	Alarm retrieve(String uri) throws DomainException;
 	
 	/**
 	 * Trigger the alarm state on the alarm with triggering value
-	 * @param uri
-	 * @param val
+	 * @param uri uri of the alarm
+	 * @param val value for the trigger
+	 * @return Alarm configured alarm
+	 * @throws DomainException on accessing persisted alarm
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	Alarm setAlarm( String uri, Val val) throws DomainException ;
@@ -50,8 +53,10 @@ public interface AlarmDomain extends BaseDomain {
 	/**
 	 * Clear the alarm stats on the alarm
 	 * 
-	 * @param uri
-	 * @param val
+	 * @param uri uri of the alarm
+	 * @param val reset value
+	 * @return Alarm cleared alarm
+	 * @throws DomainException on accessing persisted alarm
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	Alarm clearAlarm(String uri, Val val) throws DomainException ;
@@ -61,7 +66,8 @@ public interface AlarmDomain extends BaseDomain {
 	 * 
 	 * @param uri the alarm uri
 	 * @param ackUser the user id, if provided.
-	 * @return
+	 * @return Alarm acknowledged alarm
+	 * @throws DomainException on accessing persisted alarm
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	Alarm ack(String uri,  String ackUser) throws DomainException;
@@ -71,8 +77,8 @@ public interface AlarmDomain extends BaseDomain {
 	 * 
 	 * @param uri the alarm uri
 	 * @param obj the max value
-	 * @return
-	 * @throws DomainException
+	 * @return Val returned max value
+	 * @throws DomainException on accessing persisted alarm
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	Val setMax(String uri, Val obj) throws DomainException;
@@ -82,8 +88,8 @@ public interface AlarmDomain extends BaseDomain {
 	 * 
 	 * @param uri the alarm uri
 	 * @param obj the min value
-	 * @return
-	 * @throws DomainException
+	 * @return Val returned min value
+	 * @throws DomainException on accessing persisted alarm
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	Val setMin(String uri, Val obj) throws DomainException;

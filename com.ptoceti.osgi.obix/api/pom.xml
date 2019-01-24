@@ -15,7 +15,7 @@
 	<description>Obix-Api</description>
 
 	<properties>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 	
 	<build>

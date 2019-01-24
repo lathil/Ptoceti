@@ -82,7 +82,8 @@ public class ObixRestComponent {
 	
 	
 	/**
-	 * Create Restlet main Application, giving it guice rooter, other routes and a cors filter 
+	 * Create Restlet main Application, giving it guice rooter, other routes and a cors filter
+	 * @param oautLocalServerPath path to oauth service
 	 */
 	public ObixRestComponent(String oautLocalServerPath){
 	
@@ -96,7 +97,7 @@ public class ObixRestComponent {
 	 * 
 	 * @param path the path under which the rest root application is served
 	 * @param port the local port that the http connector must bind to.
-	 * @throws Exception
+	 * @throws Exception on error starting the service
 	 */
 	public void start(String path, Integer port) throws Exception{
 		if( component == null) {
@@ -116,7 +117,7 @@ public class ObixRestComponent {
 	
 	/**
 	 * Stop the main restlet component
-	 * @throws Exception
+	 * @throws Exception on error stoping the service
 	 */
 	public void stop() throws Exception{
 		if( component != null){
