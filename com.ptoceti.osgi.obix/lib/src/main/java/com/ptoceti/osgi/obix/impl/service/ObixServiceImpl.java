@@ -287,7 +287,7 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 	/**
 	 * Get the instance of the executor service. Might not be instanciated
 	 * 
-	 * @return
+	 * @return ExecutorService the service executor service
 	 */
 	public ExecutorService getExecutorService(){
 		return threadExecutor;

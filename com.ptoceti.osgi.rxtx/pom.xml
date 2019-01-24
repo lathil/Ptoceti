@@ -14,7 +14,7 @@
 	<description>Ptoceti's packaging of Rxtx</description>
 
 	<properties>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 
 	<build>
@@ -71,7 +71,7 @@
 							resources/ppc-osx-gnu/librxtxSerial.jnilib;processor = ppc;osname= mac os x,
 							resources/i686-osx-gnu/librxtxSerial.jnilib;processor = x86_64;osname = mac os x,
 							resources/i368-mingw32/rxtxSerial.dll;resources/i368-mingw32/rxtxParallel.dll;processor= x86;osname = WindowsXP,
-							resources/amd64-win-x64/rxtxSerial.dll;resources/amd64-win-x64/rxtxParallel.dll;processor= x86_64;processor= amd64; osname=Windows 7,
+							resources/amd64-win-x64/rxtxSerial.dll;resources/amd64-win-x64/rxtxParallel.dll;processor= x86_64;processor= amd64; osname=Windows 7; osname=Windows 10,
 							resources/armhf-linux-raspbian/librxtxSerial.so;osname= Linux;processor= arm,
 							resources/armle-linux-debian/librxtxSerial.so;osname= Linux;processor= armle,
 						</Bundle-NativeCode>

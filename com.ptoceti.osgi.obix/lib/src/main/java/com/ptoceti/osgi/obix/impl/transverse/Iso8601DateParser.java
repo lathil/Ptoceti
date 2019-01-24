@@ -192,8 +192,6 @@ public class Iso8601DateParser {
 	 * @param isodate
 	 *            the date in ISO 8601 format
 	 * @return a Date instance
-	 * @exception InvalidDateException
-	 *                if the date is not valid
 	 */
 	public static Date parse(String isodate) {
 		Calendar calendar = getCalendar(isodate);

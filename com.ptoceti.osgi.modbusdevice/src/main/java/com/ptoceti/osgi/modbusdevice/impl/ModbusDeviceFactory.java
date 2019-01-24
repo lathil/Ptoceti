@@ -83,9 +83,8 @@ public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFa
 	 * Create a new ModbusDeviceFactory instance. Register the class instance as a ManagedServiceFactory.
 	 * The class will be recognised as such by the framework allowing it to pass on configuration data.
 	 *
-	 * @throws Exception
 	 */
-	public ModbusDeviceFactory() throws Exception {
+	public ModbusDeviceFactory() {
 		// create a new hastable that will contain references to all the ModbusDevice modules.
 		modbusDevServices = new Hashtable<String, ModbusDevice>();
 		// register the class as a service factory.

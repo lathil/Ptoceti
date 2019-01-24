@@ -206,7 +206,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	/**
 	 * ManagedServiceFactory Interface method
 	 *
-	 * @param The dictionary containing all the configuration.
+	 * @param properties The dictionary containing all the configuration.
 	 */
 	public void updated(Dictionary properties) {
 		
@@ -453,11 +453,9 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	 * pid cannot be pre-determined.
 	 * 
 	 * @param producerPID The persistent identifier for the producer service.
-	 * @param producerNames
-	 * @param producerFilter
+	 * @param producerFilter filter to specify a producer
 	 * @param consumerPID The persistent identifier for the consumer service.
-	 * @param consumerName
-	 * @param consumerFilter
+	 * @param consumerFilter filyter to specify a consumer
 	 * @param properties The wire's properties as (key, values) tuples.
 	 * @return The create wire object. Return null if failed.
 	 */
@@ -578,7 +576,7 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	 * and producerConnected respectively.
 	 *
 	 * @param wire The Wire instance to update.
-	 * @param prperties The new properties for the given wire.
+	 * @param properties The new properties for the given wire.
 	 */
 	public void updateWire(Wire wire, Dictionary properties){
 	
@@ -629,8 +627,8 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	 * If the no wires are matched on the filter criteria, null is returned.
 	 *
 	 * @param filter An RFC1960 filter string.
-	 * @throws org.osgi.framework.InvaalidSyntaxException if the filter has an invalid syntax.
-	 * @return An array of wires, null if no wires are matched
+	 * @throws InvalidSyntaxException if the filter has an invalid syntax.
+	 * @return Wire An array of wires, null if no wires are matched
 	 */
 	public Wire[] getWires(String filter) throws InvalidSyntaxException {
 	
@@ -731,7 +729,9 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 	
 	/**
 	 * Send a WireAdminEvent to listening WireAdminListener objects.
-	 *
+	 * @param eventType type of event
+	 * @param wire the wire the event is for
+	 * @param exception on error sending event
 	 */
 	public void sendEvent( int eventType, Wire wire, Throwable exception ) {
 	

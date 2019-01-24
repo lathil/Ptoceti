@@ -71,7 +71,7 @@ public class ContractEntity extends AbstractEntity  {
 	
 	/**
 	 * Create the contract and its uris
-	 * @throws EntityException
+	 * @throws EntityException when error creating entity
 	 */
 	public void create() throws EntityException {
 		
@@ -96,7 +96,7 @@ public class ContractEntity extends AbstractEntity  {
 	
 	/**
 	 * Delete the contract and uris that compose it.
-	 * @throws EntityException
+	 * @throws EntityException when error deleting entity
 	 */
 	public void delete() throws EntityException {
 		
@@ -124,7 +124,7 @@ public class ContractEntity extends AbstractEntity  {
 	
 	/**
 	 * Load contract data from database
-	 * @throws EntityException
+	 * @throws EntityException when error fetching entity
 	 */
 	public void fetch() throws EntityException {
 		

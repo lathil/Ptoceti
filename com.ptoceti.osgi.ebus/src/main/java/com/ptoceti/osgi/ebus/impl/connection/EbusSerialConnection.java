@@ -72,7 +72,7 @@ public class EbusSerialConnection extends EbusConnection implements SerialPortEv
 
     public void close() {
 
-        busListener.stop();
+        //busListener.stop();
         serialPort.close();
         inStream = null;
         outStream = null;

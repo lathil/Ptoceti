@@ -54,8 +54,7 @@ public class Activator implements BundleActivator {
 	 *
 	 * If the method cannot get a reference to the logging service, a NullPointerException is thrown.
 	 * Similarly, a BundleException exception is thrown if the MqttClientFactory cannot be started.
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
 	 */
 	public void start(BundleContext context) throws Exception {
 		// TODO Auto-generated method stub
@@ -86,13 +85,8 @@ public class Activator implements BundleActivator {
 		Activator.bc.registerService(clazzes, mqttMessageForrmater, properties );		
 		
 		log(LogService.LOG_INFO, "Registering service " + IMqttMessageFomatter.class.getName());
-				
-		try {
-			// create the mqtt client factory
-			mqttClientFactory = new MqttClientFactory();
-		} catch (Exception e) {
-			throw new BundleException(e.toString());
-		}
+
+		mqttClientFactory = new MqttClientFactory();
 
 		log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
 	}
@@ -100,10 +94,9 @@ public class Activator implements BundleActivator {
 	/**
 	 * Called by the framework when the bundle is stopped. 
 	 *
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
 	 */
-	public void stop(BundleContext context) throws Exception {
+	public void stop(BundleContext context)  {
 		
 		log(LogService.LOG_INFO, "Stopping");
 		
@@ -115,8 +108,8 @@ public class Activator implements BundleActivator {
 	/**
 	 * Fetch the resource from the bundle's resources and open a stream on it.
 	 * 
-	 * @param resourceName
-	 * @return URL
+	 * @param resourceName name of the resource to get the url
+	 * @return URL for the resource
 	 * 
 	 */
 	static public URL getResourceStream(String resourceName) {

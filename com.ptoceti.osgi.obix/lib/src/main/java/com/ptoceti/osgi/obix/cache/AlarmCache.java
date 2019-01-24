@@ -15,7 +15,7 @@ public interface AlarmCache {
 	 * 
 	 * @param ref the ref to the object to be monito
 	 * @return the Alarm
-	 * @throws DomainException
+	 * @throws DomainException on creating the alarm
 	 */
 	Alarm make(Ref ref) throws DomainException;
 	
@@ -32,7 +32,7 @@ public interface AlarmCache {
 	 * 
 	 * @param uri uri of the alarm object
 	 * @param observable the object to be observed by the history object
-	 * @throws DomainException
+	 * @throws DomainException on accessing the alarm
 	 */
 	void addAlarmObserver(String uri, Obj observable) throws DomainException;
 	
@@ -41,7 +41,7 @@ public interface AlarmCache {
 	 * 
 	 * @param uri the arlarm uri	
 	 * @param obj the updated obj
-	 * @throws DomainException 
+	 * @throws DomainException on accessing the alarm
 	 */
 	void updateAlarmState(String uri, Val obj) throws DomainException;
 	
@@ -51,7 +51,7 @@ public interface AlarmCache {
 	  * @param uri the alarm uri
 	  * @param obj the max value
 	  * 
-	  * @throws DomainException
+	  * @throws DomainException on accessing the alarm
 	  */
 	void setMax(String uri, Val obj) throws DomainException;
 	
@@ -61,7 +61,7 @@ public interface AlarmCache {
 	  * @param uri the alarm uri
 	  * @param obj the min value
 	  * 
-	  * @throws DomainException
+	  * @throws DomainException on accessing the alarm
 	  */
 	void setMin(String uri, Val obj) throws DomainException;
 }

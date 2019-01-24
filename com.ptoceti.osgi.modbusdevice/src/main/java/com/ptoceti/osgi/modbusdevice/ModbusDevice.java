@@ -36,13 +36,13 @@ public interface ModbusDevice extends Producer, Consumer{
 	
 	/**
 	 * Return the id of the device in the Modbus bus link
-	 * @return
+	 * @return the id of this device
 	 */
 	public int getId();
 	
 	/**
 	 * Return the serial link port used by the device.
-	 * @return
+	 * @return String the name of the port for this device
 	 */
 	public String getPortName();
 	

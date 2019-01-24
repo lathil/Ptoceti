@@ -164,7 +164,7 @@ public class ObjEntity extends AbstractEntity {
 
 	/**
 	 * Create a simple obix object in the database
-	 * @throws EntityException
+	 * @throws EntityException when error creating entity
 	 */
 	public void create() throws EntityException{
 
@@ -180,8 +180,8 @@ public class ObjEntity extends AbstractEntity {
 
 	/**
 	 * Create common parameters for creation a object
-	 * @return List<Object>  a list of parameterers for the sql query
-	 * @throws EntityException
+	 * @return List a list of parameterers for the sql query
+	 * @throws EntityException when error creating entity
 	 */
 	protected List<Object> getCreateParam() throws EntityException{
 		ArrayList<Object> params = new ArrayList<Object>();
@@ -248,7 +248,7 @@ public class ObjEntity extends AbstractEntity {
 	
 	/**
 	 * Delete the matching obix object.
-	 * @throws EntityException
+	 * @throws EntityException when error deleting entity
 	 */
 	public void delete() throws EntityException {
 
@@ -262,7 +262,7 @@ public class ObjEntity extends AbstractEntity {
 	
 	/**
 	 * remove all objects that are linked to this one.
-	 * @throws EntityException
+	 * @throws EntityException when error deleting references
 	 */
 	protected void deleteReferences() throws EntityException{
 
@@ -284,7 +284,7 @@ public class ObjEntity extends AbstractEntity {
 
 	/**
 	 * Update in database the matching obix object
-	 * @throws EntityException
+	 * @throws EntityException when error updating
 	 */
 	public void update() throws EntityException {
 		List<Object> params = getUpdateParam();
@@ -296,10 +296,9 @@ public class ObjEntity extends AbstractEntity {
 	
 	/**
 	 * Create a list of common parameters for update
-	 * @return a list of common parameters to update
-	 * @throws EntityException
+	 * @return List a list of common parameters to update
 	 */
-	public List<Object> getUpdateParam() throws EntityException{
+	public List<Object> getUpdateParam() {
 		
 		ArrayList<Object> params = new ArrayList<Object>();
 		params.add(getObixObject().getName());

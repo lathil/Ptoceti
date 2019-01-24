@@ -189,7 +189,7 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 	 * in turn poll the producer with the wire reference. The producer can then update the referenced wire.
 	 *
 	 *
-	 * @param Wire the wire that invoque this method.
+	 * @param wire the wire that invoque this method.
 	 * @return An Envelope[] Array.
 	 */
 	public Object polled(Wire wire) {
@@ -223,7 +223,7 @@ public class SensorNode implements Producer, ServiceListener, Runnable {
 	 * This list id built by the WireAdmin from the configuration it has found. If the configuration
 	 * has been erased, this method is called with a null object.
 	 *
-	 * @param Wire[] an Array ow wires this Producer is connected to.
+	 * @param wires an Array ow wires this Producer is connected to.
 	 *
 	 */
 	public void consumersConnected(Wire[] wires) {

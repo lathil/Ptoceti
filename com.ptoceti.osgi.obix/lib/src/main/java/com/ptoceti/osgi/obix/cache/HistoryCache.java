@@ -46,9 +46,9 @@ public interface HistoryCache {
 	/**
 	 * Create a history element for a referenced object
 	 * 
-	 * @param of
-	 * @return
-	 * @throws DomainException
+	 * @param ref to the object the history is for
+	 * @return History the created istory
+	 * @throws DomainException on accessing the history
 	 */
 	History make(Ref ref) throws DomainException;
 	
@@ -56,8 +56,9 @@ public interface HistoryCache {
 	 * Create a history element of a type
 	 * 
 	 * @param of type of history
-	 * @return
-	 * @throws DomainException
+     * @param displayName name of the history
+	 * @return History  the created history
+	 * @throws DomainException on accessing the history
 	 */
 	History make(Contract of, String displayName) throws DomainException;
 	
@@ -66,57 +67,57 @@ public interface HistoryCache {
 	 * 
 	 * @param uri uri of the history object
 	 * @param observable the object to be observed by the history object
-	 * @throws DomainException
+	 * @throws DomainException on accessing the history
 	 */
 	void addHistoryObserver(String uri, Obj observable) throws DomainException;
 	
 	/**
 	 * Return a history and its configuration for the specified url
 	 * 
-	 * @param uri
-	 * @return
-	 * @throws DomainException
+	 * @param  uri uri of the history object
+	 * @return History the retrieved history
+	 * @throws DomainException on accessing the history
 	 */
 	History retrieve(String uri) throws DomainException;
 	
 	/**
 	 * Delete an history object and references to it
 	 * 
-	 * @param uri
-	 * @return
-	 * @throws DomainException
+	 * @param uri uri of the history object
+	 * @return boolean true if sucessfully deleted
+	 * @throws DomainException on accessing the history
 	 */
 	boolean delete(String uri) throws DomainException;
 	
 	/**
 	 * Add a value record to the history specified by the uri
 	 * 
-	 * @param uri
-	 * @param value
-	 * @throws DomainException
+	 * @param uri uri to the history object
+	 * @param value value to add to the history
+	 * @throws DomainException on accessing the history
 	 */
 	void addRecord(String uri, Val value) throws DomainException;
 	
 	/**
 	 * Get records from a history
-	 * @param uri
-	 * @param limit
-	 * @param from
-	 * @param to
-	 * @return
-	 * @throws DomainException
+	 * @param uri uri of the history object
+	 * @param limit number  max of record to fetch
+	 * @param start starting period of records
+	 * @param end finishing period of records
+	 * @return List of HistoryRecords
+	 * @throws DomainException on accessing the history
 	 */
 	List<HistoryRecord> getRecords(String uri, Int limit, Abstime start, Abstime end) throws DomainException;
 	
 	/**
 	 * Get rollup record from a history
-	 * @param uri
-	 * @param limit
-	 * @param from
-	 * @param to
-	 * @param roolUpDuration
-	 * @return
-	 * @throws DomainException
+	 * @param uri uri of the history object
+	 * @param limit number  max of record to fetch
+	 * @param start starting period of records
+	 * @param end finishing period of records
+	 * @param roolUpDuration sampling period
+	 * @return List of HistoryRecords
+	 * @throws DomainException on accessing the history
 	 */
 	List<HistoryRollupRecord> getRollUprecords(String uri, Int limit, Abstime start, Abstime end, Reltime roolUpDuration) throws DomainException;
 	

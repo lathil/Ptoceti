@@ -133,7 +133,7 @@ public class WireImpl implements Wire {
 	 * this case, the Producer service is unregistered from the bundle context, and the internal references
 	 * are set to null.
 	 * 
-	 * @producerSRef The ServiceReference to a Producer service. Null if the internal Producer service is to
+	 * @param producerSRef The ServiceReference to a Producer service. Null if the internal Producer service is to
 	 * be get rif of.
 	 *
 	 */
@@ -189,7 +189,7 @@ public class WireImpl implements Wire {
 	 * this case, the Consumer service is unregistered from the bundle context, and the internal references
 	 * are set to null.
 	 * 
-	 * @consumerSRef The ServiceReference to a Consumer service. Null if the internal Consumer service is to
+	 * @param consumerSRef The ServiceReference to a Consumer service. Null if the internal Consumer service is to
 	 * be get rif of.
 	 *
 	 */

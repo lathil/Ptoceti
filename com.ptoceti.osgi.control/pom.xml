@@ -14,7 +14,7 @@
 	<description>Ptoceti's control library</description>
 
 	<properties>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 	<build>
 		<resources>
@@ -64,7 +64,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>${pom.artifactId}</Export-Package>
+						<Export-Package>${project.artifactId}</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

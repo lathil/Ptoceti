@@ -66,9 +66,8 @@ public class ModbusDriverFactory implements org.osgi.service.cm.ManagedServiceFa
 	 * Create a new ModbusDriverFactory instance. Register the class instance as a ManagedServiceFactory.
 	 * The class will be recognised as such by the framework allowing it to pass on configuration data.
 	 *
-	 * @throws Exception
 	 */
-	public ModbusDriverFactory() throws Exception {
+	public ModbusDriverFactory() {
 		// create a new hastable that will contain references to all the modbusdriver services.
 		modbusDrivers = new Hashtable();
 		// register the class as a service factory.

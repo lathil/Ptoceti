@@ -201,7 +201,7 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 	 * that implementors of Consumer can be assured that the callback will not take place during
 	 * registration when they execute the registration in a synchronized method. 
 	 *
-	 * @param Wire[] an Array ow wires this Consumer is connected to.
+	 * @param wires: an Array ow wires this Consumer is connected to.
 	 *
 	 */
 	public void producersConnected(Wire[] wires ) {
@@ -268,7 +268,7 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 	 * This list id built by the WireAdmin from the configuration it has found. If the configuration
 	 * has been erased, this method is called with a null object.
 	 *
-	 * @param Wire[] an Array ow wires this Producer is connected to.
+	 * @param wires an Array ow wires this Producer is connected to.
 	 *
 	 */
 	public void consumersConnected( Wire[] wires ) {
@@ -319,7 +319,7 @@ public abstract class ModbusDeviceAbstractImpl implements ModbusDevice{
 	 * in turn poll the producer with the wire reference. The producer can then update the referenced wire.
 	 *
 	 *
-	 * @param Wire the wire that invoque this method.
+	 * @param wire the wire that invoque this method.
 	 * @return An Envelope[] Array.
 	 */
 	public Object polled( Wire wire ) {

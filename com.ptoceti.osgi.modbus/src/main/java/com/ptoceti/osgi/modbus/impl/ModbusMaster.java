@@ -53,12 +53,12 @@ public class ModbusMaster extends ModbusDriverImpl {
 	 * a problem, an exception is issued.
 	 *
 	 * @param id: ID of the device on the modbus bus.
-	 * @param porName: name of the serial port to use to access the serial port, eg "/dev/tty01"
+	 * @param portName: name of the serial port to use to access the serial port, eg "/dev/tty01"
 	 * @param encoding: style of encoding to use on the bus: either ascii or rtu.
-	 * @param baudrate: baud rate to used on the serial link: 9600 to 19200.
+	 * @param baudRate: baud rate to used on the serial link: 9600 to 19200.
 	 * @param usesParity: state whether to send the parity bit on the serial link.
 	 * @param evenParity: state whether to use even or odd parity.
-	 *
+	 * @param echo: true if need to check for an echo
 	 * @exception Exception is thrown if probmems creating the serial connection.
 	 */
 	public ModbusMaster( int id, String portName, String encoding, int baudRate, boolean usesParity, boolean evenParity, boolean echo ) throws Exception {

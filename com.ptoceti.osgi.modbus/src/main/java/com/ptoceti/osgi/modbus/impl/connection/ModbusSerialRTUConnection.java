@@ -71,8 +71,8 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 	 * get hold of the input and pitput streams.
 	 *
 	 *
-	 * @param porName: name of the serial port to use to access the serial port, eg "/dev/tty01"
-	 * @param baudrate: baud rate to used on the serial link: 9600 to 19200.
+	 * @param portName: name of the serial port to use to access the serial port, eg "/dev/tty01"
+	 * @param baudRate: baud rate to used on the serial link: 9600 to 19200.
 	 * @param usesParity: state whether to send the parity bit on the serial link.
 	 * @param evenParity: state whether to use even or odd parity.
 	 * @param echo: state whether to expect receivng the echo of a broadcasted message back on the receiver channel.
@@ -207,7 +207,6 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 	 * ModbusRequestMessage is build around it and returned. The method block till a incoming
 	 * frame is received.
 	 *
-	 * @return the request message. 
 	 */
 	public synchronized void waitForRequest(){
 	

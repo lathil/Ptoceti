@@ -72,7 +72,7 @@ public class GuiceFinder extends Finder {
      * Constructor.
      * 
      * @param context The context.
-     * @param targetClass The target handler class. It must be either a subclass of {@link Handler} or of {@link ServerResource}.
+     * @param targetClass The target handler class.
      */
     public GuiceFinder(Context context, Class<? extends ServerResource> targetClass) {
         super(context, targetClass);
@@ -84,6 +84,7 @@ public class GuiceFinder extends Finder {
      * @param targetClass the desired class for the ServerResource
      * @param request the current restlet request
      * @param response the current restlet response
+	 * @return ServerResource new server resource oject
      */
 	@Override
 	public ServerResource create(Class<? extends ServerResource> targetClass,
@@ -106,7 +107,7 @@ public class GuiceFinder extends Finder {
 	}
 	/**
 	 * Getter
-	 * @return the guice inector.
+	 * @return Injector the guice inector.
 	 */
 	public Injector getInjector() {
 		return injector;

@@ -57,7 +57,7 @@ public class GuiceContext {
 	
 	/**
 	 * Property accessor return the configured injector.
-	 * @return
+	 * @return Injector context injector
 	 */
 	public Injector getInjector(){
 		return injector;

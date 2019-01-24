@@ -17,7 +17,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 
 	<dependencies>
@@ -124,30 +124,68 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>${pom.artifactId}</Export-Package>
-						<Private-Package>${pom.artifactId}.impl.*</Private-Package>
-						<Bundle-Activator>${pom.artifactId}.impl.Activator</Bundle-Activator>
+						<Export-Package>${project.artifactId}</Export-Package>
+						<Private-Package>${project.artifactId}.impl.*</Private-Package>
+						<Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
 						<Include-Resource>/resources =
-							src/main/webapp/build/js_optimized,/OSGI-INF=src/main/resources/OSGI-INF</Include-Resource>
+							src/main/webapp/dev/js_optimized,/OSGI-INF=src/main/resources/OSGI-INF</Include-Resource>
 					</instructions>
 				</configuration>
 			</plugin>
 
 			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.5</version>
+				<executions>
+					<execution>
+						<id>install node and yarn</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
+						<phase>prepare-package</phase>
+						<configuration>
+							<nodeVersion>v6.11.0</nodeVersion>
+							<npmVerions>3.10.10</npmVerions>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<phase>prepare-package</phase>
+						<configuration>
+							<arguments>install</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>grunt build</id>
+						<goals>
+							<goal>grunt</goal>
+						</goals>
+						<phase>prepare-package</phase>
+						<configuration>
+							<arguments>build</arguments>
+						</configuration>
+					</execution>
+				</executions>
+				<configuration>
+					<installDirectory>target/node-installation-dir</installDirectory>
+					<workingDirectory>src/main/webapp/dev</workingDirectory>
+				</configuration>
+			</plugin>
+
+			<!--
+			<plugin>
 				<groupId>pl.allegro</groupId>
 				<artifactId>grunt-maven-plugin</artifactId>
 				<version>1.5.0</version>
 				<configuration>
-				<!-- If run in Eclipse add env PATH = /usr/bin:/usr/local/bin:$PATH -->
-					<!-- relative to src/main/webapp/, default: static -->
 					<jsSourceDirectory>dev</jsSourceDirectory>
 					<gruntBuildDirectory>src/main/webapp/build</gruntBuildDirectory>
 					<target>build</target>
 					<execMavenPluginVersion>1.4.0</execMavenPluginVersion>
-					<!--  <gruntExecutable>node_modules/grunt-cli/bin/grunt</gruntExecutable>-->
-					<!-- <npmExecutable>/usr/local/lib/node_modules/npm/bin</npmExecutable> -->
-					<!--  <nodeExecutable>/usr/local/bin/node</nodeExecutable>-->
-					<!-- <runGruntWithNode>true</runGruntWithNode> -->
 				</configuration>
 				<executions>
 					<execution>
@@ -160,6 +198,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			-->
 		</plugins>
 
 	</build>

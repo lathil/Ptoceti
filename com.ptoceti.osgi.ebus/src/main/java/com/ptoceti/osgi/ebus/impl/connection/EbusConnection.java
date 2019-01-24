@@ -24,7 +24,7 @@ public abstract class EbusConnection {
     // the message sender thread attempting to send message if needed
     MessageSender messageSender;
     // handler for received bytes.
-    BusListener busListener;
+   // BusListener busListener;
 
     // buffer receiving full frames
     ByteBuffer bytesIn = ByteBuffer.allocate(256);

@@ -43,8 +43,8 @@ public interface WatchAddResource {
 	 * Add ref to a obix resource to monitor to a watch
 	 * 
 	 * @param in a list of ref to monitor
-	 * @return
-	 * @throws ResourceException
+	 * @return WatchOut describes the new watch
+	 * @throws ResourceException thrown when error in creating the watch
 	 */
 	@Post
 	WatchOut addWatch(WatchIn in) throws ResourceException;

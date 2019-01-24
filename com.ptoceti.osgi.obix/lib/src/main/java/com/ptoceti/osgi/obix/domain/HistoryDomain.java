@@ -44,21 +44,21 @@ import com.ptoceti.osgi.obix.object.Val;
 public interface HistoryDomain extends BaseDomain {
 
 	/**
-	 * Create a hitory element
+	 * Create a history element
 	 * 
-	 * @param of
-	 * @return
-	 * @throws DomainException
+	 * @param of type of history to make
+	 * @param displayName name of the history
+	 * @return History created history
+	 * @throws DomainException on accessing history
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	History make(Contract of, String displayName) throws DomainException;
 	
 	/**
-	 * Remove a hitory element
+	 * Remove a history element
 	 * 
-	 * @param of
-	 * @return
-	 * @throws DomainException
+	 * @param uri uri of the history to remove
+	 * @throws DomainException on accessing history
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	void remove(String uri) throws DomainException;
@@ -66,9 +66,9 @@ public interface HistoryDomain extends BaseDomain {
 	/**
 	 * Return a history and its configuration froml the specified urlHistoryDomain
 	 * 
-	 * @param uri
-	 * @return
-	 * @throws DomainException
+	 * @param uri uri of the history to retrieve
+	 * @return History the history searched
+	 * @throws DomainException on accessing history
 	 */
 	@JdbcConnection(type = ConnectionType.RX)
 	History retrieve(String uri) throws DomainException;
@@ -76,33 +76,33 @@ public interface HistoryDomain extends BaseDomain {
 	/**
 	 * Add a value record to the history specified by the uri
 	 * 
-	 * @param uri
-	 * @param value
-	 * @throws DomainException
+	 * @param uri uri of the history
+	 * @param value valu to add to the history
+	 * @throws DomainException on accessing history
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	void addRecord(String uri, Val value) throws DomainException;
 	
 	/**
 	 * Get records from a history
-	 * @param uri
-	 * @param limit
-	 * @param from
-	 * @param to
-	 * @return
-	 * @throws DomainException
+	 * @param uri uri of the history
+	 * @param limit number of recorde max to fetch
+	 * @param start period start timestamp
+	 * @param end period end time stamp
+	 * @return List of of records
+	 * @throws DomainException on accessing history
 	 */
 	List<HistoryRecord> getRecords(String uri, Int limit, Abstime start, Abstime end) throws DomainException;
 	
 	/**
 	 * Get rollup record from a history
-	 * @param uri
-	 * @param limit
-	 * @param from
-	 * @param to
-	 * @param roolUpDuration
-	 * @return
-	 * @throws DomainException
+	 * @param uri uri of the history
+	 * @param limit number of recorde max to fetch
+	 * @param start period start timestamp
+	 * @param end period end time stamp
+	 * @param roolUpDuration duration of aggregation samples
+	 * @return List list of records
+	 * @throws DomainException on accessing history
 	 */
 	List<HistoryRollupRecord> getRollUprecords(String uri, Int limit, Abstime start, Abstime end, Reltime roolUpDuration) throws DomainException;
 	

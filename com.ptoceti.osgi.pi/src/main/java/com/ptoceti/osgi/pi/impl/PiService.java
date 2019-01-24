@@ -111,6 +111,9 @@ public class PiService implements ManagedService {
 	
 	/**
 	 * From ManagedService interface. Expect service configuration to be passed here.
+	 *
+	 * @param properties properties for the service
+	 * @throws ConfigurationException in error confiuring the service
 	 */
 	@Override
 	public void updated(Dictionary properties) throws ConfigurationException {
@@ -154,8 +157,8 @@ public class PiService implements ManagedService {
 	
 	/**
 	 * Build a list of pins object that matches the configuration
-	 * @param pinsConfig
-	 * @return
+	 * @param pinsConfig configuration for the pins
+	 * @return List a list of configured pins
 	 */
 	List<PiPin> buildPins(List<PinConfig> pinsConfig ){
 		List<PiPin> result = new ArrayList<PiPin>();
@@ -186,7 +189,7 @@ public class PiService implements ManagedService {
 	/**
 	 * Redirect wire value update from pins to wirehandler.
 	 * 
-	 * @param pin
+	 * @param pin the pin to get the value from
 	 */
 	protected void pushPinValues(PiPin pin) {
 		if( wireHandler != null){

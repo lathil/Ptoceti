@@ -70,8 +70,8 @@ public class Activator implements BundleActivator {
 	 *
 	 * If the method cannot get a reference to the logging service, a NullPointerException is thrown.
 	 * 
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
+	 * @throws BundleException on error while staring the service
 	 */
 	public void start(BundleContext context) throws BundleException {
 	
@@ -106,8 +106,8 @@ public class Activator implements BundleActivator {
 	 * Called by the framework when the bundle is stopped. The method first forward the stop
 	 * message to the ModbusDriverFactory instance, then stop the log service.
 	 *
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
+	 * @throws BundleException on error stopping the service
 	 */
 	public void stop( BundleContext context ) throws BundleException {
 	
@@ -134,8 +134,8 @@ public class Activator implements BundleActivator {
 	/**
 	 * Fetch the resource from the bundle's resources and open a stream on it.
 	 * 
-	 * @param resourceName
-	 * @return URL
+	 * @param resourceName the name of the resource
+	 * @return URL url to the resource in the bundle
 	 * 
 	 */
 	static public URL getResourceStream(String resourceName) {

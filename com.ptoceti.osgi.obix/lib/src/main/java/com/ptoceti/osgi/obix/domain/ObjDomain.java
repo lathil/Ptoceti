@@ -41,9 +41,9 @@ public interface ObjDomain extends BaseDomain {
 	/**
 	 * Get Obix with reference object to uri
 	 * 
-	 * @param href
-	 * @return
-	 * @throws DomainException
+	 * @param href ref of the object to retrieve
+	 * @return Obj searched obj
+	 * @throws DomainException on accessing ojbect
 	 */
 	@JdbcConnection(type = ConnectionType.RX)
 	public Obj getObixObjWithRefTo(Uri href) throws DomainException;
@@ -52,9 +52,9 @@ public interface ObjDomain extends BaseDomain {
 	/**
 	 * Get Obix oject specified by given uri
 	 * 
-	 * @param href
-	 * @return
-	 * @throws DomainException
+	 * @param href ref of the object to retrieve
+	 * @return Obj searched obj
+	 * @throws DomainException on accessing ojbect
 	 */
 	@JdbcConnection(type = ConnectionType.RX)
 	public Obj getObixObj(Uri href) throws DomainException;
@@ -62,9 +62,9 @@ public interface ObjDomain extends BaseDomain {
 	/**
 	 * Get all Obix ojects that responds to specified contract
 	 * 
-	 * @param contract
-	 * @return
-	 * @throws DomainException
+	 * @param contract contract specifying the ojets to search
+	 * @return List results of the search
+	 * @throws DomainException on accessing ojbect
 	 */
 	@JdbcConnection(type = ConnectionType.RX)
 	public List<Obj> getObixObjsByContract(Contract contract) throws DomainException;
@@ -72,9 +72,9 @@ public interface ObjDomain extends BaseDomain {
 	/**
 	 * Get all objects that have a display name approaching the one given in parameter
 	 * 
-	 * @param displayName
-	 * @return
-	 * @throws DomainException
+	 * @param displayName the name of the object to search
+	 * @return List result of the search
+	 * @throws DomainException on accessing ojbect
 	 */
 	@JdbcConnection(type = ConnectionType.RX)
 	List<Obj> getObixObjByDisplayName(String displayName) throws DomainException;
@@ -82,10 +82,10 @@ public interface ObjDomain extends BaseDomain {
 	/**
 	 * Update an Obix oject at the uri specified
 	 * 
-	 * @param href
-	 * @param updatePbj
-	 * @return
-	 * @throws DomainException
+	 * @param href ref to the object to update
+	 * @param updatePbj object to update with
+	 * @return Obj updated object
+	 * @throws DomainException on accessing ojbect
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public Obj updateObixObjAt(Uri href, Obj updatePbj) throws DomainException;
@@ -93,20 +93,20 @@ public interface ObjDomain extends BaseDomain {
 	/**
 	 * Remove a child object to an existing one
 	 * 
-	 * @param href
+	 * @param href ref to the object to delete
 	 * @param childName name of child object
-	 * @return
-	 * @throws DomainException
+	 * @return boolean true if delete succefully
+	 * @throws DomainException on accessing ojbect
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public boolean deleteChildObject(Uri href,String childName) throws DomainException;
 	/**
 	 * Add a child object to an existing one
 	 * 
-	 * @param href
-	 * @param child object
-	 * @return
-	 * @throws DomainException
+	 * @param href ref to the parent object
+	 * @param childObj object to add as child
+	 * @return boolean true if added succefully
+	 * @throws DomainException on accessing ojbect
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public boolean addChildObject(Uri href, Obj childObj) throws DomainException;
@@ -114,9 +114,9 @@ public interface ObjDomain extends BaseDomain {
 	/**
 	 * Update an existing Obix object or if it does not exists, create it.
 	 * 
-	 * @param updateObj
-	 * @return
-	 * @throws DomainException
+	 * @param updateObj object to update
+	 * @return Obj update object
+	 * @throws DomainException on accessing ojbect
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public Obj createUpdateObixObj(Obj updateObj) throws DomainException;
@@ -124,9 +124,9 @@ public interface ObjDomain extends BaseDomain {
 	/**
 	 * Create a new Obix object
 	 * 
-	 * @param newObj
-	 * @return
-	 * @throws DomainException
+	 * @param newObj object to create
+	 * @return Obj created obj
+	 * @throws DomainException on accessing ojbect
 	 */
 	@JdbcConnection(type = ConnectionType.RWX)
 	public Obj createObixObj(Obj newObj) throws DomainException;

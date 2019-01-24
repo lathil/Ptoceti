@@ -160,6 +160,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.8.0</version>
 					<configuration>
 						<showDeprecation>true</showDeprecation>
 						<showWarnings>true</showWarnings>
@@ -172,6 +173,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
+					<version>3.0.1</version>
 					<configuration>
 						<includePom>true</includePom>
 					</configuration>
@@ -189,6 +191,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>3.0.1</version>
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
@@ -203,6 +206,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.0.0</version>
 					<executions>
 						<execution>
 							<id>copy-license</id>
@@ -432,6 +436,7 @@
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.mqtt/1.2.1-SNAPSHOT@nostart</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.timeseries/1.2.1-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.angular/1.2.1-SNAPSHOT@update</param>
+                            <param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.ebus/1.2.1-SNAPSHOT@update</param>
 							
 						</provision>
 					</configuration>
@@ -588,5 +593,7 @@
 	    <module>com.ptoceti.osgi.mqtt</module>
 	    <module>com.ptoceti.osgi.assembly</module>
 	    <module>com.ptoceti.osgi.timeseries</module>
-	</modules>
+        <module>com.ptoceti.osgi.obix.angular</module>
+        <module>com.ptoceti.osgi.ebus</module>
+    </modules>
 </project>
