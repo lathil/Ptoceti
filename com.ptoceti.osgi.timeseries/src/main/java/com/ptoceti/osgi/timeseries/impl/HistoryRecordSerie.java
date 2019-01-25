@@ -16,6 +16,8 @@ import com.ptoceti.osgi.obix.object.ValHelper;
 
 public class HistoryRecordSerie extends SerieWrapper implements Iterator<HistoryRecord>,
 	Iterable<HistoryRecord> {
+	
+	protected TimeStampHelper timeStampHelper;
 
     protected static final String VALUEFIELD = "value";
     protected static final String NAMEFIELD = "name";
@@ -23,7 +25,9 @@ public class HistoryRecordSerie extends SerieWrapper implements Iterator<History
     protected static final String CONTRACTFIELD = "contract";
 
     public HistoryRecordSerie(Serie serie) {
-	super(serie);
+    	
+		super(serie);
+		timeStampHelper = new TimeStampHelper();
 	// TODO Auto-generated constructor stub
     }
 
@@ -35,7 +39,7 @@ public class HistoryRecordSerie extends SerieWrapper implements Iterator<History
 		
 		record = new HistoryRecord();
 		
-		Date date = TimeStampHelper.parseRfc3339((String) values.get(fields.get(TIMEFIELD)));
+		Date date = timeStampHelper.parseRfc3339((String) values.get(fields.get(TIMEFIELD)));
 		Abstime timestamp = new Abstime("time", date.getTime());
 		record.setTimeStamp(timestamp);
 

@@ -479,7 +479,16 @@ public class ObjEntity extends AbstractEntity {
 		List<ObjEntity> objs = new ArrayList<ObjEntity>();
 		
 		ContractEntity contractEntity = new ContractEntity(obixObject.getIs());
-		List<ContractEntity> contractEntityList = contractEntity.searchContractByUri(contractEntity.getObixContract().getUris()[0].getPath());
+		
+		List<ContractEntity> contractEntityList = new ArrayList<ContractEntity>();
+		for( Uri uri : contractEntity.getObixContract().getUris()){
+			List<ContractEntity> list = contractEntity.searchContractByUri(uri.getPath());
+			for( ContractEntity entity : list){
+				contractEntityList.add(entity);
+			}
+		}
+		
+		//List<ContractEntity> contractEntityList = contractEntity.searchContractByUri(contractEntity.getObixContract().getUris()[0].getPath());
 
 		if( contractEntityList != null && contractEntityList.size() > 0) {
 			
@@ -983,7 +992,7 @@ public class ObjEntity extends AbstractEntity {
 					((Ref) entity.getObixObject()).setHref(new Uri("", (getString(rs, COL_OBJ_VALUE_TEXT))));
 					break;
 				case 11: //realtime
-					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));
+					((Reltime) entity.getObixObject()).setVal(getString(rs,COL_OBJ_VALUE_TEXT));
 					break;
 				case 12: //str
 					((Str) entity.getObixObject()).setMax(getInteger(rs, COL_OBJ_MAX));
@@ -1103,7 +1112,7 @@ public class ObjEntity extends AbstractEntity {
 					((Ref) entity.getObixObject()).setHref(new Uri("", (getString(rs, COL_OBJ_VALUE_TEXT))));
 					break;
 				case 11: //realtime
-					((Reltime) entity.getObixObject()).setVal(getLong(rs,COL_OBJ_VALUE_INT));
+					((Reltime) entity.getObixObject()).setVal(getString(rs,COL_OBJ_VALUE_TEXT));
 					break;
 				case 12: //str
 					((Str) entity.getObixObject()).setMax(getInteger(rs, COL_OBJ_MAX));

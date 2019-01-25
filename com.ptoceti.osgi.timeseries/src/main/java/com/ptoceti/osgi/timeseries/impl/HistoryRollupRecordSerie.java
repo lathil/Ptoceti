@@ -22,9 +22,12 @@ public class HistoryRollupRecordSerie extends SerieWrapper implements Iterator<H
     protected static final String NAMEFIELD = "name";
     protected static final String TIMEFIELD = "time";
     protected static final String CONTRACTFIELD = "contract";
+    
+    protected TimeStampHelper timeStampHelper;
 
     public HistoryRollupRecordSerie(Serie serie) {
-	super(serie);
+    	super(serie);
+    	timeStampHelper = new TimeStampHelper();
     }
 
     public HistoryRollupRecord build(List<String> values) {
@@ -35,7 +38,7 @@ public class HistoryRollupRecordSerie extends SerieWrapper implements Iterator<H
 
 	    record = new HistoryRollupRecord();
 	    // start is lowerbound
-	    Date date = TimeStampHelper.parseRfc3339((String) values.get(fields.get(TIMEFIELD)));
+	    Date date = timeStampHelper.parseRfc3339((String) values.get(fields.get(TIMEFIELD)));
 	    Abstime startTime = new Abstime("time", date.getTime());
 	    record.setStart(startTime);
 

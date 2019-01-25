@@ -41,6 +41,9 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.service.log.LogService;
 
+import com.ptoceti.osgi.obix.backbones.impl.Activator;
+import com.ptoceti.osgi.obix.backbones.impl.FileSystemHttpContext;
+import com.ptoceti.osgi.obix.backbones.impl.ResourceServlet;
 import com.ptoceti.osgi.obix.service.ObixService;
 
 /**
@@ -70,8 +73,14 @@ public class ClientApplicationHandler  implements ManagedService {
 	
 	public static final String CLIENTPATH = "com.ptoceti.osgi.obix.backbones.clientpath";
 	public static final String GZIPRESOURCES = "com.ptoceti.osgi.obix.backbones.gzip";
+	public static final String EXTERNALRESOURCEPATH = "com.ptoceti.osgi.obix.backbones.externalresourcepath";
+	
 	public String clientPath = null;
+	public String externalResourcePath = null;
 	public Boolean doGzip = false;
+	
+	// the client id obtained from oauth server for this application;
+	String oauthClientId = null;
 	
 	public ClientApplicationHandler() {
 		
@@ -106,8 +115,8 @@ public class ClientApplicationHandler  implements ManagedService {
 		}
 	}
 	
-	protected String getOauthPublicClientID(String redirectURI) {
-		return obixService.createOauthPublicClientID(redirectURI);
+	protected String getOauthPublicClientID() {
+		return oauthClientId;
 	}
 	
 	protected boolean existsOauthClient(String id){
@@ -161,17 +170,25 @@ public class ClientApplicationHandler  implements ManagedService {
 		
 		clientPath = (String) configProps.get(CLIENTPATH);
 		Object zip = configProps.get(GZIPRESOURCES);
+		if(configProps.get(EXTERNALRESOURCEPATH) != null){
+			externalResourcePath = (String)configProps.get(EXTERNALRESOURCEPATH);
+		}
 		doGzip = zip instanceof Boolean ? (Boolean) zip: Boolean.parseBoolean(zip != null ? zip.toString(): "false");
 		
 		if( clientPath != null && clientPath.length() > 0) {
 			try {
 				registeredAlias = clientPath;
 				
-				httpService.registerServlet(registeredAlias, new ResourceServlet("/resources", doGzip.booleanValue(), this ), null, null);
+				if( externalResourcePath != null &&  externalResourcePath.startsWith("file:")){
+					FileSystemHttpContext fileHttpContexte =  new FileSystemHttpContext();
+					httpService.registerServlet(registeredAlias, new ResourceServlet(externalResourcePath.substring("file:".length()), doGzip.booleanValue(), this ), null, fileHttpContexte);
+					Activator.log(LogService.LOG_INFO, "Mapped " + externalResourcePath + " under alias " + registeredAlias);
+				} else {
+					httpService.registerServlet(registeredAlias, new ResourceServlet("/resources", doGzip.booleanValue(), this ), null, null);
+					Activator.log(LogService.LOG_INFO, "Mapped /resources under alias " + registeredAlias);
+				}
 				
-				//httpService.registerResources(registeredAlias, "/resources", null);
-			
-				Activator.log(LogService.LOG_INFO, "Mapped /obix under alias " + registeredAlias);
+				oauthClientId = obixService.createOauthPublicClientID(registeredAlias);
 				
 				// Remember initialisation was done.
 				isInitialized = true;

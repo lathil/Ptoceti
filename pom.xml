@@ -417,20 +417,21 @@
 							
     						<!--  <param>scan-bundle:mvn:com.h2database/h2/1.4.190@nostart</param>-->
     						
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.control/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.dfrobot.sensornode/1.2.0-SNAPSHOT@nostart</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.2.0-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.2.0-SNAPSHOT@nostart</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.mqtt/1.2.0-SNAPSHOT@nostart</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.timeseries/1.2.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.control/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.dfrobot.sensornode/1.2.1-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.2.1-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.mqtt/1.2.1-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.timeseries/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.angular/1.2.1-SNAPSHOT@update</param>
 							
 						</provision>
 					</configuration>
@@ -587,5 +588,6 @@
 	    <module>com.ptoceti.osgi.mqtt</module>
 	    <module>com.ptoceti.osgi.assembly</module>
 	    <module>com.ptoceti.osgi.timeseries</module>
+	    <module>com.ptoceti.osgi.obix.angular</module>
 	</modules>
 </project>

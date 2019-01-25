@@ -1,0 +1,15 @@
+<div class="row">
+		<div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+			<div class="card card-inverse bg-white">
+				<div class="card-block pb-0">
+					<div>
+						<a *ngIf="canRetract()" (click)="retract()" class="btn btn-block btn-sm"><i class="fa fa-angle-double-up"></i></a>
+					</div>
+						<d3-multiline-chart [fill]="true" [legend]="true" [data]="chartDataList" #d3multilineChart></d3-multiline-chart>
+					<div>
+						<a *ngIf="canSplit()" (click)="split()" class="btn btn-block btn-sm"><i class="fa fa-angle-double-down"></i></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
