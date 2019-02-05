@@ -34,7 +34,7 @@ Modernizr.load({
 		"css-builder" : "../lib/require-css/css-builder",
 		normalize : "../lib/require-css/normalize",
 		bootstrap : '../lib/bootstrap/dist/js/bootstrap',
-		enquire : '../lib/enquire/enquire',
+        enquire: '../lib/enquire/dist/enquire',
 
 		modernizr : '../lib/modernizr/modernizr-custom',
 		// pluggins
@@ -51,10 +51,10 @@ Modernizr.load({
 		//assets
 		'courier' : 'assets/backbone.courier/backbone.courier',
 		xchart : 'assets/xcharts/xcharts',
-		powerange : '../lib/powerange/powerange',
+        powerange: '../lib/powerange/lib/powerange',
 		numeral : "../lib/numeral/numeral",
-		jscookie : "../lib/js-cookie/js.cookie",
-		md5 : "../lib/js-md5/md5"
+        jscookie: "../lib/js-cookie/src/js.cookie",
+        md5: "../lib/js-md5/js/md5"
 	},
 	
 	

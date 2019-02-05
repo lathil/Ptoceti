@@ -273,8 +273,8 @@
 			<groupId>com.ptoceti</groupId>
 			<artifactId>com.ptoceti.osgi.timeseries</artifactId>
 		</dependency>
-<!-- 
-		<dependency>
+
+        <dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 		</dependency>
@@ -288,7 +288,7 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
- -->
-	</dependencies>
+
+    </dependencies>
 
 </project>

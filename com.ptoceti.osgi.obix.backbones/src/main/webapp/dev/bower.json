@@ -47,6 +47,9 @@
      	"requirejs": {
       		".": "require.js"
     	},
+       "enquire": {
+         "dist": "dist/enquire.js"
+       },
     	"backbone-deep-model" : {
     		"distribution" : "distribution/deep-model.js"
     	},
