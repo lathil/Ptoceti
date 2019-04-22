@@ -35,11 +35,6 @@ import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Op;
 import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.resources.WatchAddResource;
-import com.ptoceti.osgi.obix.resources.WatchDeleteResource;
-import com.ptoceti.osgi.obix.resources.WatchPoolChangesResource;
-import com.ptoceti.osgi.obix.resources.WatchPoolRefreshResource;
-import com.ptoceti.osgi.obix.resources.WatchRemoveResource;
 
 
 public class Watch extends Obj implements Serializable {
@@ -57,23 +52,23 @@ public class Watch extends Obj implements Serializable {
 		addChildren(rltm);
 		
 		Op watchAdd = new Op("add", WatchIn.contract, WatchOut.contract);
-		watchAdd.setHref(new Uri("uri", WatchAddResource.baseuri));
+        //watchAdd.setHref(new Uri("uri", WatchAddResource.baseuri));
 		addChildren(watchAdd);
 		
 		Op watchRemove = new Op("remove", WatchIn.contract, Nil.contract);
-		watchRemove.setHref(new Uri("uri",WatchRemoveResource.baseuri));
+        //watchRemove.setHref(new Uri("uri",WatchRemoveResource.baseuri));
 		addChildren(watchRemove);
 		
 		Op watchDelete = new Op("delete", Nil.contract, Nil.contract);
-		watchDelete.setHref(new Uri("uri",WatchDeleteResource.baseuri));
+        //watchDelete.setHref(new Uri("uri",WatchDeleteResource.baseuri));
 		addChildren(watchDelete);
 		
 		Op poolChanges = new Op("poolChanges", Nil.contract,WatchOut.contract);
-		poolChanges.setHref(new Uri("uri",WatchPoolChangesResource.baseuri));
+        //poolChanges.setHref(new Uri("uri",WatchPoolChangesResource.baseuri));
 		addChildren(poolChanges);
 		
 		Op poolRefresh = new Op("poolRefresh", Nil.contract, WatchOut.contract);
-		poolRefresh.setHref(new Uri("uri",WatchPoolRefreshResource.baseuri));
+        //poolRefresh.setHref(new Uri("uri",WatchPoolRefreshResource.baseuri));
 		addChildren(poolRefresh);
 	}
 	

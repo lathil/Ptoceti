@@ -12,6 +12,8 @@ import com.ptoceti.osgi.obix.domain.AlarmDomain;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.impl.entity.EntityException;
 import com.ptoceti.osgi.obix.impl.entity.ObjEntity;
+import com.ptoceti.osgi.obix.impl.front.resources.AlarmServerResource;
+import com.ptoceti.osgi.obix.impl.front.resources.RangeAlarmMaxServerResource;
 import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.object.Bool;
 import com.ptoceti.osgi.obix.object.Contract;
@@ -22,9 +24,6 @@ import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Status;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
-import com.ptoceti.osgi.obix.resources.AlarmResource;
-import com.ptoceti.osgi.obix.resources.RangeAlarmMaxResource;
-import com.ptoceti.osgi.obix.resources.RangeAlarmMinResource;
 import com.ptoceti.osgi.obix.custom.contract.RangeAlarm;
 import com.ptoceti.osgi.obix.custom.contract.DigitAlarm;
 
@@ -64,23 +63,23 @@ public class AlarmDomainImpl extends AbstractDomain implements  AlarmDomain {
 		Alarm alarm = null;
 		
 		String timeStamp = (new Long (Calendar.getInstance().getTimeInMillis())).toString();
-		Uri href = new Uri("uri",AlarmResource.baseuri.concat("/").concat(timeStamp).concat("/"));
+        Uri href = new Uri("uri", AlarmServerResource.baseuri.concat("/").concat(timeStamp).concat("/"));
 		
 		if( of.containsContract(Int.contract)){
 			alarm = new RangeAlarm();
 			Int max = new Int("max", 0);
-			max.setHref(new Uri("uri",AlarmResource.baseuri.concat("/").concat(timeStamp).concat("/").concat(RangeAlarmMaxResource.baseuri)));
+            max.setHref(new Uri("uri", AlarmServerResource.baseuri.concat("/").concat(timeStamp).concat("/").concat(RangeAlarmMaxServerResource.baseuri)));
 			((RangeAlarm)alarm).setMaxValue(max);
 			Int min = new Int("min", 0);
-			min.setHref(new Uri("uri",AlarmResource.baseuri.concat("/").concat(timeStamp).concat("/").concat(RangeAlarmMinResource.baseuri)));
+            min.setHref(new Uri("uri", AlarmServerResource.baseuri.concat("/").concat(timeStamp).concat("/").concat(RangeAlarmMaxServerResource.baseuri)));
 			((RangeAlarm)alarm).setMinValue(min);
 		} else if (of.containsContract(Real.contract)){
 			alarm = new RangeAlarm();
 			Real max = new Real("max", 0.0);
-			max.setHref(new Uri("uri",AlarmResource.baseuri.concat("/").concat(timeStamp).concat("/").concat(RangeAlarmMaxResource.baseuri)));
+            max.setHref(new Uri("uri", AlarmServerResource.baseuri.concat("/").concat(timeStamp).concat("/").concat(RangeAlarmMaxServerResource.baseuri)));
 			((RangeAlarm)alarm).setMaxValue(max);
 			Real min = new Real("min", 0.0);
-			min.setHref(new Uri("uri",AlarmResource.baseuri.concat("/").concat(timeStamp).concat("/").concat(RangeAlarmMinResource.baseuri)));
+            min.setHref(new Uri("uri", AlarmServerResource.baseuri.concat("/").concat(timeStamp).concat("/").concat(RangeAlarmMaxServerResource.baseuri)));
 			((RangeAlarm)alarm).setMinValue(min);
 		} else if (of.containsContract(Bool.contract)){
 			alarm = new DigitAlarm();

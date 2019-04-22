@@ -58,6 +58,9 @@ public class Activator implements BundleActivator {
 	
 	// keep track of start of service.
 	private static Long bootTime;
+
+
+	private ConfigAdminServiceTracker configAdminServiceTracker;
 	
 	/**
 	 * Activator creator. Just create a base ObixServiceImpl object instance.
@@ -106,6 +109,9 @@ public class Activator implements BundleActivator {
 		
 		// record startup bootime
 		bootTime = Calendar.getInstance().getTimeInMillis();
+
+		//configAdminServiceTracker = new ConfigAdminServiceTracker(bc);
+		//configAdminServiceTracker.open();
 			
 	}
 	

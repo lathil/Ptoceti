@@ -32,7 +32,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.cache.Cache;
-import com.google.inject.Inject;
+
 import com.ptoceti.osgi.obix.cache.HistoryCache;
 import com.ptoceti.osgi.obix.contract.History;
 import com.ptoceti.osgi.obix.contract.HistoryRecord;
@@ -53,6 +53,8 @@ import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
+
+import javax.inject.Inject;
 
 public class HistoryCacheImpl extends ObjCacheImpl implements HistoryCache {
 

@@ -27,13 +27,8 @@ package com.ptoceti.osgi.obix.impl.service;
  * #L%
  */
 
+import com.ptoceti.osgi.obix.impl.front.ObixApplicationConfig;
 import com.ptoceti.osgi.obix.impl.guice.GuiceContext;
-import com.ptoceti.osgi.obix.restlet.AppOwnerManager;
-import com.ptoceti.osgi.obix.restlet.Oauth2ApplicationFactory;
-import com.ptoceti.osgi.obix.restlet.Oauth2Servlet;
-import com.ptoceti.osgi.obix.restlet.ObixApplicationFactory;
-import com.ptoceti.osgi.obix.restlet.ObixRestComponent;
-import com.ptoceti.osgi.obix.restlet.ObixServlet;
 import com.ptoceti.osgi.obix.service.ObixService;
 import com.ptoceti.osgi.timeseries.TimeSeriesService;
 
@@ -43,48 +38,29 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Dictionary;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.glassfish.jersey.servlet.ServletContainer;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 import org.osgi.service.log.LogService;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.framework.ServiceListener;
 import org.osgi.framework.Constants;
-import org.restlet.Application;
-import org.restlet.Component;
-import org.restlet.Server;
-import org.restlet.data.Protocol;
-import org.restlet.engine.Engine;
-import org.restlet.engine.local.RiapServerHelper;
-import org.restlet.ext.crypto.DigestUtils;
-import org.restlet.ext.oauth.GrantType;
-import org.restlet.ext.oauth.ResponseType;
-import org.restlet.ext.oauth.internal.Client;
-import org.restlet.ext.oauth.internal.Client.ClientType;
-import org.restlet.ext.oauth.internal.ClientManager;
-import org.restlet.ext.oauth.internal.TokenManager;
-import org.restlet.ext.oauth.internal.memory.MemoryClientManager;
-import org.restlet.ext.oauth.internal.memory.MemoryTokenManager;
-import org.restlet.ext.slf4j.Slf4jLoggerFacade;
+
 
 /**
  * A ManagedService class providing Obix (Open Building Information eXchange)
@@ -101,19 +77,12 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 
 	public static final String SERVICEPATH = "com.ptoceti.osgi.obixservice.servletpath";
 	public static final String SERVICEPORT = "com.ptoceti.osgi.obixservice.servletport";
-	public static final String OAUTHPATH = "com.ptoceti.osgi.obixservice.oauthpath";
-	public static final String OAUTHSECURE = "com.ptoceti.osgi.obixservice.oauthsecure";
-	public static final String OAUTHTOKENEXPIREPERIOD = "com.ptoceti.osgi.obixservice.oauthtokenexpiredperiod";
-	
-	public static final String OAUTHOWNERNAME = "com.ptoceti.osgi.obixservice.oauth.owner.name";
-	public static final String OAUTHOWNERSECRET = "com.ptoceti.osgi.obixservice.oauth.owner.secret";
 	
 	public static final String DATABASEPATH = "com.ptoceti.osgi.obixservice.databasepath";
 	public static final String NBEXECUTORPOOLTHREADS = "com.ptoceti.osgi.obixservice.nbexecutorpoolthreads";
 	
 	public static final String REALM = "obixapplication";
-	
-	public static final String RESTLETSYMBOLICNAME = "org.restlet";
+
 
 	// the http service listener
 	private HttpServiceListener httpSrvLst;
@@ -124,10 +93,7 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 	
 	// the path under which the service is accessible.
 	private String obixServletPath;
-	// the base path for the Oauth2 application
-	private String oauthServletPath;
-	// indicate if resource muste be secure with oauth
-	private Boolean oauthSecure;
+
 	
 	private Integer oauthTokenExpiredPeriod;
 	// the port used for the service rest
@@ -136,36 +102,20 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 	private String databasePath;
 	// falg to indicate if the database has benn initialised
 	private boolean databaseInitialised = false;
-	// indicate if the restlet main bundle has started
-	private boolean restletHasStarted = false;
 	// indicate if the rest application has started
 	private boolean restAppStarted = false;
-	// Le service Rest Obix
-	private ObixRestComponent obixRestService;
-	
-	private ObixServlet obixServlet;
-	
-	private Oauth2Servlet oauth2Servlet;
-	
+	// the servlet container for the rest application
+	private ServletContainer obixServlet;
+
 	private ObixHttpHandler obixHttpHandler;
 	
 	private WireHandler wireHandler;
 	
 	private EventUpdateHandler eventUpdateHandler;
 	
-	private RestletListener restletListener;
-	
 	private String httpServiceSymbolicName;
 	
 	private ExecutorService threadExecutor;
-	
-	private ClientManager clientManager;
-	
-	private AppOwnerManager ownerManager;
-	
-	private MemoryTokenManager tokenManager;
-	
-	private Component component;
 
 	// Default creator. Don't do nothing at this point.
 	public ObixServiceImpl() {
@@ -186,13 +136,7 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 		threadExecutor = Executors.newFixedThreadPool(4);
 		
 		obixHttpHandler = new ObixHttpHandler();
-		
-		// create the client manager that create id for oauth authorisation
-		clientManager = new MemoryClientManager();
-		// creat the owner manager that jeep track of owners ids. 
-		ownerManager  = new AppOwnerManager();
-		// create and set token manager
-		tokenManager = new MemoryTokenManager();
+
 		
 		String[] clazzes = new String[] { ManagedService.class.getName(),ObixService.class.getName()};
 		// register the class as a managed service.
@@ -201,6 +145,7 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 		sReg = Activator.bc.registerService(clazzes, this, properties);
 
 		Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName() +  ", Pid = " + (String) properties.get(Constants.SERVICE_PID));
+
 		wireHandler = new WireHandler();
 		
 		// Create the event update Handler only once
@@ -226,19 +171,19 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 
 		String timeSeriesServiceFilter = "(objectclass=" + TimeSeriesService.class.getName() + ")";
 		try {
-	    timeSeriesLst = new TimeSeriesListener(this);
-	    Activator.bc.addServiceListener(timeSeriesLst, timeSeriesServiceFilter);
-	    // in case the service is already registered, we send a REGISTER
-	    // event to the listener.
-	    ServiceReference timeSerDataSrv[] = Activator.bc.getServiceReferences(TimeSeriesService.class.getName(),
-		    null);
-	    if (timeSerDataSrv != null) {
-		timeSeriesLst.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, timeSerDataSrv[0]));
-	    }
-	} catch (InvalidSyntaxException e) {
-	    // We know there shouldn't be an exception here since we made the
-	    // filter string.
-	}
+			timeSeriesLst = new TimeSeriesListener(this);
+			Activator.bc.addServiceListener(timeSeriesLst, timeSeriesServiceFilter);
+			// in case the service is already registered, we send a REGISTER
+			// event to the listener.
+			ServiceReference timeSerDataSrv[] = Activator.bc.getServiceReferences(TimeSeriesService.class.getName(),
+					null);
+			if (timeSerDataSrv != null) {
+				timeSeriesLst.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, timeSerDataSrv[0]));
+			}
+		} catch (InvalidSyntaxException e) {
+			// We know there shouldn't be an exception here since we made the
+			// filter string.
+		}
 	
 		String servletfilter = "(objectclass=" + HttpService.class.getName() + ")";
 		try {
@@ -253,17 +198,7 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 		} catch (InvalidSyntaxException e) {
 			// The shouldn't be any exception comming here.
 		}
-		
-		// register an event listener to the restlet bundle to detect when it has finished initialising.
-		restletListener = new RestletListener();
-		Activator.bc.addBundleListener(restletListener);
-		
-		for (final Bundle bundle : Activator.bc.getBundles()) {
-			if( bundle.getSymbolicName().equals(RESTLETSYMBOLICNAME) && bundle.getState() == Bundle.ACTIVE){
-				restletListener.bundleChanged(new BundleEvent(BundleEvent.STARTED, bundle));
-				break;
-			}
-		}
+
 	}
 	
 	/**
@@ -320,33 +255,9 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 			// we record the dictionary parameters. It may contains information
 			// for the http servlet.
 			obixServletPath = (String) props.get(SERVICEPATH);
-			oauthServletPath = (String) props.get(OAUTHPATH);
 			databasePath = (String) props.get(DATABASEPATH);
-			
-			Object doOauthsecure = props.get(OAUTHSECURE);
-			oauthSecure = doOauthsecure instanceof Boolean ? (Boolean) doOauthsecure: Boolean.parseBoolean(doOauthsecure != null ? doOauthsecure.toString(): "false");
-		
-			
-			
-			Object period = props.get(OAUTHTOKENEXPIREPERIOD);
-			oauthTokenExpiredPeriod = period instanceof Integer ? (Integer) period : Integer.parseInt(period.toString());
-			tokenManager.setExpirePeriod(oauthTokenExpiredPeriod );
-			
-			String ownerName = (String)props.get(OAUTHOWNERNAME);
-			String ownerSecret = (String)props.get(OAUTHOWNERSECRET);
-			if( ownerName != null && ownerName.length() > 0 && ownerSecret != null && ownerSecret.length() > 0){
-				
-				String md5;
-				try {
-					md5 = DigestUtils.toMd5(ownerSecret, "UTF-8");
-					ownerManager.addOwner(ownerName, new String(md5));
-				} catch (UnsupportedEncodingException e) {
-					Activator.log(LogService.LOG_ERROR, "Error creating user: " + e );
-				}
-		       
-		       
-			}
-			
+
+
 			Object nbThreads = props.get(NBEXECUTORPOOLTHREADS);
 			if( nbThreads != null && nbThreads instanceof Integer) {
 				try {
@@ -445,15 +356,13 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 
 	protected synchronized void startRestService() {
 		if ((obixServletPath != null)
-				&& (obixHttpHandler.getHttpService() != null)
-				&& restletHasStarted && !restAppStarted) {
+				&& (obixHttpHandler.getHttpService() != null)) {
 
 			try {
 				HttpContext defaultContext = obixHttpHandler.getHttpService().createDefaultHttpContext();
 				//Hashtable<Object, Object> initParams = new Hashtable<Object, Object>();
 
 				if (!obixServletPath.startsWith("/")) obixServletPath = "/" + obixServletPath;
-				if (!oauthServletPath.startsWith("/")) oauthServletPath = "/" + oauthServletPath;
 				
 				//do this to serve through jetty connector directly
 				/**
@@ -462,36 +371,29 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 				}
 				obixRestService.start(obixServletPath, obixServletPort);
 				**/
-				
-				if( component == null){
-					component = new Component();
-					// this line seeme to start a new RIAP ServerHelper
-					component.getServers().add(Protocol.RIAP);
-				    component.getClients().add(Protocol.RIAP);
-				    component.start();
-			    }
-			     
-				// create oauth servlet
-				if( oauth2Servlet == null){
-					Oauth2ApplicationFactory factory = new Oauth2ApplicationFactory(clientManager, ownerManager, tokenManager);
-					
-					Application  application = factory.getApplication();
-					component.getInternalRouter().attach(oauthServletPath, application);
-					oauth2Servlet = new Oauth2Servlet(application);
-					application.start();
-					obixHttpHandler.getHttpService().registerServlet( oauthServletPath, oauth2Servlet, null, defaultContext);
-					Activator.log(LogService.LOG_INFO, "Registered oauth2 servlet under alias: " + oauthServletPath );
-				}
-				
+
+
 				// create obix servlet
 				if( obixServlet == null){
-					ObixApplicationFactory factory = new ObixApplicationFactory( oauthServletPath, oauthSecure );
-					Application  application = factory.getApplication();
-					component.getInternalRouter().attach(obixServletPath, application);
-					obixServlet = new ObixServlet(application);
-					application.start();
-					obixHttpHandler.getHttpService().registerServlet( obixServletPath, obixServlet, null, defaultContext);
-					Activator.log(LogService.LOG_INFO, "Registered obix servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
+
+					Dictionary<String, String> ObixApplicationServletParams = new Hashtable<>();
+					ObixApplicationServletParams.put("javax.ws.rs.Application", ObixApplicationConfig.class.getName());
+
+					// TODO - temporary workaround
+					// This is a workaround related to issue JERSEY-2093; grizzly (1.9.5) needs to have the correct context
+					// classloader set
+					ClassLoader myClassLoader = getClass().getClassLoader();
+					ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
+
+					try {
+						Thread.currentThread().setContextClassLoader(myClassLoader);
+
+						obixHttpHandler.getHttpService().registerServlet(obixServletPath, new ServletContainer(), ObixApplicationServletParams, defaultContext);
+						Activator.log(LogService.LOG_INFO, "Registered obix servlet under alias: " + obixServletPath + " ,port = " + obixServletPort);
+
+					} finally {
+						Thread.currentThread().setContextClassLoader(originalContextClassLoader);
+					}
 				}
 
 				// flag that we have started the rest front
@@ -515,9 +417,8 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 				try {
 					obixHttpHandler.getHttpService().unregister(obixServletPath);
 					if(obixServlet != null){
-						Application app = obixServlet.getApplication();
-						if( app != null) app.stop();
-						component.getInternalRouter().detach(app);
+
+						obixServlet.destroy();
 						obixServlet = null;
 					}
 				} catch (IllegalArgumentException ne) {
@@ -525,32 +426,8 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 					Activator.log(LogService.LOG_ERROR, "Error starting obix rest service: " +  e.toString());
 				}
 			}
-			
-			// stop oauth2 service application 
-			if ((oauthServletPath != null) && (obixHttpHandler.getHttpService() != null)) {
-				try {
-					obixHttpHandler.getHttpService().unregister(oauthServletPath);
-					if( oauth2Servlet != null){
-						Application app = oauth2Servlet.getApplication();
-						if( app != null) app.stop();
-						if(component != null){
-							component.getInternalRouter().detach(app);
-							component.getInternalRouter().stop();
-							component.stop();
-							component = null;
-							// we need to clear up the instance created when the component is instantiated, otherwise
-							// on a new start of the bundle, we'll get the wrong reference.
-							RiapServerHelper.instance = null;
-						}
-						oauth2Servlet = null;
-					}
-					
-				} catch (IllegalArgumentException ne) {
-				} catch (Exception e) {
-					Activator.log(LogService.LOG_ERROR, "Error starting oauth2 service: " +  e.toString());
-				}
-			}
-			
+
+
 			// flag that we have stoppped the front
 			restAppStarted = false;
 		}
@@ -564,22 +441,9 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 	protected void setHttpServiceSymbolicName(String httpServiceSymbolicName) {
 		this.httpServiceSymbolicName = httpServiceSymbolicName;
 	}
-	
-	public String createOauthPublicClientID(String redirectURI){
-		
-		Map<String, Object> properties = new Hashtable<String, Object>();
-		properties.put(Client.PROPERTY_SUPPORTED_FLOWS, new Object[] { GrantType.password, GrantType.refresh_token});
-		String[] redirectURIs = new String[] { redirectURI };
-		Client client = clientManager.createClient(ClientType.PUBLIC, redirectURIs, properties);
-		
-		return client.getClientId();
-	}
-	
-	public boolean existsOauthClient(String id){
-		return clientManager.findById(id) != null;
-	}
 
-    public class DataDeviceListener implements ServiceListener {
+
+	public class DataDeviceListener implements ServiceListener {
 	private ObixServiceImpl serviceImpl = null;
 
 	public DataDeviceListener(ObixServiceImpl serviceImpl) {
@@ -702,29 +566,6 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 	}
     }
 
-    /**
-     * 
-     * Listener that detect when the restlet main bundle has started. Necessary
-     * as this one re-init list of services and converters ...
-     * 
-     * @author lor
-     * 
-     */
-    public class RestletListener implements BundleListener {
-	@Override
-	public void bundleChanged(BundleEvent event) {
-	    if (event.getBundle().getSymbolicName().equals(RESTLETSYMBOLICNAME)) {
-		if (event.getType() == BundleEvent.STARTED) {
-		    restletHasStarted = true;
-		    Activator.log(LogService.LOG_INFO, "Restlet started event detected.");
-		    Engine.getInstance().setLoggerFacade(new Slf4jLoggerFacade());
-		    startRestService();
-		} else {
-		    restletHasStarted = false;
-		}
-	    }
-	}
 
-    }
 }
 

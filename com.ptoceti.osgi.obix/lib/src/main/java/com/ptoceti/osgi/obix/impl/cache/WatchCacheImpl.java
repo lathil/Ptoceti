@@ -28,13 +28,12 @@ package com.ptoceti.osgi.obix.impl.cache;
  */
 
 import java.util.Calendar;
-import java.util.Date;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.cache.Cache;
-import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.cache.WatchCache;
 import com.ptoceti.osgi.obix.contract.Watch;
 import com.ptoceti.osgi.obix.contract.WatchIn;
@@ -46,6 +45,8 @@ import com.ptoceti.osgi.obix.impl.observer.WatchObserver;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.observable.IObserver;
+
+import javax.inject.Inject;
 
 public class WatchCacheImpl extends ObjCacheImpl implements WatchCache {
 

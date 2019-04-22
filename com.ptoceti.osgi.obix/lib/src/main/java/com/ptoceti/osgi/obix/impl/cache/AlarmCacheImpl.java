@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutionException;
 import org.osgi.service.wireadmin.Envelope;
 
 import com.google.common.cache.Cache;
-import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.cache.AlarmCache;
 import com.ptoceti.osgi.obix.contract.Alarm;
 import com.ptoceti.osgi.obix.custom.contract.DigitAlarm;
@@ -24,6 +23,8 @@ import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Status;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
+
+import javax.inject.Inject;
 
 public class AlarmCacheImpl extends ObjCacheImpl implements AlarmCache {
 

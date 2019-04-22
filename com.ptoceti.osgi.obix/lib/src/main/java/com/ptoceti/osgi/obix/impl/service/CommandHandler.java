@@ -29,12 +29,12 @@ package com.ptoceti.osgi.obix.impl.service;
 
 import java.util.concurrent.Callable;
 
+import com.ptoceti.osgi.obix.impl.front.resources.ObjServerResource;
 import org.osgi.service.wireadmin.BasicEnvelope;
 
 import com.ptoceti.osgi.obix.impl.back.converters.OsgiConverterFactory;
 import com.ptoceti.osgi.obix.impl.back.converters.OsgiObixConverter;
 import com.ptoceti.osgi.obix.object.Val;
-import com.ptoceti.osgi.obix.resources.ObjResource;
 
 /**
  * Handle a command that is to be sent to one of the wire consumer attached to the Obix service. The command take the form of an
@@ -84,7 +84,7 @@ public class CommandHandler  {
 	protected String extractScope(Val commandIn) {
 		String href = commandIn.getHref().getPath();
 		// extract as well the root uri for an object resource.
-		href = href.substring(href.indexOf(ObjResource.uri) + ObjResource.uri.length());
+        href = href.substring(href.indexOf(ObjServerResource.uri) + ObjServerResource.uri.length());
 		href = href.replaceAll("[//]", ".");
 		
 		// name was added the the href as a subpath ...

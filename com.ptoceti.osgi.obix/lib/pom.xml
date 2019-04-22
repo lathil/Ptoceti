@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>com.ptoceti.osgi.obix</artifactId>
 		<groupId>com.ptoceti</groupId>
-		<version>1.2.1-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>com.ptoceti.osgi.obix-lib</artifactId>
@@ -98,154 +98,62 @@
 			<groupId>org.knopflerfish.bundle</groupId>
 			<artifactId>kxml-LIB</artifactId>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet</artifactId>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
 		</dependency>
 
 		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.servlet</artifactId>
-			<exclusions>
-					<exclusion>
-						<groupId>org.restlet.osgi</groupId>
-						<artifactId>org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.lib.org.eclipse.e4.core.di</artifactId>
-					</exclusion>
-				</exclusions>
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet</artifactId>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.oauth</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-dbcp</groupId>
-  					<artifactId>commons-dbcp</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-pool</groupId>
-  					<artifactId>commons-pool</artifactId>
-				</exclusion>
-				<exclusion>
-					 <groupId>net.oauth.core</groupId>
-					  <artifactId>oauth</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.restlet.osgi</groupId>
-					<artifactId>org.restlet.ext.freemarker</artifactId>
-				</exclusion>
-				<exclusion>
-					 <groupId>org.freemarker</groupId>
-  					 <artifactId>freemarker</artifactId>
-				</exclusion>
-			</exclusions>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.crypto</artifactId>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.slf4j</artifactId>
+            <groupId>org.glassfish.hk2</groupId>
+            <artifactId>hk2-api</artifactId>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.jackson</artifactId>
+            <groupId>org.glassfish.hk2</groupId>
+            <artifactId>guice-bridge</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
 		</dependency>
-		
-		<dependency>
-				<groupId>org.restlet.osgi</groupId>
-				<artifactId>org.restlet.ext.osgi</artifactId>
-				 
-				<exclusions>
-					<exclusion>
-						<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.lib.org.eclipse.e4.core.di</artifactId>
-					</exclusion>
-				</exclusions>
-				 
-			</dependency>
-		
-		<!-- 
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-client</artifactId>
-					<version>9.2.6.v20141205</version>
+
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
 		</dependency>
-		 -->
-		
-		
-		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.jetty</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-http</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-io</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-alpn-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-util</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-http-common</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-http-server</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
-		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.findbugs</groupId>
+                    <artifactId>jsr305</artifactId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 		<dependency>

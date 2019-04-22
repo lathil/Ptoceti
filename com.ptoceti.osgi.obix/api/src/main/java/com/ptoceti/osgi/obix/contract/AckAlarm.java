@@ -7,7 +7,6 @@ import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Op;
 import com.ptoceti.osgi.obix.object.Str;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.resources.AlarmAckResource;
 
 public class AckAlarm extends Alarm implements Serializable{
 
@@ -22,7 +21,7 @@ public class AckAlarm extends Alarm implements Serializable{
 		getIs().addUri(contract.getUris());
 		
 		Op ack = new Op("ack", AlarmAckIn.contract, AlarmAckOut.contract);
-		ack.setHref(new Uri("uri",AlarmAckResource.baseuri));
+        //ack.setHref(new Uri("uri",AlarmAckResource.baseuri));
 		addChildren(ack);
 		
 	}

@@ -40,17 +40,15 @@ import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.HistoryDomain;
 import com.ptoceti.osgi.obix.impl.entity.EntityException;
 import com.ptoceti.osgi.obix.impl.entity.EntityType;
-import com.ptoceti.osgi.obix.impl.entity.ListEntity;
 import com.ptoceti.osgi.obix.impl.entity.ObjEntity;
+import com.ptoceti.osgi.obix.impl.front.resources.HistoryServerResource;
 import com.ptoceti.osgi.obix.impl.service.ObixTimeSeriesHandler;
 import com.ptoceti.osgi.obix.object.Abstime;
 import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Int;
-import com.ptoceti.osgi.obix.object.Real;
 import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
-import com.ptoceti.osgi.obix.resources.HistoryResource;
 import com.ptoceti.osgi.timeseries.TimeSeriesService;
 
 public class HistoryDomainImpl extends AbstractDomain implements  HistoryDomain{
@@ -80,8 +78,8 @@ public class HistoryDomainImpl extends AbstractDomain implements  HistoryDomain{
 		history.setCount(0);
 		
 		history.setDisplayName(displayName);
-		
-		history.setHref(new Uri("uri",HistoryResource.baseuri.concat("/").concat(timeStamp).concat("/")));
+
+        history.setHref(new Uri("uri", HistoryServerResource.baseuri.concat("/").concat(timeStamp).concat("/")));
 		
 		// create a hidden list that will contain all history records
 		com.ptoceti.osgi.obix.object.List recordsList = new com.ptoceti.osgi.obix.object.List("historyrecords");

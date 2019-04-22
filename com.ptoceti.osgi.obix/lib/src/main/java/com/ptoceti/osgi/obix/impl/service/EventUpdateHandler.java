@@ -31,32 +31,28 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.regex.PatternSyntaxException;
 
+import com.ptoceti.osgi.obix.impl.front.resources.ObjServerResource;
 import org.osgi.service.log.LogService;
-import org.osgi.service.wireadmin.BasicEnvelope;
 import org.osgi.service.wireadmin.Envelope;
 import org.osgi.service.wireadmin.Wire;
 
-import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.cache.AlarmCache;
 import com.ptoceti.osgi.obix.cache.HistoryCache;
 import com.ptoceti.osgi.obix.cache.ObjCache;
-import com.ptoceti.osgi.obix.contract.History;
-import com.ptoceti.osgi.obix.contract.Point;
 import com.ptoceti.osgi.obix.custom.contract.MeasurePoint;
-import com.ptoceti.osgi.obix.custom.contract.MonitoredPoint;
 import com.ptoceti.osgi.obix.custom.contract.DigitPoint;
 import com.ptoceti.osgi.obix.custom.contract.ReferencePoint;
 import com.ptoceti.osgi.obix.custom.contract.SwitchPoint;
 import com.ptoceti.osgi.obix.impl.back.converters.OsgiConverterFactory;
 import com.ptoceti.osgi.obix.impl.observer.AlarmObserver;
 import com.ptoceti.osgi.obix.impl.observer.HistoryObserver;
-import com.ptoceti.osgi.obix.impl.service.CommandHandler.AsyncCommand;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Uri;
 import com.ptoceti.osgi.obix.object.Val;
 import com.ptoceti.osgi.obix.observable.IObserver;
-import com.ptoceti.osgi.obix.resources.ObjResource;
+
+import javax.inject.Inject;
 
 public class EventUpdateHandler {
 
@@ -98,7 +94,7 @@ public class EventUpdateHandler {
 		// requests by the
 		// client.
 
-		href = ObjResource.uri + href;
+        href = ObjServerResource.uri + href;
 		// obj.setHref(new Uri("", href));
 
 		updateWith(obj, href);
