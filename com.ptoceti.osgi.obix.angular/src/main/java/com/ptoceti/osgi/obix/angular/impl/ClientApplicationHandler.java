@@ -117,7 +117,8 @@ public class ClientApplicationHandler  implements ManagedService {
 	}
 	
 	protected boolean existsOauthClient(String id){
-		return obixService.existsOauthClient(id);
+        return true;
+        //return obixService.existsOauthClient(id);
 	}
 
 	public synchronized void setObixService(ObixService obixService) {
@@ -185,9 +186,9 @@ public class ClientApplicationHandler  implements ManagedService {
 					httpService.registerServlet(registeredAlias, new ResourceServlet("/resources", doGzip.booleanValue(), this ), null, null);
 					Activator.log(LogService.LOG_INFO, "Mapped /resources under alias " + registeredAlias);
 				}
-				
-				
-				oauthClientId = obixService.createOauthPublicClientID(registeredAlias);
+
+
+                //oauthClientId = obixService.createOauthPublicClientID(registeredAlias);
 				
 				// Remember initialisation was done.
 				isInitialized = true;

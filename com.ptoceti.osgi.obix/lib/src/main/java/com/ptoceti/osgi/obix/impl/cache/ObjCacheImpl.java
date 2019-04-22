@@ -32,13 +32,15 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.cache.Cache;
-import com.google.inject.Inject;
+
 import com.ptoceti.osgi.obix.cache.ObjCache;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.ObjDomain;
 import com.ptoceti.osgi.obix.object.Contract;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Uri;
+
+import javax.inject.Inject;
 
 public class ObjCacheImpl extends AbstractCache implements ObjCache{
 

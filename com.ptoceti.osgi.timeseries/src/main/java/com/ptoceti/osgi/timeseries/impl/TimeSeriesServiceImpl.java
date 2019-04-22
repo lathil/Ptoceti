@@ -11,7 +11,6 @@ import java.util.TimerTask;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.log.LogService;
-import org.restlet.resource.ResourceException;
 
 import com.ptoceti.influxdb.DatabaseSerie;
 import com.ptoceti.influxdb.DurationHelper;
@@ -149,8 +148,6 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 		}
 	    }
 
-	} catch (ResourceException ex) {
-	    Activator.log(LogService.LOG_ERROR, "Error reading existing database: " + ex);
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR, "Error reading existing database: " + ex.getError() + " for query: "
 		    + query.toQL());
@@ -203,9 +200,8 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 		    .Duration(longPolicyDuration).Replication("1").getQuery();
 	    resource.post(query);
 
-	} catch (ResourceException ex) {
-	    Activator.log(LogService.LOG_ERROR, errorMessage + ex);
-	} catch (InfluxDbApiBadrequestException ex) {
+
+    } catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
 	} catch (InfluxDbApiNotFoundException ex) {
 	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
@@ -294,9 +290,8 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 	    results = null;
 
 	    results = resource.post(query);
-	} catch (ResourceException ex) {
-	    Activator.log(LogService.LOG_ERROR, errorMessage + ex);
-	} catch (InfluxDbApiBadrequestException ex) {
+
+    } catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
 	} catch (InfluxDbApiNotFoundException ex) {
 	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
@@ -329,8 +324,6 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 	    results = null;
 	    results = resource.post(query);
 
-	} catch (ResourceException ex) {
-	    Activator.log(LogService.LOG_ERROR, errorMessage + ex);
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
 	} catch (InfluxDbApiNotFoundException ex) {
@@ -356,8 +349,6 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 
 	try {
 	    resource.write(point);
-	} catch (ResourceException ex) {
-	    Activator.log(LogService.LOG_ERROR, "Error inserting point: " + ex);
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR, "Error inserting point: " + ex);
 	} catch (InfluxDbApiNotFoundException ex) {
@@ -438,8 +429,6 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 		}
 	    }
 
-	} catch (ResourceException ex) {
-	    Activator.log(LogService.LOG_ERROR, "Error Accessing resource: " + ex);
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR,
 		    "Error Accessing resource: " + ex.getError() + " for query: " + query.toQL());
@@ -506,8 +495,6 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 		}
 	    }
 
-	} catch (ResourceException ex) {
-	    Activator.log(LogService.LOG_ERROR, "Error Accessing resource: " + ex);
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR,
 		    "Error Accessing resource: " + ex.getError() + " for query: " + query.toQL());

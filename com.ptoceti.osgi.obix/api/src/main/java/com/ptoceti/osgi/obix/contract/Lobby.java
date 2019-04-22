@@ -38,7 +38,6 @@ import com.ptoceti.osgi.obix.object.Ref;
 import com.ptoceti.osgi.obix.object.Op;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.resources.HistoryQueryResource;
 
 public class Lobby extends Obj implements Serializable {
 
@@ -52,11 +51,11 @@ public class Lobby extends Obj implements Serializable {
 		this.setIs(contract);
 		
 		Op batch = new Op("batch", BatchIn.contract, BatchOut.contract);
-		batch.setHref(new Uri("uri", HistoryQueryResource.baseuri));
+        //batch.setHref(new Uri("uri", HistoryQueryResource.baseuri));
 		this.addChildren(batch);
 		
 		Op search = new Op("search", Ref.contract, SearchOut.contract);
-		search.setHref(new Uri("uri", HistoryQueryResource.baseuri));
+        //search.setHref(new Uri("uri", HistoryQueryResource.baseuri));
 		this.addChildren(search);
 	}
 	

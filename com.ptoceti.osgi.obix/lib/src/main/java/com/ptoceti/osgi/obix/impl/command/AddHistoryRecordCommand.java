@@ -1,11 +1,12 @@
 package com.ptoceti.osgi.obix.impl.command;
 
-import com.google.inject.Inject;
 import com.ptoceti.osgi.obix.cache.HistoryCache;
 import com.ptoceti.osgi.obix.cache.ObjCache;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Val;
+
+import javax.inject.Inject;
 
 public class AddHistoryRecordCommand {
 

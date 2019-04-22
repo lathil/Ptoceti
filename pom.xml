@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.ptoceti</groupId>
 	<artifactId>com.ptoceti.parent</artifactId>
-	<version>1.2.1-SNAPSHOT</version>
+	<version>2.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>com.ptoceti.obix</name>
 	<description>Parent project</description>
@@ -29,20 +29,29 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
 		<pom.organization.name>Ptoceti</pom.organization.name>
 		<pom.organization.url>www.ptoceti.com</pom.organization.url>
 		<bundles.configuration.location>../configurations</bundles.configuration.location>
-		
+
+		<jaxrs-api.version>2.1.5</jaxrs-api.version>
+		<jersey.version>2.28</jersey.version>
 		<restlet.version>2.3.0</restlet.version>
-		<jackson.version>2.4.4</jackson.version>
-		<pax-web.version>4.0.0</pax-web.version>
-		<jetty-version>9.2.6.v20141205</jetty-version>
+		<jackson.version>2.9.8</jackson.version>
+		<!--<pax-web.version>4.0.0</pax-web.version>-->
+		<!--<jetty-version>9.2.6.v20141205</jetty-version>-->
 		<servlet-api.version>3.1.0</servlet-api.version>
-		<osgi.core.version>4.3.0</osgi.core.version>
-		<osgi.compendium.version>4.3.0</osgi.compendium.version>
-		<osgi.enterprise.version>4.2.0</osgi.enterprise.version>
+		<!--<osgi.core.version>4.3.0</osgi.core.version>-->
+		<!--<osgi.compendium.version>4.3.0</osgi.compendium.version>-->
+		<!--<osgi.enterprise.version>4.2.0</osgi.enterprise.version>-->
+
+		<osgi.core.version>6.0.0</osgi.core.version>
+		<osgi.compendium.version>5.0.0</osgi.compendium.version>
+		<!--
+       <osgi.enterprise.version>5.0.0</osgi.enterprise.version>
+       -->
+		<felix.log.level>4</felix.log.level>
 	</properties>
 
 	<scm>
@@ -191,7 +200,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.0.1</version>
+					<version>3.1.0</version>
 					<executions>
 						<execution>
 							<id>attach-javadocs</id>
@@ -206,7 +215,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
-					<version>3.0.0</version>
+					<version>3.1.1</version>
 					<executions>
 						<execution>
 							<id>copy-license</id>
@@ -362,43 +371,96 @@
 				<plugin>
 					<groupId>org.ops4j</groupId>
 					<artifactId>maven-pax-plugin</artifactId>
-					<version>1.5</version>
+					<version>1.6.0</version>
+
+
+					<!--
+					<dependencies>
+						<dependency>
+							<groupId>org.ops4j.pax</groupId>
+							<artifactId>runner</artifactId>
+							<version>1.9.1-SNAPSHOT</version>
+						</dependency>
+					</dependencies>
+					-->
 					<configuration>
+
+						<runner>1.9.1-SNAPSHOT</runner>
+
 						<provision>
+
 							<param>--vmOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</param>
-							<param>--bootDelegation=com.sun.net.httpserver,javax.annotation.security</param>
+							<param>--bootDelegation=com.sun.net.httpserver</param>
 							<param>--usePersistedState=false</param>
 							<param>--platform=felix</param>
-							<param>--ee=JavaSE-1.7</param>
+							<param>--version=5.6.10</param>
+							<param>--ee=JavaSE-9</param>
 							<param>--log=debug</param>
 							<param>--felix.webconsole.loglevel=1</param>
 							<param>--org.ops4j.pax.logging.DefaultServiceLog.level=INFO</param>
 							<param>--java.util.logging.config.file=blank</param>
-							
+							<param>--bcp/p=mvn:jakarta.annotation/jakarta.annotation-api/1.3.4</param>
+
 							<param>scan-bundle:mvn:org.osgi/org.osgi.core/${osgi.core.version}</param>
 							<param>scan-bundle:mvn:org.osgi/org.osgi.compendium/${osgi.compendium.version}</param>
+							<!--
 							<param>scan-bundle:mvn:org.osgi/org.osgi.enterprise/${osgi.enterprise.version}</param>
-							
+							-->
+
 							<param>scan-bundle:mvn:org.apache.geronimo.bundles/json/20090211_1</param>
 							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
 							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
-							<param>scan-bundle:mvn:javax.servlet/javax.servlet-api/3.1.0</param>
-							
+
+							<!--<param>scan-bundle:mvn:javax.servlet/javax.servlet-api/3.1.0</param>-->
+							<!--<param>scan-bundle:mvn:javax.annotation/javax.annotation-api/1.3.2</param>-->
+							<param>scan-bundle:mvn:jakarta.annotation/jakarta.annotation-api/1.3.4</param>
+
+
 							<param>scan-bundle:mvn:org.ops4j.pax.confman/pax-confman-propsloader/0.2.3</param>
 										
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-api/1.4</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-service/1.4</param>
-							
-							
+
+
+							<!--
+							<param>scan-bundle:mvn:org.glassfish.jersey.media/jersey-media-json-jackson/2.28</param>
+							<param>scan-bundle:mvn:org.glassfish.jersey.inject/jersey-hk2/2.28</param>
+
+							<param>scan-bundle:mvn:org.glassfish.hk2.external/javax.inject/2.5.0-b62</param>
+							<param>scan-bundle:mvn:org.glassfish.hk2/hk2-api/2.5.0</param>
+							<param>scan-bundle:mvn:org.glassfish.hk2/hk2-locator/2.5.0</param>
+							<param>scan-bundle:mvn:org.glassfish.hk2/hk2-utils/2.5.0</param>
+							<param>scan-bundle:mvn:org.glassfish.hk2/hk2-locator/2.5.0</param>
+							<param>scan-bundle:mvn:org.glassfish.hk2/guice-bridge/2.5.0</param>
+							-->
+
+
+							<param>scan-bundle:mvn:com.fasterxml.jackson.core/jackson-core/2.9.8</param>
+							<param>scan-bundle:mvn:com.fasterxml.jackson.core/jackson-databind/2.9.8</param>
+							<param>scan-bundle:mvn:com.fasterxml.jackson.core/jackson-annotations/2.9.8</param>
+
+
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.8.16</param>
+							<!--<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.9.2</param>-->
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.fileinstall/3.6.4</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.1.6</param>
+
+
+							<!--<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.deploymentadmin/0.9.10</param>-->
+
+							<!--
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.4.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.fileinstall/3.2.8</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>	
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.deploymentadmin/0.9.6</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.dependencymanager/3.1.0</param>	
-							
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.api/2.3.2</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.jetty/3.0.0</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.whiteboard/2.3.2</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
+							-->
+
+
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.dependencymanager/3.1.0</param>
+
+							<!--<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.api/2.3.2</param>-->
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.jetty/4.0.2</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.whiteboard/4.0.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.servlet-api/1.1.2</param>
 							
 							
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
@@ -406,38 +468,30 @@
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.packageadmin/1.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.obr/1.0.0</param>
-							
-							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-client/9.2.6.v20141205</param>
-							
-							
-							<!--  
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet/${restlet.version}@10</param>
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.servlet/${restlet.version}@10</param>
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.jetty/${restlet.version}@10</param>
-							<param>scan-bundle:mvn:org.restlet.osgi/org.restlet.ext.osgi/${restlet.version}@10</param>
-							-->
-			
+
+							<!--<param>scan-bundle:mvn:org.eclipse.jetty/jetty-client/9.2.6.v20141205</param>-->
+
+
 							<!-- <param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param> -->
 							
     						<!--  <param>scan-bundle:mvn:com.h2database/h2/1.4.190@nostart</param>-->
-    						
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.control/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.dfrobot.sensornode/1.2.1-SNAPSHOT@nostart</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.backbones/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.pi/1.2.1-SNAPSHOT@nostart</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.mqtt/1.2.1-SNAPSHOT@nostart</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.timeseries/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.angular/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.ebus/1.2.1-SNAPSHOT@update</param>
-							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.ebusdevice/1.2.1-SNAPSHOT@update</param>
+
+							<!--
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.control/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.sqlite/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-api/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix-lib/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.dfrobot.sensornode/2.0.0-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbus/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.rxtx/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.mqtt/2.0.0-SNAPSHOT@nostart</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.timeseries/2.0.0-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.angular/2.0.0-SNAPSHOT@update</param>
+                            <param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.ebus/2.0.0-SNAPSHOT@update</param>
+                            -->
 							
 						</provision>
 					</configuration>
@@ -461,91 +515,63 @@
 				<artifactId>org.osgi.compendium</artifactId>
 				<version>${osgi.compendium.version}</version>
 			</dependency>
-			
+
+			<!--
 			<dependency>
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.enterprise</artifactId>
 				<version>${osgi.enterprise.version}</version>
 			</dependency>
+			-->
 
 			<dependency>
-				<groupId>org.restlet.osgi</groupId>
-				<artifactId>org.restlet</artifactId>
-				<version>${restlet.version}</version>
+				<groupId>jakarta.ws.rs</groupId>
+				<artifactId>jakarta.ws.rs-api</artifactId>
+				<version>${jaxrs-api.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>org.restlet.osgi</groupId>
-				<artifactId>org.restlet.ext.servlet</artifactId>
-				<version>${restlet.version}</version>
-				 
-				<exclusions>
-					<exclusion>
-						<groupId>org.restlet.osgi</groupId>
-						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.restlet.osgi</groupId>
-						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
-					</exclusion>
-				</exclusions>
-				 
+				<groupId>org.glassfish.jersey.containers</groupId>
+				<artifactId>jersey-container-servlet</artifactId>
+				<version>${jersey.version}</version>
 			</dependency>
-			
+
 			<dependency>
-				<groupId>org.restlet.osgi</groupId>
-				<artifactId>org.restlet.ext.oauth</artifactId>
-				<version>${restlet.version}</version>
+				<groupId>org.glassfish.jersey.containers</groupId>
+				<artifactId>jersey-container-jetty-http</artifactId>
+				<version>${jersey.version}</version>
 			</dependency>
-			
+
 			<dependency>
-				<groupId>org.restlet.osgi</groupId>
-				<artifactId>org.restlet.ext.crypto</artifactId>
-				<version>${restlet.version}</version>
+				<groupId>org.glassfish.jersey.containers</groupId>
+				<artifactId>jersey-container-jetty-servlet</artifactId>
+				<version>${jersey.version}</version>
 			</dependency>
-			
+
 			<dependency>
-				<groupId>org.restlet.osgi</groupId>
-				<artifactId>org.restlet.ext.slf4j</artifactId>
-				<version>${restlet.version}</version>
-			</dependency>
-			
-			<dependency>
-				<groupId>org.restlet.osgi</groupId>
-				<artifactId>org.restlet.ext.osgi</artifactId>
-				<version>${restlet.version}</version>
-				 
-				<exclusions>
-					<exclusion>
-						<groupId>org.restlet.osgi</groupId>
-						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.restlet.osgi</groupId>
-						<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
-					</exclusion>
-				</exclusions>
-				 
-			</dependency>
-			
-			<dependency>
-				<groupId>org.restlet.osgi</groupId>
-				<artifactId>org.restlet.ext.jetty</artifactId>
-				<version>${restlet.version}</version>
-			</dependency>
-			
-			<dependency>
-				<groupId>com.google.inject</groupId>
-				<artifactId>guice</artifactId>
-				<version>2.0-no_aop</version>
+				<groupId>org.glassfish.jersey.media</groupId>
+				<artifactId>jersey-media-json-jackson</artifactId>
+				<version>${jersey.version}</version>
 			</dependency>
 			
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>17.0</version>
+				<version>25.1-jre</version>
+				<exclusions>
+					<exclusion>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>jsr305</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
-			
+
+			<dependency>
+				<groupId>com.google.inject</groupId>
+				<artifactId>guice</artifactId>
+				<version>4.2.2</version>
+			</dependency>
+
 			<dependency>
 		        <groupId>org.eclipse.paho</groupId>
 		        <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
@@ -603,17 +629,23 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.ops4j.pax.confman</groupId>
+			<artifactId>pax-confman-propsloader</artifactId>
+			<version>0.2.3</version>
+		</dependency>
+	</dependencies>
+
 	<modules>
 		<module>com.ptoceti.osgi.data</module>
 		<module>com.ptoceti.osgi.control</module>
 		<module>com.ptoceti.osgi.modbus</module>
 		<module>com.ptoceti.osgi.modbusdevice</module>
 		<module>com.ptoceti.osgi.obix</module>
-		<module>com.ptoceti.osgi.obix.backbones</module>
 		<module>com.ptoceti.osgi.rxtx</module>
 		<module>com.ptoceti.osgi.sqlite</module>
 		<module>com.ptoceti.osgi.wireadmin</module>
-		<module>com.ptoceti.osgi.pi</module>
 		<module>com.ptoceti.osgi.dfrobot.sensornode</module>
 	    <module>com.ptoceti.osgi.mqtt</module>
 	    <module>com.ptoceti.osgi.assembly</module>

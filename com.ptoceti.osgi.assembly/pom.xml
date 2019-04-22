@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.ptoceti</groupId>
 		<artifactId>com.ptoceti.parent</artifactId>
-		<version>1.2.1-SNAPSHOT</version>
+		<version>2.0.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -19,137 +19,8 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.osgi</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.restlet.osgi</groupId>
-					<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.restlet.osgi</groupId>
-					<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.servlet</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.restlet.osgi</groupId>
-					<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.contexts</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.restlet.osgi</groupId>
-					<artifactId>org.restlet.lib.org.restlet.lib.org.eclipse.e4.core.di</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.jetty</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-http</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-io</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-alpn-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-util</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-http-common</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.eclipse.jetty.spdy</groupId>
-					<artifactId>spdy-http-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<artifactId>javax.servlet-api</artifactId>
-					<groupId>javax.servlet</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
 
-		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.oauth</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-dbcp</groupId>
-					<artifactId>commons-dbcp</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-pool</groupId>
-					<artifactId>commons-pool</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>net.oauth.core</groupId>
-					<artifactId>oauth</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.restlet.osgi</groupId>
-					<artifactId>org.restlet.ext.freemarker</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.freemarker</groupId>
-					<artifactId>freemarker</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.crypto</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.restlet.osgi</groupId>
-			<artifactId>org.restlet.ext.slf4j</artifactId>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-	
+
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
@@ -241,17 +112,6 @@
 			<groupId>com.ptoceti</groupId>
 			<artifactId>com.ptoceti.osgi.wireadmin</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ptoceti</groupId>
-			<artifactId>com.ptoceti.osgi.obix.backbones</artifactId>
-			<version>${project.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>javax.servlet-api</artifactId>
-					<groupId>javax.servlet</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.ptoceti</groupId>

@@ -38,12 +38,10 @@ import com.ptoceti.osgi.obix.contract.WatchIn;
 import com.ptoceti.osgi.obix.contract.WatchOut;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.domain.WatchDomain;
-import com.ptoceti.osgi.obix.object.Abstime;
-import com.ptoceti.osgi.obix.object.Err;
+import com.ptoceti.osgi.obix.impl.front.resources.WatchServerResource;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Reltime;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.resources.WatchResource;
 import com.ptoceti.osgi.obix.impl.entity.EntityException;
 import com.ptoceti.osgi.obix.impl.entity.ObjEntity;
 import com.ptoceti.osgi.obix.impl.entity.UriEntity;
@@ -139,8 +137,8 @@ public class WatchDomainImpl extends AbstractDomain implements WatchDomain {
 		Reltime lease = watch.getLease();
 		// initiate lease time to 7 days minutes
 		lease.setVal("P7D");
-		
-		watch.setHref(new Uri("uri",WatchResource.baseuri.concat("/").concat(timeStamp).concat("/")));
+
+        watch.setHref(new Uri("uri", WatchServerResource.baseuri.concat("/").concat(timeStamp).concat("/")));
 		ObjEntity objEnt = new ObjEntity(watch);
 		try {
 			objEnt.create();

@@ -37,7 +37,6 @@ import com.ptoceti.osgi.obix.object.Int;
 import com.ptoceti.osgi.obix.object.Obj;
 import com.ptoceti.osgi.obix.object.Op;
 import com.ptoceti.osgi.obix.object.Uri;
-import com.ptoceti.osgi.obix.resources.HistoryQueryResource;
 
 public class History extends Obj implements Serializable {
 
@@ -64,7 +63,7 @@ public class History extends Obj implements Serializable {
 		
 		
 		Op query = new Op("query", HistoryFilter.contract, HistoryQueryOut.contract);
-		query.setHref(new Uri("uri", HistoryQueryResource.baseuri));
+        //query.setHref(new Uri("uri", HistoryQueryResource.baseuri));
 		this.addChildren(query);
 		
 		Op rollup = new Op("rollup", HistoryRollupIn.contract, HistoryRollupOut.contract);
