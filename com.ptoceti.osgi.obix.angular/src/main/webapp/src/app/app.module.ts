@@ -16,11 +16,11 @@ import { AsideToggleDirective } from './shared/aside.directive';
 import { BreadcrumbsComponent } from './shared/breadcrumb.component';
 
 
+
 // Routing Module
 import { AppRoutingModule } from './app-routing.module';
 
 import { HttpClientModule } from '@angular/common/http';
-import { HttpModule } from '@angular/http';
 
 
 //Oauth2
@@ -52,8 +52,7 @@ import { ObixModule } from './obix/obix.module';
     BrowserAnimationsModule,
     CookieModule,
     ObixModule,
-    HttpClientModule,
-    HttpModule
+      HttpClientModule
   ],
   declarations: [
     AppComponent,

@@ -2,7 +2,10 @@ package com.ptoceti.osgi.obix.impl.front.resources;
 
 
 import com.ptoceti.osgi.obix.cache.AlarmCache;
+import com.ptoceti.osgi.obix.contract.AckAlarm;
 import com.ptoceti.osgi.obix.contract.Alarm;
+import com.ptoceti.osgi.obix.contract.AlarmAckIn;
+import com.ptoceti.osgi.obix.contract.AlarmAckOut;
 import com.ptoceti.osgi.obix.custom.contract.AlarmService;
 import com.ptoceti.osgi.obix.domain.DomainException;
 import com.ptoceti.osgi.obix.object.Op;
@@ -42,6 +45,12 @@ public class AlarmServiceServerResource extends AbstractServerResource {
 	public Alarm make(Ref ref) throws ResourceException {
 		try {
 			Alarm alarm = cache.make(ref);
+            if (alarm.getIs().containsContract(AckAlarm.contract)) {
+                // op are not persisted in backend store
+                Op ack = new Op("ack", AlarmAckIn.contract, AlarmAckOut.contract);
+                ack.setHref(new Uri("uri", AlarmAckServerResource.baseuri));
+                alarm.addChildren(ack);
+            }
 			return alarm;
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".make", ex);

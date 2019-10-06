@@ -1,14 +1,23 @@
 import { Component, OnInit, AfterViewInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+import {Observable, Subscription} from 'rxjs';
 
 
 import { Obj, Ref, Watch, SearchOut, Status } from '../obix/obix';
 
 import { WatchesService } from '../obix/obix.watchesservice';
 
+import {
+    faCheck,
+    faBan,
+    faBomb,
+    faExclamationTriangle,
+    faExclamation,
+    faBell,
+    faEraser,
+    faArrowAltCircleRight
+} from '@fortawesome/free-solid-svg-icons';
 
 export class Period {
     value: string;
@@ -26,7 +35,16 @@ export class WatchItemComponent implements OnInit, AfterViewInit {
 
     @Input( 'watch' ) watch: Watch;
     @Output() onRemove = new EventEmitter<Watch>();
-    
+
+    faCheck = faCheck;
+    faBan = faBan;
+    faBomb = faBomb;
+    faExclamationTriangle = faExclamationTriangle;
+    faExclamation = faExclamation;
+    faBell = faBell;
+    faEraser = faEraser;
+    faArrowAltCircleRight = faArrowAltCircleRight;
+
     itemCount: Number = 0;
     itemCountsubscription: Subscription;
     
@@ -66,22 +84,21 @@ export class WatchItemComponent implements OnInit, AfterViewInit {
     }
 
 
-
-    getStatusIcon(): string {
+    getStatusIcon(): any {
 
         if ( this.watch.status ) {
             let statustoLower = this.watch.status.toLowerCase();
-            if ( statustoLower == Status.DISABLED ) return "glyphicon fa-ban";
-            if ( statustoLower == Status.FAULT ) return "glyphicon fa-bomb";
-            if ( statustoLower == Status.DOWN ) return "glyphicon fa-exclamation-triangle";
-            if ( statustoLower == Status.UNAKEDALARM ) return "glyphicon fa-exclamation";
-            if ( statustoLower == Status.ALARM ) return "glyphicon fa-bell";
-            if ( statustoLower == Status.UNACKED ) return "glyphicon fa-exclamation";
-            if ( statustoLower == Status.OVERRIDEN ) return "glyphicon fa-eraser";
-            if ( statustoLower == Status.OK ) return "glyphicon fa-check";
+            if (statustoLower == Status.DISABLED) return faBan;
+            if (statustoLower == Status.FAULT) return faBomb;
+            if (statustoLower == Status.DOWN) return faExclamationTriangle;
+            if (statustoLower == Status.UNAKEDALARM) return faExclamation;
+            if (statustoLower == Status.ALARM) return faBell;
+            if (statustoLower == Status.UNACKED) return faExclamation;
+            if (statustoLower == Status.OVERRIDEN) return faEraser;
+            if (statustoLower == Status.OK) return faCheck;
         }
 
-        return "fa-check";
+        return faCheck;
     }
 
 }

@@ -6,7 +6,7 @@ import { Action } from '../obix/obix.services-commons';
 
 import { Item } from './item.component';
 
-import { Subscription } from 'rxjs/Subscription';
+import {Subscription} from 'rxjs';
 
 
 import { LineChartComponent, LineChartData } from '../d3/d3-line-chart.component';

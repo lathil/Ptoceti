@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 
 import { MomentModule } from 'angular2-moment';
 
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 
 import { WatchesComponent } from './watches.component';
@@ -18,7 +20,7 @@ import { WatchEditLeaseComponent } from './watch-editlease.component';
 
 @NgModule({
     imports: [
-        CommonModule, FormsModule, MomentModule, CollapseModule.forRoot(), WatchesRoutingModule, SearchModule   
+        CommonModule, FormsModule, MomentModule, CollapseModule.forRoot(), WatchesRoutingModule, SearchModule, FontAwesomeModule
     ],
     declarations: [ WatchesComponent, WatchItemComponent,  WatchEditNameComponent, WatchEditLeaseComponent ],
     exports : []

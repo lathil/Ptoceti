@@ -94,7 +94,7 @@ public class EventUpdateHandler {
 		// requests by the
 		// client.
 
-        href = ObjServerResource.uri + href;
+        href = ObjServerResource.baseuri + href;
 		// obj.setHref(new Uri("", href));
 
 		updateWith(obj, href);

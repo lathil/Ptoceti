@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import {Subscription} from 'rxjs';
 
 import { Obj, Ref, Alarm, SearchOut, Status, Contract, Uri } from '../obix/obix';
 

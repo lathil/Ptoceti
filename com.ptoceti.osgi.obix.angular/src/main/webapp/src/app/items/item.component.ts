@@ -1,5 +1,19 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChange, EventEmitter } from '@angular/core';
 
+import {
+    faCheck,
+    faBan,
+    faBomb,
+    faExclamationTriangle,
+    faExclamation,
+    faBell,
+    faEraser,
+    faEdit,
+    faToggleOff,
+    faToggleOn,
+    faTimes
+} from '@fortawesome/free-solid-svg-icons';
+
 import { Obj, Status, Ref } from '../obix/obix';
 
 @Component( {
@@ -41,7 +55,19 @@ export class Item implements OnInit, OnChanges {
         "percent": "%",
         "1": ""
     }
-    
+
+    faCheck = faCheck;
+    faBan = faBan;
+    faBomb = faBomb;
+    faExclamationTriangle = faExclamationTriangle;
+    faExclamation = faExclamation;
+    faBell = faBell;
+    faEraser = faEraser;
+    faEdit = faEdit;
+    faToggleOff = faToggleOff;
+    faToggleOn = faToggleOn;
+    faTimes = faTimes;
+
     onEdit = new EventEmitter<Obj>();
     onRemove = new EventEmitter<Obj>();
     onSave = new EventEmitter<Obj>();
@@ -64,21 +90,21 @@ export class Item implements OnInit, OnChanges {
         }
     }
 
-    getStatusIcon(): string {
+    getStatusIcon(): any {
 
         if ( this.obj.status ) {
             let statustoLower = this.obj.status.toLowerCase();
-            if ( statustoLower == Status.DISABLED ) return "glyphicon fa-ban";
-            if ( statustoLower == Status.FAULT ) return "glyphicon fa-bomb";
-            if ( statustoLower == Status.DOWN ) return "glyphicon fa-exclamation-triangle";
-            if ( statustoLower == Status.UNAKEDALARM ) return "glyphicon fa-exclamation";
-            if ( statustoLower == Status.ALARM ) return "glyphicon fa-bell";
-            if ( statustoLower == Status.UNACKED ) return "glyphicon fa-exclamation";
-            if ( statustoLower == Status.OVERRIDEN ) return "glyphicon fa-eraser";
-            if ( statustoLower == Status.OK ) return "glyphicon fa-check";
+            if (statustoLower == Status.DISABLED) return faBan;
+            if (statustoLower == Status.FAULT) return faBomb;
+            if (statustoLower == Status.DOWN) return faExclamationTriangle;
+            if (statustoLower == Status.UNAKEDALARM) return faExclamation;
+            if (statustoLower == Status.ALARM) return faBell;
+            if (statustoLower == Status.UNACKED) return faExclamation;
+            if (statustoLower == Status.OVERRIDEN) return faEraser;
+            if (statustoLower == Status.OK) return faCheck;
         }
 
-        return "fa-check";
+        return faCheck;
     }
 
    

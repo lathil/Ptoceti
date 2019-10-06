@@ -1,5 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 
+import {faAngleDoubleUp, faAngleDoubleDown} from '@fortawesome/free-solid-svg-icons';
+
 import { LineChartDataList, MultiLineChartComponent } from '../d3/d3-multiline-chart.component';
 import { LineChartData } from '../d3/d3-line-chart.component';
 
@@ -19,6 +21,9 @@ export class HistoryItemComponent implements OnInit {
     
     @Output() onSplit = new EventEmitter<number>();
     @Output()onRetract = new EventEmitter<number>();
+
+    faAngleDoubleUp = faAngleDoubleUp;
+    faAngleDoubleDown = faAngleDoubleDown;
     
      
     ngOnInit(): void {

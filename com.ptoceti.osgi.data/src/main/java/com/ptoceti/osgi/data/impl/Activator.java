@@ -40,7 +40,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.jdbc.DataSourceFactory;
 import org.osgi.service.log.LogService;
-import org.osgi.service.device.Device;
+//import org.osgi.service.device.Device;
 //import org.osgi.service.device.Constants;
 
 import com.ptoceti.osgi.data.JdbcDevice;

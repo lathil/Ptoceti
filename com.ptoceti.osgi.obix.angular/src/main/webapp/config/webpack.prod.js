@@ -1,6 +1,5 @@
 var webpack = require('webpack');
 var webpackMerge = require('webpack-merge');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var commonConfig = require('./webpack.common.js');
 var CompressionWebpackPlugin = require("compression-webpack-plugin")
 var helpers = require('./helpers');
@@ -9,6 +8,7 @@ const ENV = process.env.NODE_ENV = process.env.ENV = 'production';
 
 module.exports = webpackMerge(commonConfig, {
   devtool: 'source-map',
+    mode: 'production',
 
   output: {
     path: helpers.root('dist'),
@@ -19,14 +19,6 @@ module.exports = webpackMerge(commonConfig, {
 
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),
-    new webpack.optimize.UglifyJsPlugin({ // https://github.com/angular/angular/issues/10618
-    	 "compress": { "warnings": false },
-         "sourceMap": false,
-         "comments": false,
-         "mangle": true,
-         "minimize": true
-    }),
-    new ExtractTextPlugin('[name].[hash].css'),
     new webpack.DefinePlugin({
       'process.env': {
         'ENV': JSON.stringify(ENV)
@@ -34,7 +26,7 @@ module.exports = webpackMerge(commonConfig, {
     }),
     // GZIP the files
     new CompressionWebpackPlugin({
-        asset: "[path].gz[query]",
+        filename: "[path].gz[query]",
         algorithm: "gzip",
         test: new RegExp(
             "\\.(" + ["js", "css"].join("|") +")$"

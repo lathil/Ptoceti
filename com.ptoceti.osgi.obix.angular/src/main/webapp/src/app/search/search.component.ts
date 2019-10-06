@@ -1,6 +1,10 @@
 import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import {faChevronUp, faChevronDown, faSearch, faSync, faPlus} from '@fortawesome/free-solid-svg-icons';
+
+import {map} from "rxjs/operators";
+
 
 import { Obj, Contract, Ref, List, Uri, SearchOut, WatchService, Watch, WatchOut, Nil } from '../obix/obix';
 import { SearchService } from '../obix/obix.searchservice';
@@ -18,6 +22,13 @@ export class SearchComponent {
 
     searchField: string;
     searchResults: Array<Ref> = new Array<Ref>();
+
+    faChevronUp = faChevronUp;
+    faChevronDown = faChevronDown;
+    faSearch = faSearch;
+    faSync = faSync;
+    faPlus = faPlus;
+
 
     @Output() onAdd = new EventEmitter<Ref>();
     @Output() onRefresh = new EventEmitter();
@@ -49,9 +60,15 @@ export class SearchComponent {
 
         this.searchResults.splice( 0, this.searchResults.length );
 
-        this.searchService.search( searchRef )
-            .map( item => { if ( item != null ) { let searchOut: SearchOut = new SearchOut(); searchOut.parse( item ); return searchOut; } } )
-            .subscribe(( searchOut ) => {
+        this.searchService.search(searchRef).pipe(
+            map(item => {
+                if (item != null) {
+                    let searchOut: SearchOut = new SearchOut();
+                    searchOut.parse(item);
+                    return searchOut;
+                }
+            })
+        ).subscribe((searchOut) => {
                 this.isCollapsed = false;
                 let searchList: List = searchOut.getValueList();
                 for ( let listItem of searchList.childrens ) {

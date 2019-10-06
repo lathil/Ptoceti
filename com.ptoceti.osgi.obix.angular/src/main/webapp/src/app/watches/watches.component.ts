@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import {Subscription} from 'rxjs';
 
 import { WatchItemComponent} from './watch-item.component';
 
@@ -9,6 +9,8 @@ import { Obj, Ref, Watch, SearchOut, Status, Contract, Uri } from '../obix/obix'
 import { WatchAction, WatchesService } from '../obix/obix.watchesservice';
 
 import { Action } from '../obix/obix.services-commons';
+
+import {faTrash, faArrowRight, faPlus} from '@fortawesome/free-solid-svg-icons';
 
 //import {InlineEditComponent} from '../shared/inline-edit.component';
 
@@ -36,6 +38,9 @@ export class WatchesComponent implements OnInit, AfterViewInit {
     //contract used to indicate to search which objects to search for.
     contractFilter: Contract;
 
+    faTrash = faTrash;
+    faArrowRight = faArrowRight;
+    faPlus = faPlus;
 
     editPeriod: Period = null;
 

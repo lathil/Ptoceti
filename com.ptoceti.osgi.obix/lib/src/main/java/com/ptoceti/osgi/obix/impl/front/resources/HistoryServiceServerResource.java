@@ -41,6 +41,11 @@ public class HistoryServiceServerResource extends AbstractServerResource {
 	public History make(Ref ref) throws ResourceException {
 		try {
 			History history = cache.make(ref);
+            String historyUri = history.getHref().getPath();
+
+            history.getQuery().setHref(new Uri("uri", historyUri + HistoryQueryServerResource.baseuri));
+            history.getRollup().setHref(new Uri("uri", historyUri + HistoryRollupServerResource.baseuri));
+
 			return history;
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".make", ex);

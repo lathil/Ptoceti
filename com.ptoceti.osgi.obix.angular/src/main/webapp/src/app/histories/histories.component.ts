@@ -1,10 +1,12 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import {Subscription} from 'rxjs';
 
 import { Obj, Ref, History, HistoryRollupRecord, SearchOut, Status, Contract, Uri } from '../obix/obix';
 
 import { HistoryAction, HistoryRollupAction, HistoriesService } from '../obix/obix.historiesservice';
+
+import {faPlus, faMinus, faTrash, faBell} from '@fortawesome/free-solid-svg-icons';
 
 import { HistoryItemComponent } from './history-item.component';
 import { Action } from '../obix/obix.services-commons';
@@ -41,6 +43,11 @@ export class DataType {
     templateUrl: 'histories.component.html'
 } )
 export class HistoriesComponent implements OnInit, AfterViewInit {
+
+    faPlus = faPlus;
+    faMinus = faMinus;
+    faTrash = faTrash;
+    faBell = faBell;
 
     // datas attribute for the date range picker.
     bsRangeValue: Array<Date> = [new Date( 2017, 7, 4 ), new Date( 2017, 7, 20 )];

@@ -4,7 +4,6 @@
 import { NgModule }      from '@angular/core';
 
 import { HttpClientModule } from '@angular/common/http';
-import { AsyncLocalStorageModule } from 'angular-async-local-storage';
 
 //Services
 
@@ -22,8 +21,7 @@ import { Action } from '../obix/obix.services-commons';
 
 @NgModule({
     imports: [
-              HttpClientModule,
-              AsyncLocalStorageModule
+        HttpClientModule
             ],
 
     providers: [

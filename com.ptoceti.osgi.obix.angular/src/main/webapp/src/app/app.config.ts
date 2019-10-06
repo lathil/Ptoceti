@@ -1,6 +1,8 @@
+import {throwError as observableThrowError, Observable} from 'rxjs';
+
+import {catchError, map} from 'rxjs/operators';
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs/Rx';
 
 @Injectable()
 export class AppConfig {
@@ -33,11 +35,11 @@ export class AppConfig {
      */
     public load() {
         return new Promise((resolve, reject) => {
-            this.http.get('env.json').map( res => res ).catch((error: any):any => {
+            this.http.get('env.json').pipe(map(res => res), catchError((error: any): any => {
                 console.log('Configuration file "env.json" could not be read');
                 resolve(true);
-                return Observable.throw(error.json().error || 'Server error');
-            }).subscribe( (envResponse) => {
+                return observableThrowError(error.json().error || 'Server error');
+            }),).subscribe((envResponse) => {
                 this.env = envResponse;
                 let request:any = null;
 
@@ -57,13 +59,13 @@ export class AppConfig {
                 }
 
                 if (request) {
-                    request
-                        .map( res => res )
-                        .catch((error: any) => {
+                    request.pipe(
+                        map(res => res),
+                        catchError((error: any) => {
                             console.error('Error reading ' + this.getEnv('env') + ' configuration file');
                             resolve(error);
-                            return Observable.throw(error.json().error || 'Server error');
-                        })
+                            return observableThrowError(error.json().error || 'Server error');
+                        }))
                         .subscribe((responseData) => {
                             this.config = responseData;
                             resolve(true);

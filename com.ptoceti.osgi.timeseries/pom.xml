@@ -83,7 +83,16 @@
 
 		<dependency>
 			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
+            <artifactId>org.osgi.service.log</artifactId>
+            <version>1.3.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.cm</artifactId>
+            <version>1.5.0</version>
+            <scope>provided</scope>
 		</dependency>
 		
 		<dependency>
@@ -94,8 +103,8 @@
 
 		<dependency>
 			<groupId>com.ptoceti</groupId>
-            <artifactId>influxdb-fluentapi-jersey</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+            <artifactId>influxdb-fluentapi</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

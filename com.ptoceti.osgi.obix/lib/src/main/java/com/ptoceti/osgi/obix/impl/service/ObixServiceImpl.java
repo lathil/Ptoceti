@@ -5,7 +5,7 @@ package com.ptoceti.osgi.obix.impl.service;
  * **********************************************************************
  * ORGANIZATION : ptoceti
  * PROJECT : Obix-Lib
- * FILENAME : ObixService.java
+ * FILENAME : ObixServiceImpl.java
  * 
  * This file is part of the Ptoceti project. More information about
  * this project can be found here: http://www.ptoceti.com/
@@ -29,7 +29,6 @@ package com.ptoceti.osgi.obix.impl.service;
 
 import com.ptoceti.osgi.obix.impl.front.ObixApplicationConfig;
 import com.ptoceti.osgi.obix.impl.guice.GuiceContext;
-import com.ptoceti.osgi.obix.service.ObixService;
 import com.ptoceti.osgi.timeseries.TimeSeriesService;
 
 import com.ptoceti.osgi.data.JdbcDevice;
@@ -70,7 +69,7 @@ import org.osgi.framework.Constants;
  * @author lor
  * 
  */
-public class ObixServiceImpl implements ObixService, ManagedService {
+public class ObixServiceImpl implements com.ptoceti.osgi.obix.service.ObixService, ManagedService {
 
 	// a reference to the service registration for the Controller object.
 	ServiceRegistration sReg = null;
@@ -137,11 +136,11 @@ public class ObixServiceImpl implements ObixService, ManagedService {
 		
 		obixHttpHandler = new ObixHttpHandler();
 
-		
-		String[] clazzes = new String[] { ManagedService.class.getName(),ObixService.class.getName()};
+
+        String[] clazzes = new String[]{ManagedService.class.getName(), com.ptoceti.osgi.obix.service.ObixService.class.getName()};
 		// register the class as a managed service.
 		Hashtable<String, String> properties = new Hashtable<String, String>();
-		properties.put(Constants.SERVICE_PID, ObixService.class.getName());
+        properties.put(Constants.SERVICE_PID, this.getClass().getName());
 		sReg = Activator.bc.registerService(clazzes, this, properties);
 
 		Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName() +  ", Pid = " + (String) properties.get(Constants.SERVICE_PID));

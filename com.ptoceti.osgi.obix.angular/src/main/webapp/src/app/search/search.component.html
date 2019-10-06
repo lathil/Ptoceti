@@ -3,13 +3,18 @@
 		<div class="card">
 		<div class="input-group">
 			<span class="input-group-btn">
-				<button class="btn btn-secondary" type="button" (click)="onClickSearch(searchField)"><i class="fa fa-search "></i></button>
+				<button class="btn btn-secondary" type="button" (click)="onClickSearch(searchField)"><fa-icon
+                        [icon]="faSearch"></fa-icon></button>
 			</span>
 			<input type="text" class="form-control" placeholder="Search for..." [(ngModel)]="searchField">
 			<span class="input-group-btn">
-				<button class="btn btn-secondary" type="button" (click)="isCollapsed = !isCollapsed"><i *ngIf="!isCollapsed" class="fa fa-chevron-up"></i><i *ngIf="isCollapsed" class="fa fa-chevron-down"></i></button>
-				<button class="btn btn-secondary" type="button" (click)="onClickRefresh()"><i class="fa fa-refresh"></i></button>
-				<button class="btn btn-secondary" type="button" (click)="onClickCreate()"><i class="fa fa-plus"></i></button>
+				<button class="btn btn-secondary" type="button" (click)="isCollapsed = !isCollapsed"><fa-icon
+                        [icon]="faChevronUp" *ngIf="!isCollapsed"></fa-icon><fa-icon [icon]="faChevronDown"
+                                                                                     *ngIf="isCollapsed"></fa-icon></button>
+				<button class="btn btn-secondary" type="button" (click)="onClickRefresh()"><fa-icon
+                        [icon]="faSync"></fa-icon></button>
+				<button class="btn btn-secondary" type="button" (click)="onClickCreate()"><fa-icon
+                        [icon]="faPlus"></fa-icon></button>
 			</span>
 		</div>
 	
