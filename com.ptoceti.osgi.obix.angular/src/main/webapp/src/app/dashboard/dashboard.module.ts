@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+
 import { DashboardComponent } from './dashboard.component';
 import { DashboardWatchComponent} from './dashboard-watch.component';
 import { DashboardRoutingModule } from './dashboard-routing.module';
@@ -14,7 +16,7 @@ import { D3Module} from '../d3/d3.module';
     CommonModule,
     DashboardRoutingModule,
     SearchModule,
-    ItemModule,
+      ItemModule, FontAwesomeModule,
     D3Module
   ],
   declarations: [ DashboardComponent, DashboardWatchComponent ]

@@ -50,7 +50,7 @@ import javax.ws.rs.*;
 @Path(ObjServerResource.uri)
 public class ObjServerResource extends AbstractServerResource {
 
-    public static final String OBJ_URI = "objri";
+    public static final String OBJ_URI = "objuri";
     public static final String baseuri = "/";
     public static final String uri = baseuri + "/{" + OBJ_URI + "}/";
 

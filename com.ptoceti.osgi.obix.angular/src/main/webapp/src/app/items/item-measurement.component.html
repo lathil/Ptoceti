@@ -1,8 +1,10 @@
 <div class="card card-inverse bg-primary">
 	<div class="card-block pb-0">
 		<div class="float-right">
-				<i class="fa {{getStatusIcon()}} fa-lg"></i>
-				<a (click)="onRemoveClick()" class="fa fa-remove fa-lg"></a>
+            <fa-icon [icon]="getStatusIcon()"></fa-icon>
+            <a (click)="onRemoveClick()">
+                <fa-icon [icon]="faEraser" size="lg"></fa-icon>
+            </a>
 		</div>
 		<div><span class="h4 mb-0">{{valToPrecision()}} {{getUnit()}}</span></div>
 		<div *ngIf="obj.timestamp"><span class="mb-0" >{{obj.timestamp | amCalendar }}</span></div>

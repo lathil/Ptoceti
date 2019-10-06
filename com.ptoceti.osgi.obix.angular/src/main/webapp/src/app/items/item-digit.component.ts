@@ -19,13 +19,13 @@ export class ItemDigit extends Item implements OnInit, OnChanges {
     ngOnChanges( changes: { [propKey: string]: SimpleChange } ) {
         console.log( 'onChanges' );
     }
-    
-    getToggleIcon(): string {
+
+    getToggleIcon(): any {
 
         if( this.obj.val ){
-            return "fa-toggle-on";
+            return this.faToggleOn;
         } else {
-            return "fa-toggle-off";
+            return this.faToggleOff;
         }
         
     }

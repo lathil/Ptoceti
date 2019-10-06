@@ -1,14 +1,15 @@
 import { Component, Input, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 
-import 'rxjs/add/operator/switchMap';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+
+import {Observable, Subscription} from 'rxjs';
 
 import { Obj, Ref, Watch, SearchOut, Contract, Uri, MeasurePoint } from '../obix/obix';
 import { WatchAction, WatchesService } from '../obix/obix.watchesservice';
 import { HistoryAction, HistoriesService } from '../obix/obix.historiesservice';
 import { AlarmAction, AlarmsService } from '../obix/obix.alarmsservice';
+
+import {faHistory, faBell} from '@fortawesome/free-solid-svg-icons';
 
 import { Action } from '../obix/obix.services-commons';
 
@@ -29,6 +30,9 @@ export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit
     watchesService: WatchesService;
     historiesService: HistoriesService;
     alarmsService : AlarmsService;
+
+    faHistory = faHistory;
+    faBell = faBell;
     
 
     displayedWatch: Watch;

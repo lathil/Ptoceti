@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
-	<OCD description="ModbusDevice" name="Ptoceti Modbus Device Service" id="ocd">
+    <OCD description="Mqtt" name="Ptoceti Mqtt Device Service" id="ocd">
 		<AD name="Composite identity" id="com.ptoceti.osgi.mqtt.compositidentity" required="true" type="String" />
 		<AD name="Username" id="com.ptoceti.osgi.mqtt.username" required="true" type="String" />
 		<AD name="Password" id="com.ptoceti.osgi.mqtt.password" required="true" type="String" />
@@ -15,7 +15,8 @@
 	    <AD name="Qos" id="com.ptoceti.osgi.mqtt.qos" required="true" type="Integer" default="0"/>    
 	    <AD name="Persistance files directory" id="com.ptoceti.osgi.mqtt.persistance.dir" required="true" type="String" default="."/>
 	</OCD>
-	<Designate factorypid="org.com.ptoceti.osgi.mqtt.impl.MqttClientFactory" pid="org.com.ptoceti.osgi.mqtt.impl.MqttClientFactory" bundle="*">
+    <Designate factorypid="com.ptoceti.osgi.mqtt.impl.MqttClientFactory"
+               pid="com.ptoceti.osgi.mqtt.impl.MqttClientFactory" bundle="*">
 	   <Object ocdref="ocd"/>
 	</Designate>
 </MetaData>

@@ -71,6 +71,15 @@ public class WatchServiceServerResource extends AbstractServerResource {
 	public Watch make(Nil nil) throws ResourceException{	
 		try {
 			Watch watch = cache.make();
+
+            String watchUri = watch.getHref().getPath();
+
+            watch.getAdd().setHref(new Uri("uri", watchUri + WatchAddServerResource.baseuri));
+            watch.getRemove().setHref(new Uri("uri", watchUri + WatchRemoveServerResource.baseuri));
+            watch.getDelete().setHref(new Uri("uri", watchUri + WatchDeleteServerResource.baseuri));
+            watch.getPoolChanges().setHref(new Uri("uri", watchUri + WatchPoolChangesServerResource.baseuri));
+            watch.getPoolRefresh().setHref(new Uri("uri", watchUri + WatchPoolRefreshServerResource.baseuri));
+
 			return watch;
 		} catch( DomainException ex) {
 			throw new ResourceException("Exception in " + this.getClass().getName() + ".make", ex);

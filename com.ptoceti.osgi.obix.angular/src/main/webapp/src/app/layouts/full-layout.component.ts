@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, RouterState, ActivatedRoute, ParamMap } from '@angular/router';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
+import {Observable, Subscription} from 'rxjs';
 
 import { AboutService } from '../obix/obix.aboutservice';
 import { WatchesService } from '../obix/obix.watchesservice';

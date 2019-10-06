@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
-	<OCD description="Configuration of ObixService" name="Ptoceti WireAdmin Service"  id="com.ptoceti.osgi.wireadmin.impl.WireAdminImpl">
+    <OCD description="Configuration of wireAdmin" name="Ptoceti WireAdmin Service"
+         id="com.ptoceti.osgi.wireadmin.impl.WireAdminImpl">
 	    <AD name="Wires filepath" id="com.ptoceti.osgi.wireadmin.config.wires.file" required="true" type="String" default="/wires.xml"/>
 	</OCD>
 	<Designate pid="com.ptoceti.osgi.wireadmin.impl.WireAdminImpl">

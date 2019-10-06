@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 
 import { MomentModule } from 'angular2-moment';
 
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+
 import { D3Module} from '../d3/d3.module';
 
 
@@ -18,7 +20,7 @@ import { ItemEditNameComponent} from './item-editname.component';
 
 @NgModule(
     {
-        imports: [ CommonModule, FormsModule, MomentModule, D3Module ],
+        imports: [CommonModule, FormsModule, MomentModule, D3Module, FontAwesomeModule],
         declarations: [Item, ItemLoader, ItemMeasurement, ItemReference, ItemSwitch, ItemDigit, ItemEditNameComponent],
         entryComponents : [Item, ItemMeasurement, ItemReference, ItemSwitch, ItemDigit],
         exports: [ItemLoader, ItemEditNameComponent]

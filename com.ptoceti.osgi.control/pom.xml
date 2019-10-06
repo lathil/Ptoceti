@@ -75,7 +75,9 @@
 
 		<dependency>
 			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
+            <artifactId>org.osgi.util.measurement</artifactId>
+            <version>1.0.1</version>
+            <scope>provided</scope>
 		</dependency>
 
 	</dependencies>

@@ -48,7 +48,6 @@ import org.osgi.service.wireadmin.Envelope;
 import org.osgi.service.wireadmin.Producer;
 import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireConstants;
-import org.osgi.util.measurement.State;
 
 import com.ptoceti.osgi.control.ExtendedUnit;
 import com.ptoceti.osgi.control.Measure;

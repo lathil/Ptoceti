@@ -8,32 +8,22 @@
 		<format>tar.gz</format>
 	</formats>
 	<includeBaseDirectory>false</includeBaseDirectory>
-	<dependencySets>
+
+
+    <dependencySets>
 		<dependencySet>
 			<includes>
-				<include>com.ptoceti:*</include>
-			</includes>
+                <include>*</include>
+
+            </includes>
 			<excludes>
 				<exclude>org.osgi:*</exclude>
-				<exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.contexts:*</exclude>
-				<exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.di:*</exclude>
 			</excludes>
 			<outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
 		</dependencySet>
-		<dependencySet>
-			<includes>
-				<include>*</include>
-			</includes>
-			<excludes>
-				<exclude>com.ptoceti:*</exclude>
-				<exclude>org.osgi:*</exclude>
-				<exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.contexts:*</exclude>
-				<exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.di:*</exclude>
-			</excludes>
-		</dependencySet>
-
 	</dependencySets>
-	<files>
+
+    <files>
 		<file>
 			<source>LICENSE.txt</source>
 			<outputDirectory>.</outputDirectory>

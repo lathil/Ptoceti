@@ -29,15 +29,15 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<java.version>11</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<pom.organization.name>Ptoceti</pom.organization.name>
 		<pom.organization.url>www.ptoceti.com</pom.organization.url>
 		<bundles.configuration.location>../configurations</bundles.configuration.location>
 
 		<jaxrs-api.version>2.1.5</jaxrs-api.version>
 		<jersey.version>2.28</jersey.version>
-		<restlet.version>2.3.0</restlet.version>
 		<jackson.version>2.9.8</jackson.version>
 		<!--<pax-web.version>4.0.0</pax-web.version>-->
 		<!--<jetty-version>9.2.6.v20141205</jetty-version>-->
@@ -47,7 +47,7 @@
 		<!--<osgi.enterprise.version>4.2.0</osgi.enterprise.version>-->
 
 		<osgi.core.version>6.0.0</osgi.core.version>
-		<osgi.compendium.version>5.0.0</osgi.compendium.version>
+		<osgi.compendium.version>6.0.0</osgi.compendium.version>
 		<!--
        <osgi.enterprise.version>5.0.0</osgi.enterprise.version>
        -->
@@ -174,7 +174,7 @@
 						<showDeprecation>true</showDeprecation>
 						<showWarnings>true</showWarnings>
 						<verbose>true</verbose>
-						<compilerVersion>1.7</compilerVersion>
+						<release>${java.version}</release>
 					</configuration>
 				</plugin>
 
@@ -268,7 +268,7 @@
 				<plugin>
 					<groupId>org.apache.felix</groupId>
 					<artifactId>maven-bundle-plugin</artifactId>
-					<version>2.4.0</version>
+					<version>4.1.0</version>
 					<extensions>true</extensions>
 				</plugin>
 
@@ -389,12 +389,15 @@
 
 						<provision>
 
-							<param>--vmOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005</param>
+							<!--<param>-vmOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005  -add-modules java.xml.bind</param>-->
+							<param>--vmOptions=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005
+							</param>
 							<param>--bootDelegation=com.sun.net.httpserver</param>
 							<param>--usePersistedState=false</param>
 							<param>--platform=felix</param>
-							<param>--version=5.6.10</param>
-							<param>--ee=JavaSE-9</param>
+							<param>--version=6.0.2</param>
+							<!--<param>-ee=JavaSE-9</param>-->
+							<param>--ee=NONE</param>
 							<param>--log=debug</param>
 							<param>--felix.webconsole.loglevel=1</param>
 							<param>--org.ops4j.pax.logging.DefaultServiceLog.level=INFO</param>
@@ -402,7 +405,7 @@
 							<param>--bcp/p=mvn:jakarta.annotation/jakarta.annotation-api/1.3.4</param>
 							
 							<param>scan-bundle:mvn:org.osgi/org.osgi.core/${osgi.core.version}</param>
-							<param>scan-bundle:mvn:org.osgi/org.osgi.compendium/${osgi.compendium.version}</param>
+							<!--<param>scan-bundle:mvn:org.osgi/osgi.cmpn/${osgi.compendium.version}</param>-->
 							<!--
 							<param>scan-bundle:mvn:org.osgi/org.osgi.enterprise/${osgi.enterprise.version}</param>
 							-->
@@ -411,6 +414,8 @@
 							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
 							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
 
+							<param>scan-bundle:mvn:javax.xml.bind/jaxb-api/2.3.1</param>
+							<param>scan-bundle:mvn:com.sun.activation/javax.activation/1.2.0</param>
 							<!--<param>scan-bundle:mvn:javax.servlet/javax.servlet-api/3.1.0</param>-->
 							<!--<param>scan-bundle:mvn:javax.annotation/javax.annotation-api/1.3.2</param>-->
 							<param>scan-bundle:mvn:jakarta.annotation/jakarta.annotation-api/1.3.4</param>
@@ -512,7 +517,7 @@
 
 			<dependency>
 				<groupId>org.osgi</groupId>
-				<artifactId>org.osgi.compendium</artifactId>
+				<artifactId>osgi.cmpn</artifactId>
 				<version>${osgi.compendium.version}</version>
 			</dependency>
 
@@ -629,6 +634,8 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<!--
+
 	<dependencies>
 		<dependency>
 			<groupId>org.ops4j.pax.confman</groupId>
@@ -636,6 +643,7 @@
 			<version>0.2.3</version>
 		</dependency>
 	</dependencies>
+	-->
 
 	<modules>
 		<module>com.ptoceti.osgi.data</module>
@@ -648,9 +656,9 @@
 		<module>com.ptoceti.osgi.wireadmin</module>
 		<module>com.ptoceti.osgi.dfrobot.sensornode</module>
 	    <module>com.ptoceti.osgi.mqtt</module>
-	    <module>com.ptoceti.osgi.assembly</module>
 	    <module>com.ptoceti.osgi.timeseries</module>
         <module>com.ptoceti.osgi.obix.angular</module>
         <module>com.ptoceti.osgi.ebus</module>
+		<module>com.ptoceti.osgi.assembly</module>
     </modules>
 </project>

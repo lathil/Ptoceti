@@ -29,13 +29,13 @@ public class CorsFilter implements ContainerRequestFilter, ContainerResponseFilt
             // tell we allow GET,POST,DELETE and OPTIONS from everywhere
             containerResponseContext.getHeaders().add("Access-Control-Allow-Origin", "*");
             containerResponseContext.getHeaders().add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-            containerResponseContext.getHeaders().add("Access-Control-Allow-Headers", "Content-Type");
+            containerResponseContext.getHeaders().add("Access-Control-Allow-Headers", "Content-Type, Origin, Authorization, Accept, Client-Security-Token, Accept-Encoding");
             // tell to add cookies in cors request . not needed now
             //responseHeaders.add("Access-Control-Allow-Credentials", "true");
             // note: chrome ignore of max age is > 10 minutes (600 seconds)
             containerResponseContext.getHeaders().add("Access-Control-Max-Age", "600");
         } else if (containerRequestContext.getHeaderString(ORIGIN) != null) {
-            String origin = (String) containerResponseContext.getHeaders().getFirst(ORIGIN);
+            String origin = containerRequestContext.getHeaderString(ORIGIN);
             if (origin != null && !origin.isEmpty()) {
                 containerResponseContext.getHeaders().add("Access-Control-Allow-Origin", origin);
                 containerResponseContext.getHeaders().add("Access-Control-Allow-Headers", "Content-Type");

@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 import { ViewEncapsulation } from '@angular/core';
 
@@ -23,8 +24,9 @@ import { AlarmsService } from './obix/obix.alarmsservice';
 
 
 import { Obj,Lobby, WatchService, HistoryService, AlarmService } from './obix/obix';
-import { Subscription } from "rxjs/Subscription";
-import { Observable } from "rxjs/Rx";
+import {Subscription, Observable} from "rxjs";
+import {zip, forkJoin, combineLatest} from 'rxjs';
+import {filter, map} from "rxjs/operators";
 
 
 @Component({
@@ -75,12 +77,13 @@ export class AppComponent implements OnInit{
         let location : any = window.location;
         // keep current host if ref url is on localhost
         let url : URL = new URL(this.config.getConfig('oauthTokenUrl'));
-        if( url.hostname == 'localhost'){
+        if (url.hostname == 'localhost' && this.config.getEnv('env') != 'development') {
             url.hostname = location.hostname;
+            // keep window location protocol
+            url.protocol = location.protocol;
+            url.port = location.port || (location.protocol === 'https:' ? '443' : '80');
         }
-        // keep window location protocol
-        url.protocol = location.protocol;
-        url.port = location.port || (location.protocol === 'https:' ? '443' : '80');
+
         
         // url of the tojen provider
         this.oauthService.tokenEndpoint = url.toString();
@@ -96,7 +99,7 @@ export class AppComponent implements OnInit{
         // set the scope for the permissions the client should request
         this.oauthService.scope = "owner";
      // setup automatic refresh of tokens
-        this.oauthService.events.filter(e => e.type === 'token_expires').subscribe( event => {
+        this.oauthService.events.pipe(filter(e => e.type === 'token_expires')).subscribe(event => {
             this.oauthService.refreshToken();
         });
         
@@ -115,18 +118,19 @@ export class AppComponent implements OnInit{
         let location : any = window.location;
         // keep current host if ref url is on localhost
         let url : URL = new URL(this.config.getConfig('lobbyUrl'));
-        if( url.hostname == 'localhost'){
+        if (url.hostname == 'localhost' && this.config.getEnv('env') != 'development') {
             url.hostname = location.hostname;
+            // keep window location protocol
+            url.protocol = location.protocol;
+            url.port = location.port || (location.protocol === 'https:' ? '443' : '80');
         }
-        // keep window location protocol
-        url.protocol = location.protocol;
-        url.port = location.port || (location.protocol === 'https:' ? '443' : '80');
+
         
         let rootUrl : string = url.toString();
         let loobyRoot : string = url.toString();
     
         this.lobbyService.initialize(rootUrl, loobyRoot);
-        this.lobbyService.getLobby().flatMap( lobby => {
+        this.lobbyService.getLobby().pipe(map(lobby => {
             this.lobby = lobby;
             
             let aboutUrl : string = this.lobby.getAbout().getUrl(rootUrl);
@@ -143,15 +147,22 @@ export class AppComponent implements OnInit{
             
             let alarmserviceUrl : string = this.lobby.getAlarmServiceRef().getUrl(rootUrl);
             this.alarmsService.initialize(rootUrl, alarmserviceUrl)
-            
-            return Observable.zip( this.watchesService.getWatchService(), this.historiesService.getHistoryService(), this.alarmsService.getAlarmService(),
-                    (watchservice: WatchService, historyservice: HistoryService, alarmservice: AlarmService) => {
-                        this.watchservice = watchservice;
-                        this.historyservice = historyservice;
-                        this.alarmservice = alarmservice;
-                    } )
-            
-        }).subscribe( () => {
+
+            combineLatest(this.watchesService.getWatchService(), this.historiesService.getHistoryService(), this.alarmsService.getAlarmService(),
+                (watchservice: WatchService, historyservice: HistoryService, alarmservice: AlarmService) => {
+                    this.watchservice = watchservice;
+                    this.historyservice = historyservice;
+                    this.alarmservice = alarmservice;
+                });
+
+            //zip( this.watchesService.getWatchService(), this.historiesService.getHistoryService(), this.alarmsService.getAlarmService(),
+            //        (watchservice: WatchService, historyservice: HistoryService, alarmservice: AlarmService) => {
+            //            this.watchservice = watchservice;
+            //            this.historyservice = historyservice;
+            //            this.alarmservice = alarmservice;
+            //        } )
+
+        })).subscribe(() => {
             console.log( 'Application is inilitalized.');
             this.watchesService.getCurrentWatchID().subscribe((currentWatchId) => {
                 if( currentWatchId != null) {

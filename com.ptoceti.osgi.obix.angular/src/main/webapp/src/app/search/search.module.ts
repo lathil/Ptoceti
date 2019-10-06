@@ -7,8 +7,10 @@ import { CollapseModule } from 'ngx-bootstrap/collapse';
 
 import { SearchComponent } from './search.component';
 
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+
 @NgModule({
-    imports: [CommonModule, FormsModule,CollapseModule],
+    imports: [CommonModule, FormsModule, CollapseModule, FontAwesomeModule],
     declarations: [ SearchComponent ],
     exports : [SearchComponent]
     

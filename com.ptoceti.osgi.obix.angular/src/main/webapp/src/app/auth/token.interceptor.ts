@@ -4,7 +4,8 @@ import { Injectable, Injector } from '@angular/core';
 
 import { Router } from '@angular/router';
 
-import { Observable } from 'rxjs/Observable';
+import {Observable} from 'rxjs';
+import {tap} from "rxjs/operators";
 
 //Oauth2
 import { OAuthService } from 'angular-oauth2-oidc';
@@ -36,7 +37,7 @@ export class TokenInterceptor implements HttpInterceptor {
             }
         } );
 
-        return next.handle( request ).do(( event: HttpEvent<any> ) => {
+        return next.handle(request).pipe(tap(event => {
             if ( event instanceof HttpResponse ) {
                 // do stuff with response if you want
             }
@@ -47,6 +48,6 @@ export class TokenInterceptor implements HttpInterceptor {
                     this.router.navigate( ['./pages/login'],  { queryParams: { returnUrl: this.router.routerState.snapshot.url }} )
                 }
             }
-        } );
+        }));
     }
 }

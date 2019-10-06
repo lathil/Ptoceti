@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
-	<OCD description="Configuration of ObixService" name="Ptoceti Obix Service"  id="com.ptoceti.osgi.obix.ObixService">
+    <OCD description="Configuration of ObixService" name="Ptoceti Obix Service"
+         id="com.ptoceti.osgi.obix.impl.service.ObixServiceImpl">
 		<AD name="Server path" id="com.ptoceti.osgi.obixservice.servletpath" required="true" type="String" default="obix/rest"/>
 		<AD name="Server port" id="com.ptoceti.osgi.obixservice.servletport" required="true" type="Integer" default="8081"/>
 		<AD name="Oauth path" id="com.ptoceti.osgi.obixservice.oauthpath" required="true" type="String" default="obix/oauth"/>
@@ -13,7 +14,7 @@
 	    <AD name="Database path" id="com.ptoceti.osgi.obixservice.databasepath" required="true" type="String" default="obix.sqlite"/>
 	    <AD name="Nb thread in pool" id="com.ptoceti.osgi.obixservice.nbexecutorpoolthreads" required="false" type="Integer" default="2"/>
 	</OCD>
-	<Designate pid="com.ptoceti.osgi.obix.impl.ObixService">
-	   <Object ocdref="com.ptoceti.osgi.obix.impl.ObixService"/>
+    <Designate pid="com.ptoceti.osgi.obix.impl.service.ObixServiceImpl">
+        <Object ocdref="com.ptoceti.osgi.obix.impl.service.ObixServiceImpl"/>
 	</Designate>
 </MetaData>

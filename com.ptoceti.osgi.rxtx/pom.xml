@@ -73,7 +73,7 @@
 							resources/i368-mingw32/rxtxSerial.dll;resources/i368-mingw32/rxtxParallel.dll;processor= x86;osname = WindowsXP,
 							resources/amd64-win-x64/rxtxSerial.dll;resources/amd64-win-x64/rxtxParallel.dll;processor= x86_64;processor= amd64; osname=Windows 7; osname=Windows 10,
 							resources/armhf-linux-raspbian/librxtxSerial.so;osname= Linux;processor= arm,
-							resources/armle-linux-debian/librxtxSerial.so;osname= Linux;processor= armle,
+                            resources/armle-linux-debian/librxtxSerial.so;osname= Linux;processor= armle
 						</Bundle-NativeCode>
 					</instructions>
 				</configuration>
@@ -88,11 +88,6 @@
 			<artifactId>org.osgi.core</artifactId>
 		</dependency>
 
-
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-		</dependency>
 
 		<dependency>
 			<groupId>org.knopflerfish.bundle</groupId>

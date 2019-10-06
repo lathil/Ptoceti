@@ -144,8 +144,8 @@ public class WireAdminImpl implements WireAdmin, ManagedService, ServiceListener
 		properties.put(WireConstants.WIREADMIN_PID, this.getClass().getName());
 		wireAdminImplReg = Activator.bc.registerService(clazzes, this, properties );
 		wireAdminImplRef = wireAdminImplReg.getReference();
-		
-		Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName()  + " as " + WireAdmin.class.getName());
+
+        Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName() + ", Pid = " + (String) properties.get(Constants.SERVICE_PID));
 		
 		// Register this class to listen to REGISTER and UNREGISTER events from WireAdminListener services.
 		String filter = "(objectclass=" + WireAdminListener.class.getName() + ")";

@@ -3,11 +3,15 @@
 			<div class="card card-inverse bg-white">
 				<div class="card-block pb-0">
 					<div>
-						<a *ngIf="canRetract()" (click)="retract()" class="btn btn-block btn-sm"><i class="fa fa-angle-double-up"></i></a>
+                        <a *ngIf="canRetract()" (click)="retract()" class="btn btn-block btn-sm">
+                            <fa-icon [icon]="faAngleDoubleUp"></fa-icon>
+                        </a>
 					</div>
 						<d3-multiline-chart [fill]="true" [legend]="true" [data]="chartDataList" #d3multilineChart></d3-multiline-chart>
 					<div>
-						<a *ngIf="canSplit()" (click)="split()" class="btn btn-block btn-sm"><i class="fa fa-angle-double-down"></i></a>
+                        <a *ngIf="canSplit()" (click)="split()" class="btn btn-block btn-sm">
+                            <fa-icon [icon]="faAngleDoubleDown"></fa-icon>
+                        </a>
 					</div>
 				</div>
 			</div>
