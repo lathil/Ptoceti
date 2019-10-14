@@ -8,6 +8,7 @@ import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.ptoceti.influxdb.client.exception.InfluxDbResourceException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.log.LogService;
@@ -108,12 +109,17 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 
     private boolean ping() {
 	Activator.log(LogService.LOG_INFO, "Pinging InfluxDb database ....");
-	PingResource pingResource = this.influxDbFactory.getPingResource();
+
 
 	boolean result = false;
-	try {
-	    result = pingResource.ping();
-	} catch (InfluxDbApiNotFoundException  ex) {
+		try {
+			PingResource pingResource = this.influxDbFactory.getPingResource();
+			result = pingResource.ping();
+		} catch (InfluxDbResourceException ex) {
+			Activator.log(LogService.LOG_ERROR, "Error creating influxdb ping resource; " + ex.getMessage());
+		} catch (InfluxDbTransportException ex) {
+			Activator.log(LogService.LOG_ERROR, "Error contacting ping resource; " + ex.getMessage());
+		} catch (InfluxDbApiNotFoundException  ex) {
 	    Activator.log(LogService.LOG_ERROR, "Error sending ping to database: " + ex.getError());
 	} catch (InfluxDbApiBadrequestException ex){
 	    Activator.log(LogService.LOG_ERROR, "Error sending ping to database: " + ex.getError());
@@ -130,11 +136,12 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
      */
     private void checkDatabase() {
 	Query query = QueryBuilder.Query().ShowDataBases().getQuery();
-	QueryResource resource = influxDbFactory.getQueryResource(query);
+		QueryResource resource = null;
 	QueryResults queryresults = null;
 
 	boolean foundDatabase = false;
 	try {
+		resource = influxDbFactory.getQueryResource(query);
 	    queryresults = resource.get();
 	    if (queryresults.getResults().size() > 0) {
 		DatabaseSerie dbNamesSerie = new DatabaseSerie(QueryResultsHelper.getSerie(
@@ -147,7 +154,8 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 		    }
 		}
 	    }
-
+	} catch (InfluxDbResourceException ex) {
+		Activator.log(LogService.LOG_ERROR, "Error creating influxdb query resource; " + ex.getMessage());
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR, "Error reading existing database: " + ex.getError() + " for query: "
 		    + query.toQL());
@@ -176,42 +184,47 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
     private void initializeDataBase() {
 	// Create immediate duration policy
 
-	String errorMessage = "Error creating immediatePolicyDuration duration policy: ";
-	QueryResource resource = influxDbFactory.getQueryResource();
-	Query query = QueryBuilder.Query().CreateDataBase(influxDbFactory.getDbName()).With()
-		.Duration(immediatePolicyDuration).Replication("1").Name(IMMEDIATDURATIONPOLICYNAME).getQuery();
-	try {
-
-	    resource.post(query);
-
-	    errorMessage = "Error creating shortPolicyDuration duration policy: ";
-	    query = QueryBuilder.Query().CreateRetentionPolicy(SHORTDURATIONPOLICYNAME).On(influxDbFactory.getDbName())
-		    .Duration(shortPolicyDuration).Replication("1").getQuery();
-	    resource.post(query);
-
-	    errorMessage = "Error creating mediumPolicyDuration duration policy: ";
-
-	    query = QueryBuilder.Query().CreateRetentionPolicy(MEDIUMDURATIONPOLICYNAME)
-		    .On(influxDbFactory.getDbName()).Duration(mediumPolicyDuration).Replication("1").getQuery();
-	    resource.post(query);
-
-	    errorMessage = "Error creating longPolicyDuration duration policy: ";
-	    query = QueryBuilder.Query().CreateRetentionPolicy(LONGDURATIONPOLICYNAME).On(influxDbFactory.getDbName())
-		    .Duration(longPolicyDuration).Replication("1").getQuery();
-	    resource.post(query);
+		String errorMessage = "Error creating immediatePolicyDuration duration policy: ";
+		QueryResource resource = null;
+		Query query = null;
 
 
-    } catch (InfluxDbApiBadrequestException ex) {
-	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
-	} catch (InfluxDbApiNotFoundException ex) {
-	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
-	} catch (InfluxDbTransportException ex) {
-	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getMessage() + " for query: " + query.toQL());
-	}
+		try {
+			resource = influxDbFactory.getQueryResource();
+			query = QueryBuilder.Query().CreateDataBase(influxDbFactory.getDbName()).With()
+					.Duration(immediatePolicyDuration).Replication("1").Name(IMMEDIATDURATIONPOLICYNAME).getQuery();
 
-	if (resource != null) {
-	    // resource.close();
-	}
+			resource.post(query);
+
+			errorMessage = "Error creating shortPolicyDuration duration policy: ";
+			query = QueryBuilder.Query().CreateRetentionPolicy(SHORTDURATIONPOLICYNAME).On(influxDbFactory.getDbName())
+					.Duration(shortPolicyDuration).Replication("1").getQuery();
+			resource.post(query);
+
+			errorMessage = "Error creating mediumPolicyDuration duration policy: ";
+
+			query = QueryBuilder.Query().CreateRetentionPolicy(MEDIUMDURATIONPOLICYNAME)
+					.On(influxDbFactory.getDbName()).Duration(mediumPolicyDuration).Replication("1").getQuery();
+			resource.post(query);
+
+			errorMessage = "Error creating longPolicyDuration duration policy: ";
+			query = QueryBuilder.Query().CreateRetentionPolicy(LONGDURATIONPOLICYNAME).On(influxDbFactory.getDbName())
+					.Duration(longPolicyDuration).Replication("1").getQuery();
+			resource.post(query);
+
+		} catch (InfluxDbResourceException ex) {
+			Activator.log(LogService.LOG_ERROR, "Error creating influxdb query resource; " + ex.getMessage());
+		} catch (InfluxDbApiBadrequestException ex) {
+			Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
+		} catch (InfluxDbApiNotFoundException ex) {
+			Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
+		} catch (InfluxDbTransportException ex) {
+			Activator.log(LogService.LOG_ERROR, errorMessage + ex.getMessage() + " for query: " + query.toQL());
+		}
+
+		if (resource != null) {
+			// resource.close();
+		}
     }
 
     private void register() {
@@ -246,52 +259,58 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 	}
 
 	String errorMessage = "Error creating continuous query: ";
-	QueryResource resource = influxDbFactory.getQueryResource();
-
-	Query query = QueryBuilder
-		.Query()
-		.CreateContinuousQuery(escapeIdentifier(measurementName + "_immediate"))
-		.On(influxDbFactory.getDbName())
-		.Begin(QueryBuilder.Query().Select(selectShortIdentifiers.toString())
-			.Into(SHORTDURATIONPOLICYNAME + "." + escapeIdentifier(measurementName))
-			.From(IMMEDIATDURATIONPOLICYNAME + "." + escapeIdentifier(measurementName))
-			.GroupBy(" time(" + immediateAggregateDuration + "), \"name\"::tag, \"contract\"::tag")
-			.getQuery()).End().getQuery();
+		QueryResource resource = null;
+		Query query = null;
 	QueryResults results = null;
 
-	try {
-	    results = resource.post(query);
+		try {
+			resource = influxDbFactory.getQueryResource();
 
-	    // Build second query, transfer data from short policy to medium
-	    // policy.
-	    StringBuffer selectMediumIdentifiers = new StringBuffer();
-	    isFirst = true;
-	    for (String fieldName : fieldNames) {
-		if (!isFirst) {
-		    selectMediumIdentifiers.append(", ");
-		}
-		// selectMediumIdentifiers.append(" \"value\"::tag, \"contract\"::tag");
-		selectMediumIdentifiers.append("mean(mean_short_" + fieldName + "::field) AS mean_medium_" + fieldName);
-		selectMediumIdentifiers.append(", max(max_short_" + fieldName + "::field) AS max_medium_" + fieldName);
-		selectMediumIdentifiers.append(", min(min_short_" + fieldName + "::field) AS min_medium_" + fieldName);
-		isFirst = false;
-	    }
+			query = QueryBuilder
+					.Query()
+					.CreateContinuousQuery(escapeIdentifier(measurementName + "_immediate"))
+					.On(influxDbFactory.getDbName())
+					.Begin(QueryBuilder.Query().Select(selectShortIdentifiers.toString())
+							.Into(SHORTDURATIONPOLICYNAME + "." + escapeIdentifier(measurementName))
+							.From(IMMEDIATDURATIONPOLICYNAME + "." + escapeIdentifier(measurementName))
+							.GroupBy(" time(" + immediateAggregateDuration + "), \"name\"::tag, \"contract\"::tag")
+							.getQuery()).End().getQuery();
 
-	    errorMessage = "Error creating continuous query: ";
-	    query = QueryBuilder
-		    .Query()
-		    .CreateContinuousQuery(escapeIdentifier(measurementName + "_medium"))
-		    .On(influxDbFactory.getDbName())
-		    .Begin(QueryBuilder.Query().Select(selectMediumIdentifiers.toString())
-			    .Into(MEDIUMDURATIONPOLICYNAME + "." + escapeIdentifier(measurementName))
-			    .From(SHORTDURATIONPOLICYNAME + "." + escapeIdentifier(measurementName))
-			    .GroupBy("  time(" + mediumAggregateDuration + "), \"name\"::tag, \"contract\"::tag ")
-			    .getQuery()).End().getQuery();
-	    results = null;
 
-	    results = resource.post(query);
+			results = resource.post(query);
 
-    } catch (InfluxDbApiBadrequestException ex) {
+			// Build second query, transfer data from short policy to medium
+			// policy.
+			StringBuffer selectMediumIdentifiers = new StringBuffer();
+			isFirst = true;
+			for (String fieldName : fieldNames) {
+				if (!isFirst) {
+					selectMediumIdentifiers.append(", ");
+				}
+				// selectMediumIdentifiers.append(" \"value\"::tag, \"contract\"::tag");
+				selectMediumIdentifiers.append("mean(mean_short_" + fieldName + "::field) AS mean_medium_" + fieldName);
+				selectMediumIdentifiers.append(", max(max_short_" + fieldName + "::field) AS max_medium_" + fieldName);
+				selectMediumIdentifiers.append(", min(min_short_" + fieldName + "::field) AS min_medium_" + fieldName);
+				isFirst = false;
+			}
+
+			errorMessage = "Error creating continuous query: ";
+			query = QueryBuilder
+					.Query()
+					.CreateContinuousQuery(escapeIdentifier(measurementName + "_medium"))
+					.On(influxDbFactory.getDbName())
+					.Begin(QueryBuilder.Query().Select(selectMediumIdentifiers.toString())
+							.Into(MEDIUMDURATIONPOLICYNAME + "." + escapeIdentifier(measurementName))
+							.From(SHORTDURATIONPOLICYNAME + "." + escapeIdentifier(measurementName))
+							.GroupBy("  time(" + mediumAggregateDuration + "), \"name\"::tag, \"contract\"::tag ")
+							.getQuery()).End().getQuery();
+			results = null;
+
+			results = resource.post(query);
+
+		} catch (InfluxDbResourceException ex) {
+			Activator.log(LogService.LOG_ERROR, "Error creating influxdb query resource; " + ex.getMessage());
+		} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
 	} catch (InfluxDbApiNotFoundException ex) {
 	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
@@ -307,24 +326,28 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
     public void dropMeasurement(String measurementName) {
 
 	String errorMessage = "Error droppping continuous query: ";
-	QueryResource resource = influxDbFactory.getQueryResource();
-	Query query = QueryBuilder.Query().DropContinuousQuery(escapeIdentifier(measurementName + "_immediate"))
-		.getQuery();
+		QueryResource resource = null;
+		Query query = null;
 	QueryResults results = null;
 
-	try {
-	    results = resource.post(query);
+		try {
+			resource = influxDbFactory.getQueryResource();
+			query = QueryBuilder.Query().DropContinuousQuery(escapeIdentifier(measurementName + "_immediate"))
+					.getQuery();
+			results = resource.post(query);
 
-	    errorMessage = "Error droppping continuous query: ";
-	    query = QueryBuilder.Query().DropContinuousQuery(escapeIdentifier(measurementName + "_medium")).getQuery();
-	    results = null;
+			errorMessage = "Error droppping continuous query: ";
+			query = QueryBuilder.Query().DropContinuousQuery(escapeIdentifier(measurementName + "_medium")).getQuery();
+			results = null;
 
-	    errorMessage = "Error droppping measurement: ";
-	    query = QueryBuilder.Query().DropMeasurement(escapeIdentifier(measurementName)).getQuery();
-	    results = null;
-	    results = resource.post(query);
+			errorMessage = "Error droppping measurement: ";
+			query = QueryBuilder.Query().DropMeasurement(escapeIdentifier(measurementName)).getQuery();
+			results = null;
+			results = resource.post(query);
 
-	} catch (InfluxDbApiBadrequestException ex) {
+		} catch (InfluxDbResourceException ex) {
+			Activator.log(LogService.LOG_ERROR, "Error creating influxdb query resource; " + ex.getMessage());
+		} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
 	} catch (InfluxDbApiNotFoundException ex) {
 	    Activator.log(LogService.LOG_ERROR, errorMessage + ex.getError() + " for query: " + query.toQL());
@@ -343,13 +366,16 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 		.addTag("contract", record.getContract().toUniformString()).addTag("name", record.getName())
 		.addField("value", record.getVal());
 
-	WriteResource resource = influxDbFactory.getWriteResource(null, null, null, IMMEDIATDURATIONPOLICYNAME);
+
 
 	Point point = pointBuilder.getPoint();
 
-	try {
-	    resource.write(point);
-	} catch (InfluxDbApiBadrequestException ex) {
+		try {
+			WriteResource resource = influxDbFactory.getWriteResource(null, null, null, IMMEDIATDURATIONPOLICYNAME);
+			resource.write(point);
+		} catch (InfluxDbResourceException ex) {
+			Activator.log(LogService.LOG_ERROR, "Error creating influxdb write resource; " + ex.getMessage());
+		} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR, "Error inserting point: " + ex);
 	} catch (InfluxDbApiNotFoundException ex) {
 	    Activator.log(LogService.LOG_ERROR, "Error inserting point: " + ex);
@@ -404,11 +430,11 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 			+ (start != null ? " AND time >= " + start.getTime() + "ms" : "")).OrderBy("time ASC")
 		.Limit(limit).getQuery();
 
-	QueryResource resource = influxDbFactory.getQueryResource(query);
+		QueryResource resource = null;
 	QueryResults queryResults = null;
 
 	try {
-
+		resource = influxDbFactory.getQueryResource(query);
 	    queryResults = resource.get();
 	    if (queryResults != null && queryResults.getResults() != null && queryResults.getResults().size() > 0) {
 		Serie serie = QueryResultsHelper.getSerie(0, queryResults.getResults().get(0));
@@ -428,7 +454,8 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 		    previous.getEnd().setVal(new Date(end.getTime() - 1));
 		}
 	    }
-
+	} catch (InfluxDbResourceException ex) {
+		Activator.log(LogService.LOG_ERROR, "Error creating influxdb query resource; " + ex.getMessage());
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR,
 		    "Error Accessing resource: " + ex.getError() + " for query: " + query.toQL());
@@ -477,11 +504,11 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 			+ (end != null ? " AND time > " + start.getTime() + "ms" : "")).OrderBy("time ASC")
 		.Limit(limit).getQuery();
 
-	QueryResource resource = influxDbFactory.getQueryResource(query);
-	QueryResults queryResults = null;
+
+		QueryResults queryResults = null;
 
 	try {
-
+		QueryResource resource = influxDbFactory.getQueryResource(query);
 	    queryResults = resource.get();
 	    if (queryResults != null && queryResults.getResults() != null && queryResults.getResults().size() > 0) {
 		Serie serie = QueryResultsHelper.getSerie(0, queryResults.getResults().get(0));
@@ -494,7 +521,8 @@ public class TimeSeriesServiceImpl implements TimeSeriesService {
 		    }
 		}
 	    }
-
+	} catch (InfluxDbResourceException ex) {
+		Activator.log(LogService.LOG_ERROR, "Error creating influxdb query resource; " + ex.getMessage());
 	} catch (InfluxDbApiBadrequestException ex) {
 	    Activator.log(LogService.LOG_ERROR,
 		    "Error Accessing resource: " + ex.getError() + " for query: " + query.toQL());
