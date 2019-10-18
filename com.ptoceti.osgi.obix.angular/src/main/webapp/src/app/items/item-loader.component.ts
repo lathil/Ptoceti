@@ -6,7 +6,8 @@ import { Item } from './item.component';
 import { ItemMeasurement } from './item-measurement.component';
 import { ItemSwitch} from './item-switch.component';
 import { ItemReference} from './item-reference.component';
-import { ItemDigit} from './item-digit.component';
+
+//import { ItemDigit} from './item-digit.component';
 
 
 @Component( { selector: 'item-loader',
@@ -49,8 +50,8 @@ export class ItemLoader implements OnInit, AfterViewInit , AfterContentInit, OnD
             compFactory = this.cfr.resolveComponentFactory( ItemSwitch );
         } else if (this.obj.is.contains(new Uri( "ptoceti:ReferencePoint" ))) {
             compFactory = this.cfr.resolveComponentFactory( ItemReference );
-        } else if (this.obj.is.contains(new Uri( "ptoceti:DigitPoint" ))) {
-            compFactory = this.cfr.resolveComponentFactory( ItemDigit );
+            //} else if (this.obj.is.contains(new Uri( "ptoceti:DigitPoint" ))) {
+            //    compFactory = this.cfr.resolveComponentFactory( ItemDigit );
         } else {
             compFactory = this.cfr.resolveComponentFactory( Item );
         }
