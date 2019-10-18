@@ -12,7 +12,7 @@ import * as moment from 'moment'
 
 
 @Component( {
-    templateUrl: 'alarms.component.html'
+    templateUrl: './alarms.component.html'
 } )
 export class AlarmsComponent implements OnInit, AfterViewInit {
     

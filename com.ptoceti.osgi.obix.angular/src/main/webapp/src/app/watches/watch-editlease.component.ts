@@ -7,7 +7,7 @@ import { Watch } from '../obix/obix';
 
 @Component({
     selector: 'watcheditlease',
-    templateUrl: 'watch-editlease.component.html'
+    templateUrl: './watch-editlease.component.html'
 })
 
 export class WatchEditLeaseComponent implements OnInit, AfterViewInit {

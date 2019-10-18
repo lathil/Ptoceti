@@ -5,7 +5,7 @@ import { Obj } from '../obix/obix';
 
 @Component({
     selector: 'itemeditname',
-    templateUrl: 'item-editname.component.html'
+    templateUrl: './item-editname.component.html'
 })
 
 export class ItemEditNameComponent {

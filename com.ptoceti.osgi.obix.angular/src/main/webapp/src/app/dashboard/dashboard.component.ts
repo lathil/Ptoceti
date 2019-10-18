@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { WatchAction, WatchesService } from '../obix/obix.watchesservice';
 
 @Component( {
-    templateUrl: 'dashboard.component.html'
+    templateUrl: './dashboard.component.html'
 } )
 export class DashboardComponent {
 

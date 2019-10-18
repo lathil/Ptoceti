@@ -7,7 +7,7 @@ import { LineChartData } from '../d3/d3-line-chart.component';
 
 @Component( {
     selector: 'historyitem',
-    templateUrl: 'history-item.component.html'
+    templateUrl: './history-item.component.html'
 } )
 export class HistoryItemComponent implements OnInit {
     

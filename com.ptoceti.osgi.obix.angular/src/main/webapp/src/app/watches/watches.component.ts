@@ -24,7 +24,7 @@ export class Period {
 }
 
 @Component( {
-    templateUrl: 'watches.component.html'
+    templateUrl: './watches.component.html'
 } )
 export class WatchesComponent implements OnInit, AfterViewInit {
 

@@ -22,7 +22,7 @@ import { ItemEditNameComponent } from '../items/item-editname.component';
 import * as moment from 'moment'
 
 @Component( {
-    templateUrl: 'dashboard-watch.component.html'
+    templateUrl: './dashboard-watch.component.html'
 } )
 export class DashboardWatchComponent implements OnInit, OnDestroy, AfterViewInit {
 

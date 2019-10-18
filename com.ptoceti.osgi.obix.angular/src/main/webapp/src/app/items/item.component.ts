@@ -17,7 +17,7 @@ import {
 import { Obj, Status, Ref } from '../obix/obix';
 
 @Component( {
-    templateUrl: 'item.component.html'
+    templateUrl: './item.component.html'
 } )
 export class Item implements OnInit, OnChanges {
 

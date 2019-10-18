@@ -40,7 +40,7 @@ export class DataType {
 }
 
 @Component( {
-    templateUrl: 'histories.component.html'
+    templateUrl: './histories.component.html'
 } )
 export class HistoriesComponent implements OnInit, AfterViewInit {
 

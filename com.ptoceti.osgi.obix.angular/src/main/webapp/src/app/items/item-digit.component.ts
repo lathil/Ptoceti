@@ -5,7 +5,7 @@ import { Obj, Status, Bool } from '../obix/obix';
 import { Item } from './item.component';
 
 @Component( {
-    templateUrl: 'item-digit.component.html'
+    templateUrl: './item-digit.component.html'
 } )
 export class ItemDigit extends Item implements OnInit, OnChanges {
 

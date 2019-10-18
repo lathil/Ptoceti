@@ -5,7 +5,7 @@ import { Watch } from '../obix/obix';
 
 @Component({
     selector: 'watcheditname',
-    templateUrl: 'watch-editname.component.html'
+    templateUrl: './watch-editname.component.html'
 })
 
 export class WatchEditNameComponent {
