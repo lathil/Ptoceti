@@ -5,7 +5,7 @@ import { Obj, Status, Bool } from '../obix/obix';
 import { Item } from './item.component';
 
 @Component( {
-    templateUrl: 'item-switch.component.html'
+    templateUrl: './item-switch.component.html'
 } )
 export class ItemSwitch extends Item implements OnInit, OnChanges {
 

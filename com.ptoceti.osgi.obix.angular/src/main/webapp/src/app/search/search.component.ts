@@ -12,7 +12,7 @@ import { SearchService } from '../obix/obix.searchservice';
 
 @Component( {
     selector: 'search',
-    templateUrl: 'search.component.html'
+    templateUrl: './search.component.html'
 } )
 export class SearchComponent {
 

@@ -15,7 +15,7 @@ import { LineChartDataList, MultiLineChartComponent } from '../d3/d3-multiline-c
 import * as moment from 'moment'
 
 @Component( {
-    templateUrl: 'item-measurement.component.html'
+    templateUrl: './item-measurement.component.html'
 } )
 export class ItemMeasurement extends Item implements OnInit,AfterViewInit , AfterContentInit, OnDestroy, OnChanges{
 

@@ -7,7 +7,7 @@ import { OAuthService } from 'angular-oauth2-oidc';
 import { Md5 } from 'ts-md5/dist/md5'
 
 @Component( {
-    templateUrl: 'login.component.html'
+    templateUrl: './login.component.html'
 } )
 export class LoginComponent implements OnInit {
 

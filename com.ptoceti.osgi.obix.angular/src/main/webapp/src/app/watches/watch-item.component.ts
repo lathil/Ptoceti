@@ -29,7 +29,7 @@ export class Period {
 
 @Component( {
     selector: 'watchitem',
-    templateUrl: 'watch-item.component.html'
+    templateUrl: './watch-item.component.html'
 } )
 export class WatchItemComponent implements OnInit, AfterViewInit {
 
