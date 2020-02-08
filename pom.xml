@@ -436,7 +436,8 @@
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.mqtt/1.2.1-SNAPSHOT@nostart</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.timeseries/1.2.1-SNAPSHOT@update</param>
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.obix.angular/1.2.1-SNAPSHOT@update</param>
-                            <param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.ebus/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.ebus/1.2.1-SNAPSHOT@update</param>
+							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.ebusdevice/1.2.1-SNAPSHOT@update</param>
 							
 						</provision>
 					</configuration>
@@ -619,5 +620,6 @@
 	    <module>com.ptoceti.osgi.timeseries</module>
         <module>com.ptoceti.osgi.obix.angular</module>
         <module>com.ptoceti.osgi.ebus</module>
+        <module>com.ptoceti.osgi.ebusdevice</module>
     </modules>
 </project>

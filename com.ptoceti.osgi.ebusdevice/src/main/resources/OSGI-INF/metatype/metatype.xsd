@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<metatype:metatype
+        xmlns:metatype = "http://www.knopflerfish.org/XMLMetatype"
+        xmlns:xsd      = "http://www.w3.org/2001/XMLSchema">
+
+  <xsd:schema >
+
+	<xsd:complexType name="com.ptoceti.osgi.EbusDeviceFactory" maxOccurs="unbounded">
+		<xsd:element  name="modbus_port" type="xsd:string"/>
+		<xsd:element  name="modbus_id" type="xsd:int"/>
+		<xsd:element  name="modbus_poolingrate_s" type="xsd:int"/>
+		<xsd:complexType name="measurement" maxOccurs="unbounded">
+			<xsd:sequence>
+				<xsd:element name="item" type="xsd:string"/>
+				<xsd:element name="item" type="xsd:string"/>
+				<xsd:element name="item" type="xsd:int"/>
+				<xsd:element name="item" type="xsd:int"/>
+			</xsd:sequence>
+		</xsd:complexType>
+		<xsd:complexType name="state" maxOccurs="unbounded">
+			<xsd:sequence>
+				<xsd:element name="item" type="xsd:string"/>
+				<xsd:element name="item" type="xsd:string"/>
+				<xsd:element name="item" type="xsd:int"/>
+				<xsd:element name="item" type="xsd:int"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:complexType> 
