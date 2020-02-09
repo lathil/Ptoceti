@@ -1,0 +1,5 @@
+{
+  "authUrl": "http://localhost:8080/auth",
+  "restUrl": "http://localhost:8080/rest",
+  "sseUrl": "http://localhost:8080/rest/events"
+}

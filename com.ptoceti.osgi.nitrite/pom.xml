@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>com.ptoceti.parent</artifactId>
+        <groupId>com.ptoceti</groupId>
+        <version>2.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>com.ptoceti.osgi.nitrite</artifactId>
+
+    <packaging>bundle</packaging>
+    <name>Ptoceti Nitrite</name>
+    <description>Ptoceti's nitrite packaging api</description>
+
+    <properties>
+        <bundle.namespace>${project.artifactId}</bundle.namespace>
+        <nitrite.version>3.4.4</nitrite.version>
+        <jasypt.version>1.9.3</jasypt.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>4.2.1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <supportedProjectTypes>
+                        <supportedProjectType>jar</supportedProjectType>
+                        <supportedProjectType>bundle</supportedProjectType>
+                    </supportedProjectTypes>
+                    <instructions>
+
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Description>${project.description}</Bundle-Description>
+                        <!--<Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>-->
+
+                        <Export-Package>
+                            org.dizitart.*;version=${nitrite.version},org.jasypt.*;version=${jasypt.version},uk.co.jemos.podam
+                        </Export-Package>
+                        <!--<Import-Package>org.dizitart.*,org.jasypt.*,org.h2.*,com.fasterxml.jackson.core.*,com.fasterxml.jackson.annotation.*,com.fasterxml.jackson.databind.*</Import-Package>-->
+                        <Import-Package>!com.ibm.icu.text,!okhttp3,!com.sun.management,*</Import-Package>
+                        <!--<Private-Package>${project.artifactId}.impl.*</Private-Package>-->
+
+                        <Embed-Dependency>
+                            groupId=org.dizitart;artifactId=nitrite,groupId=org.jasypt;artifactId=jasypt,groupId=uk.co.jemos.podam;artifactId=podam,groupId=com.h2database;artifactId=h2-mvstore
+                        </Embed-Dependency>
+
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <Embed-Directory>META-INF/lib</Embed-Directory>
+                        <Bundle-ClassPath>.</Bundle-ClassPath>
+
+                    </instructions>
+                    <excludeDependencies>okhttp,icu4j</excludeDependencies>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.dizitart</groupId>
+            <artifactId>nitrite</artifactId>
+            <version>${nitrite.version}</version>
+            <exclusions>
+                <exclusion>
+                    <!-- need ok http dor sync with datagate-->
+                    <groupId>com.squareup.okhttp3</groupId>
+                    <artifactId>okhttp</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+            <version>${jasypt.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.ibm.icu</groupId>
+                    <artifactId>icu4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+</project>

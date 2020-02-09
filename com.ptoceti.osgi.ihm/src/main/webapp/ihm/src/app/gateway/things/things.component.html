@@ -1,0 +1,36 @@
+<div class="row">
+  <div class="col">
+    <div class="card border-0">
+      <div class="card-body">
+        <h6 class="card-title">Things</h6>
+        <button *ngIf="(hasThingsFactories() | async) && hasRole('admin')" type="button"
+                class="btn btn-primary btn-sm card-title float-right"
+                (click)="addThing()"><i class="bi bi-plus-lg"></i> Add thing
+        </button>
+        <button *ngIf="(hasItemsFactories() | async) && hasRole('admin')" type="button"
+                class="btn btn-primary btn-sm card-title float-right"
+                (click)="addItem()"><i class="bi bi-plus-lg"></i> Add item
+        </button>
+        <table class="table">
+          <thead>
+          <tr>
+            <th scope="col">Uid</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
+            <th scope="col"></th>
+          </tr>
+          </thead>
+          <tbody>
+          <ng-container *ngFor="let thing of things$ | async">
+            <app-thing-items [thing]="thing" [hasConfig]="hasConfiguration( thing.properties['service.pid']) | async"
+                             (deleteThingEvent)="deleteThing($event)"></app-thing-items>
+          </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<router-outlet></router-outlet>

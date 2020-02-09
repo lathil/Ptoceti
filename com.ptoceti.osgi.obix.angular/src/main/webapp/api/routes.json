@@ -1,7 +1,0 @@
-{
-	"/obix/rest/": "/lobby",
-	"/obix/rest/about" : "/about",
-	"/obix/rest/watchservice" :  "/watchservice",
-	"/obix/rest/historyservice" :  "/historyservice",
-	"/obix/rest/alarmservice" :  "/alarmservice"
-}

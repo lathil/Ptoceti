@@ -1,85 +1,84 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<parent>
-	    <artifactId>com.ptoceti.parent</artifactId>
-	    <groupId>com.ptoceti</groupId>
-        <version>2.0.0-SNAPSHOT</version>
-	    <relativePath>..</relativePath>
-	  </parent>
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <artifactId>com.ptoceti.parent</artifactId>
+        <groupId>com.ptoceti</groupId>
+        <version>2.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
 
-	<artifactId>com.ptoceti.osgi.control</artifactId>
-	<packaging>bundle</packaging>
+    <artifactId>com.ptoceti.osgi.control</artifactId>
+    <packaging>bundle</packaging>
 
-	<name>Control</name>
-	<description>Ptoceti's control library</description>
+    <name>Ptoceti Control</name>
+    <description>Ptoceti's control library</description>
 
-	<properties>
-		<bundle.namespace>${project.artifactId}</bundle.namespace>
-	</properties>
-	<build>
-		<resources>
-			<resource>
-				<directory>${project.build.directory}</directory>
-				<filtering>false</filtering>
-				<includes>
-					<include>LICENSE.txt</include>
-					<include>NOTICE.txt</include>
-					<include>README.md</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>false</filtering>
-			</resource>
-		</resources>
-		
-		<plugins>
-			<!-- INCLUDE SOURCE JAR -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
+    <properties>
+        <bundle.namespace>${project.artifactId}</bundle.namespace>
+    </properties>
+    <build>
+        <resources>
+            <resource>
+                <directory>${project.build.directory}</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>LICENSE.txt</include>
+                    <include>NOTICE.txt</include>
+                    <include>README.md</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
 
-			<!-- INCLUDE JAVADOC JAR -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-			</plugin>
+        <plugins>
+            <!-- INCLUDE SOURCE JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
 
-			<!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<configuration>
-					<roots>
-						<root>src/main/java</root>
-						<root>src/test</root>
-					</roots>
-				</configuration>
-			</plugin>
-			
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Export-Package>${project.artifactId}</Export-Package>
-					</instructions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+            <!-- INCLUDE JAVADOC JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
 
-	<dependencies>
+            <!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <roots>
+                        <root>src/main/java</root>
+                        <root>src/test</root>
+                    </roots>
+                </configuration>
+            </plugin>
 
-		<dependency>
-			<groupId>org.osgi</groupId>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>${project.artifactId}</Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
             <artifactId>org.osgi.util.measurement</artifactId>
-            <version>1.0.1</version>
             <scope>provided</scope>
-		</dependency>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 </project>

@@ -38,102 +38,89 @@ import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.TooManyListenersException;
 
-import org.osgi.service.log.LogService;
+import org.osgi.service.serial.*;
 
-import gnu.io.*;
+public class ModbusSerialRTUConnection extends ModbusSerialConnection implements SerialEventListener {
 
-public class ModbusSerialRTUConnection extends ModbusSerialConnection implements SerialPortEventListener {
+    // flag to indicate that a new frame has arrived.
+    boolean hasNewFrame = false;
+    // flag to indicate that a special "start of frame" char has been received.
+    boolean foundFrameStart = false;
 
-	// flag to indicate that a new frame has arrived.
-	boolean hasNewFrame = false;
-	// flag to indicate that a special "start of frame" char has been received.
-	boolean foundFrameStart = false;
-	
-	// create a new frame detector. usefull to detec timeout between frames when waiting for a reply.
-	FrameDetector frameDetector = null;
-	
-	// buffer byte array to receive bytes comming from the serial link input stream.
-	ByteArrayOutputStream bytesInRaw = new ByteArrayOutputStream();
-	// buffer byte array to get new incoming frame without the two CRC bytes.
-	ByteArrayOutputStream bytesIn = new ByteArrayOutputStream();
-	// buffer byte array to store bytes to write to the serial link output stream.
-	ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-	
-	// time delimiting two frames in chars time in the modbus protocol.
-	public static double FRAME_SEPERATOR_LENGTH = 3.5;
-	
-	/**
-	 * Constructor. Try to create and open the serial connection to modbus from the given arguments.
-	 * The serial port is amso configured to use 8 bits data, default for RTU framing. If the connection
-	 * is open successfully, the class registers itself as an listener to even from the serial port and
-	 * get hold of the input and pitput streams.
-	 *
-	 *
-	 * @param portName: name of the serial port to use to access the serial port, eg "/dev/tty01"
-	 * @param baudRate: baud rate to used on the serial link: 9600 to 19200.
-	 * @param usesParity: state whether to send the parity bit on the serial link.
-	 * @param evenParity: state whether to use even or odd parity.
-	 * @param echo: state whether to expect receivng the echo of a broadcasted message back on the receiver channel.
-	 *
-	 * @exception Exception is thrown if probmems creating the serial connection.
-	 */
-	public ModbusSerialRTUConnection( String portName, int baudRate, boolean usesParity, boolean evenParity, boolean echo ) throws Exception {
-	
-		Enumeration portList;
-		CommPortIdentifier portID;
-		boolean hasFoundPort = false;
-		
-		this.portName = portName;
-		
-		try {
-			portList = CommPortIdentifier.getPortIdentifiers();
-			while (portList.hasMoreElements()) {
-				portID = (CommPortIdentifier) portList.nextElement();
-				if( portID.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-					// if this is the port we want,
-					if( portID.getName().equals( portName )) {
-						// try to get hold of this port. If not successfull within 1 second, throws an exception.
-						serialPort = (SerialPort) portID.open( this.getClass().getName(), (int)1000 );
-						// if the parity bit is not used, the  port is configured to send two stop bits.
-						if( usesParity == true )
-							serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_8,
-								SerialPort.STOPBITS_1, ( evenParity ? SerialPort.PARITY_EVEN : SerialPort.PARITY_ODD ));
-						else
-							serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_8,
-								SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-						// set itself to listen to data available events.
-						serialPort.addEventListener(this);
-						serialPort.notifyOnDataAvailable(true);
-						// calculate the time between two frames depending on the baudrate setting.
-						frameDetector = new FrameDetector((int) Math.ceil( FRAME_SEPERATOR_LENGTH * 10 * 10 * 1000 / serialPort.getBaudRate()));
-						// get hold of the inputs and outputs streams.
-						inStream = serialPort.getInputStream();
-						outStream = serialPort.getOutputStream();
-						// success ! we got our port !
-						hasFoundPort = true;
-						// remember whether to expect the echo of broadcasted frames.
-						usesEcho = echo;
-						break;
-					}
-				}
-			}
-			
-			if( hasFoundPort == false ) throw new Exception("Could not find port with name: " + portName + ".");
-			
-		} catch ( PortInUseException e) { throw new Exception("Port " + portName + " is already in use."); }
-			catch (UnsupportedCommOperationException e) { throw new Exception("Port does not support this operation."); }
-			catch (TooManyListenersException e) { throw new Exception("Could not create listener on port: " + portName + "."); }
-			catch (IOException e) { throw new Exception("Could not open input or output streams on port: " + portName + "."); }
+    // create a new frame detector. usefull to detec timeout between frames when waiting for a reply.
+    FrameDetector frameDetector = null;
+
+    // buffer byte array to receive bytes comming from the serial link input stream.
+    ByteArrayOutputStream bytesInRaw = new ByteArrayOutputStream();
+    // buffer byte array to get new incoming frame without the two CRC bytes.
+    ByteArrayOutputStream bytesIn = new ByteArrayOutputStream();
+    // buffer byte array to store bytes to write to the serial link output stream.
+    ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+
+    // time delimiting two frames in chars time in the modbus protocol.
+    public static double FRAME_SEPERATOR_LENGTH = 3.5;
+
+    boolean mustStop = false;
+
+    /**
+     * Constructor. Try to create and open the serial connection to modbus from the given arguments.
+     * The serial port is amso configured to use 8 bits data, default for RTU framing. If the connection
+     * is open successfully, the class registers itself as an listener to even from the serial port and
+     * get hold of the input and pitput streams.
+     *
+     *
+     * @param portName: name of the serial port to use to access the serial port, eg "/dev/tty01"
+     * @param baudRate: baud rate to used on the serial link: 9600 to 19200.
+     * @param usesParity: state whether to send the parity bit on the serial link.
+     * @param evenParity: state whether to use even or odd parity.
+     * @param echo: state whether to expect receivng the echo of a broadcasted message back on the receiver channel.
+     *
+     * @exception Exception is thrown if probmems creating the serial connection.
+     */
+    public ModbusSerialRTUConnection(SerialDevice serialDevice, String portName, int baudRate, boolean usesParity, boolean evenParity, boolean echo) throws Exception {
+
+        this.serialDevice = serialDevice;
+        this.portName = portName;
+
+        try {
+
+            SerialPortConfiguration serialPortConfiguration;
+
+            // if the parity bit is not used, the  port is configured to send two stop bits.
+            if (usesParity == true) {
+
+                serialPortConfiguration = new SerialPortConfiguration(baudRate,
+                        SerialConstants.DATABITS_8, SerialConstants.FLOWCONTROL_NONE,
+                        (evenParity ? SerialConstants.PARITY_EVEN : SerialConstants.PARITY_ODD),
+                        SerialConstants.STOPBITS_1);
+            } else
+                serialPortConfiguration = new SerialPortConfiguration(baudRate,
+                        SerialConstants.DATABITS_8, SerialConstants.FLOWCONTROL_NONE,
+                        SerialConstants.PARITY_NONE,
+                        SerialConstants.STOPBITS_1);
+
+            serialDevice.setConfiguration(serialPortConfiguration);
+
+            // calculate the time between two frames depending on the baudrate setting.
+            frameDetector = new FrameDetector((int) Math.ceil(FRAME_SEPERATOR_LENGTH * 10 * 10 * 1000 / serialPortConfiguration.getBaudRate()));
+            // get hold of the inputs and outputs streams.
+            inStream = serialDevice.getInputStream();
+            outStream = serialDevice.getOutputStream();
+            // remember whether to expect the echo of broadcasted frames.
+            usesEcho = echo;
+
+
+        } catch (IOException e) {
+            throw new Exception("Could not open input or output streams on port: " + portName + ".");
+        }
 	}
 	
 	public void close() {
-		
-		serialPort.close();
-		inStream = null;
-		outStream = null;
-	}
+        mustStop = true;
+        inStream = null;
+        outStream = null;
+    }
 	
 	/**
 	 * This method send a ModbusMessageRequest to a slave device over the modbus serial bu.
@@ -150,41 +137,42 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 		ModbusMessageResponse response = null;
 	
 		try {
-			bytesOut.reset();
-			msg.writeTo( bytesOut); // write unitID, functionID + message data
-			int crc = ModbusUtils.calculateCRC( bytesOut.toByteArray(), bytesOut.size()); // calculate CRC, and add at end of message.
-			bytesOut.write(( crc & 0xFF00 ) >>> 8 ); // send hight byte of the crc
-			bytesOut.write(( crc & 0x00FF )); // send low byte of the crc		
-			
-			Activator.log(LogService.LOG_DEBUG, "Sending frame: " + ModbusUtils.writeHex( bytesOut.toByteArray()));
-			
-			bytesOut.writeTo( outStream );
-			outStream.flush();
-			// update statistics counter
-			incrementFrameSentCounter();
-			try {
-				if( usesEcho ) {
-					if ( hasNewFrame == false ) wait( 100 );
-					if ( hasNewFrame == true ) {
-						Activator.log(LogService.LOG_DEBUG, "Received echo frame: " + ModbusUtils.writeHex( bytesIn.toByteArray()));
-						hasNewFrame = false;
-					}
+            bytesOut.reset();
+            msg.writeTo(bytesOut); // write unitID, functionID + message data
+            int crc = ModbusUtils.calculateCRC(bytesOut.toByteArray(), bytesOut.size()); // calculate CRC, and add at end of message.
+            bytesOut.write((crc & 0xFF00) >>> 8); // send hight byte of the crc
+            bytesOut.write((crc & 0x00FF)); // send low byte of the crc
+
+            Activator.getLogger().debug("Sending frame: " + ModbusUtils.writeHex(bytesOut.toByteArray()));
+
+            bytesOut.writeTo(outStream);
+            outStream.flush();
+            // update statistics counter
+            incrementFrameSentCounter();
+            try {
+                if (usesEcho) {
+                    if (hasNewFrame == false) wait(100);
+                    if (hasNewFrame == true) {
+                        Activator.getLogger().debug("Received echo frame: " + ModbusUtils.writeHex(bytesIn.toByteArray()));
+                        hasNewFrame = false;
+                    }
 					else {
-						Activator.log(LogService.LOG_DEBUG, "Missing echo frame.");
-						return response;
-					}
+                        Activator.getLogger().debug("Missing echo frame.");
+                        return response;
+                    }
 				}
 				if ( hasNewFrame == false ) wait( 1000 );
 				if ( hasNewFrame == true ) {
-					// and ask the embedded response message to parse the raw response to a ModbusMessageResponse.
-					ModbusMessageResponse respMessage = msg.getResponseMessage();
-					// if parsing was successfull, we can return the response message.
-					if( respMessage.readFrom( new ByteArrayInputStream(bytesIn.toByteArray())) == true ) response = respMessage;
-					Activator.log(LogService.LOG_DEBUG, "Received response: " + ModbusUtils.writeHex( bytesIn.toByteArray()));
-					hasNewFrame = false;
-				} else {
-					Activator.log(LogService.LOG_DEBUG, "Missing response frame.");
-				}
+                    // and ask the embedded response message to parse the raw response to a ModbusMessageResponse.
+                    ModbusMessageResponse respMessage = msg.getResponseMessage();
+                    // if parsing was successfull, we can return the response message.
+                    if (respMessage.readFrom(new ByteArrayInputStream(bytesIn.toByteArray())) == true)
+                        response = respMessage;
+                    Activator.getLogger().debug("Received response: " + ModbusUtils.writeHex(bytesIn.toByteArray()));
+                    hasNewFrame = false;
+                } else {
+                    Activator.getLogger().debug("Missing response frame.");
+                }
 				
 			} catch (InterruptedException e) {}
 
@@ -214,8 +202,8 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 			if( hasNewFrame == false ) wait();
 		
 			try {
-				Activator.log(LogService.LOG_DEBUG, "Received request frame: " + ModbusUtils.writeHex( bytesIn.toByteArray()));
-			} catch (IOException e ) {}
+                Activator.getLogger().debug("Received request frame: " + ModbusUtils.writeHex(bytesIn.toByteArray()));
+            } catch (IOException e ) {}
 		
 		} catch (InterruptedException e ) {}
 		
@@ -255,41 +243,44 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 			incrementFramesReceivedCounter();
 		}
 		else {
-			hasNewFrame = false;
-			// update the statistic counter.
-			incrementBadFramesReceivedCounter();
-			String messageString = new String();
-			try {
-				messageString = ModbusUtils.writeHex( buff );
-			} catch (IOException e ) { messageString = "Error converting binary message to Hex."; }
-			Activator.log(LogService.LOG_DEBUG, "Bad CRC on received frame: " + messageString );
-		}
+            hasNewFrame = false;
+            // update the statistic counter.
+            incrementBadFramesReceivedCounter();
+            String messageString = new String();
+            try {
+                messageString = ModbusUtils.writeHex(buff);
+            } catch (IOException e) {
+                messageString = "Error converting binary message to Hex.";
+            }
+            Activator.getLogger().debug("Bad CRC on received frame: " + messageString);
+        }
 		// and notify any waiting thread that we have received a new frame, good or bad
 		notify();
 	}
-	
-	/**
-	 * Serial port's SerialPortEventistener. When a event is produced by the SerialPort class,
-	 * is is sent to this method. This mechanism is used to listen to incoming bytes on the serial bus.
-	 * Once the start and end special chars are received, the incoming bytes are packed as a proper frame
-	 * and passed on to be converted back to binary ( from the hex bytes ).
-	 *
-	 * @param event : the SerialPortEvent event.
-	 */
-	public void serialEvent( SerialPortEvent event ) {
-	
-		int nbAvailableBytes = 0;
-		byte[] newBytes = new byte[255];
-		
-		if( event.getEventType() == SerialPortEvent.DATA_AVAILABLE ) {
-			try {
-				nbAvailableBytes = inStream.available();
-				inStream.read( newBytes, 0, nbAvailableBytes);
-				bytesInRaw.write( newBytes, 0, nbAvailableBytes);
-			} catch (IOException e ) {}
-			frameDetector.gotNewBytes();
-		}
-	}
+
+    /**
+     * Serial port's SerialPortEventistener. When a event is produced by the SerialPort class,
+     * is is sent to this method. This mechanism is used to listen to incoming bytes on the serial bus.
+     * Once the start and end special chars are received, the incoming bytes are packed as a proper frame
+     * and passed on to be converted back to binary ( from the hex bytes ).
+     *
+     * @param event : the SerialPortEvent event.
+     */
+    public void notifyEvent(SerialEvent event) {
+
+        int nbAvailableBytes = 0;
+        byte[] newBytes = new byte[255];
+
+        if (event.getType() == SerialEvent.DATA_AVAILABLE) {
+            try {
+                nbAvailableBytes = inStream.available();
+                inStream.read(newBytes, 0, nbAvailableBytes);
+                bytesInRaw.write(newBytes, 0, nbAvailableBytes);
+            } catch (IOException e) {
+            }
+            frameDetector.gotNewBytes();
+        }
+    }
 	
 	/**
 	 * This class act as a synchronisation object around a monitor ( the object's monitor ).
@@ -377,11 +368,11 @@ public class ModbusSerialRTUConnection extends ModbusSerialConnection implements
 		 * 
 		 */
 		public void run() {
-			while(true) {
-				// this object's monitors can only be blocked from inside a synchronized method. Call this one.
-				checkForFrame();
-			}
-		}
+            while (!mustStop) {
+                // this object's monitors can only be blocked from inside a synchronized method. Call this one.
+                checkForFrame();
+            }
+        }
 	}
 	
 }

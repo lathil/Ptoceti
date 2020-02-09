@@ -11,69 +11,45 @@ import java.util.TooManyListenersException;
 import com.ptoceti.osgi.ebus.impl.Activator;
 import com.ptoceti.osgi.ebus.impl.message.EbusMessage;
 import com.ptoceti.osgi.ebus.impl.utils.EbusUtils;
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
-import gnu.io.SerialPortEventListener;
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
-import gnu.io.SerialPortEvent;
-import org.osgi.service.log.LogService;
 
-public class EbusSerialConnection extends EbusConnection implements SerialPortEventListener {
+import org.osgi.service.log.LogService;
+import org.osgi.service.serial.*;
+
+public class EbusSerialConnection extends EbusConnection implements SerialEventListener {
 
     protected OutputStream outStream;
     protected InputStream inStream;
 
-    protected SerialPort serialPort;
+    protected SerialDevice serialDevice;
     protected String portName;
 
     public static final int EBUS_BAUDRATE = 2400;
 
 
-    public EbusSerialConnection( String portName ) throws Exception {
+    public EbusSerialConnection(SerialDevice serialDevice, String portName) throws Exception {
 
         Enumeration portList;
-        CommPortIdentifier portID;
         boolean hasFoundPort = false;
 
         this.portName = portName;
 
         try {
+            SerialPortConfiguration serialPortConfiguration = new SerialPortConfiguration(EBUS_BAUDRATE,
+                    SerialConstants.DATABITS_8, SerialConstants.FLOWCONTROL_NONE, SerialConstants.PARITY_NONE, SerialConstants.STOPBITS_1);
+            serialDevice.setConfiguration(serialPortConfiguration);
 
-            portID = CommPortIdentifier.getPortIdentifier(portName);
-            if( portID.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-                // if this is the port we want,
-                if( portID.getName().equals( portName )) {
-                    // try to get hold of this port. If not successfull within 1 second, throws an exception.
-                    serialPort = (SerialPort) portID.open( this.getClass().getName(), (int)1000 );
-                    // if the parity bit is not used, the  port is configured to send two stop bits.
+            // get hold of the inputs and outputs streams.
+            inStream = serialDevice.getInputStream();
+            outStream = serialDevice.getOutputStream();
 
-                    serialPort.setSerialPortParams(EBUS_BAUDRATE, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-                    // set itself to listen to data available events.
-                    serialPort.addEventListener(this);
-                    serialPort.notifyOnDataAvailable(true);
-                    // get hold of the inputs and outputs streams.
-                    inStream = serialPort.getInputStream();
-                    outStream = serialPort.getOutputStream();
-                    // success ! we got our port !
-                    hasFoundPort = true;
-                }
-            }
-            // We did not found the port in the list of ports availables. throw an exception.
-            if( hasFoundPort == false ) throw new Exception("Could not find port with name: " + portName + ".");
-
-
-        } catch ( PortInUseException e) { throw new Exception("Port " + portName + " is already in use."); }
-        catch (UnsupportedCommOperationException e) { throw new Exception("Port does not support this operation."); }
-        catch (TooManyListenersException e) { throw new Exception("Could not create listener on port: " + portName + "."); }
-        catch (IOException e) { throw new Exception("Could not open input or output streams on port: " + portName + "."); }
+        } catch (IOException e) {
+            throw new Exception("Could not open input or output streams on port: " + portName + ".");
+        }
 
     }
 
     public void close() {
 
-        //busListener.stop();
-        serialPort.close();
         inStream = null;
         outStream = null;
     }
@@ -91,18 +67,19 @@ public class EbusSerialConnection extends EbusConnection implements SerialPortEv
      *
      * @param event : the SerialPortEvent event.
      */
-    public void serialEvent( SerialPortEvent event ) {
+    public void notifyEvent(SerialEvent event) {
 
         int nbAvailableBytes = 0;
         byte[] newBytes = new byte[255];
 
-        if( event.getEventType() == SerialPortEvent.DATA_AVAILABLE ) {
-            synchronized (bytesInRaw){
+        if (event.getType() == SerialEvent.DATA_AVAILABLE) {
+            synchronized (bytesInRaw) {
                 try {
                     nbAvailableBytes = inStream.available();
-                    inStream.read( newBytes, 0, nbAvailableBytes);
-                    receivedBytes( newBytes, nbAvailableBytes);
-                } catch (IOException e ) {}
+                    inStream.read(newBytes, 0, nbAvailableBytes);
+                    receivedBytes(newBytes, nbAvailableBytes);
+                } catch (IOException e) {
+                }
             }
         }
     }

@@ -1,0 +1,86 @@
+<div class="row">
+  <div class="col">
+    <div class="card border-0">
+      <div class="card-body">
+
+        <h6 class="card-title d-inline">Drivers</h6>
+        <button *ngIf="(hasDriverFactories() | async) && hasRole('admin')" type="button"
+                class="btn btn-primary btn-sm card-title float-right"
+                (click)="addDriver()"><i class="bi bi-plus-lg"></i> Add driver
+        </button>
+        <table class="table">
+          <thead>
+          <tr>
+            <th scope="col">Driver Id</th>
+            <th scope="col">Device Serial</th>
+            <th scope="col">Matched</th>
+            <th scope="col">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let driver of drivers$ | async">
+            <td>{{driver.driverId}}</td>
+            <td>{{driver.deviceSerial}}</td>
+            <td>{{driver.deviceSerial !== null && driver.deviceSerial.length > 0}}</td>
+            <td>
+              <div class="text-center" ngbDropdown>
+                <a ngbDropdownToggle><i class="bi bi-three-dots-vertical"></i></a>
+                <div ngbDropdownMenu>
+                  <a ngbDropdownItem [routerLink]="['../driver', driver.properties['service.id']]">Details</a>
+                  <a *ngIf="hasConfiguration( driver.properties['service.pid']) | async" ngbDropdownItem
+                     [routerLink]="['../conf', driver.properties['service.pid']]">Configuration</a>
+                  <a *ngIf="hasConfiguration( driver.properties['service.pid']) | async" ngbDropdownItem
+                     (click)="deleteDriver(driver.properties['service.pid'])">Delete</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+    <div class="card border-0">
+      <div class="card-body">
+        <h6 class="card-title d-inline">Devices</h6>
+        <button *ngIf="(hasDeviceFactories() | async) && hasRole('admin')" type="button"
+                class="btn btn-primary btn-sm card-title float-right"
+                (click)="addDevice()"><i class="bi bi-plus-lg"></i> Add device
+        </button>
+        <table class="table">
+          <thead>
+          <tr>
+            <th scope="col">Category</th>
+            <th scope="col">Description</th>
+            <th scope="col">Serial</th>
+            <th scope="col">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let device of devices$ | async">
+            <td>{{device.deviceCategory}}</td>
+            <td>{{device.deviceDescription}}</td>
+            <td>{{device.deviceSerial}}</td>
+            <td>
+              <div class="text-center" ngbDropdown>
+                <a ngbDropdownToggle><i class="bi bi-three-dots-vertical"></i></a>
+                <div ngbDropdownMenu>
+                  <a ngbDropdownItem [routerLink]="['../device', device.properties['service.id']]">Details</a>
+                  <a *ngIf="hasConfiguration( device.properties['service.pid']) | async" ngbDropdownItem
+                     [routerLink]="['../conf', device.properties['service.pid']]">Configuration</a>
+                  <a *ngIf="hasConfiguration( device.properties['service.pid']) | async" ngbDropdownItem
+                     (click)="deleteDevice(device.properties['service.pid'])">Delete</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

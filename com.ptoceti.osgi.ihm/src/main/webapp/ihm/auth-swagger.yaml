@@ -1,0 +1,64 @@
+openapi: 3.0.1
+info:
+  title: Ptoceti Auth Api
+  version: 1.0.0
+paths:
+  /login:
+    get:
+      tags:
+        - login
+      operationId: principal
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+  /login/login:
+    post:
+      tags:
+        - login
+      operationId: login
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                credential:
+                  type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+  /login/logout:
+    post:
+      tags:
+        - login
+      operationId: logout
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': { }
+components:
+  schemas:
+    Credential:
+      type: object
+      properties:
+        token:
+          type: string

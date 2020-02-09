@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0">
     <OCD description="Mqtt" name="Ptoceti Mqtt Device Service" id="ocd">
-		<AD name="Composite identity" id="com.ptoceti.osgi.mqtt.compositidentity" required="true" type="String" />
-		<AD name="Username" id="com.ptoceti.osgi.mqtt.username" required="true" type="String" />
-		<AD name="Password" id="com.ptoceti.osgi.mqtt.password" required="true" type="String" />
-		<AD name="Server Uri" id="com.ptoceti.osgi.mqtt.serveruri" required="true" type="String" />
-		<AD name="SSL Properties" id="com.ptoceti.osgi.mqtt.sslpropts" required="true" type="String" />
-		<AD name="Last will destination" id="com.ptoceti.osgi.mqtt.willdestination" required="true" type="String" />
-	    <AD name="Last will message" id="com.ptoceti.osgi.mqtt.willmessage" required="true" type="String" />
-	    <AD name="Message formatter service name" id="com.ptoceti.osgi.mqtt.messageformatter" required="true" type="String" />
-	    <AD name="Root topic" id="com.ptoceti.osgi.mqtt.roottopic" required="true" type="String" />
+        <AD name="Composite identity" id="com.ptoceti.osgi.mqtt.compositidentity" required="true" type="String"/>
+        <AD name="Username" id="com.ptoceti.osgi.mqtt.username" required="true" type="String"/>
+        <AD name="Password" id="com.ptoceti.osgi.mqtt.password" required="true" type="String"/>
+        <AD name="Server Uri" id="com.ptoceti.osgi.mqtt.serveruri" required="true" type="String"/>
+        <AD name="SSL Properties" id="com.ptoceti.osgi.mqtt.sslpropts" required="true" type="String"/>
+        <AD name="Last will destination" id="com.ptoceti.osgi.mqtt.willdestination" required="true" type="String"/>
+        <AD name="Last will message" id="com.ptoceti.osgi.mqtt.willmessage" required="true" type="String"/>
+        <AD name="Message formatter service name" id="com.ptoceti.osgi.mqtt.messageformatter" required="true"
+            type="String"/>
+        <AD name="Root topic" id="com.ptoceti.osgi.mqtt.roottopic" required="true" type="String"/>
 	    <AD name="Clean session" id="com.ptoceti.osgi.mqtt.cleansession" required="true" type="Boolean" default="true" />
 	    <AD name="Keep alive interval" id="com.ptoceti.osgi.mqtt.keepaliveinterval" required="true" type="Integer" default="6000"/>
 	    <AD name="Qos" id="com.ptoceti.osgi.mqtt.qos" required="true" type="Integer" default="0"/>    
 	    <AD name="Persistance files directory" id="com.ptoceti.osgi.mqtt.persistance.dir" required="true" type="String" default="."/>
 	</OCD>
-    <Designate factorypid="com.ptoceti.osgi.mqtt.impl.MqttClientFactory"
-               pid="com.ptoceti.osgi.mqtt.impl.MqttClientFactory" bundle="*">
-	   <Object ocdref="ocd"/>
-	</Designate>
+    <Designate factoryPid="com.ptoceti.osgi.mqtt.MqttClientFactory" bundle="*">
+        <Object ocdref="ocd"/>
+    </Designate>
 </MetaData>

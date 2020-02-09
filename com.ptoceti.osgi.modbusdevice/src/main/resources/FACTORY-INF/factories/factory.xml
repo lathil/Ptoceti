@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Factories>
+    <FactoryInfo description="Modbus device factory" pid="com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory"
+                 isFactory="true" type="Dal"></FactoryInfo>
+    <FactoryInfo description="Modbus boolean control function factory"
+                 pid="com.ptoceti.osgi.modbusdevice.functions.ModbusBooleanControlFactory" isFactory="true"
+                 type="Function"></FactoryInfo>
+    <FactoryInfo description="Modbus boolean sensor function factory"
+                 pid="com.ptoceti.osgi.modbusdevice.functions.ModbusBooleanSensorFactory" isFactory="true"
+                 type="Function"></FactoryInfo>
+    <FactoryInfo description="Modbus meter function factory"
+                 pid="com.ptoceti.osgi.modbusdevice.functions.ModbusMeterFactory" isFactory="true"
+                 type="Function"></FactoryInfo>
+</Factories>

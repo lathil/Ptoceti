@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features name="${project.artifactId}-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.3.0">
+
+    <feature name="ptoceti-base" description="Ptoceti base bundles" version="${project.version}">
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aopalliance/1.0_5
+        </bundle>
+        <bundle dependency="true">mvn:com.google.guava/guava/16.0.1</bundle>
+        <bundle dependency="true">mvn:com.google.guava/guava/25.1-jre</bundle>
+        <bundle dependency="true">mvn:com.google.inject/guice/4.2.2/jar/no_aop</bundle>
+        <bundle dependency="true">mvn:org.glassfish.hk2.external/javax.inject/2.5.0-b62</bundle>
+        <bundle start-level="20">mvn:org.glassfish.hk2/osgi-resource-locator/1.0.3</bundle>
+        <bundle dependency="true">mvn:jakarta.annotation/jakarta.annotation-api/${jakarta.annotation-api.version}
+        </bundle>
+        <bundle dependency="true">mvn:jakarta.ws.rs/jakarta.ws.rs-api/${jaxrs-api.version}</bundle>
+        <!--<bundle dependency="true">mvn:javax.servlet/javax.servlet-api/${servlet-api.version}</bundle>-->
+        <bundle dependency="true">mvn:org.apache.commons/commons-lang3/3.8.1</bundle>
+        <bundle>mvn:org.knopflerfish.bundle/kxml-LIB/2.3.0.kf3</bundle>
+    </feature>
+
+    <feature name="ptoceti-osgi-api" description="Osgi api bundles" version="${project.version}">
+        <feature>ptoceti-base</feature>
+        <bundle dependency="true">mvn:org.osgi/org.osgi.util.measurement/${org.osgi.util.measurement.version}</bundle>
+        <bundle dependency="true">mvn:org.osgi/org.osgi.util.position/${org.osgi.util.position.version}</bundle>
+        <!-- Bundle exported by Event admin-->
+        <bundle dependency="true">mvn:org.osgi/org.osgi.service.event/${org.osgi.service.event.version}</bundle>
+        <!-- Bundle exported by Felix Http -->
+        <!-- <bundle>mvn:org.osgi/org.osgi.service.http.whiteboard/${org.osgi.service.http.whiteboard.version}</bundle> -->
+        <bundle dependency="true">mvn:org.osgi/org.osgi.service.serial/${org.osgi.service.serial.version}</bundle>
+        <bundle dependency="true">mvn:org.osgi/org.osgi.service.usbinfo/${org.osgi.service.usbinfo.version}</bundle>
+        <!-- bundle exported by device access admin -->
+        <!--<bundle>mvn:org.osgi/org.osgi.service.device/${org.osgi.service.device.version}</bundle>-->
+        <bundle dependency="true">mvn:org.osgi/org.osgi.service.dal/${org.osgi.service.dal.version}</bundle>
+        <bundle dependency="true">mvn:org.osgi/org.osgi.service.dal.functions/${org.osgi.service.dal.version}</bundle>
+        <!-- Bundle exported by wire admin-->
+        <!--<bundle>mvn:org.osgi/org.osgi.service.wireadmin/${org.osgi.service.wireadmin.version}</bundle>-->
+        <!-- Bundle exported by Pax loggin-->
+        <!-- <bundle>mvn:org.osgi/org.osgi.service.log/${org.osgi.service.log.version}</bundle> -->
+        <!-- Bundle exported by Config admin-->
+        <!-- <bundle>mvn:org.osgi/org.osgi.service.cm/${org.osgi.service.cm.version}</bundle> -->
+        <bundle dependency="true">mvn:org.osgi/org.osgi.util.pushstream/${org.osgi.util.pushstream.version}</bundle>
+        <bundle dependency="true">mvn:org.osgi/org.osgi.util.function/${org.osgi.util.function.version}</bundle>
+        <bundle dependency="true">mvn:org.osgi/org.osgi.util.promise/${org.osgi.util.promise.version}</bundle>
+    </feature>
+
+
+    <feature name="ptoceti-jackson" start-level="80" description="Jackson bundles" version="${project.version}">
+        <feature>ptoceti-base</feature>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-csv/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-smile/${jackson.version}</bundle>
+        <!-- <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-xml/${jackson.version}</bundle>-->
+        <bundle>mvn:com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.module/jackson-module-jaxb-annotations/${jackson.version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.datatype/jackson-datatype-jsr310/${jackson.version}</bundle>
+        <bundle dependency="true">mvn:org.yaml/snakeyaml/1.24</bundle>
+    </feature>
+
+
+    <feature name="ptoceti-resteasy" start-level="80" description="RestEasy packages" version="${project.version}">
+        <feature>ptoceti-base</feature>
+        <bundle start-level="30" dependency="true">mvn:org.apache.felix/org.apache.felix.http.servlet-api/1.1.2</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.resteasy-core/${project.version}</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.resteasy-core-spi/${project.version}</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.resteasy-tracing-api/${project.version}</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.resteasy-guice/${project.version}</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.resteasy-jackson2-provider/${project.version}</bundle>
+
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.resteasy-jaxb-provider/${project.version}</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.smallrye/${project.version}</bundle>
+        <bundle>mvn:org.reactivestreams/reactive-streams/1.0.3</bundle>
+    </feature>
+
+    <feature name="ptoceti-configadmin-listener" start-level="80"
+             description="Ptoceti configadmin event listener bundle" version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.configadmin.eventlistener/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-control" start-level="80" description="Ptoceti control bundle" version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.control/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-deviceaccess" start-level="80" description="Ptoceti device access admin bundle"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.deviceaccess/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-deviceadmin" start-level="80" description="Ptoceti device  admin bundle"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.deviceadmin/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-serial-nrj" start-level="80" description="Ptoceti serial device nrj java serial bundle"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <feature>ptoceti-deviceaccess</feature>
+        <feature>ptoceti-usb</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.serialdevice.nrjavaserial/${project.version}</bundle>
+        <bundle>mvn:com.neuronrobotics/nrjavaserial/5.2.1</bundle>
+        <bundle>mvn:commons-net/commons-net/3.3</bundle>
+    </feature>
+
+    <!--
+    <feature name="ptoceti-serial-rxtx" start-level="80" description="Ptoceti serial device rxtx bundle"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <feature>ptoceti-deviceaccess</feature>
+        <feature>ptoceti-usb</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.serialdevice.rxtx/${project.version}</bundle>
+        <bundle>mvn:org.knopflerfish.bundle/rxtxcomm-API/2.1.7</bundle>
+    </feature>
+    -->
+
+    <feature name="ptoceti-usb" start-level="80" description="Usb support and service packages"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <feature>ptoceti-deviceaccess</feature>
+        <feature>ptoceti-base</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.usb4java.usb4java/${project.version}</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.usb4java.usb4java-javax/${project.version}</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.usb.api/${project.version}</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.usbdevice/${project.version}</bundle>
+    </feature>
+
+
+    <feature name="ptoceti-wireadmin" start-level="80" description="Ptoceti wire admin bundle"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.wireadmin/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-mqtt" start-level="80" description="Mqtt client packages" version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <feature>ptoceti-jackson</feature>
+        <feature>ptoceti-control</feature>
+        <feature>ptoceti-wireadmin</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.mqtt/${project.version}</bundle>
+        <bundle>mvn:org.eclipse.paho/org.eclipse.paho.client.mqttv3/1.0.2</bundle>
+    </feature>
+
+    <feature name="ptoceti-ebus" start-level="80" description="Ptoceti ebus driver bundle" version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <feature>ptoceti-deviceaccess</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.ebus/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-ebusdevice" start-level="80" description="Ptoceti ebus device bundle"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <feature>ptoceti-deviceaccess</feature>
+        <feature>ptoceti-base</feature>
+        <feature>ptoceti-ebus</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.ebusdevice/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-modbus" start-level="80" description="Ptoceti modbus driver bundle"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <feature>ptoceti-deviceaccess</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.modbus/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-modbusdevice" start-level="80" description="Ptoceti modbus device bundle"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <feature>ptoceti-deviceaccess</feature>
+        <feature>ptoceti-base</feature>
+        <feature>ptoceti-modbus</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.modbusdevice/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-timeseries" start-level="80" description="Ptoceti time series services"
+             version="${project.version}">
+        <feature>ptoceti-osgi-api</feature>
+        <feature>ptoceti-jackson</feature>
+        <bundle>mvn:com.ptoceti/influxdb-fluentapi/${influxdb-fluentapi.version}</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.timeseries/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-smallrye" start-level="80" description="Ptoceti smallrye packaging"
+             version="${project.version}">
+        <feature>ptoceti-base</feature>
+        <bundle>mvn:org.eclipse.microprofile.config/microprofile-config-api/1.3</bundle>
+        <bundle>mvn:javax.enterprise/cdi-api/2.0.SP1</bundle>
+        <bundle>mvn:javax.el/javax.el-api/3.0.0</bundle>
+        <bundle>mvn:javax.interceptor/javax.interceptor-api/1.2</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.smallrye/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-nitrite" start-level="80" description="Ptoceti Nitrite packaging"
+             version="${project.version}">
+        <feature>ptoceti-jackson</feature>
+        <bundle dependency="true">mvn:javax.validation/validation-api/${javax.validation.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.felix/org.apache.felix.http.servlet-api/1.1.2</bundle>
+        <bundle dependency="true">mvn:org.lucee/jcip-annotations/1.0.0</bundle>
+        <bundle>mvn:org.objenesis/objenesis/2.6</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.nitrite/${project.version}</bundle>
+    </feature>
+
+    <feature name="felix-useradmin" start-level="30" description="Felix UserAdm" version="${project.version}">
+        <bundle>mvn:org.apache.geronimo.bundles/json/20090211_1</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.felix/org.apache.felix.http.servlet-api/1.1.2</bundle>
+        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.useradmin/1.0.4</bundle>
+        <conditional>
+            <condition>webconsole</condition>
+            <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.webconsole.plugins.useradmin/1.0.2</bundle>
+        </conditional>
+    </feature>
+
+    <feature name="ptoceti-useradmin-nosqlstore" start-level="80" description="Ptoceti Useradmin Nosql store"
+             version="${project.version}">
+        <feature>ptoceti-nitrite</feature>
+        <feature>felix-useradmin</feature>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.useradmin.nosqlstore/${project.version}</bundle>
+    </feature>
+
+    <feature name="ptoceti-authentification" start-level="80" description="Ptoceti auth services"
+             version="${project.version}">
+        <feature>ptoceti-base</feature>
+        <feature>ptoceti-resteasy</feature>
+        <feature>ptoceti-jackson</feature>
+        <feature>ptoceti-smallrye</feature>
+        <feature>ptoceti-configadmin-listener</feature>
+        <feature>ptoceti-useradmin-nosqlstore</feature>
+        <feature>felix-useradmin</feature>
+        <bundle>mvn:io.swagger.core.v3/swagger-jaxrs2/2.1.0</bundle>
+        <bundle>mvn:io.swagger.core.v3/swagger-models/2.1.0</bundle>
+        <bundle>mvn:io.swagger.core.v3/swagger-annotations/2.1.0</bundle>
+        <bundle>mvn:io.swagger.core.v3/swagger-integration/2.1.0</bundle>
+        <bundle>mvn:io.swagger.core.v3/swagger-core/2.1.0</bundle>
+        <bundle>mvn:io.github.classgraph/classgraph/4.6.32</bundle>
+
+        <bundle dependency="true">mvn:com.nimbusds/nimbus-jose-jwt/9.25</bundle>
+        <!--<bundle dependency="true">mvn:com.github.stephenc.jcip/jcip-annotations/1.0-1</bundle>-->
+        <bundle dependency="true">mvn:org.lucee/jcip-annotations/1.0.0</bundle>
+
+        <bundle dependency="true">mvn:org.javassist/javassist/3.22.0-GA</bundle>
+        <bundle dependency="true">mvn:javax.validation/validation-api/${javax.validation.version}</bundle>
+
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.auth/${project.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.metatype/1.2.4</bundle>
+    </feature>
+
+    <feature name="ptoceti-rest" start-level="80" description="Ptoceti rest services" version="${project.version}">
+        <feature>ptoceti-resteasy</feature>
+        <feature>ptoceti-jackson</feature>
+        <feature>ptoceti-mqtt</feature>
+        <feature>ptoceti-timeseries</feature>
+        <feature>ptoceti-smallrye</feature>
+        <feature>ptoceti-deviceaccess</feature>
+        <feature>ptoceti-deviceadmin</feature>
+        <feature>ptoceti-configadmin-listener</feature>
+        <feature>ptoceti-authentification</feature>
+        <bundle>mvn:io.swagger.core.v3/swagger-jaxrs2/2.1.0</bundle>
+        <bundle>mvn:io.swagger.core.v3/swagger-models/2.1.0</bundle>
+        <bundle>mvn:io.swagger.core.v3/swagger-annotations/2.1.0</bundle>
+        <bundle>mvn:io.swagger.core.v3/swagger-integration/2.1.0</bundle>
+        <bundle>mvn:io.swagger.core.v3/swagger-core/2.1.0</bundle>
+        <bundle>mvn:io.github.classgraph/classgraph/4.6.32</bundle>
+        <bundle dependency="true">mvn:org.javassist/javassist/3.22.0-GA</bundle>
+        <bundle dependency="true">mvn:javax.validation/validation-api/${javax.validation.version}</bundle>
+        <bundle start-level="30" dependency="true">mvn:org.apache.felix/org.apache.felix.http.servlet-api/1.1.2</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.rest/${project.version}</bundle>
+        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.metatype/1.2.4</bundle>
+    </feature>
+
+    <feature name="ptoceti-ihm" start-level="80" description="Ptoceti ihm web interface" version="${project.version}">
+        <bundle start-level="30" dependency="true">mvn:org.apache.felix/org.apache.felix.http.servlet-api/1.1.2</bundle>
+        <bundle>mvn:com.ptoceti/com.ptoceti.osgi.ihm/${project.version}</bundle>
+    </feature>
+
+</features>

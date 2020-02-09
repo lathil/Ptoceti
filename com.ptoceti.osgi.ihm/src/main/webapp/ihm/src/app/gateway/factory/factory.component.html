@@ -1,0 +1,30 @@
+<div class="row">
+  <div class="col">
+    <div class="card border-0">
+      <div class="card-body">
+        <h5 class="card-title">Factory</h5>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <label class="input-group-text" for="inputGroupSelect01">Choose factory</label>
+          </div>
+          <select class="form-control" id="inputGroupSelect01" *ngIf="factories$ | async; let factories"
+                  [(ngModel)]="selectedFactory" (ngModelChange)="onChangeFactory()">
+            <option [ngValue]="null" disabled>Choose...</option>
+            <option *ngFor="let factory of factories" [ngValue]="factory">{{factory.description}}</option>
+          </select>
+          <div class="input-group-append">
+            <button class="btn btn-primary" type="button" (click)="selectFactory()"
+                    [disabled]="selectedFactory == null">Select
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<ng-container *ngIf="isFactoryStateCreate()">
+  <app-configuration-editor [configurationEditorWrapper]="configurationEditorWrapper"
+                            (saveConfigEvent)="onCreateConfiguration($event)"></app-configuration-editor>
+</ng-container>
+
+

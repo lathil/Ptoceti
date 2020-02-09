@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>com.ptoceti.osgi.usb4java</artifactId>
+        <groupId>com.ptoceti</groupId>
+        <version>2.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>com.ptoceti.osgi.usb4java.usb4java-javax</artifactId>
+    <packaging>bundle</packaging>
+    <name>Ptoceti Usb4Java-Javax</name>
+    <description>Ptoceti's usb4java-javax</description>
+
+    <properties>
+        <javax.usb.version>1.0.2</javax.usb.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.usb4java</groupId>
+            <artifactId>usb4java-javax</artifactId>
+            <version>${usb4java.version}</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <supportedProjectTypes>
+                        <supportedProjectType>jar</supportedProjectType>
+                        <supportedProjectType>bundle</supportedProjectType>
+                    </supportedProjectTypes>
+                    <instructions>
+
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Description>${project.description}</Bundle-Description>
+
+                        <Export-Package>org.usb4java.javax.*;version=${usb4java.version}</Export-Package>
+                        <Import-Package>*,javax.usb.*;version=${javax.usb.version}</Import-Package>
+
+                        <Embed-Dependency>usb4java-javax</Embed-Dependency>
+                        <Embed-Transitive>false</Embed-Transitive>
+                        <Embed-Directory>META-INF/lib</Embed-Directory>
+                        <Bundle-ClassPath>.</Bundle-ClassPath>
+
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>

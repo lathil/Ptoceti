@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Ihm</title>
+  <!--<base href="/">-->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    var pathname = window.location.pathname;
+    pathname = pathname.replace('/index.html', '');
+    if (pathname.length == 0) pathname = '/';
+    window['base-href'] = pathname;
+    console.log(window['base-href']);
+    console.log(window.location.pathname);
+    console.log(window.location.origin);
+  </script>
+</head>
+<body>
+<app-root></app-root>
+</body>
+</html>

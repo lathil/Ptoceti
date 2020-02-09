@@ -1,0 +1,949 @@
+openapi: 3.0.1
+info:
+  title: Ptoceti Rest Api
+  version: 1.0.0
+paths:
+  /configuration/conf:
+    post:
+      tags:
+        - configuration
+      operationId: createConfiguration
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/ConfigurationWrapper'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigurationWrapper'
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': { }
+  /configuration/conf/{pid}:
+    get:
+      tags:
+        - configuration
+      operationId: getConfiguration
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ConfigurationWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationWrapper'
+    put:
+      tags:
+        - configuration
+      operationId: updateConfiguration
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/ConfigurationWrapper'
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': { }
+    delete:
+      tags:
+        - configuration
+      operationId: deleteConfiguration
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': { }
+  /configuration/devicedrivers/confs:
+    get:
+      tags:
+        - configuration
+      operationId: getDevicesDriversConfigurations
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigurationWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigurationWrapper'
+  /devices:
+    get:
+      tags:
+        - devices
+      operationId: getDevices
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceWrapper'
+  /devices/{pid}:
+    get:
+      tags:
+        - devices
+      operationId: getDevice
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/DeviceWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceWrapper'
+  /devices/{pid}/configuration:
+    get:
+      tags:
+        - devices
+      operationId: getConfiguration_1
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ConfigurationWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationWrapper'
+  /drivers:
+    get:
+      tags:
+        - driver
+      operationId: getDrivers
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DriverWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DriverWrapper'
+  /drivers/{pid}:
+    get:
+      tags:
+        - driver
+      operationId: getDriver
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/DriverWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverWrapper'
+  /drivers/{pid}/configuration:
+    get:
+      tags:
+        - driver
+      operationId: getConfiguration_2
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ConfigurationWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationWrapper'
+  /events/broadcastEndPoint:
+    get:
+      tags:
+        - events
+      operationId: broadcastEndPoint
+      responses:
+        default:
+          description: default response
+          content:
+            text/plain:
+              schema:
+                type: string
+  /events/nextEvent:
+    get:
+      tags:
+        - events
+      operationId: nextEvent
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/EventWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventWrapper'
+  /events/registerBroadcast:
+    get:
+      tags:
+        - events
+      operationId: registerBroadcast
+      responses:
+        default:
+          description: default response
+          content:
+            text/event-stream: { }
+  /factories:
+    get:
+      tags:
+        - factories
+      operationId: getDeviceFactoryInfos
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceFactoryInfoWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceFactoryInfoWrapper'
+  /items:
+    get:
+      tags:
+        - items
+      operationId: getItems
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemWrapper'
+  /items/{uid}:
+    get:
+      tags:
+        - items
+      operationId: getItem
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ItemWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemWrapper'
+  /items/{uid}/properties:
+    get:
+      tags:
+        - items
+      operationId: getPropertiesValues
+      parameters:
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FunctionPropertyDataWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FunctionPropertyDataWrapper'
+  /lobby:
+    get:
+      tags:
+        - lobby
+      operationId: getLobby
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Lobby'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lobby'
+  /metatype:
+    get:
+      tags:
+        - metatype
+      operationId: getMetaTypes
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MetatypeWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MetatypeWrapper'
+  /mqtt:
+    get:
+      tags:
+        - mqtt
+      operationId: getMqttServices
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MqttServiceWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MqttServiceWrapper'
+  /things:
+    get:
+      tags:
+        - things
+      operationId: getThings
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ThingWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ThingWrapper'
+  /things/{pid}:
+    get:
+      tags:
+        - things
+      operationId: getThing
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ThingWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThingWrapper'
+  /things/{pid}/configuration:
+    get:
+      tags:
+        - things
+      operationId: getConfiguration_3
+      parameters:
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ConfigurationWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationWrapper'
+  /wires:
+    get:
+      tags:
+        - wires
+      operationId: getWires
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WireWrapper'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WireWrapper'
+  /wires/{id}:
+    get:
+      tags:
+        - wires
+      operationId: getWire
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/WireWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WireWrapper'
+components:
+  schemas:
+    AttributeDefinitionWrapper:
+      type: object
+      properties:
+        cardinality:
+          type: integer
+          format: int32
+          xml:
+            attribute: true
+        defaultValue:
+          type: array
+          xml:
+            name: defaultValues
+            wrapped: true
+          items:
+            type: string
+            xml:
+              name: defaultValue
+        description:
+          type: string
+          xml:
+            attribute: true
+        id:
+          type: string
+          xml:
+            attribute: true
+        name:
+          type: string
+          xml:
+            attribute: true
+        optionLabels:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            type: string
+            xml:
+              name: optionLabels
+        optionValues:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            type: string
+            xml:
+              name: optionValues
+        type:
+          type: string
+          xml:
+            attribute: true
+    ConfigurationPropertyEntry:
+      type: object
+      properties:
+        key:
+          type: string
+          xml:
+            attribute: true
+        value:
+          type: string
+          xml:
+            attribute: true
+    ConfigurationWrapper:
+      type: object
+      properties:
+        bundleLocation:
+          type: string
+          xml:
+            attribute: true
+        factoryPid:
+          type: string
+          xml:
+            attribute: true
+        pid:
+          type: string
+          xml:
+            attribute: true
+        properties:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: '#/components/schemas/ConfigurationPropertyEntry'
+    DeviceFactoryInfoWrapper:
+      type: object
+      properties:
+        description:
+          type: string
+          xml:
+            attribute: true
+        factory:
+          type: boolean
+          xml:
+            attribute: true
+        isFactory:
+          type: boolean
+          writeOnly: true
+        pid:
+          type: string
+          xml:
+            attribute: true
+        type:
+          type: string
+          xml:
+            attribute: true
+          enum:
+            - DAL
+            - DEVICE
+            - DRIVER
+            - FUNCTION
+    DeviceWrapper:
+      type: object
+      properties:
+        deviceCategory:
+          type: array
+          items:
+            type: string
+        deviceDescription:
+          type: string
+          xml:
+            attribute: true
+        deviceSerial:
+          type: string
+          xml:
+            attribute: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+    DriverWrapper:
+      type: object
+      properties:
+        deviceSerial:
+          type: string
+          xml:
+            attribute: true
+        driverId:
+          type: string
+          xml:
+            attribute: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+    EventWrapper:
+      type: object
+      properties:
+        event:
+          type: string
+          xml:
+            attribute: true
+          enum:
+            - NULL_EVENT
+            - DEVICE_ADDED_EVENT
+            - DEVICE_REMOVED_EVENT
+            - DRIVER_ADDED_EVENT
+            - DRIVER_REMOVED_EVENT
+            - DRIVER_ATTACHED_EVENT
+            - DAL_ADDED_EVENT
+            - DAL_REMOVED_EVENT
+            - CM_DELETED_EVENT
+            - CM_UPDATED_EVENT
+            - CM_LOCATION_CHANGED_EVENT
+            - DAL_DEVICE_MODIFIED
+            - DAL_DEVICE_ADDED
+            - DAL_DEVICE_REMOVED
+            - DAL_FUNCTION_ADDED
+            - DAL_FUNCTION_REMOVED
+            - DAL_FUNCTION_PROPERTY_CHANGED
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+    FunctionDataWrapper:
+      type: object
+      properties:
+        fields:
+          type: object
+          additionalProperties:
+            type: object
+        metadata:
+          type: object
+          additionalProperties:
+            type: object
+        timestamp:
+          type: integer
+          format: int64
+          xml:
+            attribute: true
+        type:
+          type: string
+          xml:
+            attribute: true
+          enum:
+            - FUNCTION_DATA_LEVEL
+            - FUNCTION_DATA_KEYPAD
+            - FUNCTION_DATA_BOOLEAN
+            - FUNCTION_DATA_ALARM
+    FunctionPropertyDataWrapper:
+      type: object
+      properties:
+        propertyData:
+          $ref: '#/components/schemas/FunctionDataWrapper'
+        propertyName:
+          type: string
+          xml:
+            attribute: true
+    ItemWrapper:
+      type: object
+      properties:
+        description:
+          type: string
+          xml:
+            attribute: true
+        deviceUid:
+          type: string
+          xml:
+            attribute: true
+        operationNames:
+          type: array
+          items:
+            type: string
+        operationsMetadata:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/OperationMetaDataWrapper'
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+        propertiesMetadata:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PropertyMatadataWrapper'
+        propertyNames:
+          type: array
+          items:
+            type: string
+        servicePropertyKeys:
+          type: array
+          items:
+            type: string
+        type:
+          type: string
+          xml:
+            attribute: true
+        uid:
+          type: string
+          xml:
+            attribute: true
+        version:
+          type: string
+          xml:
+            attribute: true
+    Lobby:
+      type: object
+      properties:
+        deviceServiceUrl:
+          type: string
+          xml:
+            attribute: true
+      xml:
+        name: lobby
+    MetatypeWrapper:
+      type: object
+      properties:
+        factoryPid:
+          type: string
+          xml:
+            attribute: true
+        objectClassDefinition:
+          $ref: '#/components/schemas/ObjectClassDefinitionWrapper'
+        pid:
+          type: string
+          xml:
+            attribute: true
+    MqttServiceWrapper:
+      type: object
+      properties:
+        connected:
+          type: boolean
+          xml:
+            attribute: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          xml:
+            wrapped: true
+      xml:
+        name: MqttService
+    ObjectClassDefinitionWrapper:
+      type: object
+      properties:
+        attributeDefinitions:
+          type: array
+          xml:
+            name: attributesDefinitions
+            wrapped: true
+          items:
+            $ref: '#/components/schemas/AttributeDefinitionWrapper'
+        description:
+          type: string
+          xml:
+            attribute: true
+        id:
+          type: string
+          xml:
+            attribute: true
+        name:
+          type: string
+          xml:
+            attribute: true
+    OperationMetaDataWrapper:
+      type: object
+      properties:
+        metadata:
+          type: object
+          additionalProperties:
+            type: object
+        parametersMetadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyMatadataWrapper'
+        returnValueMetadata:
+          $ref: '#/components/schemas/PropertyMatadataWrapper'
+    PropertyMatadataWrapper:
+      type: object
+      properties:
+        enumValues:
+          type: array
+          items:
+            $ref: '#/components/schemas/FunctionDataWrapper'
+        maxValue:
+          $ref: '#/components/schemas/FunctionDataWrapper'
+        metaData:
+          type: object
+          additionalProperties:
+            type: object
+        minValue:
+          $ref: '#/components/schemas/FunctionDataWrapper'
+        step:
+          $ref: '#/components/schemas/FunctionDataWrapper'
+    ThingWrapper:
+      type: object
+      properties:
+        description:
+          type: string
+          xml:
+            attribute: true
+        driver:
+          type: string
+          xml:
+            attribute: true
+        firmwareVendor:
+          type: string
+          xml:
+            attribute: true
+        firmwareVersion:
+          type: string
+          xml:
+            attribute: true
+        hardwareVendor:
+          type: string
+          xml:
+            attribute: true
+        hardwareVersion:
+          type: string
+          xml:
+            attribute: true
+        model:
+          type: string
+          xml:
+            attribute: true
+        name:
+          type: string
+          xml:
+            attribute: true
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+        serialNumber:
+          type: string
+          xml:
+            attribute: true
+        status:
+          type: string
+          xml:
+            attribute: true
+          enum:
+            - STATUS_REMOVED
+            - STATUS_OFFLINE
+            - STATUS_ONLINE
+            - STATUS_PROCESSING
+            - STATUS_NOT_INITIALIZED
+            - STATUS_NOT_CONFIGURED
+        statusDetail:
+          type: string
+          xml:
+            attribute: true
+          enum:
+            - STATUS_DETAIL_CONNECTING
+            - STATUS_DETAIL_INITIALIZING
+            - STATUS_DETAIL_REMOVING
+            - STATUS_DETAIL_FIRMWARE_UPDATING
+            - STATUS_DETAIL_CONFIGURATION_UNAPPLIED
+            - STATUS_DETAIL_BROKEN
+            - STATUS_DETAIL_COMMUNICATION_ERROR
+            - STATUS_DETAIL_DATA_INSUFFICIENT
+            - STATUS_DETAIL_INACCESSIBLE
+            - STATUS_DETAIL_CONFIGURATION_ERROR
+            - STATUS_DETAIL_DUTY_CYCLE
+        types:
+          type: array
+          items:
+            type: string
+        uid:
+          type: string
+          xml:
+            attribute: true
+      xml:
+        name: Thing
+    WireWrapper:
+      type: object
+      properties:
+        connected:
+          type: boolean
+          xml:
+            attribute: true
+        consumerPid:
+          type: string
+          xml:
+            attribute: true
+        lastValue:
+          type: object
+        pid:
+          type: string
+          xml:
+            attribute: true
+        producerPid:
+          type: string
+          xml:
+            attribute: true
+        scope:
+          type: array
+          items:
+            type: string
+        valid:
+          type: boolean
+          xml:
+            attribute: true
+      xml:
+        name: Wire

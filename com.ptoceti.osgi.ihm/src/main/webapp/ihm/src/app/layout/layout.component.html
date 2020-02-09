@@ -1,0 +1,75 @@
+<header class="app-header">
+  <div class="row">
+    <!--
+    <div class="col col-md-1 col-xl-1 bg-light">
+      <nav class="navbar navbar-expand-lg navbar-light">
+        <a class="navbar-brand" href="#">Ptoceti</a>
+      </nav>
+    </div>
+    -->
+    <div class="col bg-light">
+      <nav class="navbar navbar-expand-lg ">
+        <a class="navbar-brand" href="#">Ptoceti</a>
+        <button class="navbar-toggler" type="button" (click)="isNavbarCollapsed = !isNavbarCollapsed"
+                data-toggle="collapse"
+                data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent" [(ngbCollapse)]="isNavbarCollapsed">
+          <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" (navChange)="onNavChange($event)" class="navbar-nav mr-auto">
+            <li [ngbNavItem]="1">
+              <a ngbNavLink class="d-inline-flex align-items-center" routerLink="/dashboard" (click)="linkClicked()">
+                <i class="bi bi-easel pr-1"></i>
+                Dashboard
+              </a>
+            </li>
+            <li [ngbNavItem]="2">
+              <a ngbNavLink class="d-inline-flex align-items-center"
+                 [class.disabled]="!hasAnyRole(['things','devices'])" routerLink="/gateway" (click)="linkClicked()">
+                <i class="bi bi-pc pr-1"></i>
+                Gateway
+              </a>
+            </li>
+            <li [ngbNavItem]="3">
+              <a ngbNavLink class="d-inline-flex align-items-center" [class.disabled]="!hasRole('clouds')"
+                 routerLink="/cloud" (click)="linkClicked()">
+                <i class="bi bi-cloud pr-1"></i>
+                Cloud
+              </a>
+            </li>
+          </ul>
+          <div *ngIf="(isAuthenticated() | async) == true" class="float-right">
+            <a class="nav-link d-inline-flex align-items-center" routerLink="/cloud">
+              <i class="bi bi-person-circle pr-1"></i>
+              <span>{{userName}}</span>
+            </a>
+          </div>
+          <div class="d-flex">
+            <a *ngIf="(isAuthenticated() | async) == false" class="d-flex btn btn-outline-primary" (click)="doLogin()"
+               routerLinkActive="active">Sign up</a>
+            <a *ngIf="(isAuthenticated() | async) == true" class="d-flex btn btn-outline-primary" (click)="doLogout()">Logout</a>
+          </div>
+        </div>
+
+      </nav>
+
+    </div>
+  </div>
+  <div class="row flex-xl-nowrap">
+    <div class="col border">
+      <app-breadcrumb></app-breadcrumb>
+    </div>
+  </div>
+</header>
+
+<div class="app-body container-fluid">
+  <router-outlet></router-outlet>
+</div>
+
+<footer class="app-footer">
+
+</footer>
+
+

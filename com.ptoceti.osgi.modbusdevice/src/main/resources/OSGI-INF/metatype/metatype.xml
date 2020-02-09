@@ -1,15 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
-	<OCD description="ModbusDevice" name="Ptoceti Modbus Device Service" id="ocd">
-		<AD name="Composite identity" id="com.ptoceti.osgi.modbusdevice.compositeIdentity" required="true" type="String" />
-		<AD name="Port Name" id="com.ptoceti.osgi.modbusdevice.portName" required="true" type="String" />
-		<AD name="Modbus Id" id="com.ptoceti.osgi.modbusdevice.modbusId" required="true" type="Integer" />
-		<AD name="Pooling rate" id="com.ptoceti.osgi.modbusdevice.poolingRate" required="true" type="Integer" />
-		<AD name="Mock device" id="com.ptoceti.osgi.modbusdevice.mock" required="true" type="Boolean" />
-	    <AD name="Device configuration filepath" id="com.ptoceti.osgi.modbusdevice.configFilePath" required="true" type="String" />
-	</OCD>
-	<Designate factorypid="com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory" pid="com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory" bundle="*">
-	   <Object ocdref="ocd"/>
-	</Designate>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0">
+    <OCD description="ModbusDevice" name="Ptoceti Modbus Device Service" id="device">
+        <AD name="Name" id="com.ptoceti.osgi.modbusdevice.name" required="true" type="String"
+            description="Name of this device."/>
+        <AD name="Port Name" id="com.ptoceti.osgi.modbusdevice.portName" required="true" type="String"
+            description="The serial port the device connect to."/>
+        <AD name="Pooling rate" id="com.ptoceti.osgi.modbusdevice.poolingRate" required="true" type="Integer"
+            description="Pooling rate used for sending essages on the bus"/>
+        <AD name="Mock device" id="com.ptoceti.osgi.modbusdevice.mock" required="true" type="Boolean"
+            description="Tru f only for testing purpose (no messages send.)"/>
+        <AD name="Device configuration filepath" id="com.ptoceti.osgi.modbusdevice.configFilePath" required="true"
+            type="String" description="Path to the messages configuration."/>
+    </OCD>
+    <Designate factoryPid="com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory" bundle="*">
+        <Object ocdref="device"/>
+    </Designate>
+    <OCD description="ModbusBooleanControl" name="Ptoceti Modbus Boolean Control Function" id="booleancontrol">
+        <AD name="FunctionId" id="com.ptoceti.osgi.modbusdevice.function.booleancontrol.functionId" required="true"
+            type="String"
+            description="Function identification."/>
+        <AD name="DeviceId" id="com.ptoceti.osgi.modbusdevice.function.booleancontrol.deviceId" required="true"
+            type="String"
+            description="Identification of the device this function should attach to."/>
+        <AD name="ServiceType" id="com.ptoceti.osgi.modbusdevice.function.booleancontrol.serviceType" required="true"
+            type="String"
+            description="Service type."/>
+        <AD name="ModbusId" id="com.ptoceti.osgi.modbusdevice.function.booleancontrol.modbusId" required="true"
+            type="Byte"
+            description="Id of the modbus device to send command."/>
+        <AD name="CoilId" id="com.ptoceti.osgi.modbusdevice.function.booleancontrol.coilId" required="true"
+            type="Integer"
+            description="Id of the coil to control."/>
+    </OCD>
+    <Designate factoryPid="com.ptoceti.osgi.modbusdevice.functions.ModbusBooleanControlFactory" bundle="*">
+        <Object ocdref="booleancontrol"/>
+    </Designate>
+    <OCD description="ModbusBooleanSensor" name="Ptoceti Modbus Boolean Sensor Function" id="booleansensor">
+        <AD name="FunctionId" id="com.ptoceti.osgi.modbusdevice.function.booleansensor.functionId" required="true"
+            type="String"
+            description="Function identification."/>
+        <AD name="DeviceId" id="com.ptoceti.osgi.modbusdevice.function.booleansensor.deviceId" required="true"
+            type="String"
+            description="Identification of the device this function should attach to."/>
+        <AD name="ServiceType" id="com.ptoceti.osgi.modbusdevice.function.booleansensor.serviceType" required="true"
+            type="String"
+            description="Service type."/>
+        <AD name="ModbusId" id="com.ptoceti.osgi.modbusdevice.function.booleansensor.modbusId" required="true"
+            type="Byte"
+            description="Id of the modbus device to send command."/>
+        <AD name="CoilId" id="com.ptoceti.osgi.modbusdevice.function.booleansensor.inputId" required="true"
+            type="Integer"
+            description="Id of the input to read."/>
+    </OCD>
+    <Designate factoryPid="com.ptoceti.osgi.modbusdevice.functions.ModbusBooleanSensorFactory" bundle="*">
+        <Object ocdref="booleansensor"/>
+    </Designate>
+    <OCD description="ModbusMeter" name="Ptoceti Modbus Meter Function" id="meter">
+        <AD name="FunctionId" id="com.ptoceti.osgi.modbusdevice.function.meter.functionId" required="true" type="String"
+            description="Function identification."/>
+        <AD name="DeviceId" id="com.ptoceti.osgi.modbusdevice.function.meter.deviceId" required="true" type="String"
+            description="Identification of the device this function should attach to."/>
+        <AD name="ServiceType" id="com.ptoceti.osgi.modbusdevice.function.meter.serviceType" required="true"
+            type="String"
+            description="Service type."/>
+        <AD name="ModbusId" id="com.ptoceti.osgi.modbusdevice.function.meter.modbusId" required="true" type="Byte"
+            description="Id of the modbus device to send command."/>
+        <AD name="CurrentRegisterId" id="com.ptoceti.osgi.modbusdevice.function.meter.current.registerId"
+            required="true" type="Integer"
+            description="Id of the register to read for meter current value"/>
+        <AD name="CurrentUnit" id="com.ptoceti.osgi.modbusdevice.function.meter.current.unit" required="true"
+            type="String"
+            description="unit of the current value."/>
+        <AD name="TotalRegisterId" id="com.ptoceti.osgi.modbusdevice.function.meter.total.registerId" required="true"
+            type="Integer"
+            description="Id of the register to read for meter total value"/>
+        <AD name="TotalUnit" id="com.ptoceti.osgi.modbusdevice.function.meter.total.unit" required="true" type="String"
+            description="unit of the total value."/>
+    </OCD>
+    <Designate factoryPid="com.ptoceti.osgi.modbusdevice.functions.ModbusMeterFactory" bundle="*">
+        <Object ocdref="meter"/>
+    </Designate>
 </MetaData>
 

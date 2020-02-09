@@ -1,7 +1,9 @@
 package com.ptoceti.osgi.mqtt.impl.formater.internal;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.log.LogService;
 import org.osgi.service.wireadmin.BasicEnvelope;
 import org.osgi.service.wireadmin.Envelope;
@@ -42,109 +44,122 @@ import com.ptoceti.osgi.mqtt.impl.formater.internal.mixins.UnitMixIn;
 
 public class InternalMessageFormater implements IMqttMessageFomatter {
 
-	public static final String name = "internal";
+    public static final String name = "internal";
 
-	private static ObjectMapper objectMapper;
+    private static ObjectMapper objectMapper;
 
-	public InternalMessageFormater() {
 
-		JsonFactory factory = new JsonFactory();
-		factory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+    ServiceRegistration messageFormaterReg = null;
 
-		objectMapper = new ObjectMapper(factory);
+    public InternalMessageFormater() {
 
-		/**
-		 * objectMapper.configure(MapperFeature.AUTO_DETECT_FIELDS, true);
-		 * objectMapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
-		 * objectMapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
-		 * objectMapper.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
-		 * 
-		 * 
-		 * objectMapper.setVisibility(PropertyAccessor.FIELD,
-		 * JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC);
-		 **/
+        JsonFactory factory = new JsonFactory();
+        factory.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
 
-		objectMapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		objectMapper.addMixInAnnotations(BasicEnvelope.class, EnvelopeMixIn.class);
-		objectMapper.addMixInAnnotations(Measurement.class, MeasurementMixIn.class);
-		objectMapper.addMixInAnnotations(State.class, StateMixIn.class);
-		objectMapper.addMixInAnnotations(org.osgi.util.measurement.Unit.class, UnitMixIn.class);
-		objectMapper.addMixInAnnotations(Position.class, PositionMixIn.class);
-		objectMapper.addMixInAnnotations(Digit.class, DigitMixIn.class);
-		objectMapper.addMixInAnnotations(ExtendedUnit.class, ExtendedUnitMixIn.class);
-		objectMapper.addMixInAnnotations(Measure.class, MeasureMixIn.class);
-		objectMapper.addMixInAnnotations(Reference.class, ReferenceMixIn.class);
-		objectMapper.addMixInAnnotations(StatusCode.class, StatusCodeMixIn.class);
-		objectMapper.addMixInAnnotations(Switch.class, SwitchMixIn.class);
-		objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT);
-	}
+        objectMapper = new ObjectMapper(factory);
 
-	@Override
-	public byte[] encode(Object in) {
-		byte[] out = null;
-		try {
-			out = objectMapper.writeValueAsBytes(in);
-		} catch (JsonProcessingException e) {
-			Activator.log(LogService.LOG_ERROR, "Error serializing MQTT message payload. Error: " + e.toString());
-		}
+        /**
+         * objectMapper.configure(MapperFeature.AUTO_DETECT_FIELDS, true);
+         * objectMapper.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+         * objectMapper.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
+         * objectMapper.configure(MapperFeature.AUTO_DETECT_SETTERS, false);
+         *
+         *
+         * objectMapper.setVisibility(PropertyAccessor.FIELD,
+         * JsonAutoDetect.Visibility.PROTECTED_AND_PUBLIC);
+         **/
 
-		String test = new String(out);
+        objectMapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.addMixInAnnotations(BasicEnvelope.class, EnvelopeMixIn.class);
+        objectMapper.addMixInAnnotations(Measurement.class, MeasurementMixIn.class);
+        objectMapper.addMixInAnnotations(State.class, StateMixIn.class);
+        objectMapper.addMixInAnnotations(org.osgi.util.measurement.Unit.class, UnitMixIn.class);
+        objectMapper.addMixInAnnotations(Position.class, PositionMixIn.class);
+        objectMapper.addMixInAnnotations(Digit.class, DigitMixIn.class);
+        objectMapper.addMixInAnnotations(ExtendedUnit.class, ExtendedUnitMixIn.class);
+        objectMapper.addMixInAnnotations(Measure.class, MeasureMixIn.class);
+        objectMapper.addMixInAnnotations(Reference.class, ReferenceMixIn.class);
+        objectMapper.addMixInAnnotations(StatusCode.class, StatusCodeMixIn.class);
+        objectMapper.addMixInAnnotations(Switch.class, SwitchMixIn.class);
+        objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT);
 
-		return out;
-	}
+        String[] clazzes = new String[]{IMqttMessageFomatter.class.getName()};
+        Hashtable<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(IMqttMessageFomatter.MESSAGEFORMATTERNAME, InternalMessageFormater.name);
+        messageFormaterReg = Activator.getBundleContext().registerService(clazzes, this, properties);
 
-	@Override
-	public Object decode(byte[] in) {
-		Object out = null;
-		try {
-			// We need first to extract the full class name from type property
-			JsonNode jsonNode = objectMapper.readTree(in);
-			JsonNode classNode = jsonNode.get("type");
-			if (classNode != null && classNode.isTextual()) {
-				String typeClass = classNode.textValue();
-				// Jackson by default use currentThreadLocal class loader which
-				// is no good in osgi env
-				Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-				// pass to jackson the type; it does not knwo how to extract it
-				// from @JsonType
-				out = objectMapper.readValue(in, Class.forName(typeClass));
-			}
-		} catch (JsonParseException e) {
-			Activator.log(LogService.LOG_ERROR, "Error deserializing MQTT message payload. Error: " + e.toString());
-		} catch (JsonMappingException e) {
-			Activator.log(LogService.LOG_ERROR, "Error deserializing MQTT message payload. Error: " + e.toString());
-		} catch (IOException e) {
-			Activator.log(LogService.LOG_ERROR, "Error deserializing MQTT message payload. Error: " + e.toString());
-		} catch (ClassNotFoundException e) {
-			Activator.log(LogService.LOG_ERROR, "Error deserializing MQTT message payload. Error: " + e.toString());
-		}
+        Activator.getLogger().info("Registering service " + IMqttMessageFomatter.class.getName());
+    }
 
-		return out;
-	}
+    public void stop() {
+        messageFormaterReg.unregister();
+    }
 
-	
+    @Override
+    public byte[] encode(Object in) {
+        byte[] out = null;
+        try {
+            out = objectMapper.writeValueAsBytes(in);
+        } catch (JsonProcessingException e) {
+            Activator.getLogger().error("Error serializing MQTT message payload. Error: " + e.toString());
+        }
 
-	@JsonAutoDetect(fieldVisibility = Visibility.PROTECTED_AND_PUBLIC, getterVisibility = Visibility.PUBLIC_ONLY, setterVisibility = Visibility.PUBLIC_ONLY, isGetterVisibility = Visibility.NONE)
-	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
-	@JsonInclude(Include.NON_NULL)
-	public abstract class DigitMixIn {
+        String test = new String(out);
 
-	}
+        return out;
+    }
 
-	@JsonAutoDetect(fieldVisibility = Visibility.PROTECTED_AND_PUBLIC, getterVisibility = Visibility.PUBLIC_ONLY, setterVisibility = Visibility.PUBLIC_ONLY, isGetterVisibility = Visibility.PUBLIC_ONLY)
-	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
-	@JsonInclude(Include.NON_NULL)
-	public abstract class MeasureMixIn {
+    @Override
+    public Object decode(byte[] in) {
+        Object out = null;
+        try {
+            // We need first to extract the full class name from type property
+            JsonNode jsonNode = objectMapper.readTree(in);
+            JsonNode classNode = jsonNode.get("type");
+            if (classNode != null && classNode.isTextual()) {
+                String typeClass = classNode.textValue();
+                // Jackson by default use currentThreadLocal class loader which
+                // is no good in osgi env
+                Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+                // pass to jackson the type; it does not knwo how to extract it
+                // from @JsonType
+                out = objectMapper.readValue(in, Class.forName(typeClass));
+            }
+        } catch (JsonParseException e) {
+            Activator.getLogger().error("Error deserializing MQTT message payload. Error: " + e.toString());
+        } catch (JsonMappingException e) {
+            Activator.getLogger().error("Error deserializing MQTT message payload. Error: " + e.toString());
+        } catch (IOException e) {
+            Activator.getLogger().error("Error deserializing MQTT message payload. Error: " + e.toString());
+        } catch (ClassNotFoundException e) {
+            Activator.getLogger().error("Error deserializing MQTT message payload. Error: " + e.toString());
+        }
 
-	}
+        return out;
+    }
 
-	@JsonAutoDetect(fieldVisibility = Visibility.PROTECTED_AND_PUBLIC, getterVisibility = Visibility.PUBLIC_ONLY, setterVisibility = Visibility.PUBLIC_ONLY, isGetterVisibility = Visibility.PUBLIC_ONLY)
-	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
-	@JsonInclude(Include.NON_NULL)
-	public abstract class ReferenceMixIn {
 
-	}
+    @JsonAutoDetect(fieldVisibility = Visibility.PROTECTED_AND_PUBLIC, getterVisibility = Visibility.PUBLIC_ONLY, setterVisibility = Visibility.PUBLIC_ONLY, isGetterVisibility = Visibility.NONE)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
+    @JsonInclude(Include.NON_NULL)
+    public abstract class DigitMixIn {
+
+    }
+
+    @JsonAutoDetect(fieldVisibility = Visibility.PROTECTED_AND_PUBLIC, getterVisibility = Visibility.PUBLIC_ONLY, setterVisibility = Visibility.PUBLIC_ONLY, isGetterVisibility = Visibility.PUBLIC_ONLY)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
+    @JsonInclude(Include.NON_NULL)
+    public abstract class MeasureMixIn {
+
+    }
+
+    @JsonAutoDetect(fieldVisibility = Visibility.PROTECTED_AND_PUBLIC, getterVisibility = Visibility.PUBLIC_ONLY, setterVisibility = Visibility.PUBLIC_ONLY, isGetterVisibility = Visibility.PUBLIC_ONLY)
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
+    @JsonInclude(Include.NON_NULL)
+    public abstract class ReferenceMixIn {
+
+    }
 
 	@JsonAutoDetect(fieldVisibility = Visibility.PROTECTED_AND_PUBLIC, getterVisibility = Visibility.PUBLIC_ONLY, setterVisibility = Visibility.PUBLIC_ONLY, isGetterVisibility = Visibility.PUBLIC_ONLY)
 	@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Factories>
+    <FactoryInfo description="Nrj serial device factory"
+                 pid="com.ptoceti.osgi.serialdevice.nrjavaserial.SerialDeviceFactory" isFactory="true"
+                 type="Device"></FactoryInfo>
+</Factories>
