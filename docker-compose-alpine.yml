@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+  ptoceti:
+    build:
+      context: .
+      dockerfile: Dockerfile-alpine
+      args:
+        PTOCETI_ASSEMBLY_TGZ_URL: ./com.ptoceti.osgi.assembly/target/com.ptoceti.osgi.assembly-1.2.1-SNAPSHOT-Assembly.tar.gz
+    image: ptoceti/ptoceti-alpine:latest
+    container_name: ptoceti-alpine
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./fileinstall/:/var/felix/fileinstall
+
+

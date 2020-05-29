@@ -1,0 +1,6 @@
+FROM ptoceti/felix-alpine:latest
+
+ARG PTOCETI_ASSEMBLY_TGZ_URL
+
+ADD ${PTOCETI_ASSEMBLY_TGZ_URL} ${FELIX_HOME}/load
+
