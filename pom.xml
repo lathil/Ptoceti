@@ -383,28 +383,33 @@
 							<param>scan-bundle:mvn:commons-fileupload/commons-fileupload/1.2.1</param>
 							<param>scan-bundle:mvn:commons-io/commons-io/1.4</param>
 							<param>scan-bundle:mvn:javax.servlet/javax.servlet-api/3.1.0</param>
-							
+
 							<param>scan-bundle:mvn:org.ops4j.pax.confman/pax-confman-propsloader/0.2.3</param>
-										
+
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-api/1.4</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-service/1.4</param>
-							
-							
+
+
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.configadmin/1.4.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.fileinstall/3.2.8</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>	
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.deploymentadmin/0.9.6</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.dependencymanager/3.1.0</param>	
-							
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.dependencymanager/3.1.0</param>
+
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.api/2.3.2</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.jetty/3.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.whiteboard/2.3.2</param>
-							
-							
+
+
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0</param>
-							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.packageadmin/1.0.0</param>
+							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2
+							</param>
+							<param>
+								scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0
+							</param>
+							<param>
+								scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.packageadmin/1.0.0
+							</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.obr/1.0.0</param>
 							
 							<param>scan-bundle:mvn:org.eclipse.jetty/jetty-client/9.2.6.v20141205</param>
