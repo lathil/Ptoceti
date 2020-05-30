@@ -5,12 +5,11 @@
 		<AD name="Server port" id="com.ptoceti.osgi.obixservice.servletport" required="true" type="Integer" default="8081"/>
 		<AD name="Oauth path" id="com.ptoceti.osgi.obixservice.oauthpath" required="true" type="String" default="obix/oauth"/>
 		<AD name="Secure with Oauth" id="com.ptoceti.osgi.obixservice.oauthsecure" required="true" type="Boolean" default="true"/>
+		<AD name="Oauth Token expired period seconds" id="com.ptoceti.osgi.obixservice.oauthtokenexpiredperiod" required="true" type="Integer" default="3600" />
 		
 		<AD name="Owner name" id="com.ptoceti.osgi.obixservice.oauth.owner.name" required="true" type="String" default="obix"/>
 		<AD name="Owner secret" id="com.ptoceti.osgi.obixservice.oauth.owner.secret" required="true" type="String" default="obix"/>
 		
-	    <AD name="Resource path" id="com.ptoceti.osgi.obixservice.resourcepath" required="true" type="String" default="obix/res"/>
-	    <AD name="External resources path" id="com.ptoceti.osgi.obixservice.externalresourcepath" required="true" type="String" default="/res"/>
 	    <AD name="Database path" id="com.ptoceti.osgi.obixservice.databasepath" required="true" type="String" default="obix.sqlite"/>
 	    <AD name="Nb thread in pool" id="com.ptoceti.osgi.obixservice.nbexecutorpoolthreads" required="false" type="Integer" default="2"/>
 	</OCD>

@@ -90,8 +90,8 @@ public class ObjServerResource extends AbstractServerResource implements ObjReso
 	
 	/**
 	 * Resource creation
-	 * @param objIn
-	 * @throws ResourceException
+	 * @param objIn the object to create
+	 * @throws ResourceException on error creating the obj
 	 */
 	@Post
 	public void create (Obj objIn) throws ResourceException{
@@ -108,8 +108,8 @@ public class ObjServerResource extends AbstractServerResource implements ObjReso
 	
 	/**
 	 * Resource update
-	 * @param objIn
-	 * @throws ResourceException
+	 * @param objIn obj to update
+	 * @throws ResourceException on error updating the obj
 	 */
 	@Put
 	public void update(Obj objIn) throws ResourceException{

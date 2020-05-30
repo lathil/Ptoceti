@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.ptoceti</groupId>
 		<artifactId>com.ptoceti.parent</artifactId>
-		<version>1.2.0</version>
+		<version>1.2.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -15,7 +15,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 
 	<dependencies>
@@ -163,9 +163,28 @@
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-		</dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-smile</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+        </dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -225,7 +244,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.ptoceti</groupId>
-			<artifactId>com.ptoceti.osgi.obix.backbones</artifactId>
+			<artifactId>com.ptoceti.osgi.obix.angular</artifactId>
 			<version>${project.version}</version>
 			<exclusions>
 				<exclusion>
@@ -249,7 +268,25 @@
 			<artifactId>com.ptoceti.osgi.timeseries</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		 
+
+		<dependency>
+			<groupId>org.ops4j.pax.logging</groupId>
+			<artifactId>pax-logging-api</artifactId>
+			<version>1.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.logging</groupId>
+			<artifactId>pax-logging-service</artifactId>
+			<version>1.4</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+
 	</dependencies>
 	<build>
 		<plugins>

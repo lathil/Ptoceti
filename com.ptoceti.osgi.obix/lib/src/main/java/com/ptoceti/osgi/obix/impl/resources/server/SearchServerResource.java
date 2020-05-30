@@ -1,5 +1,6 @@
 package com.ptoceti.osgi.obix.impl.resources.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.inject.Inject;
@@ -28,21 +29,64 @@ private ObjDomain objDomain;
 	public SearchOut search(Ref query) throws ResourceException {
 		
 		SearchOut result = new SearchOut();
-		
+ 		
 		try {
-			//Add all the points we could find.
-			List<Obj> searchPointList = objDomain.getObixObjByDisplayName(query.getDisplayName());
-			for(Obj searchPoint : searchPointList ){
-				if( searchPoint.containsContract(MeasurePoint.contract)
-						|| searchPoint.containsContract(SwitchPoint.contract)
-						|| searchPoint.containsContract(ReferencePoint.contract)
-						|| searchPoint.containsContract(DigitPoint.contract)) {
-					Ref ref = new Ref();
-					ref.setHref(searchPoint.getHref());
-					ref.setIs(searchPoint.getIs());
-					ref.setDisplayName(searchPoint.getDisplayName());
-					ref.setDisplay(searchPoint.getDisplay());
-					result.addValue(ref);
+			// If query get a contract list, serach by contract ...
+			if( query.getIs().getUris() != null && query.getIs().getUris().length > 0){
+				List<Obj> searchPointList = objDomain.getObixObjsByContract(query.getIs());
+				// ... and by display name if required
+				
+				for(Obj searchPoint : searchPointList ){
+					// do not return Ref objects
+					if( ! (searchPoint instanceof Ref )) {
+						Ref ref = new Ref();
+						ref.setHref(searchPoint.getHref());
+						ref.setIs(searchPoint.getIs());
+						ref.setDisplayName(searchPoint.getDisplayName());
+						ref.setDisplay(searchPoint.getDisplay());
+						boolean found = false;
+						for( Obj item : result.getValuesList().getChildrens() ){
+							if( item.getHref().getVal().equals(ref.getHref().getVal())){
+								found = true;
+								break;
+							}
+						}
+						if( !found) {
+							result.addValue(ref);
+						}
+					}
+					
+				}
+				
+				
+				
+			} else {
+			//.. otherwise juste search by display name
+				List<Obj> searchPointList = objDomain.getObixObjByDisplayName(query.getDisplayName());
+				for(Obj searchPoint : searchPointList ){
+					// do not return Ref objects
+					if( ! (searchPoint instanceof Ref )) {
+						if( searchPoint.containsContract(MeasurePoint.contract)
+								|| searchPoint.containsContract(SwitchPoint.contract)
+								|| searchPoint.containsContract(ReferencePoint.contract)
+								|| searchPoint.containsContract(DigitPoint.contract)) {
+							Ref ref = new Ref();
+							ref.setHref(searchPoint.getHref());
+							ref.setIs(searchPoint.getIs());
+							ref.setDisplayName(searchPoint.getDisplayName());
+							ref.setDisplay(searchPoint.getDisplay());
+							boolean found = false;
+							for( Obj item : result.getValuesList().getChildrens() ){
+								if( item.getHref().getVal().equals(ref.getHref().getVal())){
+									found = true;
+									break;
+								}
+							}
+							if( !found) {
+								result.addValue(ref);
+							}
+						}
+					}
 				}
 			}
 			

@@ -200,7 +200,7 @@ public class ExtendedUnit {
 		else if(!( obj instanceof ExtendedUnit)) return false;
 		else if( isSI() != ((ExtendedUnit)obj).isSI()) return false;
 		else if ( isSI() && ( getSiUnit().equals( ((ExtendedUnit)obj).getSiUnit()))) return true;
-		else if ( !isSI() && ( getNonSIName() == ((ExtendedUnit)obj).getNonSIName())) return true;
+		else if ( !isSI() && ( getNonSIName().equals( ((ExtendedUnit)obj).getNonSIName()))) return true;
 		
 		return false;
 	}

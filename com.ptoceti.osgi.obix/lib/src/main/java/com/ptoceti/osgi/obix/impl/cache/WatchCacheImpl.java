@@ -210,7 +210,14 @@ public class WatchCacheImpl extends ObjCacheImpl implements WatchCache {
 
 	@Override
 	public void update(String uri, Watch watchIn) throws DomainException {
-		watchDomain.update(uri, watchIn);
+		
+		Watch watch = retrieve(uri);
+		if( watch != null){
+			if (watch.updateWith(watchIn)){
+				watchDomain.update(uri, watchIn);
+			}
+		}
+		
 	}
 
 }

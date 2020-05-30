@@ -2,7 +2,7 @@
 	<parent>
 	    <artifactId>com.ptoceti.parent</artifactId>
 	    <groupId>com.ptoceti</groupId>
-	    <version>1.2.0</version>
+	    <version>1.2.1-SNAPSHOT</version>
 	    <relativePath>..</relativePath>
 	  </parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -14,7 +14,7 @@
 	<description>Ptoceti's Pi service</description>
 
 	<properties>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 
 	<build>
@@ -64,8 +64,8 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Private-Package>${pom.artifactId}.impl</Private-Package>
-						<Bundle-Activator>${pom.artifactId}.impl.Activator</Bundle-Activator>
+						<Private-Package>${project.artifactId}.impl</Private-Package>
+						<Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
 					</instructions>
 				</configuration>
 			</plugin>

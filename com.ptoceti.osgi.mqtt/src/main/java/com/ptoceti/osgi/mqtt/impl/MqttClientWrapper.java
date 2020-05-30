@@ -1,13 +1,9 @@
 package com.ptoceti.osgi.mqtt.impl;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -18,7 +14,6 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.eclipse.paho.client.mqttv3.internal.ConnectActionListener;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -27,16 +22,12 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.log.LogService;
-import org.osgi.service.wireadmin.BasicEnvelope;
 import org.osgi.service.wireadmin.Consumer;
 import org.osgi.service.wireadmin.Envelope;
 import org.osgi.service.wireadmin.Producer;
 import org.osgi.service.wireadmin.Wire;
 import org.osgi.service.wireadmin.WireConstants;
 
-import com.ptoceti.osgi.control.ExtendedUnit;
-import com.ptoceti.osgi.control.Measure;
-import com.ptoceti.osgi.control.StatusCode;
 import com.ptoceti.osgi.mqtt.IMqttMessageFomatter;
 
 /**
@@ -54,7 +45,10 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 	public static final String ALLSCOPE = "*";
 	
 	public static final int CONNECTIONRESTARTDELAY = 10000;
-	public static final int CONNECTIONREPERIOD= 60000;
+	// 1 minute delay for reconnection attempts at the begenning
+	public static final int CONNECTIONREPERIODSHORT = 60000;
+	// 30 minutes for long term
+	public static final int CONNECTIONREPERIODLONG = 60000 * 30;
 	
 	ServiceRegistration sReg;
 	
@@ -75,12 +69,10 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 	
 	Boolean subscribeLock = new Boolean(true);
 	Boolean connectionLock = new Boolean(true);
-	
+
 	List<String> subscribedTopicScopes = new ArrayList<String>();
-	
-	// timer used for reconnecting
-	Timer startTimer = null;
-	boolean isConnecting = false;
+
+	ConnectionAgent connectionAgent;
 	
 	Integer qos = 0;
 
@@ -90,7 +82,7 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 	 * 
 	 * @param pid the unique pid used to register the mqtt client with.
 	 * @param qos the mqtt quality of service to use.
-	 * @param persistanceDir the persistance file path to be used  with qos > 0
+	 * @param persistanceDir the persistance file path to be used  with qos superior to 0
 	 * @param compositeIdentity the wire admin composite identity
 	 * @param rootTopic the topic to place in front of wire scope to form the full topic.
 	 * @param messageFormaterServiceName the name of the IMqttMessageFomatter service to obtain.
@@ -129,6 +121,9 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 		sReg = Activator.bc.registerService(interfaces, this, props);
 
 		Activator.log(LogService.LOG_INFO, "Registered " + this.getClass().getName() + " as " + MqttClientWrapper.class.getName() + ", Pid = " + pid);
+
+		// create the connection agent in charge of re-connection
+		connectionAgent = new ConnectionAgent();
 
 		// remember the mqtt connection options
 		connectOptions = mqttOptions;
@@ -273,7 +268,7 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 	 * This list id built by the WireAdmin from the configuration it has found. If the configuration
 	 * has been erased, this method is called with a null object.
 	 *
-	 * @param Wire[] an Array ow wires this Producer is connected to.
+	 * @param wires an Array ow wires this Producer is connected to.
 	 *
 	 */
 	public void consumersConnected( Wire[] wires ) {
@@ -364,17 +359,19 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 					
 					if(supressedScopes.size() > 0){
 						mqttClient.unsubscribe(supressedScopes.toArray(new String[supressedScopes.size()]));
+						Activator.log(LogService.LOG_DEBUG, "Unsubscribing to topic:" + supressedScopes.toString() +  " with client id: " + (String)sReg.getReference().getProperty(Constants.SERVICE_PID));
 						this.subscribedTopicScopes.removeAll(supressedScopes);
 					}
 					if(retainedScopes.size() > 0){
 						int[] qoss = new int[retainedScopes.size()];
 						for( int i = 0 ; i < retainedScopes.size(); i ++) { qoss[i] = this.qos; }
 						mqttClient.subscribe(retainedScopes.toArray(new String[retainedScopes.size()]), qoss);
+						Activator.log(LogService.LOG_DEBUG, "Subscribing to topic:" + retainedScopes.toString() +  " with client id: " + (String)sReg.getReference().getProperty(Constants.SERVICE_PID));
 						this.subscribedTopicScopes.addAll(retainedScopes);
 					}
 				
 					
-					Activator.log(LogService.LOG_DEBUG, "Subscribing to topic:" + topicScopes.toString() +  " with client id: " + (String)sReg.getReference().getProperty(Constants.SERVICE_PID));
+
 					
 				} catch (MqttException e) {
 					Activator.log(LogService.LOG_ERROR, "Error subscribing to topic:" + rootTopic +  " with client id: " + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", error: " + e.toString());
@@ -408,31 +405,31 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 	 */
 	private void start(){
 		synchronized(connectionLock){
-			if( !mqttClient.isConnected() && !isConnecting){
-				isConnecting = true;
-				try {
-					mqttClient.connect(connectOptions, new IMqttActionListener(){
 
-						@Override
-						public void onFailure(IMqttToken token, Throwable e) {
-							isConnecting = false;
-							Activator.log(LogService.LOG_ERROR, "Error connecting mqtt client id:" + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", server uri: " + connectOptions.getServerURIs()[0] + ", error: " + e.toString());
-						}
+			Activator.log(LogService.LOG_WARNING, "Mqtt connecting client id:" + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", server uri: " + connectOptions.getServerURIs()[0] );
+			try {
+				mqttClient.connect(connectOptions, new IMqttActionListener(){
 
-						@Override
-						public void onSuccess(IMqttToken token) {
-							isConnecting = false;
-							Activator.log(LogService.LOG_INFO, "Connecting mqtt client id:" + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", server uri: " + connectOptions.getServerURIs()[0]);
-							// On connection, subscribe
-							subscribe();
-						}
-						
-					});
+					@Override
+					public void onFailure(IMqttToken token, Throwable e) {
+						Activator.log(LogService.LOG_ERROR, "Error connecting mqtt client id:" + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", server uri: " + connectOptions.getServerURIs()[0] + ", error: " + e.toString());
+						connectionAgent.notifyDisconnect();
+					}
 
-				} catch (MqttException e) {
-					Activator.log(LogService.LOG_ERROR, "Error creating mqtt client id:" + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", server uri: " + connectOptions.getServerURIs()[0] + ", error: " + e.toString());
-				}
+					@Override
+					public void onSuccess(IMqttToken token) {
+						Activator.log(LogService.LOG_INFO, "Connecting mqtt client id:" + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", server uri: " + connectOptions.getServerURIs()[0]);
+						connectionAgent.notifyReconnect();
+						// On connection, subscribe
+						subscribe();
+					}
+
+				});
+
+			} catch (MqttException e) {
+				Activator.log(LogService.LOG_ERROR, "Error creating mqtt client id:" + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", server uri: " + connectOptions.getServerURIs()[0] + ", error: " + e.toString());
 			}
+
 		}
 	}
 	
@@ -442,13 +439,12 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 	 */
 	public void stop(){
 		synchronized(connectionLock){
-			if( mqttClient.isConnected()){
-				try {
-					unsubscribe();
-					mqttClient.disconnect();
-				} catch (MqttException e) {
-					Activator.log(LogService.LOG_ERROR, "Error closing mqtt client id:" + mqttClient.getClientId() + ", server uri: " + mqttClient.getServerURI() + ", error: " + e.toString());
-				}
+			try {
+				unsubscribe();
+				connectionAgent.stop();
+				mqttClient.disconnect();
+			} catch (MqttException e) {
+				Activator.log(LogService.LOG_ERROR, "Error closing mqtt client id:" + mqttClient.getClientId() + ", server uri: " + mqttClient.getServerURI() + ", error: " + e.toString());
 			}
 		}
 	}
@@ -478,18 +474,18 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 	@Override
 	public void connectionLost(Throwable arg0) {
 		Activator.log(LogService.LOG_WARNING, "Mqtt connection lost. Client id:" + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", server uri: " + connectOptions.getServerURIs()[0] + ", error: " + arg0.toString());
-	
-		if( startTimer == null) startTimer = new Timer();
-		startTimer.schedule(new TimerTask(){
+		try {
+			// force unsubscribing to all subjects
+			mqttClient.unsubscribe(this.subscribedTopicScopes.toArray(new String[this.subscribedTopicScopes.size()]));
+		} catch ( MqttException ex){
 
-			@Override
-			public void run() {
-				if( !mqttClient.isConnected()){
-					start();
-				} else startTimer.cancel();
-			}
-			
-		},CONNECTIONRESTARTDELAY, CONNECTIONREPERIOD);
+		}
+
+		// clear the subscribed topics list, will have to re-subscribe
+		this.subscribedTopicScopes.clear();
+		// notify reconnection thread to start attemptng reconnect
+		connectionAgent.notifyDisconnect();
+
 	}
 
 	@Override
@@ -514,6 +510,112 @@ public class MqttClientWrapper implements Producer, Consumer, ServiceListener, M
 					Wire wire = consumerWires[i];
 					wire.update(value);
 					
+				}
+			}
+		}
+	}
+
+
+
+
+	/**
+	 * Runnable class in charge of reconnecting mqtt client in case of disconnection
+	 * Disconnection can occur when:
+	 * - mqtt server shutdown
+	 * - mqtt clien has been forced to disconnect
+	 * - network problem
+	 *
+	 */
+	public class ConnectionAgent implements  Runnable {
+
+		Thread connectionThread;
+
+		Boolean disconnectLock = new Boolean(true);
+		boolean disconnectFlag = false;
+		Boolean reconnectLock = new Boolean(true);
+		boolean reconnectFlag = false;
+
+		int reconnectAttemptsCount = 0;
+
+		public ConnectionAgent() {
+
+			connectionThread = new Thread(this);
+			connectionThread.start();
+		}
+
+		/**
+		 * Main thread.
+		 * Wait for disconnect event, then attempt to reconnect. If failed wait for 1 minute and try again, as long as not reconnected.
+		 * After 30 tries, waiting period between reconnection attempts increase to 30 minutes.
+		 */
+		public void run() {
+
+			Activator.log(LogService.LOG_DEBUG, "Connection agent started.");
+			while(!connectionThread.isInterrupted()){
+				try {
+					// wait for a disconnection message
+					waitDisconect();
+					Activator.log(LogService.LOG_WARNING, "Connection agent detected connection lost. Client id:" + (String)sReg.getReference().getProperty(Constants.SERVICE_PID) + ", server uri: " + connectOptions.getServerURIs()[0]);
+
+					synchronized (this) {
+						// first 30 tries each at 1 minute interval
+						if( reconnectAttemptsCount < 30 ) {
+							wait(CONNECTIONREPERIODSHORT);
+						} else {
+							// afte that try every 30 minutes
+							wait(CONNECTIONREPERIODLONG);
+						}
+					}
+					reconnectAttemptsCount++;
+					// try to reconnect
+					start();
+
+				} catch ( InterruptedException ex) {
+					connectionThread.interrupt();
+				}
+
+			}
+			Activator.log(LogService.LOG_DEBUG, "Connection agent stopped");
+
+		}
+
+		public void stop(){
+			Activator.log(LogService.LOG_DEBUG, "Connection agent stopping");
+			connectionThread.interrupt();
+		}
+
+		protected void notifyDisconnect() {
+			synchronized(disconnectLock){
+				Activator.log(LogService.LOG_DEBUG, "notify disconnect");
+				disconnectFlag = true;
+				disconnectLock.notifyAll();
+			}
+
+		}
+
+		protected void waitDisconect() throws InterruptedException {
+			synchronized (disconnectLock){
+				Activator.log(LogService.LOG_DEBUG, "wait disconnect");
+				while(!disconnectFlag) {
+					disconnectLock.wait();
+				}
+				disconnectFlag = false;
+			}
+		}
+
+		protected void notifyReconnect() {
+			synchronized(reconnectLock){
+				reconnectAttemptsCount = 0;
+				reconnectFlag = true;
+				reconnectLock.notifyAll();
+			}
+		}
+
+		protected void waitReconnect() throws InterruptedException{
+			synchronized (reconnectLock){
+				reconnectFlag = false;
+				while(!reconnectFlag) {
+					reconnectLock.wait();
 				}
 			}
 		}

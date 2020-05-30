@@ -2,7 +2,7 @@
 	<parent>
 	    <artifactId>com.ptoceti.parent</artifactId>
 	    <groupId>com.ptoceti</groupId>
-	    <version>1.2.0</version>
+	    <version>1.2.1-SNAPSHOT</version>
 	    <relativePath>..</relativePath>
 	  </parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -14,7 +14,7 @@
 	<description>Ptoceti's control library</description>
 
 	<properties>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 	<build>
 		<resources>
@@ -64,7 +64,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>${pom.artifactId}</Export-Package>
+						<Export-Package>${project.artifactId}</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

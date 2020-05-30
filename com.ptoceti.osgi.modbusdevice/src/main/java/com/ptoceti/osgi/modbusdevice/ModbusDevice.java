@@ -23,7 +23,8 @@ package com.ptoceti.osgi.modbusdevice;
  * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. * #L%
+
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * #L%
@@ -36,13 +37,13 @@ public interface ModbusDevice extends Producer, Consumer{
 	
 	/**
 	 * Return the id of the device in the Modbus bus link
-	 * @return
+	 * @return the id of this device
 	 */
 	public int getId();
 	
 	/**
 	 * Return the serial link port used by the device.
-	 * @return
+	 * @return String the name of the port for this device
 	 */
 	public String getPortName();
 	

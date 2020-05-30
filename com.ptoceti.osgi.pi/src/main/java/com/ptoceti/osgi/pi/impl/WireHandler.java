@@ -283,8 +283,7 @@ public class WireHandler implements Consumer, Producer {
 	 * reference. The producer can then update the referenced wire.
 	 * 
 	 * 
-	 * @param Wire
-	 *            the wire that invoque this method.
+	 * @param wire the wire that invoque this method.
 	 * @return An Envelope[] Array.
 	 */
 	public Object polled(Wire wire) {
@@ -305,8 +304,7 @@ public class WireHandler implements Consumer, Producer {
 	 * configuration it has found. If the configuration has been erased, this
 	 * method is called with a null object.
 	 * 
-	 * @param Wire
-	 *            [] an Array ow wires this Producer is connected to.
+	 * @param wires an Array ow wires this Producer is connected to.
 	 * 
 	 */
 	public void consumersConnected(Wire[] wires) {
@@ -353,10 +351,8 @@ public class WireHandler implements Consumer, Producer {
 	 * We are only listening for update of the output pins. Thoses updates come
 	 * with Command objects embeded in basic envelopes.
 	 * 
-	 * @param Wire
-	 *            the wire through which the update has come.
-	 * @param Object
-	 *            the update value
+	 * @param wire the wire through which the update has come.
+	 * @param value the update value
 	 */
 	public void updated(Wire wire, Object value) {
 		if (value instanceof BasicEnvelope) {
@@ -383,8 +379,7 @@ public class WireHandler implements Consumer, Producer {
 	 * that the callback will not take place during registration when they
 	 * execute the registration in a synchronized method.
 	 * 
-	 * @param Wire
-	 *            [] an Array ow wires this Consumer is connected to.
+	 * @param wires an Array ow wires this Consumer is connected to.
 	 * 
 	 */
 	public void producersConnected(Wire[] wires) {

@@ -1,0 +1,89 @@
+[
+  {
+    name: "StartCounts",
+    pb: "03",
+    sb: "04",
+    payload: [
+
+    ],
+    slaveResponse: [
+      {name: "startCounter1s", type: "char"},
+      {name: "startCounter100s", type: "char"},
+      {name: "startCounter10000s", type: "char"}
+    ]
+  },
+  {
+    name: "OperatingTimeLevel1",
+    pb: "03",
+    sb: "05",
+    payload: [
+
+    ],
+    slaveResponse: [
+      {name: "minutes", type: "char"},
+      {name: "hours", type: "char"},
+      {name: "100hours", type: "char"},
+      {name: "10000hours", type: "char"}
+    ]
+  },
+  {
+    name: "OperatingTimeLevel2",
+    pb: "03",
+    sb: "06",
+    payload: [
+
+    ],
+    slaveResponse: [
+      {name: "minutes", type: "char"},
+      {name: "hours", type: "char"},
+      {name: "100hours", type: "char"},
+      {name: "10000hours", type: "char"}
+    ]
+  },
+  {
+    name: "OperatingTimeLevel3",
+    pb: "03",
+    sb: "07",
+    payload: [
+
+    ],
+    slaveResponse: [
+      {name: "minutes", type: "char"},
+      {name: "hours", type: "char"},
+      {name: "100hours", type: "char"},
+      {name: "10000hours", type: "char"}
+    ]
+  },
+  {
+    name: "FuelQuantityCounter",
+    pb: "03",
+    sb: "08",
+    payload: [
+
+    ],
+    slaveResponse: [
+      {name: "unit", type: "char"},
+      {name: "1s", type: "char"},
+      {name: "100s", type: "char"},
+      {name: "10000s", type: "char"}
+      {name: "100000s", type: "char"}
+    ]
+  },
+  {
+    name: "MeterReading",
+    pb: "03",
+    sb: "10",
+    payload: [
+      {name: "typeofmeter", type: "byte"},
+      {name: "typeoffuel", type: "byte"}
+    ],
+    slaveResponse: [
+      {name: "1s", type: "bcd"},
+      {name: "100s", type: "bcd"},
+      {name: "10000s", type: "bcd"},
+      {name: "1000000s", type: "bcd"},
+      {name: "typeofmeter", type: "byte"},
+      {name: "typeoffuel", type: "byte"}
+    ]
+  }
+]

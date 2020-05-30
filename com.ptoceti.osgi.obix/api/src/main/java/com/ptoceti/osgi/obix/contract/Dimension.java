@@ -68,7 +68,7 @@ public class Dimension extends Obj implements Serializable{
 	public static final Dimension N = new Dimension(0,0,0,0,0,-2,1);
 	/** The pressure unit pascal (Pa). <p>Pa is equal to N/m<sup>2</sup> or is expressed in SI units as kg/m&#183;s<sup>2</sup> */
 	public static final Dimension Pa = new Dimension(0,0,0,0,0,-2,-1);
-	/** The energy unit joule (J). <p>joule is equal to N&#183;m or is expressed in SI units as m<sup>2</sup>&#183;kg/s<sup>2 */
+	/** The energy unit joule (J). <p>joule is equal to N&#183;m or is expressed in SI units as m<sup>2</sup>&#183;kg/s<sup>2</sup>*/
 	public static final Dimension J = new Dimension(0,0,0,0,1,-2,2);
 	/** The power unit watt (W).<p>watt is equal to J/s or is expressed in SI units as m<sup>2</sup>&#183;kg/s<sup>3</sup> */
 	public static final Dimension W = new Dimension(0,0,0,0,1,-3,2);

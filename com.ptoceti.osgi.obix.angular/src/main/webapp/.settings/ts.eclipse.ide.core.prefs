@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+nodeJSEmbedded=node-v6.9.4-win-x64
+nodeJSPath=D\:\\Installs\\nodejs\\node.exe
+tscEmbeddedTypeScriptId=TypeScript (1.8.10)
+tscInstalledTypeScriptPath=${project_loc\:node_modules/typescript}
+tscUseEmbeddedTypeScript=false
+typeScriptBuildPath={""\:{}}
+useNodeJSEmbedded=false

@@ -107,8 +107,7 @@ public class WireHandler implements Consumer, Producer {
 	 * configuration it has found. If the configuration has been erased, this
 	 * method is called with a null object.
 	 * 
-	 * @param Wire
-	 *            [] an Array ow wires this Producer is connected to.
+	 * @param wires an Array ow wires this Producer is connected to.
 	 * 
 	 */
 	public void consumersConnected(Wire[] wires) {
@@ -178,8 +177,7 @@ public class WireHandler implements Consumer, Producer {
 	 * reference. The producer can then update the referenced wire.
 	 * 
 	 * 
-	 * @param Wire
-	 *            the wire that invoque this method.
+	 * @param wire the wire that invoque this method.
 	 * @return An Envelope[] Array.
 	 */
 	public Object polled(Wire wire) {
@@ -197,8 +195,7 @@ public class WireHandler implements Consumer, Producer {
 	 * that the callback will not take place during registration when they
 	 * execute the registration in a synchronized method.
 	 * 
-	 * @param Wire
-	 *            [] an Array ow wires this Consumer is connected to.
+	 * @param wires an Array ow wires this Consumer is connected to.
 	 * 
 	 */
 	public void producersConnected(Wire[] wires) {

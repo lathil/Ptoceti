@@ -5,7 +5,7 @@
 	<parent>
 		<artifactId>com.ptoceti.osgi.obix</artifactId>
 		<groupId>com.ptoceti</groupId>
-		<version>1.2.0</version>
+		<version>1.2.1-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>com.ptoceti.osgi.obix-lib</artifactId>
@@ -15,7 +15,7 @@
 	<description>Ptoceti's Obix service</description>
 
 	<properties>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 
 	<build>
@@ -65,9 +65,9 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Private-Package>${pom.parent.artifactId}.impl.*</Private-Package>
-						<Bundle-Activator>${pom.parent.artifactId}.impl.service.Activator</Bundle-Activator>
-						<Bundle-DocURL>${pom.organization.url}</Bundle-DocURL>
+						<Private-Package>${project.parent.artifactId}.impl.*</Private-Package>
+						<Bundle-Activator>${project.parent.artifactId}.impl.service.Activator</Bundle-Activator>
+						<Bundle-DocURL>${project.organization.url}</Bundle-DocURL>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -273,8 +273,8 @@
 			<groupId>com.ptoceti</groupId>
 			<artifactId>com.ptoceti.osgi.timeseries</artifactId>
 		</dependency>
-<!-- 
-		<dependency>
+
+        <dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 		</dependency>
@@ -288,7 +288,7 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 		</dependency>
- -->
-	</dependencies>
+
+    </dependencies>
 
 </project>

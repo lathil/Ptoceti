@@ -64,8 +64,8 @@ public class Activator implements BundleActivator {
 	 *
 	 * If the method cannot get a reference to the logging service, a NullPointerException is thrown.
 	 * Similarly, a BundleException exception is thrown if the ModbusDriverFactory cannot be started.
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
+	 * @throws BundleException thrown when factory could not be instanciated
 	 */
 	public void start(BundleContext context) throws BundleException {
 	
@@ -99,10 +99,9 @@ public class Activator implements BundleActivator {
 	 * Called by the framework when the bundle is stopped. The method first forward the stop
 	 * message to the ModbusDriverFactory instance, then stop the log service.
 	 *
-	 * @param context
-	 * @throws BundleException
+	 * @param context the bundle context
 	 */
-	public void stop( BundleContext context ) throws BundleException {
+	public void stop( BundleContext context ) {
 	
 		if( modbusDFact != null ) modbusDFact.stop();
 		log(LogService.LOG_INFO, "Stopping");

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
+    <OCD description="EbusDevice" name="Ptoceti Ebus Device Service" id="ocd">
+        <AD name="Composite identity" id="com.ptoceti.osgi.ebudevice.compositeIdentity" required="true" type="String" />
+        <AD name="Port Name" id="com.ptoceti.osgi.ebudevice.portName" required="true" type="String" />
+        <AD name="Ebus Id" id="com.ptoceti.osgi.ebusdevice.ebusId" required="true" type="Integer" />
+        <AD name="Pooling rate" id="com.ptoceti.osgi.ebusdevice.poolingRate" required="true" type="Integer" />
+        <AD name="Mock device" id="com.ptoceti.osgi.ebusdevice.mock" required="true" type="Boolean" />
+        <AD name="Device configuration filepath" id="com.ptoceti.osgi.ebusdevice.configFilePath" required="true" type="String" />
+    </OCD>
+    <Designate factorypid="com.ptoceti.osgi.ebusdevice.EbusDeviceFactory" pid="com.ptoceti.osgi.ebusdevice.EbusDeviceFactoryy" bundle="*">
+        <Object ocdref="ocd"/>
+    </Designate>
+</MetaData>

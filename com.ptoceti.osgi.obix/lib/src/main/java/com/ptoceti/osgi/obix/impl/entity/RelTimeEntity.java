@@ -42,12 +42,12 @@ public class RelTimeEntity extends ObjEntity implements ValEntity {
 
 	private static final String SEARCH_RELTIME_BY_HREF = "select object.* from object where object.type_id=11 and object.uri_hash=?";
 	
-	private static final String CREATE_RELTIME = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, min, max, value_int ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String CREATE_RELTIME = "insert into object (name, uri, uri_hash, contract_id, isnullable, displayname, display, writable, status_id, type_id, parent_id, created_ts, min, max, value_text ) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	
 	private static final String DELETE_RELTIME = "delete from object where id=?";
 	//private static final String SEARCH_RELTIME_BY_OBJECT_ID = "select reltime.* from reltime where reltime.object_id=?";
 
-	private static final String UPDATE_RELTIME = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, min = ?, max = ?, value_int = ? where id = ? ";
+	private static final String UPDATE_RELTIME = "update object set name = ?, isnullable = ?, displayname = ?, display = ?,writable = ?, status_id = ?, modified_ts = ?, min = ?, max = ?, value_text = ? where id = ? ";
 
 
 	public RelTimeEntity() {

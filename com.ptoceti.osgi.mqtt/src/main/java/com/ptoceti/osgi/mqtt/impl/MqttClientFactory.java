@@ -6,6 +6,7 @@ import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
 
+import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
@@ -87,6 +88,7 @@ public class MqttClientFactory implements org.osgi.service.cm.ManagedServiceFact
 		mqttOptions.setUserName(username);
 		mqttOptions.setPassword(password.toCharArray());
 		mqttOptions.setServerURIs(serveruri.split(";"));
+
 		
 		if( sslprops != null){
 			Properties props = new Properties();
@@ -133,7 +135,9 @@ public class MqttClientFactory implements org.osgi.service.cm.ManagedServiceFact
 	 * Called when the main bundles is stopped
 	 */
 	public void stop(){
-		
+		for ( String pid: mqttClients.keySet()) {
+			mqttClients.get(pid).stop();
+		}
 		
 	}
 }

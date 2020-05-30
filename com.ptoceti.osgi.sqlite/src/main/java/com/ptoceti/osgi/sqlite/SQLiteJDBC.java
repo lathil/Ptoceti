@@ -62,9 +62,7 @@ public class SQLiteJDBC implements java.sql.Driver{
 	 * Creator.
 	 * 
 	 * Implements a java.sql.Driver that attach itself to a com.ptoceti.osgi.data.JdbcDevice service.
-	 * 
-	 * @param bc the bundle context
-	 * @param ref the JdbcDevice service reference
+	 *
 	 */
 	public SQLiteJDBC()
 	{

@@ -2,7 +2,7 @@
 	<parent>
 		<artifactId>com.ptoceti.parent</artifactId>
 		<groupId>com.ptoceti</groupId>
-		<version>1.2.0</version>
+		<version>1.2.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -14,7 +14,7 @@
 	<description>Ptoceti's packaging of SQLite</description>
 
 	<properties>
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
+		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
 
 	<build>
@@ -59,7 +59,7 @@
 				<configuration>
 					<instructions>
 						<Import-Package>!org.ibex.classgen,!org.ibex.nestedvm,*</Import-Package>
-						<Bundle-Activator>${pom.artifactId}.Activator</Bundle-Activator>
+						<Bundle-Activator>${project.artifactId}.Activator</Bundle-Activator>
 						<Embed-Dependency>sqlite-jdbc;scope|runtime</Embed-Dependency>
 					</instructions>
 				</configuration>
