@@ -34,7 +34,7 @@
     "font-awesome" : "4.6.3",
     
     "ngx-bootstrap": "2.0.2",
-    "moment": "2.18.1",
+    "moment": "2.26.0",
     "angular2-moment": "1.7.0",
     "angular-async-local-storage": "1.4.0",
     "angular-oauth2-oidc":"2.1.3",
