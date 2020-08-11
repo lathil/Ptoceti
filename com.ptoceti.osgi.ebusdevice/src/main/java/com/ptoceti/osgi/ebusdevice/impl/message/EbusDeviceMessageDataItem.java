@@ -1,4 +1,4 @@
-package com.ptoceti.ebus.ebusdevice.impl.message;
+package com.ptoceti.osgi.ebusdevice.impl.message;
 
 public class EbusDeviceMessageDataItem {
     public String name;

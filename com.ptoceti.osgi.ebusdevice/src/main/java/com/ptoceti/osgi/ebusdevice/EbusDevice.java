@@ -1,4 +1,4 @@
-package com.ptoceti.ebus.ebusdevice;
+package com.ptoceti.osgi.ebusdevice;
 
 import org.osgi.service.wireadmin.Consumer;
 import org.osgi.service.wireadmin.Producer;

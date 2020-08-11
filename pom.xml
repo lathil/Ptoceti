@@ -422,7 +422,7 @@
 
 
 							<param>scan-bundle:mvn:org.ops4j.pax.confman/pax-confman-propsloader/0.2.3</param>
-										
+
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-api/1.4</param>
 							<param>scan-bundle:mvn:org.ops4j.pax.logging/pax-logging-service/1.4</param>
 
@@ -466,8 +466,8 @@
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.jetty/4.0.2</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.whiteboard/4.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.http.servlet-api/1.1.2</param>
-							
-							
+
+
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole/4.0.0</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</param>
 							<param>scan-bundle:mvn:org.apache.felix/org.apache.felix.webconsole.plugins.memoryusage/1.0.0</param>
@@ -478,8 +478,8 @@
 
 
 							<!-- <param>scan-bundle:mvn:org.knopflerfish.bundle/device-IMPL/3.0.2</param> -->
-							
-    						<!--  <param>scan-bundle:mvn:com.h2database/h2/1.4.190@nostart</param>-->
+
+							<!--  <param>scan-bundle:mvn:com.h2database/h2/1.4.190@nostart</param>-->
 
 							<!--
 							<param>scan-bundle:mvn:com.ptoceti/com.ptoceti.osgi.data/2.0.0-SNAPSHOT@update</param>

@@ -76,78 +76,138 @@
 		<dependency>
 			<groupId>com.ptoceti</groupId>
 			<artifactId>com.ptoceti.osgi.obix.angular</artifactId>
-			<version>${project.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>javax.servlet-api</artifactId>
-					<groupId>javax.servlet</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.ptoceti</groupId>
-			<artifactId>com.ptoceti.osgi.obix-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ptoceti</groupId>
-			<artifactId>com.ptoceti.osgi.obix-lib</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.ptoceti</groupId>
-			<artifactId>com.ptoceti.osgi.timeseries</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <groupId>javax.servlet</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.ptoceti</groupId>
+            <artifactId>com.ptoceti.osgi.obix-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ptoceti</groupId>
+            <artifactId>com.ptoceti.osgi.obix-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.ptoceti</groupId>
             <artifactId>com.ptoceti.osgi.ebus</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>rxtxcomm-API</artifactId>
+                    <groupId>org.knopflerfish.bundle</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.ptoceti</groupId>
+            <artifactId>com.ptoceti.osgi.ebusdevice</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ptoceti</groupId>
+            <artifactId>com.ptoceti.osgi.timeseries</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ptoceti</groupId>
+            <artifactId>influxdb-fluentapi</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <!--
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+            <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-service</artifactId>
+            <version>1.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        -->
 
 
     </dependencies>
-
     <build>
-		<plugins>
-			<!-- <plugin> <groupId>org.apache.felix</groupId> <artifactId>maven-bundle-plugin</artifactId> 
-				<extensions>true</extensions> <configuration> <mavenRepository>ptoceti</mavenRepository> 
-				<obrRepository>ptoceti/ptoceti.xml</obrRepository> <urlTemplate>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/releases/%p/%f</urlTemplate> 
-				</configuration> </plugin> -->
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId> 
-				<configuration> <excludeTransitive>true</excludeTransitive> <outputDirectory>ptoceti</outputDirectory> 
-				<useRepositoryLayout>true</useRepositoryLayout> </configuration> </plugin> -->
+        <plugins>
+            <!-- <plugin> <groupId>org.apache.felix</groupId> <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions> <configuration> <mavenRepository>ptoceti</mavenRepository>
+                <obrRepository>ptoceti/ptoceti.xml</obrRepository> <urlTemplate>http://192.168.10.3:8080/nexus-2.0.5/content/repositories/releases/%p/%f</urlTemplate>
+                </configuration> </plugin> -->
+            <!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-dependency-plugin</artifactId>
+                <configuration> <excludeTransitive>true</excludeTransitive> <outputDirectory>ptoceti</outputDirectory>
+                <useRepositoryLayout>true</useRepositoryLayout> </configuration> </plugin> -->
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<descriptors>
-						<descriptor>src/assembly/distribution.xml</descriptor>
-					</descriptors>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id> <!-- this is used for inheritance merges -->
-						<phase>package</phase> <!-- bind to the packaging phase -->
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>license-maven-plugin</artifactId>
-				<version>1.5</version>
-				<executions>
-					<execution>
-						<id>append-license-file-headers</id>
-						<phase>none</phase>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptors>
+                        <descriptor>src/assembly/distribution.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <artifactItems>
+                        <artifactItem>
+                            <groupId>com.ptoceti</groupId>
+                            <artifactId>com.ptoceti.osgi.assembly</artifactId>
+                            <version>2.0.0-SNAPSHOT</version>
+                            <classifier>bin</classifier>
+                            <type>zip</type>
+                            <outputDirectory>${project.parent.basedir}/fileinstall</outputDirectory>
+                        </artifactItem>
+                    </artifactItems>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>append-license-file-headers</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
 		<pluginManagement>
 			<plugins>
 				<!-- <plugin> <groupId>org.apache.felix</groupId> <artifactId>maven-bundle-plugin</artifactId> 

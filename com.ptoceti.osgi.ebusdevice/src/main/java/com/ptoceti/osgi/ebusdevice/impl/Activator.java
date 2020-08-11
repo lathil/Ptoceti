@@ -1,4 +1,4 @@
-package com.ptoceti.ebus.ebusdevice.impl;
+package com.ptoceti.osgi.ebusdevice.impl;
 
 import java.net.URL;
 
