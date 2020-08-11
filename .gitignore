@@ -65,3 +65,7 @@
 /runner
 /.DS_Store
 /bin/
+/.idea/
+/fileinstall/
+/influxdb-data/
+/ptoceti-data/

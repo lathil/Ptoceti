@@ -20,20 +20,24 @@ module.exports = webpackMerge(commonConfig, {
   ],
 
   devServer: {
-	inline:true,
-	port: 8080,
-    historyApiFallback: true,
-    stats: 'minimal',
-    setup(app){
-	  app.get('/env.json', function(req, res) {
-	    res.json({ env: 'development' });
-	    	}),
-	  app.get('/config.development.json', function(req, res) {
-		    res.json({ secure:false, lobbyUrl : "http://localhost:8080/obix/rest/" });
-		  });
-    },
+      inline: true,
+      port: 8081,
+      historyApiFallback: true,
+      stats: 'minimal',
+      setup(app) {
+          app.get('/env.json', function (req, res) {
+              res.json({env: 'development'});
+          }),
+              app.get('/config.development.json', function (req, res) {
+                  res.json({
+                      secure: false,
+                      lobbyUrl: "http://192.168.8.89:8080/obix/rest/",
+                      oauthTokenUrl: "http://192.168.8.89:8080/obix/oauth/token"
+                  });
+              });
+      },
     proxy: {
-    	  "/obix/rest": "http://localhost:3004"
-    	}
+        "/obix/rest": "http://localhost:8080"
+    }
   }
 });

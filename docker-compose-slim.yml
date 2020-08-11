@@ -1,14 +1,24 @@
 version: "3.7"
 services:
-  ptoceti:
-    build:
-      context: .
-      dockerfile: Dockerfile-slim
-      args:
-        PTOCETI_ASSEMBLY_TGZ_URL: ./com.ptoceti.osgi.assembly/target/com.ptoceti.osgi.assembly-1.2.1-SNAPSHOT-Assembly.tar.gz
-    image: ptoceti/ptoceti-slim:latest
-    container_name: ptoceti-slim
+  felix:
+    image: ptoceti/felix:5.4.0-slim-stretch
+    container_name: felix-slim
     ports:
       - "8080:8080"
+      - "6666:6666"
     volumes:
       - ./fileinstall/:/var/felix/fileinstall
+      - ./ptoceti-data:/var/ptoceti-data
+  mosquitto:
+    image: ptoceti/mosquitto:1.6.8-slim-stretch
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+  influxdb:
+    image: influxdb:1.6.2
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb-data:/var/lib/influxdb
