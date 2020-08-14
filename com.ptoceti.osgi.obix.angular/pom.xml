@@ -14,12 +14,12 @@
 	<description>Ptoceti's Obix Angular client</description>
 
 	<properties>
-		<!-- Don't let your Mac use a crazy non-standard encoding -->
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <!-- Don't let your Mac use a crazy non-standard encoding -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<bundle.namespace>${pom.artifactId}</bundle.namespace>
-	</properties>
+        <bundle.namespace>${project.artifactId}</bundle.namespace>
+    </properties>
 
 	<dependencies>
 		<dependency>
@@ -114,13 +114,14 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<extensions>true</extensions>
 				<configuration>
-					<instructions>
-						<Export-Package>${pom.artifactId}</Export-Package>
-						<Private-Package>${pom.artifactId}.impl.*</Private-Package>
-						<Bundle-Activator>${pom.artifactId}.impl.Activator</Bundle-Activator>
-						<Include-Resource>/resources =
-							src/main/webapp/dist,/OSGI-INF=src/main/resources/OSGI-INF</Include-Resource>
-					</instructions>
+                    <instructions>
+                        <Export-Package>${project.artifactId}</Export-Package>
+                        <Private-Package>${project.artifactId}.impl.*</Private-Package>
+                        <Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
+                        <Include-Resource>/resources =
+                            src/main/webapp/dist,/OSGI-INF=src/main/resources/OSGI-INF
+                        </Include-Resource>
+                    </instructions>
 				</configuration>
 			</plugin>
 

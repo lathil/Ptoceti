@@ -1,8 +1,8 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		  xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
 
-	<id>Assembly</id>
+	<id>bin</id>
 	<formats>
 		<format>zip</format>
 		<format>tar.gz</format>
@@ -11,7 +11,21 @@
 	<dependencySets>
 		<dependencySet>
 			<includes>
-				<include>com.ptoceti:*</include>
+				<include>com.ptoceti:com.ptoceti.osgi.control</include>
+				<include>com.ptoceti:com.ptoceti.osgi.data</include>
+				<include>com.ptoceti:com.ptoceti.osgi.ebus</include>
+				<include>com.ptoceti:com.ptoceti.osgi.ebusdevice</include>
+				<include>com.ptoceti:com.ptoceti.osgi.modbus</include>
+				<include>com.ptoceti:com.ptoceti.osgi.modbusdevice</include>
+				<include>com.ptoceti:com.ptoceti.osgi.mqtt</include>
+				<include>com.ptoceti:com.ptoceti.osgi.obix-api</include>
+				<include>com.ptoceti:com.ptoceti.osgi.obix-lib</include>
+				<include>com.ptoceti:com.ptoceti.osgi.obix.angular</include>
+				<include>com.ptoceti:com.ptoceti.osgi.rxtx</include>
+				<include>com.ptoceti:com.ptoceti.osgi.sqlite</include>
+				<include>com.ptoceti:com.ptoceti.osgi.timeseries</include>
+				<include>com.ptoceti:com.ptoceti.osgi.wireadmin</include>
+				<include>com.ptoceti:influxdb-fluentapi</include>
 			</includes>
 			<excludes>
 				<exclude>org.osgi:*</exclude>

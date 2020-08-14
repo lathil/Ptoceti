@@ -1,0 +1,12 @@
+{
+  "filesToWatch": "/Users/lor/IdeaProjects/Ptoceti/com.ptoceti.osgi.obix.backbones/src/main/webapp/dev/**",
+  "directoryToWatch": "/Users/lor/IdeaProjects/Ptoceti/com.ptoceti.osgi.obix.backbones/src/main/webapp/dev",
+  "projectRootPath": "/Users/lor/IdeaProjects/Ptoceti/com.ptoceti.osgi.obix.backbones",
+  "targetPath": "/Users/lor/IdeaProjects/Ptoceti/com.ptoceti.osgi.obix.backbones/target",
+  "sourceDirectory": "src/main/webapp",
+  "jsSourceDirectory": "dev",
+  "warTargetDirectory": "dev",
+  "filteredFiles": [
+    "**/node_modules.tar"
+  ]
+}

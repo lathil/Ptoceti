@@ -1,6 +1,6 @@
-package com.ptoceti.ebus.ebusdevice.impl;
+package com.ptoceti.osgi.ebusdevice.impl;
 
-import com.ptoceti.ebus.ebusdevice.EbusDevice;
+import com.ptoceti.osgi.ebusdevice.EbusDevice;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ManagedServiceFactory;

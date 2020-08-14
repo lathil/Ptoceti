@@ -1,6 +1,4 @@
-package com.ptoceti.ebus.ebusdevice.impl.message;
-
-import com.ptoceti.osgi.ebus.impl.message.EbusMessage;
+package com.ptoceti.osgi.ebusdevice.impl.message;
 
 import java.util.ArrayList;
 

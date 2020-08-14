@@ -1,15 +1,8 @@
-package com.ptoceti.ebus.ebusdevice.impl;
+package com.ptoceti.osgi.ebusdevice.impl;
 
-import com.ptoceti.ebus.ebusdevice.EbusDevice;
 import com.ptoceti.osgi.ebus.EbusDriver;
 import org.osgi.framework.*;
 import org.osgi.service.log.LogService;
-import org.osgi.service.wireadmin.*;
-
-import java.util.ArrayList;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.List;
 
 public class EbusDeviceImpl extends EbusDeviceAbstractImpl {
 
