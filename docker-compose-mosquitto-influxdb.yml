@@ -1,0 +1,15 @@
+version: "3.7"
+services:
+  mosquitto:
+    image: ptoceti/mosquitto:1.6.8-slim-stretch
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+  influxdb:
+    image: influxdb:1.6.2
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb-data:/var/lib/influxdb

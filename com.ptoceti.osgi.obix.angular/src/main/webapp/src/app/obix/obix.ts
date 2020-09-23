@@ -114,13 +114,23 @@ export class Obj {
                     this[prop] = icon;
                 }
                 
-            } else if ( prop =='timestamp') {
-                if( json[prop]){
+            } else if (prop == 'timestamp') {
+                if (json[prop]) {
                     let date: Date = new Date(json[prop]);
                     this[prop] = date;
                 }
-            } else if (prop == "name" || prop == "display" || prop == "displayName" || prop == "writable" || prop == "isNull" || prop == "status"){
-                this[prop] = json[prop];
+            } else if (prop == "name") {
+                this.name = json[prop];
+            } else if (prop == "display") {
+                this.display = json[prop];
+            } else if (prop == "displayName") {
+                this.displayName = json[prop];
+            } else if (prop == "writable") {
+                this.writable = json[prop] === "true";
+            } else if (prop == "isNull") {
+                this.isNull = json[prop] === "true";
+            } else if (prop == "status") {
+                this.status = json[prop];
             }
         }
     }
