@@ -29,8 +29,6 @@
             </includes>
             <excludes>
                 <exclude>org.osgi:*</exclude>
-                <exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.contexts:*</exclude>
-                <exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.di:*</exclude>
             </excludes>
             <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
@@ -41,8 +39,6 @@
             <excludes>
                 <exclude>com.ptoceti:*</exclude>
                 <exclude>org.osgi:*</exclude>
-                <exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.contexts:*</exclude>
-                <exclude>org.restlet.osgi:org.restlet.lib.org.eclipse.e4.core.di:*</exclude>
             </excludes>
         </dependencySet>
 

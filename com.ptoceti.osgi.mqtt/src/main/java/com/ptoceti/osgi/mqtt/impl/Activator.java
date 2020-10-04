@@ -14,6 +14,8 @@ import org.osgi.service.log.LogService;
 
 import com.ptoceti.osgi.mqtt.IMqttMessageFomatter;
 import com.ptoceti.osgi.mqtt.impl.formater.internal.InternalMessageFormater;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 /**
  * Activator class implement the BundleActivator interface. This class load the bundle in the framework.
@@ -25,140 +27,149 @@ import com.ptoceti.osgi.mqtt.impl.formater.internal.InternalMessageFormater;
  */
 public class Activator implements BundleActivator {
 
-	/**
-	 * a reference to this service bundle context.
-	 */
-	static BundleContext bc = null;
-	/**
-	 * a reference to the logging service.
-	 */
-	static LogService logSer;
-	/**
-	 * the name of the logging service in the osgi framework.
-	 */
-	static private final String logServiceName = org.osgi.service.log.LogService.class.getName();
-	
+    /**
+     * a reference to this service bundle context.
+     */
+    static BundleContext bc = null;
+    /**
+     * a reference to the logging service.
+     */
+    static LoggerFactory logFactory;
+    /**
+     * a reference to the Activator logger
+     */
+    static Logger logger;
+    /**
+     * the name of the logging service in the osgi framework.
+     */
+    static final String logFactoryName = org.osgi.service.log.LoggerFactory.class.getName();
 
-	/**
-	 * The factory for the nodes
-	 */
-	MqttClientFactory mqttClientFactory;
-	
-	InternalMessageFormater mqttMessageForrmater;
-	
-	/**
-	 * Called by the framework for initialisation when the Activator class is loaded.
-	 * The method first get a service reference on the osgi logging service, used for
-	 * logging whithin the bundle. Then it creates an instance of the SensorNodeDriverFactory
-	 * and asks it to register itself.
-	 *
-	 * If the method cannot get a reference to the logging service, a NullPointerException is thrown.
-	 * Similarly, a BundleException exception is thrown if the MqttClientFactory cannot be started.
-	 * @param context the bundle context
-	 */
-	public void start(BundleContext context) throws Exception {
-		// TODO Auto-generated method stub
-		Activator.bc = context;
 
-		// we construct a listener to detect if the log service appear or
-		// disapear.
-		String filter = "(objectclass=" + logServiceName + ")";
-		ServiceListener logServiceListener = new LogServiceListener();
-		try {
-			bc.addServiceListener(logServiceListener, filter);
-			// in case the service is already registered, we send a REGISTERED
-			// event to its listener.
-			ServiceReference srLog = bc.getServiceReference(logServiceName);
-			if (srLog != null) {
-				logServiceListener.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, srLog));
-			}
-		} catch (InvalidSyntaxException e) {
-			throw new BundleException("Error in filter string while registering LogServiceListener." + e.toString());
-		}
+    /**
+     * The factory for the nodes
+     */
+    MqttClientFactory mqttClientFactory;
 
-		// Create the default mqtt message formater
-		mqttMessageForrmater = new InternalMessageFormater();
-		// and register it as a service
-		String[] clazzes = new String[]{IMqttMessageFomatter.class.getName()};
-		Hashtable<String, Object> properties = new Hashtable<String, Object>();
-		properties.put(IMqttMessageFomatter.MESSAGEFORMATTERNAME, InternalMessageFormater.name);
-		Activator.bc.registerService(clazzes, mqttMessageForrmater, properties );		
-		
-		log(LogService.LOG_INFO, "Registering service " + IMqttMessageFomatter.class.getName());
+    InternalMessageFormater mqttMessageForrmater;
 
-		mqttClientFactory = new MqttClientFactory();
+    /**
+     * Called by the framework for initialisation when the Activator class is loaded.
+     * The method first get a service reference on the osgi logging service, used for
+     * logging whithin the bundle. Then it creates an instance of the SensorNodeDriverFactory
+     * and asks it to register itself.
+     * <p>
+     * If the method cannot get a reference to the logging service, a NullPointerException is thrown.
+     * Similarly, a BundleException exception is thrown if the MqttClientFactory cannot be started.
+     *
+     * @param context the bundle context
+     */
+    public void start(BundleContext context) throws Exception {
+        // TODO Auto-generated method stub
+        Activator.bc = context;
 
-		log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
-	}
+        // we construct a listener to detect if the log service appear or disapear.
+        String filter = "(objectclass=" + logFactoryName + ")";
+        ServiceListener logFactoryListener = new LoggerFactoryListener();
+        try {
+            bc.addServiceListener(logFactoryListener, filter);
+            // in case the service is already registered, we send a REGISTERED event to its listener.
+            ServiceReference srLog = bc.getServiceReference(logFactoryName);
+            if (srLog != null) {
+                logFactoryListener.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, srLog));
+            }
+        } catch (InvalidSyntaxException e) {
+            throw new BundleException("Error in filter string while registering LogServiceListener." + e.toString());
+        }
 
-	/**
-	 * Called by the framework when the bundle is stopped. 
-	 *
-	 * @param context the bundle context
-	 */
-	public void stop(BundleContext context)  {
-		
-		log(LogService.LOG_INFO, "Stopping");
-		
-		mqttClientFactory.stop();
-		
-		Activator.bc = null;
-	}
+    }
 
-	/**
-	 * Fetch the resource from the bundle's resources and open a stream on it.
-	 * 
-	 * @param resourceName name of the resource to get the url
-	 * @return URL for the resource
-	 * 
-	 */
-	static public URL getResourceStream(String resourceName) {
+    /**
+     * Called by the framework when the bundle is stopped.
+     *
+     * @param context the bundle context
+     */
+    public void stop(BundleContext context) {
 
-		return bc.getBundle().getResource(resourceName);
-	}
+        if (logFactory != null) {
+            getLogger().info("Stopping");
+        }
+        if (mqttClientFactory != null) {
+            mqttClientFactory.stop();
+        }
+        if (mqttMessageForrmater != null) {
+            mqttMessageForrmater.stop();
+        }
 
-	/**
-	 * Class method for logging to the logservice. This method can be accessed
-	 * from every class in the bundle by simply invoking Activator.log(..).
-	 * 
-	 * @param logLevel
-	 *            : the level to use when togging this message.
-	 * @param message
-	 *            : the message to log.
-	 */
-	static public void log(int logLevel, String message) {
-		if (logSer != null)
-			logSer.log(logLevel, message);
-	}
+        Activator.bc = null;
+    }
 
-	/**
-	 * Internel listener class that receives framework event when the log
-	 * service is registered in the the framework and when it is being removed
-	 * from it. The framework is a dynamic place and it is important to note
-	 * when services appear and disappear. This inner class update the outer
-	 * class reference to the log service in concordance.
-	 * 
-	 */
-	private class LogServiceListener implements ServiceListener {
+    /**
+     * Fetch the resource from the bundle's resources and open a stream on it.
+     *
+     * @param resourceName name of the resource to get the url
+     * @return URL for the resource
+     */
+    static public URL getResourceStream(String resourceName) {
 
-		/**
-		 * Unique method of the ServiceListener interface.
-		 * 
-		 */
-		public void serviceChanged(ServiceEvent event) {
+        return bc.getBundle().getResource(resourceName);
+    }
 
-			ServiceReference sr = event.getServiceReference();
-			switch (event.getType()) {
-			case ServiceEvent.REGISTERED: {
-				logSer = (LogService) bc.getService(sr);
-			}
-				break;
-			case ServiceEvent.UNREGISTERING: {
-				logSer = null;
-			}
-				break;
-			}
-		}
+    /**
+     * Fetch the bundle context passed to the Activator when the bundle is started.
+     *
+     * @return BundleContext the Activator bundle context
+     */
+    static public BundleContext getBundleContext() {
+        return bc;
+    }
+
+    /**
+     * Class method for retrieving the Activator logger This method can be accessed
+     * from every class in the bundle by simply invoking Activator.getLogger()...
+     *
+     * @return the Activator logger
+     */
+    static public Logger getLogger() {
+        if (logger == null && logFactory != null) {
+            logger = logFactory.getLogger(Activator.class);
+        }
+        return logger;
+    }
+
+    /**
+     * Internel listener class that receives framework event when the log service is registered
+     * in the the framework and when it is being removed from it. The framework is a dynamic place
+     * and it is important to note when services appear and disappear.
+     * This inner class update the outer class reference to the log service in concordance.
+     */
+    public class LoggerFactoryListener implements ServiceListener {
+
+        /**
+         * Unique method of the ServiceListener interface.
+         */
+        public void serviceChanged(ServiceEvent event) {
+
+            ServiceReference sr = event.getServiceReference();
+            switch (event.getType()) {
+                case ServiceEvent.REGISTERED: {
+                    logFactory = (LogService) bc.getService(sr);
+                    Activator.getLogger().info("Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
+
+                    mqttClientFactory = new MqttClientFactory();
+                    // Create the default mqtt message formater
+                    mqttMessageForrmater = new InternalMessageFormater();
+
+                }
+                break;
+                case ServiceEvent.UNREGISTERING: {
+                    mqttClientFactory.stop();
+                    mqttClientFactory = null;
+                    mqttMessageForrmater.stop();
+                    mqttMessageForrmater = null;
+                }
+                break;
+            }
+        }
 	}
 
 }

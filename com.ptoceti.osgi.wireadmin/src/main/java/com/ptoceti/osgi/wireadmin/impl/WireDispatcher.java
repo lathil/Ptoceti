@@ -70,10 +70,10 @@ public class WireDispatcher implements Runnable {
 				}
 				else
 				{
-					if( target instanceof Producer) {
-						Activator.log(LogService.LOG_INFO, "WireDispacther: Error calling consumerConnected :" + ((Producer)target).toString() );
-					} else if ( target instanceof Consumer) {
-						Activator.log(LogService.LOG_INFO, "WireDispacther: Error calling producerConnected :" + ((Consumer)target).toString() );
+					if (target instanceof Producer) {
+						Activator.getLogger().info("WireDispacther: Error calling consumerConnected :" + ((Producer) target).toString());
+					} else if (target instanceof Consumer) {
+						Activator.getLogger().info("WireDispacther: Error calling producerConnected :" + ((Consumer) target).toString());
 					}
 				}
 			} catch (InterruptedException e) {

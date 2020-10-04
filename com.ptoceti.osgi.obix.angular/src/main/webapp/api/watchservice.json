@@ -1,3 +1,0 @@
-{
-	"watchservice" : {"type":"watchservice","is":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:WatchService"}]},"isNull":false,"writable":false,"childrens":[{"type":"op","name":"make","href":{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"/watchservice/"},"is":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:Op"}]},"isNull":false,"writable":false,"childrens":[],"in":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:Nil"}]},"out":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:Watch"}]}}]}
-}

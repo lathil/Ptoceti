@@ -9,29 +9,32 @@ import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 public class Activator implements BundleActivator {
 
     // a reference to this service bundle context.
     static BundleContext bc = null;
     // a reference to the logging service.
-    static LogService logSer;
+    static LoggerFactory logFactory;
+    static Logger logger;
     // the name of the logging service in the osgi framework.
-    static private final String logServiceName = org.osgi.service.log.LogService.class.getName();
+    static final String logFactoryName = org.osgi.service.log.LoggerFactory.class.getName();
     // a reference to the service registration for the Controller object.
     ServiceRegistration sReg = null;
 
     InfluxDbFactoryService influxDbFactory = null;
-    
-    public Activator(){
-	influxDbFactory = new InfluxDbFactoryService();
+
+    public Activator() {
+
     }
-    
+
     /**
      * Called by the framework for initialisation when the Activator class is
      * loaded. The method first get a service reference on the osgi logging
      * service, used for logging whithin the bundle.
-     * 
+     *
      * If the method cannot get a reference to the logging service, a
      * NullPointerException is thrown.
      * 
@@ -40,27 +43,23 @@ public class Activator implements BundleActivator {
      */
     public void start(BundleContext context) throws BundleException {
 
-	Activator.bc = context;
+        Activator.bc = context;
 
-	// we construct a listener to detect if the log service appear or
-	// disapear.
-	String logFilter = "(objectclass=" + logServiceName + ")";
-	ServiceListener logServiceListener = new LogServiceListener();
-	try {
-	    bc.addServiceListener(logServiceListener, logFilter);
-	    // in case the service is already registered, we send a REGISTERED
-	    // event to its listener.
-	    ServiceReference srLog = bc.getServiceReference(logServiceName);
-	    if (srLog != null) {
-		logServiceListener.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, srLog));
-	    }
-	} catch (InvalidSyntaxException e) {
-	    throw new BundleException("Error in filter string while registering LogServiceListener." + e.toString());
-	}
+        // we construct a listener to detect if the log service appear or disapear.
+        String filter = "(objectclass=" + logFactoryName + ")";
+        ServiceListener logFactoryListener = new LoggerFactoryListener();
+        try {
+            bc.addServiceListener(logFactoryListener, filter);
+            // in case the service is already registered, we send a REGISTERED event to its listener.
+            ServiceReference srLog = bc.getServiceReference(logFactoryName);
+            if (srLog != null) {
+                logFactoryListener.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, srLog));
+            }
+        } catch (InvalidSyntaxException e) {
+            throw new BundleException("Error in filter string while registering LogServiceListener." + e.toString());
+        }
 
-	log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
-	
-	influxDbFactory.start();
+
     }
 
     public static String getProperty(String propertyName) {
@@ -81,52 +80,64 @@ public class Activator implements BundleActivator {
      */
     public void stop(BundleContext context) throws BundleException {
 
-	influxDbFactory.stop();
-	log(LogService.LOG_INFO, "Stopping");
-	Activator.bc = null;
+        if (logFactory != null) {
+            getLogger().info("Stopping");
+        }
+
+        if (influxDbFactory != null) {
+            influxDbFactory.stop();
+            influxDbFactory = null;
+        }
+
+        Activator.bc = null;
     }
 
     /**
-     * Class method for logging to the logservice. This method can be accessed
-     * from every class in the bundle by simply invoking Activator.log(..).
-     * 
-     * @param logLevel
-     *            : the level to use when togging this message.
-     * @param message
-     *            : the message to log.
+     * Class method for retrieving the Activator logger This method can be accessed
+     * from every class in the bundle by simply invoking Activator.getLogger()...
+     *
+     * @return the Activator logger
      */
-    static public void log(int logLevel, String message) {
-	if (logSer != null)
-	    logSer.log(logLevel, message);
+    static public Logger getLogger() {
+        if (logger == null && logFactory != null) {
+            logger = logFactory.getLogger(Activator.class);
+        }
+        return logger;
     }
 
     /**
-     * Listen to registration and unregistration of the log service
-     * 
-     * @author LATHIL
-     * 
+     * Internel listener class that receives framework event when the log service is registered
+     * in the the framework and when it is being removed from it. The framework is a dynamic place
+     * and it is important to note when services appear and disappear.
+     * This inner class update the outer class reference to the log service in concordance.
      */
-    private class LogServiceListener implements ServiceListener {
+    public class LoggerFactoryListener implements ServiceListener {
 
-	/**
-	 * Unique method of the ServiceListener interface.
-	 * 
-	 */
-	public void serviceChanged(ServiceEvent event) {
+        /**
+         * Unique method of the ServiceListener interface.
+         */
+        public void serviceChanged(ServiceEvent event) {
 
-	    ServiceReference sr = event.getServiceReference();
-	    switch (event.getType()) {
-	    case ServiceEvent.REGISTERED: {
-		logSer = (LogService) bc.getService(sr);
+            ServiceReference sr = event.getServiceReference();
+            switch (event.getType()) {
+                case ServiceEvent.REGISTERED: {
+                    logFactory = (LogService) bc.getService(sr);
+                    Activator.getLogger().info("Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
 
-	    }
-		break;
-	    case ServiceEvent.UNREGISTERING: {
-		logSer = null;
-	    }
-		break;
-	    }
-	}
+                    influxDbFactory = new InfluxDbFactoryService();
+                    influxDbFactory.start();
+
+                }
+                break;
+                case ServiceEvent.UNREGISTERING: {
+                    logFactory = null;
+                    influxDbFactory.stop();
+                    influxDbFactory = null;
+
+                }
+                break;
+            }
+        }
     }
 
 }

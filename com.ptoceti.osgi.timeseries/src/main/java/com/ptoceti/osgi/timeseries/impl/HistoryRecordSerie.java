@@ -9,26 +9,24 @@ import org.osgi.service.log.LogService;
 import com.ptoceti.influxdb.Serie;
 import com.ptoceti.influxdb.SerieWrapper;
 import com.ptoceti.influxdb.TimeStampHelper;
-import com.ptoceti.osgi.obix.contract.HistoryRecord;
-import com.ptoceti.osgi.obix.object.Abstime;
-import com.ptoceti.osgi.obix.object.Val;
-import com.ptoceti.osgi.obix.object.ValHelper;
+import org.osgi.util.measurement.Measurement;
+
 
 public class HistoryRecordSerie extends SerieWrapper implements Iterator<HistoryRecord>,
-	Iterable<HistoryRecord> {
-	
-	protected TimeStampHelper timeStampHelper;
+        Iterable<HistoryRecord> {
+
+    protected TimeStampHelper timeStampHelper;
 
     protected static final String VALUEFIELD = "value";
     protected static final String NAMEFIELD = "name";
     protected static final String TIMEFIELD = "time";
-    protected static final String CONTRACTFIELD = "contract";
+    protected static final String UNITFIIELD = "unit";
 
     public HistoryRecordSerie(Serie serie) {
-    	
-		super(serie);
-		timeStampHelper = new TimeStampHelper();
-	// TODO Auto-generated constructor stub
+
+        super(serie);
+        timeStampHelper = new TimeStampHelper();
+        // TODO Auto-generated constructor stub
     }
 
     public HistoryRecord build(List<String> values) {
@@ -36,22 +34,19 @@ public class HistoryRecordSerie extends SerieWrapper implements Iterator<History
 	HistoryRecord record = null;
 	
 	    try {
-		
-		record = new HistoryRecord();
-		
-		Date date = timeStampHelper.parseRfc3339((String) values.get(fields.get(TIMEFIELD)));
-		Abstime timestamp = new Abstime("time", date.getTime());
-		record.setTimeStamp(timestamp);
 
-		Val val = ValHelper.buildFromContract((String) values.get(fields.get(CONTRACTFIELD)));
-		val.decodeVal( values.get(fields.get(VALUEFIELD)).toString());
-		record.setValue(val);
+            record = new HistoryRecord();
 
-		record.setName((String) values.get(fields.get(NAMEFIELD)));
+            Date date = timeStampHelper.parseRfc3339((String) values.get(fields.get(TIMEFIELD)));
+            record.setTimmestamp(date);
 
-	    } catch (Exception ex) {
-		Activator.log(LogService.LOG_ERROR, "Couldnot create HistoryRollupRecords, ex" + ex);
-	    }
+            record.setVal(new Measurement(Double.parseDouble(values.get(fields.get(VALUEFIELD)))));
+
+            record.setName((String) values.get(fields.get(NAMEFIELD)));
+
+        } catch (Exception ex) {
+            Activator.getLogger().error("Couldnot create HistoryRollupRecords, ex" + ex);
+        }
 	    
 	    
 	return record;

@@ -1,0 +1,201 @@
+openapi: 3.0.1
+info:
+  title: Rest
+  version: 1.0.0
+tags:
+  - name: rest
+    description: Everything about your Pets
+paths:
+  /lobby:
+    get:
+      tags:
+        - rest
+      operationId: getLobby
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Lobby'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lobby'
+  /mqtt:
+    get:
+      operationId: getMqttServices
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MqttServiceInfo'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MqttServiceInfo'
+  /series:
+    get:
+      operationId: getTimeSeries
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/TimeSeriesinfo'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeSeriesinfo'
+  /wires:
+    get:
+      operationId: getWires
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WireInfo'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WireInfo'
+  /wires/{id}:
+    get:
+      operationId: getWire
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/WireInfo'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WireInfo'
+components:
+  schemas:
+    Lobby:
+      type: object
+      properties:
+        deviceServiceUrl:
+          type: string
+          xml:
+            attribute: true
+      xml:
+        name: lobby
+    MeasurementData:
+      type: object
+      properties:
+        error:
+          type: number
+          format: double
+          xml:
+            attribute: true
+        name:
+          type: string
+          xml:
+            attribute: true
+        time:
+          type: integer
+          format: int64
+          xml:
+            attribute: true
+        unit:
+          type: string
+          xml:
+            attribute: true
+        value:
+          type: number
+          format: double
+          xml:
+            attribute: true
+      xml:
+        name: measurement
+    MqttServiceInfo:
+      type: object
+      properties:
+        connected:
+          type: boolean
+          xml:
+            attribute: true
+        pid:
+          type: string
+          xml:
+            attribute: true
+      xml:
+        name: mqttservice
+    PositionData:
+      type: object
+      properties:
+        altitude:
+          $ref: '#/components/schemas/MeasurementData'
+        latitude:
+          $ref: '#/components/schemas/MeasurementData'
+        longitude:
+          $ref: '#/components/schemas/MeasurementData'
+        speed:
+          $ref: '#/components/schemas/MeasurementData'
+        track:
+          $ref: '#/components/schemas/MeasurementData'
+      xml:
+        name: position
+    Sample:
+      type: object
+      properties:
+        measurement:
+          $ref: '#/components/schemas/MeasurementData'
+        position:
+          $ref: '#/components/schemas/PositionData'
+      xml:
+        name: sample
+    TimeSeriesinfo:
+      type: object
+      properties:
+        connected:
+          type: boolean
+          xml:
+            attribute: true
+      xml:
+        name: timeseries
+    WireInfo:
+      type: object
+      properties:
+        connected:
+          type: boolean
+          xml:
+            attribute: true
+        consumerPid:
+          type: string
+          xml:
+            attribute: true
+        lastValue:
+          $ref: '#/components/schemas/Sample'
+        producerPid:
+          type: string
+          xml:
+            attribute: true
+        scopes:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            type: string
+            xml:
+              name: scope
+      xml:
+        name: wire

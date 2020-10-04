@@ -1,3 +1,0 @@
-{
-	"historyservice" : {"type":"historyservice","is":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"ptoceti:HistoryService"}]},"isNull":false,"writable":false,"childrens":[{"type":"op","name":"make","href":{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"/historyservice/"},"is":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:Op"}]},"isNull":false,"writable":false,"childrens":[],"in":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:ref"}]},"out":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:History"}]}}]}
-}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0">
+    <OCD description="Ihm service configuration" name="Ptoceti Ihm service" id="com.ptoceti.osgi.ihm.impl.IhmService">
+        <AD name="Ihm url path pattern" id="com.ptoceti.osgi.ihm.path.pattern" required="true" type="String"
+            default="/ihm"/>
+    </OCD>
+    <Designate pid="com.ptoceti.osgi.ihm.impl.IhmService">
+        <Object ocdref="com.ptoceti.osgi.ihm.impl.IhmService"/>
+    </Designate>
+</MetaData>
