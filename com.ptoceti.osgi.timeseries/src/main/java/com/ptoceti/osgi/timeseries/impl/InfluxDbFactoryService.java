@@ -9,11 +9,9 @@ import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.log.LogService;
 
 import com.ptoceti.influxdb.factory.InfluxDbFactoryBuilder;
 import com.ptoceti.influxdb.factory.InfluxDbResourceFactory;
-import com.ptoceti.osgi.timeseries.TimeSeriesService;
 
 public class InfluxDbFactoryService implements ManagedService {
     
@@ -34,14 +32,14 @@ public class InfluxDbFactoryService implements ManagedService {
 
     protected synchronized void start() {
 
-	String[] clazzes = new String[] { ManagedService.class.getName(), InfluxDbFactoryService.class.getName() };
-	// register the class as a managed service.
-	Hashtable<String, String> properties = new Hashtable<String, String>();
-	properties.put(Constants.SERVICE_PID, InfluxDbFactoryService.class.getName());
-	sReg = Activator.bc.registerService(clazzes, this, properties);
+        String[] clazzes = new String[]{ManagedService.class.getName(), InfluxDbFactoryService.class.getName()};
+        // register the class as a managed service.
+        Hashtable<String, String> properties = new Hashtable<String, String>();
+        properties.put(Constants.SERVICE_PID, InfluxDbFactoryService.class.getName());
+        sReg = Activator.bc.registerService(clazzes, this, properties);
 
-	Activator.log(LogService.LOG_INFO,"Registered " + this.getClass().getName() + ", Pid = "
-				+ (String) properties.get(Constants.SERVICE_PID));
+        Activator.getLogger().info("Registered " + this.getClass().getName() + ", Pid = "
+                + (String) properties.get(Constants.SERVICE_PID));
 
     }
 
@@ -54,7 +52,7 @@ public class InfluxDbFactoryService implements ManagedService {
 	// Unregister the factory first ..
 	sReg.unregister();
 
-	Activator.log(LogService.LOG_INFO, "Unregistered " + this.getClass().getName());
+        Activator.getLogger().info("Unregistered " + this.getClass().getName());
     }
 
   
@@ -71,7 +69,7 @@ public class InfluxDbFactoryService implements ManagedService {
 		timeSeriesService = new TimeSeriesServiceImpl(influxDbFactory, properties);
 		
 	    } catch (MalformedURLException e) {
-		Activator.log(LogService.LOG_ERROR, "Couldn't create factory. Url malformed: " + url );
+            Activator.getLogger().error("Couldn't create factory. Url malformed: " + url);
 	    }
 	}
     }

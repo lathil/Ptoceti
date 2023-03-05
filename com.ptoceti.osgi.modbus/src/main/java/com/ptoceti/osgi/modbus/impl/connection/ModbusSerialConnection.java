@@ -28,10 +28,13 @@ package com.ptoceti.osgi.modbus.impl.connection;
  * #L%
  */
 
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.serial.SerialDevice;
+
 import java.io.OutputStream;
 import java.io.InputStream;
 
-import gnu.io.SerialPort;
 
 
 /**
@@ -46,32 +49,35 @@ public abstract class ModbusSerialConnection implements ModbusConnection {
 		
 	protected OutputStream outStream;
 	protected InputStream inStream;
-	
-	protected int framesSentCounter;
-	protected int framesReceivedCounter;
-	protected int badFramesSentCounter;
-	protected int badFramesReceivedCounter;
-	protected int noRepliesCounter;
-	
-	boolean doMonitorFlag;
-	boolean usesEcho;
-	
-	protected SerialPort serialPort;
-	protected String portName;
-	
-	public String getPortName() {
-		return portName;
-	}
-	public void setDoMonitor(boolean doMonitor) {
-		doMonitorFlag = doMonitor;
-	}
-	
-	public boolean getDoMonitor() {
-		return doMonitorFlag;
-	}
-	
-	public void incrementFrameSentCounter(){
-		framesSentCounter++;
+
+    protected int framesSentCounter;
+    protected int framesReceivedCounter;
+    protected int badFramesSentCounter;
+    protected int badFramesReceivedCounter;
+    protected int noRepliesCounter;
+
+    boolean doMonitorFlag;
+    boolean usesEcho;
+
+    protected SerialDevice serialDevice;
+    protected String portName;
+
+    public String getPortName() {
+        return portName;
+    }
+
+    ;
+
+    public void setDoMonitor(boolean doMonitor) {
+        doMonitorFlag = doMonitor;
+    }
+
+    public boolean getDoMonitor() {
+        return doMonitorFlag;
+    }
+
+    public void incrementFrameSentCounter() {
+        framesSentCounter++;
 	}
 	
 	public int getFrameSentCounter() {

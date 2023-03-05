@@ -44,7 +44,8 @@ public class EbusMessage {
 
     /**
      * test if message is type broadcast. Destination address is broadcast adress
-     * @return
+     *
+     * @return boolean tru if message is a broadcast message
      */
     public boolean isBroadcastMessage(){
         return getDestId() == (byte) ( BROADCAST_ADD & 0x00FF);
@@ -52,7 +53,7 @@ public class EbusMessage {
 
     /**
      * test if message is for a master address
-     * @return
+     * @return boolean true if message is master to master message
      */
     public boolean isMasterToMasterMessage(){
         int subAddress = (getDestId() & 0xF0 );

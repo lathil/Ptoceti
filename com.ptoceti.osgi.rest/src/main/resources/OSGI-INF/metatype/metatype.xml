@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0">
+    <OCD description="Rest service configuration" name="Ptoceti Rest service"
+         id="com.ptoceti.osgi.rest.impl.RestService">
+        <AD name="Ihm url path pattern" id="com.ptoceti.osgi.rest.api.path.pattern" required="true" type="String"
+            default="/rest"/>
+    </OCD>
+    <Designate pid="com.ptoceti.osgi.rest.impl.RestService">
+        <Object ocdref="com.ptoceti.osgi.rest.impl.RestService"/>
+    </Designate>
+</MetaData>

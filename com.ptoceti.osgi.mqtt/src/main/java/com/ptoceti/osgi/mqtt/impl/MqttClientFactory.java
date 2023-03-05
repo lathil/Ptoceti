@@ -45,17 +45,17 @@ public class MqttClientFactory implements org.osgi.service.cm.ManagedServiceFact
 	
 	
 	public MqttClientFactory() {
-		
-		mqttClients = new Hashtable<String, MqttClientWrapper>();
-		// register the class as a service factory.
-		Hashtable<String, Object> properties = new Hashtable<String, Object>();
-		properties.put( Constants.SERVICE_PID, this.getClass().getName());
-		mqttClientFactoryReg = Activator.bc.registerService(ManagedServiceFactory.class.getName(),this, properties );
-		
-		Activator.log(LogService.LOG_INFO, "Registered " + MqttClientFactory.class.getName()
-			+ " as " + ManagedServiceFactory.class.getName());
-		
-	}
+
+        mqttClients = new Hashtable<String, MqttClientWrapper>();
+        // register the class as a service factory.
+        Hashtable<String, Object> properties = new Hashtable<String, Object>();
+        properties.put(Constants.SERVICE_PID, "com.ptoceti.osgi.mqtt.MqttClientFactory");
+        mqttClientFactoryReg = Activator.bc.registerService(ManagedServiceFactory.class.getName(), this, properties);
+
+        Activator.getLogger().info("Registered " + MqttClientFactory.class.getName()
+                + " as " + ManagedServiceFactory.class.getName());
+
+    }
 	
 	/**
 	 * ManagedServiceFactory Interface method
@@ -96,7 +96,7 @@ public class MqttClientFactory implements org.osgi.service.cm.ManagedServiceFact
 			try {
 				props.load(reader);
 			} catch (IOException e) {
-				Activator.log(LogService.LOG_ERROR, "Error loading ssl properties");
+				Activator.getLogger().error("Error loading ssl properties");
 			}
 			mqttOptions.setSSLProperties(props);
 		}
@@ -121,23 +121,24 @@ public class MqttClientFactory implements org.osgi.service.cm.ManagedServiceFact
 
 	@Override
 	public void deleted(String pid) {
-		MqttClientWrapper mqttClient = mqttClients.get( pid );
+		MqttClientWrapper mqttClient = mqttClients.get(pid);
 		// simple precaution, we first check that we effectively got an instance with this pid
-		if ( mqttClient != null ) {
+		if (mqttClient != null) {
 			// then we got rid of it.
 			mqttClient.stop();
 			mqttClients.remove(pid);
-			Activator.log(LogService.LOG_INFO,"Removed Mqtt client type: " + mqttClient.getClass().getName() + ", service pid: " + pid);
+			Activator.getLogger().info("Removed Mqtt client type: " + mqttClient.getClass().getName() + ", service pid: " + pid);
 		}
 	}
 
 	/**
 	 * Called when the main bundles is stopped
 	 */
-	public void stop(){
-		for ( String pid: mqttClients.keySet()) {
+	public void stop() {
+		for (String pid : mqttClients.keySet()) {
 			mqttClients.get(pid).stop();
 		}
-		
+		mqttClientFactoryReg.unregister();
+
 	}
 }

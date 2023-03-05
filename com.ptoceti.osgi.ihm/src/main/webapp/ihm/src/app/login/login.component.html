@@ -1,0 +1,39 @@
+<div class="app flex-row align-items-center">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <form #loginForm="ngForm" (ngSubmit)="onFormSubmit()" class="needs-validation" novalidate>
+        <!--<img class="mb-4" src="../assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">-->
+        <i class="bi bi-person-circle" style="font-size: 4rem; color: cornflowerblue;"></i>
+        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+        <div class="input-group">
+          <label for="username" class="sr-only">Email address</label>
+          <input id="username" type="text" [(ngModel)]="name" name="nameControl" #nameControl="ngModel"
+                 class="form-control" placeholder="Username" required minlength="1"/>
+        </div>
+        <div class="input-group mb-3">
+          <label for="password" class="sr-only">Password</label>
+          <input id="password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" name="passwordControl"
+                 #passwordControl="ngModel" class="form-control" placeholder="Password" required minlength="1"/>
+          <div class="input-group-append">
+               <span class="input-group-text">
+                <i class="bi bi-eye-slash" [ngClass]="{'bi bi-eye-slash': !showPassword,'bi bi-eye': showPassword}"
+                   (click)="toggleShowPassword()"></i>
+              </span>
+          </div>
+        </div>
+        <div *ngIf="loginInvalid" class="alert alert-danger" role="alert">
+          Invalid username and/or password.
+        </div>
+        <div class="checkbox mb-3">
+          <label>
+            <input type="checkbox" value="remember-me"> Remember me
+          </label>
+        </div>
+        <button [disabled]="loginForm.invalid" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <p class="mt-5 mb-3 text-muted">&copy; 2017-2022</p>
+      </form>
+
+    </div>
+  </div>
+</div>
+

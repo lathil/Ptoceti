@@ -77,7 +77,7 @@ public class WireConfig {
 				eventType = parser.next();
 			}
 		} catch (XmlPullParserException e) {
-			Activator.log(LogService.LOG_INFO, "WireConfig reader, problem while reading the configuration: " + e.toString());
+			Activator.getLogger().info("WireConfig reader, problem while reading the configuration: " + e.toString());
 		}
 	}
 	

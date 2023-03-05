@@ -11,10 +11,16 @@ public interface EbusDriver {
     public static final String EBUS_LOCKCOUNTER_MAX = "com.ptoceti.osgi.ebusdriver.lockcounter";
     public static final String EBUS_SENDQUEUELENGTH = "com.ptoceti.osgi.ebusdriver.sendqueuelength";
 
+    public static final String EBUS_DRIVER_NAME = "Ebus";
+
+    public void addListener(EbusDriverListener listener);
+
+    public void removeListener(EbusDriverListener listener);
+
     EbusResponseListener sendMasterMasterMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload);
 
-    EbusResponseListener sendMasterSlaveMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload );
+    EbusResponseListener sendMasterSlaveMessage(int destAddress, int primaryCommand, int secondaryCommand, byte[] payload);
 
-    EbusResponseListener sendBroadcastMessage( int primaryCommand, int secondaryCommand, byte[] payload);
+    EbusResponseListener sendBroadcastMessage(int primaryCommand, int secondaryCommand, byte[] payload);
 
 }

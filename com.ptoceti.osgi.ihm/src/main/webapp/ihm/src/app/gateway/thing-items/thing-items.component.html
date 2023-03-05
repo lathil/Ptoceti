@@ -1,0 +1,35 @@
+<tr class="border-bottom-0 border-top-0">
+  <td>{{thing.uid}}</td>
+  <td>{{thing.name}}</td>
+  <td>{{thing.description}}</td>
+  <td>{{thing.status}}</td>
+  <td>
+    <div class="d-inline-block text-center" ngbDropdown>
+      <!--<button class="btn btn-secondary" ngbDropdownToggle>Dropdown link</button>-->
+      <a ngbDropdownToggle><i class="bi bi-three-dots-vertical"></i></a>
+      <div ngbDropdownMenu>
+        <a ngbDropdownItem [routerLink]="['../thing', thing.properties['service.id']]">Details</a>
+        <a *ngIf="hasConfig" ngbDropdownItem
+           [routerLink]="['../conf', thing.properties['service.pid']]">Configuration</a>
+        <a *ngIf="hasConfig" ngbDropdownItem
+           (click)="onDelete()">Delete</a>
+      </div>
+    </div>
+  </td>
+  <td>
+    <div class="d-inline-block">
+      <a appToggle (doToggle)="toogleItems($event)">Items <i class="bi bi-chevron-right" appToggleOff></i><i
+        class="bi bi-chevron-down" appToggleOn></i></a>
+    </div>
+  </td>
+</tr>
+<ng-container *ngIf="itemsToggled">
+  <ng-container *ngFor="let item of items$ | async">
+    <tr class="border-top-0">
+      <td colspan="6" class="border-top-0">
+        <app-item [item]="item"></app-item>
+      </td>
+    </tr>
+  </ng-container>
+</ng-container>
+

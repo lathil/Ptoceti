@@ -1,16 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-	    <artifactId>com.ptoceti.parent</artifactId>
-	    <groupId>com.ptoceti</groupId>
-	    <version>1.2.1-SNAPSHOT</version>
-	    <relativePath>..</relativePath>
-	  </parent>
+		<artifactId>com.ptoceti.parent</artifactId>
+		<groupId>com.ptoceti</groupId>
+		<version>2.0.1-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>com.ptoceti.osgi.wireadmin</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>WireAdmin</name>
+	<name>Ptoceti WireAdmin</name>
 	<description>Ptoceti's wire admin service</description>
 
 	<properties>
@@ -64,9 +65,10 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Private-Package>${project.artifactId}.impl</Private-Package>
-						<Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
-					</instructions>
+                        <Private-Package>${project.artifactId}.impl</Private-Package>
+                        <Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
+                        <Export-Package>org.osgi.service.wireadmin</Export-Package>
+                    </instructions>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -82,7 +84,20 @@
 
 		<dependency>
 			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
+            <artifactId>org.osgi.service.log</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.cm</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.wireadmin</artifactId>
+            <scope>provided</scope>
 		</dependency>
 
 		<dependency>

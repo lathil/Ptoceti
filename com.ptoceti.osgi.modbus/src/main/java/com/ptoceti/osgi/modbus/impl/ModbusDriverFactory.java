@@ -68,17 +68,17 @@ public class ModbusDriverFactory implements org.osgi.service.cm.ManagedServiceFa
 	 *
 	 */
 	public ModbusDriverFactory() {
-		// create a new hastable that will contain references to all the modbusdriver services.
-		modbusDrivers = new Hashtable();
-		// register the class as a service factory.
-		Hashtable properties = new Hashtable();
-		properties.put( Constants.SERVICE_PID, this.getClass().getName());
-		modbusDriverFactoryReg = Activator.bc.registerService(ManagedServiceFactory.class.getName(),
-				this, properties );
-		
-		Activator.log(LogService.LOG_INFO, "Registered " + ModbusDriverFactory.class.getName()
-			+ " as " + ManagedServiceFactory.class.getName());
-	}
+        // create a new hastable that will contain references to all the modbusdriver services.
+        modbusDrivers = new Hashtable();
+        // register the class as a service factory.
+        Hashtable properties = new Hashtable();
+        properties.put(Constants.SERVICE_PID, "com.ptoceti.osgi.modbus.ModbusDriverFactory");
+        modbusDriverFactoryReg = Activator.bc.registerService(ManagedServiceFactory.class.getName(),
+                this, properties);
+
+        Activator.getLogger().info("Registered " + ModbusDriverFactory.class.getName()
+                + " as " + ManagedServiceFactory.class.getName());
+    }
 	
 	/**
 	 * Uregistered the class from the service registration system.
@@ -86,16 +86,16 @@ public class ModbusDriverFactory implements org.osgi.service.cm.ManagedServiceFa
 	 *
 	 */
 	public void stop() {
-		// Unregister the factory first ..
-		modbusDriverFactoryReg.unregister();
-		// .. second, stop all the ModbusDriver services.
-		for( Enumeration mdbDrivs = modbusDrivers.elements(); mdbDrivs.hasMoreElements(); ) {
-			ModbusDriverImpl mdbDrvImpl= (ModbusDriverImpl) mdbDrivs.nextElement();
-			mdbDrvImpl.stop();
-		}
+        // Unregister the factory first ..
+        modbusDriverFactoryReg.unregister();
+        // .. second, stop all the ModbusDriver services.
+        for (Enumeration mdbDrivs = modbusDrivers.elements(); mdbDrivs.hasMoreElements(); ) {
+            ModbusDriverImpl mdbDrvImpl = (ModbusDriverImpl) mdbDrivs.nextElement();
+            mdbDrvImpl.stop();
+        }
 
-		Activator.log(LogService.LOG_INFO, "Unregistered " + ModbusDriverFactory.class.getName());
-	}
+        Activator.getLogger().info("Unregistered " + ModbusDriverFactory.class.getName());
+    }
 	
 	/**
 	 * ManagedServiceFactory Interface method
@@ -156,20 +156,20 @@ public class ModbusDriverFactory implements org.osgi.service.cm.ManagedServiceFa
 				// opening the serial port.
 				try {
 					if( type.equals( ModbusDriver.MASTER )) {
-						mdbDriver = new ModbusMaster(modbusIDInt, port, encoding, baudRateInt, usesParityBool, evenParityBool, echoBool);
-						Activator.log(LogService.LOG_INFO,"Created ModbusDriver type: " + mdbDriver.getClass().getName()
-						+ ", encoding: " + encoding + ", port: " + port + ", id: " + modbusID + ", echo: " + echo  + ", service factory pid: " + pid);
-					}
+                        mdbDriver = new ModbusMaster(pid, modbusIDInt, port, encoding, baudRateInt, usesParityBool, evenParityBool, echoBool);
+                        Activator.getLogger().info("Created ModbusDriver type: " + mdbDriver.getClass().getName()
+                                + ", encoding: " + encoding + ", port: " + port + ", id: " + modbusID + ", echo: " + echo + ", service factory pid: " + pid);
+                    }
 					else if( type.equals( ModbusDriver.SLAVE )) {
-						mdbDriver = new ModbusSlave(modbusIDInt, port, encoding, baudRateInt, usesParityBool, evenParityBool);
-						Activator.log(LogService.LOG_INFO,"Created ModbusDriver type: " + mdbDriver.getClass().getName()
-						+ ", encoding: " + encoding + ", port: " + port + ", id: " + modbusID + ", service factory pid: " + pid);
-					}
+                        mdbDriver = new ModbusSlave(pid, modbusIDInt, port, encoding, baudRateInt, usesParityBool, evenParityBool);
+                        Activator.getLogger().info("Created ModbusDriver type: " + mdbDriver.getClass().getName()
+                                + ", encoding: " + encoding + ", port: " + port + ", id: " + modbusID + ", service factory pid: " + pid);
+                    }
 					else return;
 				} catch ( Exception e ) {
-					Activator.log(LogService.LOG_INFO, "Could not create ModbusDriver port. Reason: " + e.toString());
-					mdbDriver = null;
-				}
+                    Activator.getLogger().info("Could not create ModbusDriver port. Reason: " + e.toString());
+                    mdbDriver = null;
+                }
 				// if we managed to create the modbus driver, we need to keep track of the instance.
 				if( mdbDriver != null ) {
 					// keep track of this instance.
@@ -179,22 +179,22 @@ public class ModbusDriverFactory implements org.osgi.service.cm.ManagedServiceFa
 				}
 			}
 			else {
-				Activator.log(LogService.LOG_INFO,"Cannot create ModbusDriver service: bad configuration data.");
-			}
+                Activator.getLogger().info("Cannot create ModbusDriver service: bad configuration data.");
+            }
 			
 		}
 		else {
-			String missingParam = "";
-			if(port == null) missingParam = ModbusDriver.MODBUS_PORT;
-			else if (type == null) missingParam = ModbusDriver.MODBUS_SLAVE_MASTER;
-			else if (modbusID == null) missingParam = ModbusDriver.MODBUS_ID;
-			else if (encoding == null) missingParam = ModbusDriver.MODBUS_ENCODING;
-			else if (baudRate == null) missingParam = ModbusDriver.MODBUS_BAUDRATE;
-			else if (usesParity == null) missingParam = ModbusDriver.MODBUS_USESPARITY;
-			else if (evenParity == null) missingParam = ModbusDriver.MODBUS_EVENPARITY;
-			else if (echo == null) missingParam = ModbusDriver.MODBUS_ECHO;
-			Activator.log(LogService.LOG_INFO,"Cannot create MobusDriver service: configuration data missing: " + missingParam);
-		}
+            String missingParam = "";
+            if (port == null) missingParam = ModbusDriver.MODBUS_PORT;
+            else if (type == null) missingParam = ModbusDriver.MODBUS_SLAVE_MASTER;
+            else if (modbusID == null) missingParam = ModbusDriver.MODBUS_ID;
+            else if (encoding == null) missingParam = ModbusDriver.MODBUS_ENCODING;
+            else if (baudRate == null) missingParam = ModbusDriver.MODBUS_BAUDRATE;
+            else if (usesParity == null) missingParam = ModbusDriver.MODBUS_USESPARITY;
+            else if (evenParity == null) missingParam = ModbusDriver.MODBUS_EVENPARITY;
+            else if (echo == null) missingParam = ModbusDriver.MODBUS_ECHO;
+            Activator.getLogger().info("Cannot create MobusDriver service: configuration data missing: " + missingParam);
+        }
 	}
 	
 	/**
@@ -208,12 +208,12 @@ public class ModbusDriverFactory implements org.osgi.service.cm.ManagedServiceFa
 		ModbusDriverImpl mdbDriver = (ModbusDriverImpl) modbusDrivers.get(pid);
 		// simple precaution, we first check that we effectively got an instance with this pid
 		if( mdbDriver != null ) {
-			// then we got rid of it.
-			modbusDrivers.remove(pid);
-			mdbDriver.stop();
-			Activator.log(LogService.LOG_INFO,"Removed ModbusDriver type: " + mdbDriver.getClass().getName()
-				+ ", service factory pid: " + pid );
-		}
+            // then we got rid of it.
+            modbusDrivers.remove(pid);
+            mdbDriver.stop();
+            Activator.getLogger().info("Removed ModbusDriver type: " + mdbDriver.getClass().getName()
+                    + ", service factory pid: " + pid);
+        }
 	}
 	
 	/**

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Factories>
+    <FactoryInfo description="Ebus driver factory" pid="com.ptoceti.osgi.ebus.EbusDriverFactory" isFactory="true"
+                 type="Driver"></FactoryInfo>
+</Factories>

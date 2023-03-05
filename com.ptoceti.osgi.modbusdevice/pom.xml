@@ -1,16 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-	    <artifactId>com.ptoceti.parent</artifactId>
-	    <groupId>com.ptoceti</groupId>
-	    <version>1.2.1-SNAPSHOT</version>
-	    <relativePath>..</relativePath>
-	  </parent>
+		<artifactId>com.ptoceti.parent</artifactId>
+		<groupId>com.ptoceti</groupId>
+		<version>2.0.1-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>com.ptoceti.osgi.modbusdevice</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>ModbusDevice</name>
+	<name>Ptoceti ModbusDevice</name>
 	<description>Ptoceti's modbus device service</description>
 
 	<properties>
@@ -64,10 +65,10 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Export-Package>${project.artifactId}</Export-Package>
-						<Private-Package>${project.artifactId}.impl</Private-Package>
-						<Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
-					</instructions>
+                        <Export-Package>${project.artifactId}</Export-Package>
+                        <Private-Package>${project.artifactId}.impl.*</Private-Package>
+                        <Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
+                    </instructions>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -83,23 +84,61 @@
 
 		<dependency>
 			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-		</dependency>
+            <artifactId>org.osgi.service.log</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>org.knopflerfish.bundle</groupId>
-			<artifactId>kxml-LIB</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.cm</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>com.ptoceti</groupId>
-			<artifactId>com.ptoceti.osgi.control</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.wireadmin</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-		<dependency>
-			<groupId>com.ptoceti</groupId>
-			<artifactId>com.ptoceti.osgi.modbus</artifactId>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.util.measurement</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.device</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.dal</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.dal.functions</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.event</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.knopflerfish.bundle</groupId>
+            <artifactId>kxml-LIB</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.ptoceti</groupId>
+            <artifactId>com.ptoceti.osgi.modbus</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 

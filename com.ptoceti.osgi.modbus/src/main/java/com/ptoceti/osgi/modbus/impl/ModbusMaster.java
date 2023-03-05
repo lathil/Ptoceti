@@ -51,25 +51,19 @@ public class ModbusMaster extends ModbusDriverImpl {
 	/**
 	 * Initialise the class by setting the serial connection to the Modbus serial bus. If setting up the connection encounter
 	 * a problem, an exception is issued.
-	 *
-	 * @param id: ID of the device on the modbus bus.
-	 * @param portName: name of the serial port to use to access the serial port, eg "/dev/tty01"
-	 * @param encoding: style of encoding to use on the bus: either ascii or rtu.
-	 * @param baudRate: baud rate to used on the serial link: 9600 to 19200.
-	 * @param usesParity: state whether to send the parity bit on the serial link.
-	 * @param evenParity: state whether to use even or odd parity.
-	 * @param echo: true if need to check for an echo
-	 * @exception Exception is thrown if probmems creating the serial connection.
-	 */
-	public ModbusMaster( int id, String portName, String encoding, int baudRate, boolean usesParity, boolean evenParity, boolean echo ) throws Exception {
-	
-		this.setID((byte)id);
-
-		if( encoding.equals(ModbusDriver.RTU_ENCODING))
-			mdbConnection = new ModbusSerialRTUConnection( portName, baudRate, usesParity, evenParity, echo );
-		else if (encoding.equals(ModbusDriver.ASCII_ENCODING ))
-			mdbConnection = new ModbusSerialASCIIConnection( portName, baudRate, usesParity, evenParity, echo );
-	}
+     *
+     * @param id: ID of the device on the modbus bus.
+     * @param portName: name of the serial port to use to access the serial port, eg "/dev/tty01"
+     * @param encoding: style of encoding to use on the bus: either ascii or rtu.
+     * @param baudRate: baud rate to used on the serial link: 9600 to 19200.
+     * @param usesParity: state whether to send the parity bit on the serial link.
+     * @param evenParity: state whether to use even or odd parity.
+     * @param echo: true if need to check for an echo
+     * @exception Exception is thrown if probmems creating the serial connection.
+     */
+    public ModbusMaster(String pid, int id, String portName, String encoding, int baudRate, boolean usesParity, boolean evenParity, boolean echo) throws Exception {
+        super(pid, id, portName, encoding, baudRate, usesParity, evenParity);
+    }
 		
 	/**
 	 * Return whether this ModbusDriver is master or not.

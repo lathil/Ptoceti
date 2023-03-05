@@ -1,9 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>com.ptoceti.parent</artifactId>
 		<groupId>com.ptoceti</groupId>
-		<version>1.2.1-SNAPSHOT</version>
+		<version>2.0.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -11,13 +12,13 @@
 	<packaging>bundle</packaging>
 
 
-	<name>TimeSeries</name>
+	<name>Ptoceti TimeSeries</name>
 	<description>Ptoceti time series service</description>
-	
+
 	<properties>
 		<bundle.namespace>${project.artifactId}</bundle.namespace>
 	</properties>
-	
+
 	<build>
 		<resources>
 			<resource>
@@ -67,6 +68,7 @@
 					<instructions>
 						<Private-Package>${project.artifactId}.impl</Private-Package>
 						<Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
+						<Export-Package>${project.artifactId}</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>
@@ -83,19 +85,25 @@
 
 		<dependency>
 			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
+			<artifactId>org.osgi.service.log</artifactId>
+			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
-			<groupId>com.ptoceti</groupId>
-			<artifactId>com.ptoceti.osgi.obix-api</artifactId>
-			<version>1.2.1-SNAPSHOT</version>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.service.cm</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.osgi</groupId>
+			<artifactId>org.osgi.util.measurement</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.ptoceti</groupId>
 			<artifactId>influxdb-fluentapi</artifactId>
-			<version>1.0.0</version>
 		</dependency>
 	</dependencies>
 

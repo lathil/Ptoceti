@@ -31,15 +31,19 @@ package com.ptoceti.osgi.modbusdevice.impl;
 
 import com.ptoceti.osgi.modbus.ModbusDriver;
 
-import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceListener;
-import org.osgi.framework.ServiceEvent;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.service.log.LogService;
+import com.ptoceti.osgi.modbus.ModbusDriverListener;
+import com.ptoceti.osgi.modbusdevice.ModbusDevice;
+import com.ptoceti.osgi.modbusdevice.ModbusCommand;
+import org.osgi.framework.*;
+import org.osgi.service.dal.Device;
+import org.osgi.service.dal.DeviceException;
+import org.osgi.service.device.Constants;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Dictionary;
+import java.util.Hashtable;
+import java.util.concurrent.*;
 
 /**
  * modbusdevice.impl class
@@ -61,516 +65,170 @@ import java.util.List;
  * @author Laurent Thil
  * @version 1.0
  */
-public class ModbusDeviceImpl extends ModbusDeviceAbstractImpl {
+public class ModbusDeviceImpl implements ModbusDevice, ModbusDriverListener, Device {
 
-	
-	// A thread object that get hold of an Modbus driver service and delegate the reading to the MeasurementFactory and StateFactory.
-	private ModbusDriverCommunicator mdbCommunicator = null;
-	
-	/**
-	 * ModbusDevice
-	 *
-	 *
-	 *
-	 */
-	public ModbusDeviceImpl( String pid, String compositeIdentity, String modbusPort, int modbusId, int  modbusPoolingRateS, List<ModbusData> mdbReferenceList, List<ModbusData> mdbMeasurementList, List<ModbusData> mdbStateList, List<ModbusData> mdbSwitchList ) throws Exception {
-		
-		// Force the list of wires to null. It will get initialiwed by the wire admin.
-		consumerWires = null;
-		// Initialise the list of ModbusData to an empty list. We'll feed it latter.
-		modbusData = new ArrayList<ModbusData>();
-		// Crate the reference data buffer ..
-		modbusRDataBuffer = new ReferenceDataBuffer();
-		// Create the measurement data buffer ..
-		modbusMDataBuffer = new MeasurementDataBuffer();
-		// and the state data buffer now. We'll need to give them as delegates to the modbus data objects.
-		modbusSDataBuffer = new StateDataBuffer();
-		// a state buffer for the coils as well
-		modbusSwDataBuffer = new SwitchDataBuffer();
-	
-		init(pid, compositeIdentity, mdbReferenceList, mdbMeasurementList, mdbStateList, mdbSwitchList);
-		
-		// Create a new ModbusDriverCommunicator. Will be responsible to communicate with the device.
-		mdbCommunicator = new ModbusDriverCommunicator(modbusPort, modbusId, modbusPoolingRateS);
 
-	}
-	
-	/**
-	 * Stop this ModbusDevice; Stopping consist in stopping any threads instanciated by this service. Here we
-	 * stop the ModbusCommunicator thread that pool on the ModbusDriver service. Everything else is taken care
-	 * of by the framework.
-	 *
-	 *
-	 */
-	public void stop() {
-	
-		mdbCommunicator.disconnect();
-		sReg.unregister();
-		Activator.log(LogService.LOG_INFO, "Unregistered " + this.getClass().getName());
-	}
-	 
-	public int getId() {
-		return mdbCommunicator.getId();
-	}
-	
-	public String getPortName() {
-		return mdbCommunicator.getPortName();
-	}
-	
-	/**
-	  * The ReferenceDataBuffer hold a array of bytes that is read from the modbus device through the ModbusDriver service.
-	  * The data is read back from the device holding registers. The access to its internal data is controlled through its
-	  * two synchronized method, so that a read cannot be done while the data is updated from the device. The size of the
-	  * array of data read back from the device is set through the init method.
-	  *
-	  */
-	private class ReferenceDataBuffer implements ModbusDataBufferDelegate{
-	
-		private int offset = 0;
-		private int count = 0;
-		private int registers[];
-		private long updateTime = 0;
-		private List<WriteRequest> writeRequests = new ArrayList<WriteRequest>();
-	
-		/**
-		 * Setup the size and starting offset of the buffer array.
-		 *
-		 * @param count The number of registers to read.
-		 * @param offset The adress of the first byte to read in the device adress space.
-		 */
-		public void init(int offset, int count){
-	
-			this.count = count;
-			this.offset = offset;
-			
-		}
-		
-		/**
-		 * Read a value from the buffered array.
-		 *
-		 * @param adress The adress of the calue to read
-		 * @param size The size of the value to read in bits
-		 * @return The value.
-		 */
-		public synchronized int read( int adress, int size ) {
-		
-			if( registers != null ) {
-				if((adress >= offset ) && ( adress <= ( offset + count ))) {
-					return registers[adress - offset];
-				} else
-					return 0;
-			} else
-				return 0;
-		}
-		
-		public synchronized void write(int adress, int size, int value){
-			writeRequests.add(new WriteRequest(adress, value));
-		}
-		
-		public long getLastUpdateTime() {
-			return updateTime;
-		}
-		
-		
-		/**
-		 * Update the internal array buffer from the modbus device.
-		 *
-		 * @param mdbDriver An instance of the ModbusDriver service.
-		 * @param id The identification of the slave device on the modbus network.
-		 */
-		synchronized void update( ModbusDriver mdbDriver, int id ) {
-			// ensure we got a driver
-			if( mdbDriver != null && count > 0) {
-				while( !writeRequests.isEmpty()){
-					WriteRequest req = writeRequests.get(0);
-					boolean ok = mdbDriver.forceSingleRegister((byte)id, req.getAdress(), req.getValue());
-					if(ok){
-						writeRequests.remove(0);
-					} else {
-						Activator.log(LogService.LOG_ERROR, "Error writing reference to modbus device.");
-						break;
-					}
-				}
-				int regs[] = mdbDriver.readHoldingRegisters((byte)id, offset, count);
-				if( regs != null && (regs.length == count)) {
-					registers = regs;
-					updateTime = System.currentTimeMillis();
-				}
-			}
-		}
-	}
-	
-	 /**
-	  * The MeasuermentDataBuffer hold a array of bytes that is read from the modbus device through the ModbusDriver service.
-	  * The data is read back from the device holding registers. The access to its internal data is controlled through its
-	  * two synchronized method, so that a read cannot be done while the data is updated from the device. The size of the
-	  * array of data read back from the device is set through the init method.
-	  *
-	  */
-	private class MeasurementDataBuffer implements ModbusDataBufferDelegate{
-	
-		private int offset = 0;
-		private int count = 0;
-		private int registers[];
-		private long updateTime = 0;
-	
-		/**
-		 * Setup the size and starting offset of the buffer array.
-		 *
-		 * @param count The number of registers to read.
-		 * @param offset The adress of the first byte to read in the device adress space.
-		 */
-		public void init(int offset, int count){
-	
-			this.count = count;
-			this.offset = offset;
-			
-		}
-		
-		/**
-		 * Read a value from the buffered array.
-		 *
-		 * @param adress The adress of the calue to read
-		 * @param size The size of the value to read in bits
-		 * @return The value.
-		 */
-		public synchronized int read( int adress, int size ) {
-		
-			if( registers != null ) {
-				if((adress >= offset ) && ( adress <= ( offset + count ))) {
-					return registers[adress - offset];
-				} else
-					return 0;
-			} else
-				return 0;
-		}
-		
-		/**
-		 * As measurement, we do not do anything here
-		 */
-		public synchronized void write(int adress, int size, int value){
-			
-		}
+    String pid;
+    String name;
+    String serialPort;
+    Integer modbusPoolingRate;
 
-		public long getLastUpdateTime() {
-			return updateTime;
-		}
-		
-		
-		/**
-		 * Update the internal array buffer from the modbus device.
-		 *
-		 * @param mdbDriver An instance of the ModbusDriver service.
-		 * @param id The identification of the slave device on the modbus network.
-		 */
-		synchronized void update( ModbusDriver mdbDriver, int id ) {
-			// ensure we got a driver
-			if( mdbDriver != null && count > 0) {
-				int regs[] = mdbDriver.readInputRegisters((byte)id, offset, count);
-				if( regs != null && (regs.length == count)) {
-					registers = regs;
-					updateTime = System.currentTimeMillis();
-				}
-			}
-		}
-	}
-	
-	 /**
-	  * The StateDataBuffer hold a array of bytes that is read from the modbus device through the ModbusDriver service.
-	  * The data is read back from the device inputs registers. The access to its internal data is controlled through its
-	  * two synchronized method, so that a read cannot be done while the data is updated from the device. The size of the
-	  * array of data read back from the device is set through the init method.
-	  *
-	  */
-	private class StateDataBuffer implements ModbusDataBufferDelegate{
-	
-		private int offset = 0;
-		private int count = 0;
-		private int registers[];
-		private long updateTime = 0;
-	
-		/**
-		 * Setup the size and starting offset of the buffer array.
-		 *
-		 * @param count The number of bytes to read.
-		 * @param offset The adress of the first byte to read in the device adress space.
-		 */
-		public void init(int offset, int count){
-			
-			this.count = count;
-			this.offset = offset;
-		}
-		
-		/**
-		 * Read a value from the buffered array.
-		 *
-		 * @param adress The adress of the calue to read
-		 * @param size The size of the value to read in bits
-		 * @return The value.
-		 */
-		public synchronized int read( int adress, int size ) {
-			
-			if( registers != null ) {
-				if((adress >= offset ) && ( adress <= ( offset + count ))) {
-					return registers[adress - offset];
-				} else
-					return 0;
-			} else
-				return 0;
-		}
-		
-		public synchronized void write(int adress, int size, int value){
-			
-		}
-		
-		public long getLastUpdateTime() {
-			return updateTime;
-		}
-		
-		/**
-		 * Update the internal array buffer from the modbus device.
-		 *
-		 * @param mdbDriver An instance of the ModbusDriver service.
-		 * @param id The identification of the slave device on the modbus network.
-		 */
-		synchronized void update( ModbusDriver mdbDriver, int id ) {
-	
-			// ensure we got a driver
-			if( mdbDriver != null && count > 0) {
-				int regs[] = mdbDriver.readInputRegisters((byte)id, offset, count);
-				if( regs != null && (regs.length == count)) {
-					registers = regs;
-					updateTime = System.currentTimeMillis();
-				}
-			}
-		}
-	}
-	
-	/**
-	  * The StateDataBuffer hold a array of bytes that is read from the modbus device through the ModbusDriver service.
-	  * The data is read back from the coils status. The access to its internal data is controlled through its
-	  * two synchronized method, so that a read cannot be done while the data is updated from the device. The size of the
-	  * array of data read back from the device is set through the init method.
-	  *
-	  */
-	private class SwitchDataBuffer implements ModbusDataBufferDelegate{
-	
-		
-		private int offset = 0;
-		private int count = 0;
-		private byte coils[];
-		private long updateTime = 0;
-		private List<WriteRequest> writeRequests = new ArrayList<WriteRequest>();
-		
-		/**
-		 * Setup the size and starting offset of the buffer array.
-		 *
-		 * @param count The number of bytes to read.
-		 * @param offset The adress of the first byte to read in the device adress space.
-		 */
-		public void init(int offset, int count){
-			
-			this.count = count;
-			this.offset = offset;
-		}
-		
-		/**
-		 * Read a value from the buffered array.
-		 *
-		 * @param adress The adress of the calue to read
-		 * @param size The size of the value to read in bits
-		 * @return The value.
-		 */
-		public synchronized int read( int adress, int size ) {
-			
-			if( coils != null ) {
-				if((adress >= offset ) && ( adress <= ( offset + count ))) {
-					return coils[adress - offset];
-				} else
-					return 0;
-			} else
-				return 0;
-		}
-		
-		public synchronized void write(int adress, int size, int value){
-			writeRequests.add(new WriteRequest(adress, value));
-		}
+    Integer deviceStatus = Device.STATUS_PROCESSING;
+    Integer deviceStatusDetails = Device.STATUS_DETAIL_INITIALIZING;
 
-		public long getLastUpdateTime() {
-			return updateTime;
-		}
-		
-		/**
-		 * Update the internal array buffer from the modbus device.
-		 *
-		 * @param mdbDriver An instance of the ModbusDriver service.
-		 * @param id The identification of the slave device on the modbus network.
-		 */
-		synchronized void update( ModbusDriver mdbDriver, int id ) {
-	
-			// ensure we got a driver
-			if( mdbDriver != null && count > 0) {
-				while( !writeRequests.isEmpty()){
-					WriteRequest req = writeRequests.get(0);
-					boolean ok = mdbDriver.forceSingleCoil((byte)id, req.getAdress(), req.getValue() > 0 ? true : false);
-					if(ok){
-						writeRequests.remove(0);
-					} else {
-						Activator.log(LogService.LOG_ERROR, "Error writing reference to modbus device.");
-						break;
-					}
-				}
-				byte regs[] = mdbDriver.readCoilsStatus((byte)id, offset, count);
-				if( regs != null && (regs.length == count)) {
-					coils = regs;
-					updateTime = System.currentTimeMillis();
-				}
-			}
-		}
-	}
-	
-	protected class WriteRequest{
-		private int adress;
-		private int value;
-		
-		protected WriteRequest(int adress, int value){
-			this.adress = adress;
-			this.value = value;
-		}
-		protected int getValue() {
-			return value;
-		}
-		protected void setValue(int value) {
-			this.value = value;
-		}
-		protected int getAdress() {
-			return adress;
-		}
-		protected void setAdress(int adress) {
-			this.adress = adress;
-		}
-	}
-	
-	
-	
-	/**
-	 * ModbusDriverCommunicator managed the communication with the modbus device; Its send modbus requests
-	 * to get state of the holding and input registers, and stores the response in the outer class HoldingRegisters
-	 * and InputRegisters objects. The class own a thread that pool the device at regular time.
-	 * The communication to the modbus link is done through the ModbusDriver service. The class is registered as a Listener
-	 * to the service, so it will received even when the ModbusDriver service is registered and de-registered from
-	 * the framework. The class will only send messages to the Modbus link if it got a valid instance of a 
-	 * ModbusDriver service.
-	 *
-	 */
-	
-	private class ModbusDriverCommunicator implements Runnable, ServiceListener {
-	
-		// the id of the ModbusDevice
-		private int id;
-		// the port name to use.
-		private String portName;
-		// a reference to the modbus driver service
-		private ModbusDriver modbusDr;
-		// a flag asking to suspend communicating with the device.
-		private boolean disconnect = false;
-		// pooling time between successive communications with the modbus device.
-		private long poolingTimeMill = 1000;
-		// the thread that manage the communucation work with the device.
-		Thread myThread = null;
-		
-		public ModbusDriverCommunicator( String modbusPort, int modbusId, int  modbusPoolingRateS ) {
-			this.id = modbusId;
-			this.portName = modbusPort;
-			this.poolingTimeMill = ((long)modbusPoolingRateS);
-			
-			// We first need to get a reference to the modbus driver service. We try to get this reference dynamically
-			// by constructing a listener that will detect when the modbus driver service appear or disapear.
-			String filter = "(&(objectclass=" + modbusDriverServiceName + ")"
-				+ "(" + ModbusDriver.MODBUS_DRIVER_SERVICE_PORT + "=" + modbusPort + "))";
-		
-			try {
-				Activator.bc.addServiceListener( this, filter);
-				// in case the service is already registered, we send a REGISTERED event to its listener.
-				ServiceReference srModbus[] = Activator.bc.getServiceReferences( modbusDriverServiceName, filter );
-				if( srModbus != null ) {
-					this.serviceChanged(new ServiceEvent( ServiceEvent.REGISTERED, srModbus[0] ));
-				}
-			} catch ( InvalidSyntaxException e ) {
-				// We known there shouldn't be an exception thrown here since we made the filter string.
-			}
-		}
-		
-		public int getId(){
-			return this.id;
-		}
-		
-		public String getPortName() {
-			return this.portName;
-		}
-		
-		synchronized public void disconnect(){
-			disconnect = true;
-		}
-		
-		/**
-		 * Unique method of the Runnable interface. 
-		 * Excecute the class ModbusDriverCommunicator's thread that will send messages
-		 * to the actual device in order to actualise it's buffered state in this class.
-		 * After the thread has sent all necessary messages, it will pause for a
-		 * predefined time.
-		 *
-		 */
-		public void run() {
-			while(!getDisconnect()){
-				if(modbusDr != null ) {
-					((MeasurementDataBuffer)modbusMDataBuffer).update(modbusDr, id);
-					((ReferenceDataBuffer)modbusRDataBuffer).update(modbusDr, id);
-					((StateDataBuffer)modbusSDataBuffer).update(modbusDr, id);
-					((SwitchDataBuffer)modbusSwDataBuffer).update(modbusDr, id);
-					
-					
-					refreshWires();
-				}
-				try {
-					Thread.sleep( poolingTimeMill );
-				} catch (InterruptedException e) {
-					break;
-				}
-			}
-		}
-		
-		synchronized public boolean getDisconnect(){
-			return disconnect;
-		}
-		
-		/**
-		 * Unique method of the ServiceListener interface. The framework invoke this method when
-		 * a event has been posted. Since we registered this listener for registered and unregistered
-		 * event from the modbus driver service, we will receive notification of theses here.
-		 *
-		 */
-		public void serviceChanged( ServiceEvent event ) {
-			
-				ServiceReference sr = event.getServiceReference();
-				switch(event.getType()) {
-					case ServiceEvent.REGISTERED: {
-						modbusDr = (ModbusDriver) Activator.bc.getService(sr);
-						myThread = new Thread(this);
-						myThread.start();
-						Activator.log( LogService.LOG_INFO, "Getting instance of service: " + (String) sr.getProperty( Constants.SERVICE_PID)
-							+ ", " + Constants.SERVICE_ID + "=" + ((Long)sr.getProperty(Constants.SERVICE_ID)).toString() );
-					}
-					break;
-					case ServiceEvent.UNREGISTERING: {
-						Activator.log( LogService.LOG_INFO, "Releasing instance of service: " + (String) sr.getProperty( Constants.SERVICE_PID)
-							+ ", " + Constants.SERVICE_ID + "=" + ((Long)sr.getProperty(Constants.SERVICE_ID)).toString());
-						modbusDr = null;
-						myThread.interrupt();
-					}
-					break;
-				}
-		}
-	}
-	
+    ServiceRegistration sReg;
+    ServiceTracker modbusDriverTracker;
+
+
+    ExecutorService executorService;
+
+    /**
+     * ModbusDevice
+     */
+    public ModbusDeviceImpl(String pid, String name, String serialPort, Integer modbusPoolingRate) {
+        this.pid = pid;
+        this.name = name;
+        this.serialPort = serialPort;
+        this.modbusPoolingRate = modbusPoolingRate;
+
+    }
+
+    public void start() {
+
+        executorService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS,
+                new PriorityBlockingQueue<Runnable>(10, new PriorityFutureComparator())) {
+
+            protected <T> RunnableFuture<T> newTaskFor(Callable<T> callable) {
+                RunnableFuture<T> newTaskFor = super.newTaskFor(callable);
+                return new PriorityFuture<T>(newTaskFor, ((ModbusCommand) callable).getPriority());
+            }
+
+        };
+
+
+        String[] clazzes = new String[]{
+                ModbusDevice.class.getName(),
+                Device.class.getName()
+        };
+
+
+        Dictionary props = new Hashtable();
+        props.put(Device.SERVICE_DRIVER, ModbusDriver.MODBUS_DRIVER_NAME);
+        props.put(Device.SERVICE_UID, ModbusDriver.MODBUS_DRIVER_NAME + ":" + name);
+        props.put(Device.SERVICE_NAME, name);
+        props.put(Device.SERVICE_DESCRIPTION, "Modbus DAL device");
+        props.put(Device.SERVICE_STATUS, deviceStatus);
+        props.put(Device.SERVICE_STATUS_DETAIL, deviceStatusDetails);
+        props.put(org.osgi.framework.Constants.SERVICE_PID, this.pid);
+        props.put(org.osgi.service.device.Constants.DEVICE_CATEGORY, new String[]{Device.DEVICE_CATEGORY});
+
+
+        sReg = Activator.getBc().registerService(clazzes, this, props);
+
+        Activator.getLogger().info("Registered " + this.getClass().getName());
+
+        String modbusDeviceFactoryFilterSpec = "(&(objectClass=" + ModbusDriver.class.getName() + ")(" + ModbusDriver.MODBUS_DRIVER_SERVICE_PORT + "=" + serialPort + "))";
+        try {
+            ModbusDriverListener modbusDriverListener = this;
+            Filter deviceFilter = Activator.getBc().createFilter(modbusDeviceFactoryFilterSpec);
+            modbusDriverTracker = new ServiceTracker(Activator.getBc(), deviceFilter, null) {
+                @Override
+                public Object addingService(ServiceReference reference) {
+                    Object device = super.addingService(reference);
+                    ((ModbusDriver) device).addListener(modbusDriverListener);
+                    Activator.getLogger().info("ModbusDevice detect driver added: " + reference.getProperty(Constants.DRIVER_ID));
+                    return device;
+                }
+
+                @Override
+                public void removedService(ServiceReference reference, Object service) {
+                    ((ModbusDriver) service).removeListener(modbusDriverListener);
+                    super.removedService(reference, service);
+                    Activator.getLogger().info("ModbusDevice detect driver removed: " + reference.getProperty(Constants.DRIVER_ID));
+                }
+            };
+            modbusDriverTracker.open();
+
+
+        } catch (InvalidSyntaxException ex) {
+            Activator.getLogger().error("Error creating ModbusDriver tracker: " + ex.toString());
+        }
+
+    }
+
+    public void stop() {
+        executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(800, TimeUnit.MILLISECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+        }
+        executorService = null;
+        modbusDriverTracker.close();
+        sReg = null;
+    }
+
+    public Future submitCommand(ModbusCommand command) {
+        return executorService.submit(command);
+    }
+
+    @Override
+    public Object getServiceProperty(String s) {
+        return sReg.getReference().getProperty(s);
+    }
+
+    @Override
+    public String[] getServicePropertyKeys() {
+        return sReg.getReference().getPropertyKeys();
+    }
+
+    @Override
+    public void remove() throws DeviceException {
+        deviceStatus = Device.STATUS_REMOVED;
+        deviceStatusDetails = null;
+        updateServiceProperties();
+        sReg.unregister();
+        stop();
+    }
+
+    @Override
+    public void modbusDriverConnected() {
+        deviceStatus = Device.STATUS_ONLINE;
+        deviceStatusDetails = null;
+        updateServiceProperties();
+        Activator.getLogger().debug("ModbusDevice detect driver connected.");
+    }
+
+    @Override
+    public void modbusDriverDisconnected() {
+        deviceStatus = Device.STATUS_OFFLINE;
+        deviceStatusDetails = Device.STATUS_DETAIL_BROKEN;
+        updateServiceProperties();
+        Activator.getLogger().debug("ModbusDevice detect driver disconnected.");
+    }
+
+    protected void updateServiceProperties() {
+
+        if (sReg != null) {
+            Dictionary props = new Hashtable();
+            props.put(Device.SERVICE_DRIVER, ModbusDriver.MODBUS_DRIVER_NAME);
+            props.put(Device.SERVICE_UID, ModbusDriver.MODBUS_DRIVER_NAME + ":" + name);
+            props.put(Device.SERVICE_NAME, name);
+            props.put(Device.SERVICE_DESCRIPTION, "Modbus DAL device");
+            props.put(Device.SERVICE_STATUS, deviceStatus);
+            props.put(org.osgi.framework.Constants.SERVICE_PID, this.pid);
+            if (deviceStatusDetails != null) {
+                props.put(Device.SERVICE_STATUS_DETAIL, deviceStatusDetails);
+            }
+            props.put(org.osgi.service.device.Constants.DEVICE_CATEGORY, new String[]{Device.DEVICE_CATEGORY});
+
+            sReg.setProperties(props);
+        }
+    }
+
+    public ModbusDriver getModbusDriver() {
+        return (ModbusDriver) modbusDriverTracker.getService();
+    }
 }

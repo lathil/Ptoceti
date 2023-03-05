@@ -38,19 +38,9 @@ import com.ptoceti.osgi.modbus.impl.utils.ModbusUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.TooManyListenersException;
 
-import org.osgi.service.log.LogService;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.RXTXCommDriver;
-import gnu.io.RXTXVersion;
-import gnu.io.SerialPortEventListener;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPort;
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
+import org.osgi.service.serial.*;
 
 /**
  * Handle a connection with framing ASCII framing style. In this style, every byte is sent as 2 hex digits,
@@ -59,96 +49,89 @@ import gnu.io.UnsupportedCommOperationException;
  * @author Laurent Thil
  * @version 1.0b
  */
- 
-public class ModbusSerialASCIIConnection extends ModbusSerialConnection implements SerialPortEventListener {
 
-	static final byte FRAME_START = 0x3A; // :
-	static final byte FRAME_END_1 = 0x0D; //CR
-	static final byte FRAME_END_2 = 0x0A; //LF
-	
-	// this buffer is used to recived the hex chqrs from the serial link
-	ByteArrayOutputStream bytesInHex = new ByteArrayOutputStream();
-	// this buffer contains the last message received from the serial link, converted back into binary.
-	ByteArrayOutputStream bytesIn = new ByteArrayOutputStream();
-	// this buffer contains the next message in hex to send over the link.
-	ByteArrayOutputStream bytesOutHex = new ByteArrayOutputStream();
-	// this buffer contains the raw bytes of the next message to send.
-	ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-	
-	// flag to indicate that a new frame has arrived.
-	boolean hasNewFrame = false;
-	// flag to indicate that a special "start of frame" char has been received.
-	boolean foundFrameStart = false;
-	// flag to indicate that a special "end of frame" char has been received.
-	boolean foundFrameEnd1 = false;
-	
-	/**
-	 * Constructor. Try to create and open the serial connection to modbus from the given arguments.
-	 * The serial port is amso configured to use 7 bits data, default for Ascii framing. If the connection
-	 * is open successfully, the class registers itself as an listener to even from the serial port and
-	 * get hold of the input and pitput streams.
-	 *
-	 *
-	 * @param portName: name of the serial port to use to access the serial port, eg "/dev/tty01"
-	 * @param baudRate: baud rate to used on the serial link: 9600 to 19200.
-	 * @param usesParity: state whether to send the parity bit on the serial link.
-	 * @param evenParity: state whether to use even or odd parity.
-	 * @param echo: state whether to expect receivng the echo of a broadcasted message back on the receiver channel.
-	 *
-	 * @exception Exception is thrown if probmems creating the serial connection.
-	 */
-	 
-	public ModbusSerialASCIIConnection( String portName, int baudRate, boolean usesParity, boolean evenParity, boolean echo ) throws Exception {
-		
-		Enumeration portList;
-		CommPortIdentifier portID;
-		boolean hasFoundPort = false;
-		
-		this.portName = portName;
-		
-		try {
-				
-				portID = CommPortIdentifier.getPortIdentifier(portName);
-				if( portID.getPortType() == CommPortIdentifier.PORT_SERIAL) {
-					// if this is the port we want,
-					if( portID.getName().equals( portName )) { 
-						// try to get hold of this port. If not successfull within 1 second, throws an exception.
-						serialPort = (SerialPort) portID.open( this.getClass().getName(), (int)1000 );
-						// if the parity bit is not used, the  port is configured to send two stop bits.
-						if( usesParity == true )
-							serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_7,
-								SerialPort.STOPBITS_1, ( evenParity ? SerialPort.PARITY_EVEN : SerialPort.PARITY_ODD ));
-						else
-							serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_7,
-								SerialPort.STOPBITS_2, SerialPort.PARITY_NONE);
-						// set itself to listen to data available events.
-						serialPort.addEventListener(this);
-						serialPort.notifyOnDataAvailable(true);
-						// get hold of the inputs and outputs streams.
-						inStream = serialPort.getInputStream();
-						outStream = serialPort.getOutputStream();
-						// success ! we got our port !
-						hasFoundPort = true;
-						// remember whether to expect the echo of broadcasted frames.
-						usesEcho = echo;
-					}
-				}
-			// We did not found the port in the list of ports availables. throw an exception.
-			if( hasFoundPort == false ) throw new Exception("Could not find port with name: " + portName + ".");
-			
-		} catch ( PortInUseException e) { throw new Exception("Port " + portName + " is already in use."); }
-			catch (UnsupportedCommOperationException e) { throw new Exception("Port does not support this operation."); }
-			catch (TooManyListenersException e) { throw new Exception("Could not create listener on port: " + portName + "."); }
-			catch (IOException e) { throw new Exception("Could not open input or output streams on port: " + portName + "."); }
+public class ModbusSerialASCIIConnection extends ModbusSerialConnection implements SerialEventListener {
+
+    static final byte FRAME_START = 0x3A; // :
+    static final byte FRAME_END_1 = 0x0D; //CR
+    static final byte FRAME_END_2 = 0x0A; //LF
+
+    // this buffer is used to recived the hex chqrs from the serial link
+    ByteArrayOutputStream bytesInHex = new ByteArrayOutputStream();
+    // this buffer contains the last message received from the serial link, converted back into binary.
+    ByteArrayOutputStream bytesIn = new ByteArrayOutputStream();
+    // this buffer contains the next message in hex to send over the link.
+    ByteArrayOutputStream bytesOutHex = new ByteArrayOutputStream();
+    // this buffer contains the raw bytes of the next message to send.
+    ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+
+    // flag to indicate that a new frame has arrived.
+    boolean hasNewFrame = false;
+    // flag to indicate that a special "start of frame" char has been received.
+    boolean foundFrameStart = false;
+    // flag to indicate that a special "end of frame" char has been received.
+    boolean foundFrameEnd1 = false;
+
+    boolean mustStop = false;
+
+    /**
+     * Constructor. Try to create and open the serial connection to modbus from the given arguments.
+     * The serial port is amso configured to use 7 bits data, default for Ascii framing. If the connection
+     * is open successfully, the class registers itself as an listener to even from the serial port and
+     * get hold of the input and pitput streams.
+     *
+     *
+     * @param portName: name of the serial port to use to access the serial port, eg "/dev/tty01"
+     * @param baudRate: baud rate to used on the serial link: 9600 to 19200.
+     * @param usesParity: state whether to send the parity bit on the serial link.
+     * @param evenParity: state whether to use even or odd parity.
+     * @param echo: state whether to expect receivng the echo of a broadcasted message back on the receiver channel.
+     *
+     * @exception Exception is thrown if probmems creating the serial connection.
+     */
+
+    public ModbusSerialASCIIConnection(SerialDevice serialDevice, String portName, int baudRate, boolean usesParity, boolean evenParity, boolean echo) throws Exception {
+
+
+        this.serialDevice = serialDevice;
+        this.portName = portName;
+
+        try {
+            SerialPortConfiguration serialPortConfiguration;
+
+            // if the parity bit is not used, the  port is configured to send two stop bits.
+            if (usesParity == true) {
+                serialPortConfiguration = new SerialPortConfiguration(baudRate,
+                        SerialConstants.DATABITS_7, SerialConstants.FLOWCONTROL_NONE,
+                        (evenParity ? SerialConstants.PARITY_EVEN : SerialConstants.PARITY_ODD),
+                        SerialConstants.STOPBITS_1);
+            } else {
+                serialPortConfiguration = new SerialPortConfiguration(baudRate,
+                        SerialConstants.DATABITS_7, SerialConstants.FLOWCONTROL_NONE,
+                        SerialConstants.PARITY_NONE,
+                        SerialConstants.STOPBITS_2);
+
+            }
+            serialDevice.setConfiguration(serialPortConfiguration);
+
+            // get hold of the inputs and outputs streams.
+            inStream = serialDevice.getInputStream();
+            outStream = serialDevice.getOutputStream();
+            // remember whether to expect the echo of broadcasted frames.
+            usesEcho = echo;
+
+
+        } catch (IOException e) {
+            throw new Exception("Could not open input or output streams on port: " + portName + ".");
+        }
 		
 	}
-	
+
 	public void close() {
-	
-		serialPort.close();
-		inStream = null;
-		outStream = null;
-	}
+        mustStop = true;
+        inStream = null;
+        outStream = null;
+    }
 	
 	/**
 	 * This method send a ModbusMessageRequest to a slave device over the modbus serial bu.
@@ -164,36 +147,35 @@ public class ModbusSerialASCIIConnection extends ModbusSerialConnection implemen
 		ModbusMessageResponse response = null;
 		
 		try {
-			bytesOut.reset();
-			bytesOutHex.reset();
-			msg.writeTo( bytesOut); // write unitID, functionID + message data
-			ModbusUtils.writeHex(bytesOut.toByteArray(), 0, bytesOut.size(), bytesOutHex); // convert the message to hexadecimal.
-			// now; calculate the lrc on the asciii message, and add the result byte as two asci hex chars.
-			byte lrc  = ModbusUtils.calculateLRC(bytesOutHex.toByteArray(), bytesOutHex.size());
-			ModbusUtils.writeHex(lrc, bytesOutHex);
-			
-			Activator.log(LogService.LOG_DEBUG, "Sending frame: " + bytesOutHex.toString());
-			
-			if( outStream != null){
+            bytesOut.reset();
+            bytesOutHex.reset();
+            msg.writeTo(bytesOut); // write unitID, functionID + message data
+            ModbusUtils.writeHex(bytesOut.toByteArray(), 0, bytesOut.size(), bytesOutHex); // convert the message to hexadecimal.
+            // now; calculate the lrc on the asciii message, and add the result byte as two asci hex chars.
+            byte lrc = ModbusUtils.calculateLRC(bytesOutHex.toByteArray(), bytesOutHex.size());
+            ModbusUtils.writeHex(lrc, bytesOutHex);
 
-				outStream.write( FRAME_START); // write start of frame byte in hex
-				outStream.write( bytesOutHex.toByteArray());
-				outStream.write( FRAME_END_1 ); // add CR
-				outStream.write( FRAME_END_2 ); // add LF
-				outStream.flush(); // be sure everything in the buffer is send.
-				// update statistics counter
-				incrementFrameSentCounter();
+            Activator.getLogger().debug("Sending frame: " + bytesOutHex.toString());
+
+            if (outStream != null) {
+
+                outStream.write(FRAME_START); // write start of frame byte in hex
+                outStream.write(bytesOutHex.toByteArray());
+                outStream.write(FRAME_END_1); // add CR
+                outStream.write(FRAME_END_2); // add LF
+                outStream.flush(); // be sure everything in the buffer is send.
+                // update statistics counter
+                incrementFrameSentCounter();
 				// wait for incoming response.
 				try {
 					if( usesEcho ) {
-						if ( hasNewFrame == false ) wait( 10 );
-						if ( hasNewFrame == true ) {
-							Activator.log(LogService.LOG_DEBUG, "Received echo frame:" + ModbusUtils.writeHex( bytesIn.toByteArray()));
-						}
-						else { 
-							Activator.log(LogService.LOG_DEBUG, "Missing echo frame.");
-							return response;
-						}
+                        if (hasNewFrame == false) wait(10);
+                        if (hasNewFrame == true) {
+                            Activator.getLogger().debug("Received echo frame:" + ModbusUtils.writeHex(bytesIn.toByteArray()));
+                        } else {
+                            Activator.getLogger().debug("Missing echo frame.");
+                            return response;
+                        }
 					}
 					if ( hasNewFrame == false ) wait( 1000 );
 					if ( hasNewFrame == true ) {
@@ -204,8 +186,8 @@ public class ModbusSerialASCIIConnection extends ModbusSerialConnection implemen
 					}
 				} catch (InterruptedException e) {}
 			} else {
-				Activator.log(LogService.LOG_DEBUG, "Port output stream not open");
-			}
+                Activator.getLogger().debug("Port output stream not open");
+            }
 			
 		} catch (IOException e) {
 			// if we could not send the message, update the appropriate statistic counter.
@@ -232,8 +214,8 @@ public class ModbusSerialASCIIConnection extends ModbusSerialConnection implemen
 			if( hasNewFrame == false ) wait();
 		
 			try {
-				Activator.log(LogService.LOG_DEBUG, "Received requestframe: " + ModbusUtils.writeHex( bytesIn.toByteArray()));
-			} catch (IOException e ) {}
+                Activator.getLogger().debug("Received requestframe: " + ModbusUtils.writeHex(bytesIn.toByteArray()));
+            } catch (IOException e ) {}
 		
 		} catch (InterruptedException e ) {}
 		
@@ -272,37 +254,37 @@ public class ModbusSerialASCIIConnection extends ModbusSerialConnection implemen
 			} catch (IOException e ) {}
 		}
 		else {
-			hasNewFrame = false;
-			// update the statistic counter.
-			incrementBadFramesReceivedCounter();
-			Activator.log(LogService.LOG_DEBUG, "Bad LRC on received frame: " + bytesInHex.toString());
-		}
+            hasNewFrame = false;
+            // update the statistic counter.
+            incrementBadFramesReceivedCounter();
+            Activator.getLogger().debug("Bad LRC on received frame: " + bytesInHex.toString());
+        }
 	}
-	
-	/**
-	 * Serial port's SerialPortEventistener. When a event is produced by the SerialPort class,
-	 * is is sent to this method. This mechanism is used to listen to incoming bytes on the serial bus.
-	 * Once the start and end special chars are received, the incoming bytes are packed as a proper frame
-	 * and passed on to be converted back to binary ( from the hex bytes ).
-	 *
-	 * @param event : the SerialPortEvent event.
-	 */
-	public void serialEvent( SerialPortEvent event ) {
-	
-		int inByte = 0;
-		// at present we are only listening to DATA_AVAILABLE events, which that new incoming bytes
-		// have received on the serial port.
-		if( event.getEventType() == SerialPortEvent.DATA_AVAILABLE ) {
-			try {
-			while (inStream.available() > 0 ) {
-					// we are working on every received byte ( there may be more than one byte on the input
-					// stream ). We also do no want to block the current thread by attempting a read() with
-					// no available bytes.
-					
-					inByte = inStream.read();
-					// if we receive a start of frame byte, flag it and reset the hex buffer.
-					if( inByte == FRAME_START ) {
-						foundFrameStart = true;
+
+    /**
+     * Serial port's SerialPortEventistener. When a event is produced by the SerialPort class,
+     * is is sent to this method. This mechanism is used to listen to incoming bytes on the serial bus.
+     * Once the start and end special chars are received, the incoming bytes are packed as a proper frame
+     * and passed on to be converted back to binary ( from the hex bytes ).
+     *
+     * @param event : the SerialPortEvent event.
+     */
+    public void notifyEvent(SerialEvent event) {
+
+        int inByte = 0;
+        // at present we are only listening to DATA_AVAILABLE events, which that new incoming bytes
+        // have received on the serial port.
+        if (event.getType() == SerialEvent.DATA_AVAILABLE) {
+            try {
+                while (inStream.available() > 0) {
+                    // we are working on every received byte ( there may be more than one byte on the input
+                    // stream ). We also do no want to block the current thread by attempting a read() with
+                    // no available bytes.
+
+                    inByte = inStream.read();
+                    // if we receive a start of frame byte, flag it and reset the hex buffer.
+                    if (inByte == FRAME_START) {
+                        foundFrameStart = true;
 						bytesInHex.reset();
 					}
 					// if we received the first end frame byte (there is two in succession), then ..
