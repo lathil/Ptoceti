@@ -63,3 +63,4 @@
 /com.ptoceti.osgi.auth/src/main/webapp/swagger-ui/dist/
 /com.ptoceti.osgi.useradmin.nosqlstore/target/
 /com.ptoceti.osgi.nitrite/target/
+/com.ptoceti.osgi.resteasy/com.ptoceti.osgi.resteasy-tracing-api/target/
