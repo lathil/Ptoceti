@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0" >
-	<OCD description="Modbus" name="Ptoceti Modbus driver" id="ocd">
-		<AD name="encoding" id="com.ptoceti.osgi.modbusdriver.encoding" required="true" type="String">
-			<Option label="rtu" value="rtu_encoding"/>
-			<Option label="ascii" value="ascii_encoding"/>
-		</AD> 
-		<AD name="type" id="com.ptoceti.osgi.modbusdriver.slave.master" required="true" type="String">
-			<Option label="master" value="master"/>
-			<Option label="slave" value="slave"/>
-		</AD> 
-		<AD name="port" id="com.ptoceti.osgi.modbusdriver.port" required="true" type="String" />
-	    <AD name="id" id="com.ptoceti.osgi.modbusdriver.id" required="true" type="Integer" />
-	    <AD name="baud rate" id="com.ptoceti.osgi.modbusdriver.baudrate" required="true" type="Integer" />
-	    <AD name="uses parity" id="com.ptoceti.osgi.modbusdriver.usesparity" required="true" type="Boolean" />
-	    <AD name="even parity" id="com.ptoceti.osgi.modbusdriver.evenparity" required="true" type="Boolean" />
-	    <AD name="echo" id="com.ptoceti.osgi.modbusdriver.echo" required="true" type="Boolean" />
-	</OCD>
-	<Designate factorypid="com.ptoceti.osgi.modbus.impl.ModbusDriverFactory" pid="com.ptoceti.osgi.modbus.impl.ModbusDriverFactory" bundle="*">
-	   <Object ocdref="ocd"/>
-	</Designate>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0">
+    <OCD description="Modbus" name="Ptoceti Modbus driver" id="ocd">
+        <AD name="encoding" id="com.ptoceti.osgi.modbusdriver.encoding" required="true" type="String">
+            <Option label="rtu" value="rtu_encoding"/>
+            <Option label="ascii" value="ascii_encoding"/>
+        </AD>
+        <AD name="type" id="com.ptoceti.osgi.modbusdriver.slave.master" required="true" type="String">
+            <Option label="master" value="master"/>
+            <Option label="slave" value="slave"/>
+        </AD>
+        <AD name="port" id="com.ptoceti.osgi.modbusdriver.port" required="true" type="String"
+            description="The serial port this driver shoud connect to."/>
+        <AD name="id" id="com.ptoceti.osgi.modbusdriver.id" required="true" type="Integer"
+            description="The Modbus ID of this device, if device is slave."/>
+        <AD name="baud rate" id="com.ptoceti.osgi.modbusdriver.baudrate" required="true" type="Integer"
+            description="The baud rate to use on the serial port."/>
+        <AD name="uses parity" id="com.ptoceti.osgi.modbusdriver.usesparity" required="true" type="Boolean"
+            description="True to use parity on the serial port."/>
+        <AD name="even parity" id="com.ptoceti.osgi.modbusdriver.evenparity" required="true" type="Boolean"
+            description="True to use even parity. odd otherwise"/>
+        <AD name="echo" id="com.ptoceti.osgi.modbusdriver.echo" required="true" type="Boolean"
+            description="True to manage echo on the bus."/>
+    </OCD>
+    <Designate factoryPid="com.ptoceti.osgi.modbus.ModbusDriverFactory" bundle="*">
+        <Object ocdref="ocd"/>
+    </Designate>
 </MetaData>
 

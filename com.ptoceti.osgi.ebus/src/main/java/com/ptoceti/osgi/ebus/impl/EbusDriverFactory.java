@@ -35,19 +35,17 @@ public class EbusDriverFactory implements org.osgi.service.cm.ManagedServiceFact
     /**
      * Create a new EbusDriverFactory instance. Register the class instance as a ManagedServiceFactory.
      * The class will be recognised as such by the framework allowing it to pass on configuration data.
-     *
-     * @throws Exception
      */
-    public EbusDriverFactory() throws Exception {
+    public EbusDriverFactory() {
         // create a new hastable that will contain references to all the Ebusdriver services.
         EbusDrivers = new Hashtable();
         // register the class as a service factory.
         Hashtable properties = new Hashtable();
-        properties.put( Constants.SERVICE_PID, this.getClass().getName());
+        properties.put(Constants.SERVICE_PID, "com.ptoceti.osgi.ebus.EbusDriverFactory");
         EbusDriverFactoryReg = Activator.bc.registerService(ManagedServiceFactory.class.getName(),
-                this, properties );
+                this, properties);
 
-        Activator.log(LogService.LOG_INFO, "Registered " + EbusDriverFactory.class.getName()
+        Activator.getLogger().info("Registered " + EbusDriverFactory.class.getName()
                 + " as " + ManagedServiceFactory.class.getName());
     }
 
@@ -65,7 +63,7 @@ public class EbusDriverFactory implements org.osgi.service.cm.ManagedServiceFact
             mdbDrvImpl.stop();
         }
 
-        Activator.log(LogService.LOG_INFO, "Unregistered " + EbusDriverFactory.class.getName());
+        Activator.getLogger().info("Unregistered " + EbusDriverFactory.class.getName());
     }
 
     /**
@@ -109,21 +107,21 @@ public class EbusDriverFactory implements org.osgi.service.cm.ManagedServiceFact
                 // then we need to create an new instance of a EbusDriver, either master or slave kind. There could be errors when 
                 // opening the serial port.
                 try {
-                    mdbDriver = new EbusDriverImpl(EbusIDInt, port, ebusLockCounter);
+                    mdbDriver = new EbusDriverImpl(pid, EbusIDInt, port, ebusLockCounter);
                     // try to start
                     mdbDriver.start();
                     // keep track of this instance.
                     EbusDrivers.put(pid, mdbDriver);
-                    Activator.log(LogService.LOG_INFO,"Created EbusDriver type: " + mdbDriver.getClass().getName()
-                                + ", port: " + port + ", id: " + ebusID + ", service factory pid: " + pid);
+                    Activator.getLogger().info("Created EbusDriver type: " + mdbDriver.getClass().getName()
+                            + ", port: " + port + ", id: " + ebusID + ", service factory pid: " + pid);
                 } catch ( Exception e ) {
-                    Activator.log(LogService.LOG_INFO, "Could not create EbusDriver port. Reason: " + e.toString());
+                    Activator.getLogger().info("Could not create EbusDriver port. Reason: " + e.toString());
                     mdbDriver = null;
                 }
 
             }
             else {
-                Activator.log(LogService.LOG_INFO,"Cannot create EbusDriver service: bad configuration data.");
+                Activator.getLogger().info("Cannot create EbusDriver service: bad configuration data.");
             }
 
         }
@@ -131,7 +129,7 @@ public class EbusDriverFactory implements org.osgi.service.cm.ManagedServiceFact
             String missingParam = "";
             if(port == null) missingParam = EbusDriver.EBUS_PORT;
             else if (ebusID == null) missingParam = EbusDriver.EBUS_ID;
-            Activator.log(LogService.LOG_INFO,"Cannot create EbusDriver service: configuration data missing: " + missingParam);
+            Activator.getLogger().info("Cannot create EbusDriver service: configuration data missing: " + missingParam);
         }
     }
 
@@ -149,8 +147,8 @@ public class EbusDriverFactory implements org.osgi.service.cm.ManagedServiceFact
             // then we got rid of it.
             EbusDrivers.remove(pid);
             mdbDriver.stop();
-            Activator.log(LogService.LOG_INFO,"Removed EbusDriver type: " + mdbDriver.getClass().getName()
-                    + ", service factory pid: " + pid );
+            Activator.getLogger().info("Removed EbusDriver type: " + mdbDriver.getClass().getName()
+                    + ", service factory pid: " + pid);
         }
     }
 

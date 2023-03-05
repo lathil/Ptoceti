@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0">
+    <OCD description="Configuration of UsbDeviceFactory" name="Ptoceti UsbDevice Service"
+         id="com.ptoceti.osgi.usbdevice.impl.UsbDeviceFactoryImpl">
+        <AD name="Device factory filter" id="com.ptoceti.osgi.usbdevice.config.device.factory.filter" required="true"
+            type="String" default=""
+            description="Osgi filter to indicate which dongles to register as Usbinfo base device"/>
+    </OCD>
+    <Designate pid="com.ptoceti.osgi.usbdevice.impl.UsbDeviceFactoryImpl">
+        <Object ocdref="com.ptoceti.osgi.usbdevice.impl.UsbDeviceFactoryImpl"/>
+    </Designate>
+</MetaData>

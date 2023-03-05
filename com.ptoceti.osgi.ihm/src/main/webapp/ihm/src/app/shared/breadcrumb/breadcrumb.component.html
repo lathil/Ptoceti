@@ -1,0 +1,10 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-0">
+    <li class="breadcrumb-item" *ngFor="let bcItem of breadcrumbList; let $index = index; let $last = last"
+        title="{{bcItem.labelName}}">
+      <a *ngIf="!$last" [ngClass]="{'active': $last}" class="cursor-pointer"
+         (click)="openPageWithBreadcrumb($index)">{{bcItem.labelName}}</a>
+      <span *ngIf="$last" class="active">{{bcItem.labelName}}</span>
+    </li>
+  </ol>
+</nav>

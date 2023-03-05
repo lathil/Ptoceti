@@ -1,16 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
-	    <artifactId>com.ptoceti.parent</artifactId>
-	    <groupId>com.ptoceti</groupId>
-	    <version>1.2.1-SNAPSHOT</version>
-	    <relativePath>..</relativePath>
-	  </parent>
+		<artifactId>com.ptoceti.parent</artifactId>
+		<groupId>com.ptoceti</groupId>
+		<version>2.0.1-SNAPSHOT</version>
+		<relativePath>..</relativePath>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>com.ptoceti.osgi.modbus</artifactId>
 	<packaging>bundle</packaging>
 
-	<name>Modbus</name>
+	<name>Ptoceti Modbus</name>
 	<description>Ptoceti's modbus driver service</description>
 
 	<properties>
@@ -70,35 +71,41 @@
 					</instructions>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
 
 	<dependencies>
 
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
 		<dependency>
 			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-		</dependency>
+            <artifactId>org.osgi.service.log</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
-
-		<dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.knopflerfish.bundle</groupId>
-			<artifactId>rxtxcomm-API</artifactId> 
-			<version>2.1.7</version>
-			<scope>compile</scope>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.cm</artifactId>
+            <scope>provided</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>com.ptoceti</groupId>
-			<artifactId>com.ptoceti.osgi.rxtx</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.device</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.serial</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
 	</dependencies>
 

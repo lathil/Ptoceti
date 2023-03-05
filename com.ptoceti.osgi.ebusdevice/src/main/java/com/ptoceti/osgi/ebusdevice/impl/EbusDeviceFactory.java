@@ -20,7 +20,7 @@ public class EbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFact
     // a reference to the service registration for the EbusDeviceFactory.
     ServiceRegistration ebusDevFactoryReg = null;
 
-    public static String compositeIdentityKey = "com.ptoceti.osgi.ebudevice.compositeIdentity";
+    public static String name = "com.ptoceti.osgi.ebudevice.name";
     public static String portNameKey = "com.ptoceti.osgi.ebudevice.portName";
     public static String ebusIdKey = "com.ptoceti.osgi.ebusdevice.ebusId";
     public static String poolingRateKey = "com.ptoceti.osgi.ebusdevice.poolingRate";
@@ -41,7 +41,7 @@ public class EbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFact
         ebusDevFactoryReg = Activator.bc.registerService(ManagedServiceFactory.class.getName(),
                 this, properties );
 
-        Activator.log(LogService.LOG_INFO, "Registered " + EbusDeviceFactory.class.getName()
+        Activator.getLogger().info("Registered " + EbusDeviceFactory.class.getName()
                 + " as " + ManagedServiceFactory.class.getName() + ", Pid = " + properties.get(Constants.SERVICE_PID));
     }
 
@@ -60,7 +60,7 @@ public class EbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFact
             mdbDev.stop();
         }
 
-        Activator.log(LogService.LOG_INFO, "Unregistered " + EbusDeviceFactory.class.getName());
+        Activator.getLogger().info("Unregistered " + EbusDeviceFactory.class.getName());
     }
 
     /**
@@ -72,9 +72,8 @@ public class EbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFact
      */
     public void updated(String pid, Dictionary properties) {
 
-
-        String compositeIdentity = (String) properties.get(compositeIdentityKey);
         String portName = (String) properties.get(portNameKey);
+        String name = (String) properties.get(portNameKey);
         Object id = properties.get(ebusIdKey);
         Integer ebusId = id instanceof Integer ? (Integer) id : Integer.parseInt(id.toString());
         Object rate = properties.get(poolingRateKey);
@@ -86,48 +85,18 @@ public class EbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFact
 
         // We need to check if the servive with the given pid already exist in our collection. This would
         // mean that the configuration has been updated.
-        EbusDevice ebusDevSer = ( EbusDevice) ebusDevServices.get( pid );
-        if( ebusDevSer != null ) {
+        EbusDeviceImpl ebusDevSer = (EbusDeviceImpl) ebusDevServices.get(pid);
+        if (ebusDevSer != null) {
             // in which case, the simplest is to get rid of the existing instance, and recreate a brand new one.
             ebusDevSer.stop();
             ebusDevServices.remove(ebusDevSer);
             ebusDevSer = null;
         }
 
-        try {
+        ebusDevSer = new EbusDeviceImpl(pid, name, portName, ebusId, poolingRate);
+        add(pid, ebusDevSer);
+        ebusDevSer.start();
 
-            URL configUrl = null;
-            if( configFilePath.startsWith("file:")){
-                configFilePath = configFilePath.substring("file:".length());
-
-                File file = new File(configFilePath);
-                if( file.exists() && !file.isDirectory()) {
-                    try {
-                        configUrl= file.toURI().toURL();
-                    } catch (MalformedURLException e) {
-                        Activator.log(LogService.LOG_ERROR, "Error creating url for file path: " + configFilePath);
-                    }
-                } else {
-                    Activator.log(LogService.LOG_ERROR, "Error reading EbusDevice file at: " + file.getAbsolutePath());
-                }
-            } else {
-                configUrl = Activator.getResourceStream(configFilePath);
-            }
-
-            if (configUrl != null) {
-                InputStream configFileStream = configUrl.openStream();
-                // Create an xml file EbusDevice configuration reader, and
-                // pass it the EbusDeviceFactory as delegate
-                //EbusDeviceConfig mdbConfig = new EbusDeviceConfig(this, pid, compositeIdentity, portName, modbusId, poolingRate, isMock);
-                // , tell it to read the file. This in turn will call back the
-                // EbusDeviceFactory to create the wires.
-                //mdbConfig.parse(configFileStream);
-                configFileStream.close();
-            }
-        } catch (java.io.IOException e) {
-            Activator.log(LogService.LOG_INFO, "Configuration file: "
-                    + configFilePath + " could not be found.");
-        }
     }
 
     /**
@@ -139,8 +108,8 @@ public class EbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFact
     protected void add(String pid, EbusDevice device ) {
 
         // add this instance to the hashtable.
-        ebusDevServices.put( pid, device);
-        Activator.log(LogService.LOG_INFO,"EbusDeviceFactory: created EbusDevice, pid=" + pid);
+        ebusDevServices.put(pid, device);
+        Activator.getLogger().info("EbusDeviceFactory: created EbusDevice, pid=" + pid);
     }
     /**
      * ManagedServiceFactory Interface method
@@ -157,8 +126,7 @@ public class EbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFact
             // then we got rid of it.
             ebusDevSer.stop();
             ebusDevServices.remove(pid);
-            Activator.log(LogService.LOG_INFO,"Removed EbusDevice type: " + ebusDevSer.getClass().getName()
-                    + ", service pid: " + pid);
+            Activator.getLogger().info("Removed EbusDevice type: " + ebusDevSer.getClass().getName() + ", service pid: " + pid);
         }
     }
 

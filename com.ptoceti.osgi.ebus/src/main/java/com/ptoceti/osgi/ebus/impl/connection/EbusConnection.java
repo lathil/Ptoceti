@@ -85,8 +85,9 @@ public abstract class EbusConnection {
 
     /**
      * Called from serial connection handler with received bytes from the connections
-     * @param inBytes
-     * @param nbToRead
+     *
+     * @param inBytes  array of bytes to read from
+     * @param nbToRead number of bytes to read form the array
      */
     protected  void receivedBytes( byte[] inBytes, int nbToRead ){
         bytesInRaw.write( inBytes, 0, nbToRead);
@@ -287,7 +288,7 @@ public abstract class EbusConnection {
             bytesOut.put(EbusUtils.encodeStream(entry.message.toBytes()));
             bytesOut.put(EbusUtils.calculateCRC(bytesOut.array()));
 
-            Activator.log(LogService.LOG_DEBUG, "Sending frame: " + EbusUtils.writeHex(bytesOut.array()));
+            Activator.getLogger().debug("Sending frame: " + EbusUtils.writeHex(bytesOut.array()));
 
             try {
                 sendBytes(bytesOut.array());
@@ -306,7 +307,7 @@ public abstract class EbusConnection {
                 }
 
             } catch (IOException ex){
-                Activator.log(LogService.LOG_ERROR, "Error sending frame: " + EbusUtils.writeHex(bytesOut.array()) + ", ex: " + ex.toString());
+                Activator.getLogger().error("Error sending frame: " + EbusUtils.writeHex(bytesOut.array()) + ", ex: " + ex.toString());
                 // retry one more time
                 handleRetry(entry);
                 return;
@@ -349,7 +350,7 @@ public abstract class EbusConnection {
                         resetLockCounter();
                     } catch (BadCrcException ex ){
                         // need to try resend
-                        Activator.log(LogService.LOG_INFO, "Bad Crc received: Check retry sending message");
+                        Activator.getLogger().info("Bad Crc received: Check retry sending message");
                         handleRetry(entry);
                     }
                 }

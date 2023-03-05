@@ -1,1 +1,0 @@
-{"type":"watchout","is":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:WatchOut"}]},"isNull":false,"writable":false,"childrens":[{"type":"list","name":"values","isNull":false,"writable":false,"childrens":[],"of":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:obj"}]},"min":0,"max":0}]}

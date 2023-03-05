@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>com.ptoceti.parent</artifactId>
+        <groupId>com.ptoceti</groupId>
+        <version>2.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>com.ptoceti.osgi.features-core</artifactId>
+    <packaging>feature</packaging>
+
+    <name>Ptoceti Features</name>
+    <description>Ptoceti's features for Karaf</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>framework</artifactId>
+            <scope>provided</scope>
+            <type>kar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.platform</groupId>
+                    <artifactId>org.eclipse.osgi</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.karaf.features</groupId>
+            <artifactId>standard</artifactId>
+            <classifier>features</classifier>
+            <scope>provided</scope>
+            <type>xml</type>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.karaf.tooling</groupId>
+                <artifactId>karaf-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <startLevel>80</startLevel>
+                    <aggregateFeatures>true</aggregateFeatures>
+                    <checkDependencyChange>true</checkDependencyChange>
+                    <failOnDependencyChange>false</failOnDependencyChange>
+                    <logDependencyChanges>true</logDependencyChanges>
+                    <overwriteChangedDependencies>true</overwriteChangedDependencies>
+                    <enableGeneration>false</enableGeneration>
+                    <javase>11</javase>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>generate-features-file</id>
+                        <goals>
+                            <goal>features-generate-descriptor</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>karaf-feature-verification</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <descriptors combine.children="append">
+                                <!--
+                                <descriptor>mvn:org.apache.karaf.features/framework/${karaf.tooling.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.apache.karaf.features/standard/${karaf.tooling.version}/xml/features</descriptor>
+                                -->
+                                <descriptor>file:${project.build.directory}/feature/feature.xml</descriptor>
+                            </descriptors>
+                            <distribution>org.apache.karaf.features:framework</distribution>
+                            <javase>${java.version}</javase>
+                            <framework>
+                                <feature>framework</feature>
+                            </framework>
+                            <karafVersion>${karaf.tooling.version}</karafVersion>
+                            <verifyTransitive>true</verifyTransitive>
+                            <ignoreMissingConditions>true</ignoreMissingConditions>
+                            <fail>first</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+</project>

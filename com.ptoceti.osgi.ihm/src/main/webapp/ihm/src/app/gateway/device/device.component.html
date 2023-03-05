@@ -1,0 +1,41 @@
+<div class="row">
+  <div class="col">
+    <div class="card border-0">
+      <div class="card-body">
+        <h5 class="card-title">Device details</h5>
+        <div *ngIf="device$ | async; let device">
+          <div class="form-group">
+            <label for="deviceName">Name</label>
+            <input type="text" id="deviceName" class="form-control" disabled placeholder="{{device.deviceSerial}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceDescription">Description</label>
+            <input type="text" id="deviceDescription" class="form-control" disabled
+                   placeholder="{{device.deviceDescription}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceCategory">Category</label>
+            <input type="text" id="deviceCategory" class="form-control" disabled
+                   placeholder="{{device.deviceCategory}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceSerial">Serial</label>
+            <input type="text" id="deviceSerial" class="form-control" disabled
+                   placeholder="{{device.deviceSerial}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceDiverId">Driver Id</label>
+            <input type="text" id="deviceDiverId" class="form-control" disabled
+                   placeholder="{{device.driverId}}">
+          </div>
+          <ng-container *ngFor="let property of device.properties | keyvalue">
+            <div class="form-group">
+              <label [for]="property.key">{{property.key}}</label>
+              <input type="text" [id]="property.key" class="form-control" disabled placeholder="{{property.value}}">
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

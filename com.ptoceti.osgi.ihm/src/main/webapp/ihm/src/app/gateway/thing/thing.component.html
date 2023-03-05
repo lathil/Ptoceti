@@ -1,0 +1,76 @@
+<div class="row">
+  <div class="col">
+    <div class="card border-0">
+      <div class="card-body">
+        <h5 class="card-title">Thing details</h5>
+        <div *ngIf="thing$ | async; let thing">
+          <div class="form-group">
+            <label for="deviceName">Name</label>
+            <input type="text" id="deviceName" class="form-control" disabled placeholder="{{thing.name}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceDescription">Description</label>
+            <input type="text" id="deviceDescription" class="form-control" disabled
+                   placeholder="{{thing.description}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceDriver">Driver</label>
+            <input type="text" id="deviceDriver" class="form-control" disabled placeholder="{{thing.driver}}">
+          </div>
+          <div class="form-group">
+            <label for="devicefirmwareVendor">Firmware Vendor</label>
+            <input type="text" id="devicefirmwareVendor" class="form-control" disabled
+                   placeholder="{{thing.firmwareVendor}}">
+          </div>
+          <div class="form-group">
+            <label for="devicefirmwareVersion">Firmware Version</label>
+            <input type="text" id="devicefirmwareVersion" class="form-control" disabled
+                   placeholder="{{thing.firmwareVersion}}">
+          </div>
+          <div class="form-group">
+            <label for="devicehardwareVendor">Hardware Vendor</label>
+            <input type="text" id="devicehardwareVendor" class="form-control" disabled
+                   placeholder="{{thing.hardwareVendor}}">
+          </div>
+          <div class="form-group">
+            <label for="devicehardwareVersion">Hardware Version</label>
+            <input type="text" id="devicehardwareVersion" class="form-control" disabled
+                   placeholder="{{thing.hardwareVersion}}">
+          </div>
+          <div class="form-group">
+            <label for="devicemodel">Model</label>
+            <input type="text" id="devicemodel" class="form-control" disabled placeholder="{{thing.model}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceserialNumber">Serial number</label>
+            <input type="text" id="deviceserialNumber" class="form-control" disabled
+                   placeholder="{{thing.serialNumber}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceStatus">Status</label>
+            <input type="text" id="deviceStatus" class="form-control" disabled placeholder="{{thing.status}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceStatusDetails">Status details</label>
+            <input type="text" id="deviceStatusDetails" class="form-control" disabled
+                   placeholder="{{thing.statusDetail}}">
+          </div>
+          <div class="form-group">
+            <label for="deviceUid">uid</label>
+            <input type="text" id="deviceUid" class="form-control" disabled placeholder="{{thing.uid}}">
+          </div>
+          <div class="form-group">
+            <label>Types</label>
+            <input *ngFor="let type of thing.types" type="text" class="form-control" disabled placeholder="{{type}}">
+          </div>
+          <ng-container *ngFor="let property of thing.properties | keyvalue">
+            <div class="form-group">
+              <label [for]="property.key">{{property.key}}</label>
+              <input type="text" [id]="property.key" class="form-control" disabled placeholder="{{property.value}}">
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

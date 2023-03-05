@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>com.ptoceti.parent</artifactId>
+        <groupId>com.ptoceti</groupId>
+        <version>2.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <packaging>bundle</packaging>
+    <artifactId>com.ptoceti.osgi.ihm</artifactId>
+    <name>Ptoceti Ihm</name>
+    <description>Ptoceti's Ihm</description>
+
+    <properties>
+        <!-- Don't let your Mac use a crazy non-standard encoding -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <bundle.namespace>${pom.artifactId}</bundle.namespace>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.http.whiteboard</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.log</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.cm</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ptoceti</groupId>
+            <artifactId>com.ptoceti.osgi.rest</artifactId>
+            <version>${project.version}</version>
+            <classifier>swagger</classifier>
+            <type>yaml</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.ptoceti</groupId>
+            <artifactId>com.ptoceti.osgi.auth</artifactId>
+            <version>${project.version}</version>
+            <classifier>swagger</classifier>
+            <type>yaml</type>
+        </dependency>
+
+    </dependencies>
+    <build>
+
+        <!-- Generate compiled stuff in the folder used for development mode -->
+        <!--<outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>-->
+
+        <resources>
+            <resource>
+                <directory>${project.build.directory}</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>LICENSE.txt</include>
+                    <include>NOTICE.txt</include>
+                    <include>README.md</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+
+            <resource>
+                <directory>src/main/webapp/ihm/dist</directory>
+                <filtering>false</filtering>
+                <targetPath>webapp/ihm/dist</targetPath>
+            </resource>
+
+        </resources>
+
+        <plugins>
+
+            <!-- copy open api swagger.yaml sec from rest module -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-api-swagger</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.ptoceti</groupId>
+                                    <artifactId>com.ptoceti.osgi.rest</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>yaml</type>
+                                    <classifier>swagger</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>src/main/webapp/ihm</outputDirectory>
+                                    <destFileName>api-swagger.yaml</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <!-- other configurations here -->
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-auth-swagger</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.ptoceti</groupId>
+                                    <artifactId>com.ptoceti.osgi.auth</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>yaml</type>
+                                    <classifier>swagger</classifier>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>src/main/webapp/ihm</outputDirectory>
+                                    <destFileName>auth-swagger.yaml</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <!-- other configurations here -->
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- JAVA COMPILER -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <!-- INCLUDE SOURCE JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+
+            <!-- INCLUDE JAVADOC JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+
+            <!-- GENERATE LICENSE HEADERS IN SOURCE FILES -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>*.handlebars</exclude>
+                    </excludes>
+                    <roots>
+                        <root>src/main/java</root>
+                    </roots>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>${project.artifactId}</Export-Package>
+                        <Private-Package>${project.artifactId}.impl.*</Private-Package>
+                        <Bundle-Activator>${project.artifactId}.impl.Activator</Bundle-Activator>
+                        <Include-Resource>/resources = src/main/webapp/ihm/dist,/OSGI-INF=src/main/resources/OSGI-INF
+                        </Include-Resource>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>install-node-and-npm</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>install-node-and-npm</goal>
+                        </goals>
+                        <configuration>
+                            <nodeVersion>v10.15.3</nodeVersion>
+                            <npmVersion>6.4.1</npmVersion>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-install</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration> <!-- this is the default args but just to make it explicit -->
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>api</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run-script api</arguments>
+                        </configuration>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>auth</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run-script auth</arguments>
+                        </configuration>
+                        <phase>generate-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>prod</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>run-script prod</arguments>
+                        </configuration>
+                        <phase>generate-resources</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <installDirectory>target/node-installation-dir</installDirectory>
+                    <workingDirectory>src/main/webapp/ihm</workingDirectory>
+                    <skip>${frontend.skip}</skip>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.github.eirslett</groupId>
+                    <artifactId>frontend-maven-plugin</artifactId>
+                    <!-- Use the latest released version: https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
+                    <version>1.9.1</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
+
+</project>

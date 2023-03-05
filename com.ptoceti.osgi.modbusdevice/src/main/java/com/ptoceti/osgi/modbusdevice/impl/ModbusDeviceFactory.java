@@ -29,19 +29,10 @@ package com.ptoceti.osgi.modbusdevice.impl;
  * #L%
  */
 
-import com.ptoceti.osgi.modbusdevice.ModbusDevice;
-import com.ptoceti.osgi.modbusdevice.impl.Activator;
-import com.ptoceti.osgi.modbusdevice.impl.ModbusDeviceConfig;
-
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ManagedServiceFactory;
-import org.osgi.service.log.LogService;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Hashtable;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -61,41 +52,37 @@ import java.util.Enumeration;
  * @author Laurent Thil
  * @version 1.0
  */
- 
+
 public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFactory {
 
-	// the hashtable contain the references to all ModbusDevice instances created.
-	Hashtable<String, ModbusDevice> modbusDevServices;
-	// a reference to the service registration for the ModbusDeviceFactory.
-	ServiceRegistration modbusDevFactoryReg = null;
-	
-	public static String modbusConfigProperty = "com.ptoceti.osgi.modbusdevice.config";
-	public static String modbusConfigFile = "/modbusdevice.xml";
-	
-	public static String compositeIdentityKey = "com.ptoceti.osgi.modbusdevice.compositeIdentity";
-	public static String portNameKey = "com.ptoceti.osgi.modbusdevice.portName";
-	public static String modbusIdKey = "com.ptoceti.osgi.modbusdevice.modbusId";
-	public static String poolingRateKey = "com.ptoceti.osgi.modbusdevice.poolingRate";
-	public static String configFilePathKey = "com.ptoceti.osgi.modbusdevice.configFilePath";
-	public static String mock = "com.ptoceti.osgi.modbusdevice.mock";
-	
-	/**
-	 * Create a new ModbusDeviceFactory instance. Register the class instance as a ManagedServiceFactory.
-	 * The class will be recognised as such by the framework allowing it to pass on configuration data.
-	 *
-	 */
-	public ModbusDeviceFactory() {
-		// create a new hastable that will contain references to all the ModbusDevice modules.
-		modbusDevServices = new Hashtable<String, ModbusDevice>();
-		// register the class as a service factory.
-		Hashtable properties = new Hashtable();
-		properties.put( Constants.SERVICE_PID, "com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory");
-		modbusDevFactoryReg = Activator.bc.registerService(ManagedServiceFactory.class.getName(),
-				this, properties );
-		
-		Activator.log(LogService.LOG_INFO, "Registered " + ModbusDeviceFactory.class.getName()
-			+ " as " + ManagedServiceFactory.class.getName() + ", Pid = " + (String)properties.get(Constants.SERVICE_PID));
-	}
+    // the hashtable contain the references to all ModbusDevice instances created.
+    Hashtable<String, ModbusDeviceImpl> modbusDevServices;
+    // a reference to the service registration for the ModbusDeviceFactory.
+    ServiceRegistration modbusDevFactoryReg = null;
+
+    public static String modbusConfigProperty = "com.ptoceti.osgi.modbusdevice.config";
+
+    public static String nameKey = "com.ptoceti.osgi.modbusdevice.name";
+    public static String portNameKey = "com.ptoceti.osgi.modbusdevice.portName";
+    public static String poolingRateKey = "com.ptoceti.osgi.modbusdevice.poolingRate";
+
+
+    /**
+     * Create a new ModbusDeviceFactory instance. Register the class instance as a ManagedServiceFactory.
+     * The class will be recognised as such by the framework allowing it to pass on configuration data.
+     */
+    public ModbusDeviceFactory() {
+        // create a new hastable that will contain references to all the ModbusDevice modules.
+        modbusDevServices = new Hashtable<String, ModbusDeviceImpl>();
+        // register the class as a service factory.
+        Hashtable properties = new Hashtable();
+        properties.put(Constants.SERVICE_PID, "com.ptoceti.osgi.modbusdevice.ModbusDeviceFactory");
+        modbusDevFactoryReg = Activator.getBc().registerService(ManagedServiceFactory.class.getName(),
+                this, properties);
+
+        Activator.getLogger().info("Registered " + ModbusDeviceFactory.class.getName()
+                + " as " + ManagedServiceFactory.class.getName() + ", Pid = " + (String) properties.get(Constants.SERVICE_PID));
+    }
 	
 	/**
 	 * Uregistered the class from the service registration system.
@@ -103,17 +90,17 @@ public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFa
 	 * 
 	 */
 	public void stop() {
-		
-		// Unregister the factory first ..
-		modbusDevFactoryReg.unregister();
-		// .. second, stop all the ModbusDevice services.
-		for( Enumeration<ModbusDevice> mdbServs = modbusDevServices.elements(); mdbServs.hasMoreElements(); ) {
-			ModbusDevice mdbDev = mdbServs.nextElement();
-			mdbDev.stop();
-		}
-		
-		Activator.log(LogService.LOG_INFO, "Unregistered " + ModbusDeviceFactory.class.getName());
-	}
+
+        // Unregister the factory first ..
+        modbusDevFactoryReg.unregister();
+        // .. second, stop all the ModbusDevice services.
+        for (Enumeration<ModbusDeviceImpl> mdbServs = modbusDevServices.elements(); mdbServs.hasMoreElements(); ) {
+            ModbusDeviceImpl mdbDev = mdbServs.nextElement();
+            mdbDev.stop();
+        }
+
+        Activator.getLogger().info("Unregistered " + ModbusDeviceFactory.class.getName());
+    }
 
 	/**
 	 * ManagedServiceFactory Interface method
@@ -123,94 +110,58 @@ public class ModbusDeviceFactory implements org.osgi.service.cm.ManagedServiceFa
 	 * @param properties The new properties for this service.
 	 */
 	public void updated(String pid, Dictionary properties) {
-	
-		
-		String compositeIdentity = (String) properties.get(compositeIdentityKey);
-		String portName = (String) properties.get(portNameKey);
-		Object id = properties.get(modbusIdKey);
-		Integer modbusId = id instanceof Integer ? (Integer) id : Integer.parseInt(id.toString());
-		Object rate = properties.get(poolingRateKey);
-		Integer poolingRate = rate instanceof Integer ? (Integer) rate: Integer.parseInt(rate.toString());
-		String configFilePath = (String)  properties.get(configFilePathKey);
-		Object mck = properties.get(mock);
-		Boolean isMock = mck instanceof Boolean ? (Boolean) mck : Boolean.parseBoolean(mck != null ? mck.toString(): "false");
-		
-		
-		// We need to check if the servive with the given pid already exist in our collection. This would
-		// mean that the configuration has been updated.
-		ModbusDevice modbusDevSer = ( ModbusDevice) modbusDevServices.get( pid );
-		if( modbusDevSer != null ) {
-			// in which case, the simplest is to get rid of the existing instance, and recreate a brand new one.
-			modbusDevSer.stop();
-			modbusDevServices.remove(modbusDevSer);
-			modbusDevSer = null;
-		}
-			
-		try {
-			
-			URL configUrl = null;
-			if( configFilePath.startsWith("file:")){
-				  configFilePath = configFilePath.substring("file:".length());
-				  
-				  File file = new File(configFilePath);
-					if( file.exists() && !file.isDirectory()) {
-						try {
-							configUrl= file.toURI().toURL();
-						} catch (MalformedURLException e) {
-							Activator.log(LogService.LOG_ERROR, "Error creating url for file path: " + configFilePath);
-						}
-					} else {
-						Activator.log(LogService.LOG_ERROR, "Error reading modbusdevice file at: " + file.getAbsolutePath());
-					}
-			  } else {
-				  configUrl = Activator.getResourceStream(configFilePath);
-			  }
-			
-			if (configUrl != null) {
-				InputStream configFileStream = configUrl.openStream();
-				// Create an xml file modbusdevice configuration reader, and
-				// pass it the ModbusDeviceFactory as delegate
-				ModbusDeviceConfig mdbConfig = new ModbusDeviceConfig(this, pid, compositeIdentity, portName, modbusId, poolingRate, isMock);
-				// , tell it to read the file. This in turn will call back the
-				// ModbusDeviceFactory to create the wires.
-				mdbConfig.parse(configFileStream);
-				configFileStream.close();
-			}
-		} catch (java.io.IOException e) {
-			Activator.log(LogService.LOG_INFO, "Configuration file: "
-					+ configFilePath + " could not be found.");
-		}
-	}
 
-	/**
-	 * Add a ModbusDevice object to the internal list
-	 * 
-	 * @param pid : the persistant identifier of the device class.
-	 * @param device : the ModbusDevice object to add.
-	 */
-	protected void add(String pid, ModbusDevice device ) {
-	
-		// add this instance to the hashtable.
-		modbusDevServices.put( pid, device);
-		Activator.log(LogService.LOG_INFO,"ModbusDeviceFactory: created ModbusDevice, pid=" + pid);
-	}
-	/**
-	 * ManagedServiceFactory Interface method
-	 * Called by the framewok when one of the service instance created by
-	 * the factory is removed.
-	 *
+
+        String portName = (String) properties.get(portNameKey);
+        String name = (String) properties.get(nameKey);
+        Object rate = properties.get(poolingRateKey);
+        Integer poolingRate = rate instanceof Integer ? (Integer) rate : Integer.parseInt(rate.toString());
+
+
+        // We need to check if the servive with the given pid already exist in our collection. This would
+        // mean that the configuration has been updated.
+        ModbusDeviceImpl modbusDevSer = (ModbusDeviceImpl) modbusDevServices.get(pid);
+        if (modbusDevSer != null) {
+            // in which case, the simplest is to get rid of the existing instance, and recreate a brand new one.
+            modbusDevSer.stop();
+            modbusDevServices.remove(modbusDevSer);
+        }
+
+        modbusDevSer = new ModbusDeviceImpl(pid, name, portName, poolingRate);
+        add(pid, modbusDevSer);
+        modbusDevSer.start();
+
+    }
+
+    /**
+     * Add a ModbusDevice object to the internal list
+     *
+     * @param pid    : the persistant identifier of the device class.
+     * @param device : the ModbusDevice object to add.
+     */
+    protected void add(String pid, ModbusDeviceImpl device) {
+
+        // add this instance to the hashtable.
+        modbusDevServices.put(pid, device);
+        Activator.getLogger().info("ModbusDeviceFactory: created ModbusDevice, pid=" + pid);
+    }
+
+    /**
+     * ManagedServiceFactory Interface method
+     * Called by the framewok when one of the service instance created by
+     * the factory is removed.
+     *
 	 * @param pid: the service instance persistant identificator
 	 */
-	public void deleted(String pid ) {
-		
-		ModbusDevice modbusDevSer = modbusDevServices.get( pid );
-		// simple precaution, we first check that we effectively got an instance with this pid
-		if ( modbusDevSer != null ) {
-			// then we got rid of it.
-			modbusDevSer.stop();
-			modbusDevServices.remove(pid);
-			Activator.log(LogService.LOG_INFO,"Removed ModbusDevice type: " + modbusDevSer.getClass().getName()
-				+ ", service pid: " + pid);
+	public void deleted(String pid) {
+
+        ModbusDeviceImpl modbusDevSer = modbusDevServices.get(pid);
+        // simple precaution, we first check that we effectively got an instance with this pid
+        if (modbusDevSer != null) {
+            // then we got rid of it.
+            modbusDevSer.stop();
+            modbusDevServices.remove(pid);
+            Activator.getLogger().info("Removed ModbusDevice type: " + modbusDevSer.getClass().getName() + ", service pid: " + pid);
 		}
 	}
 	

@@ -1,0 +1,180 @@
+<div class="row">
+  <div class="col">
+    <div class="card border-0">
+      <div class="card-body">
+        <h5 class="card-title" *ngIf="!configurationEditorWrapper.configuration.pid">Configuration
+          factory: {{configurationEditorWrapper.configuration.factoryPid}}</h5>
+        <h5 class="card-title" *ngIf="configurationEditorWrapper.configuration.pid">Configuration
+          service: {{configurationEditorWrapper.configuration.pid}}</h5>
+        <div *ngIf="configurationEditorWrapper.metatype">
+          <form [formGroup]="configurationForm" (ngSubmit)="onFormSubmit()" class="needs-validation" novalidate>
+            <ng-container
+              *ngFor="let attributeDefinition of configurationEditorWrapper.metatype.objectClassDefinition.attributeDefinitions">
+              <ng-container [ngSwitch]="attributeDefinition.type">
+                <div *ngSwitchCase="'STRING'" class="form-group">
+                  <label [for]="attributeDefinition.id">{{attributeDefinition.name}}</label>
+                  <input *ngIf="attributeDefinition.optionLabels.length == 0" type="text" [id]="attributeDefinition.id"
+                         class="form-control" [formControlName]="attributeDefinition.id" placeholder=""
+                         [ngClass]="{ 'is-invalid': configurationForm.controls[attributeDefinition.id].invalid }">
+                  <select *ngIf="attributeDefinition.optionLabels.length > 0" [id]="attributeDefinition.id"
+                          class="form-control" [formControlName]="attributeDefinition.id">
+                    <option *ngFor="let optionlabel of attributeDefinition.optionLabels; let i=index;"
+                            [value]="attributeDefinition.optionValues[i]">{{optionlabel}}</option>
+                  </select>
+                  <div *ngIf="configurationForm.controls[attributeDefinition.id].hasError('required')"
+                       class="invalid-feedback">
+                    {{attributeDefinition.name}} is required.
+                  </div>
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+                <div *ngSwitchCase="'LONG'" class="form-group">
+                  <label [for]="attributeDefinition.id">{{attributeDefinition.name}}</label>
+                  <input type="text" [id]="attributeDefinition.id" class="form-control"
+                         [formControlName]="attributeDefinition.id" placeholder="">
+                  <div *ngIf="configurationForm.controls[attributeDefinition.id].invalid" class="invalid-feedback">
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('min')">{{attributeDefinition.name}}
+                      must be more than -9223372036854775808</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('max')">{{attributeDefinition.name}}
+                      must be less than 9223372036854775807</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('pattern')">{{attributeDefinition.name}}
+                      must be a integer value.</small>
+                  </div>
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+                <div *ngSwitchCase="'INTEGER'" class="form-group">
+                  <label [for]="attributeDefinition.id">{{attributeDefinition.name}}</label>
+                  <input type="text" [id]="attributeDefinition.id" class="form-control"
+                         [formControlName]="attributeDefinition.id" placeholder=""
+                         [ngClass]="{ 'is-invalid': configurationForm.controls[attributeDefinition.id].invalid }">
+                  <div *ngIf="configurationForm.controls[attributeDefinition.id].invalid" class="invalid-feedback">
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('min')">{{attributeDefinition.name}}
+                      must be more than -2147483648</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('max')">{{attributeDefinition.name}}
+                      must be less than 2147483647</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('pattern')">{{attributeDefinition.name}}
+                      must be a integer value.</small>
+                  </div>
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+                <div *ngSwitchCase="'SHORT'" class="form-group">
+                  <label [for]="attributeDefinition.id">{{attributeDefinition.name}}</label>
+                  <input type="text" [id]="attributeDefinition.id" class="form-control"
+                         [formControlName]="attributeDefinition.id" placeholder=""
+                         [ngClass]="{ 'is-invalid': configurationForm.controls[attributeDefinition.id].invalid }">
+                  <div *ngIf="configurationForm.controls[attributeDefinition.id].invalid" class="invalid-feedback">
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('min')">{{attributeDefinition.name}}
+                      must be more than -32768</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('max')">{{attributeDefinition.name}}
+                      must be less than 32767</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('pattern')">{{attributeDefinition.name}}
+                      must be a integer value.</small>
+                  </div>
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+                <div *ngSwitchCase="'CHARACTER'" class="form-group">
+                  <label [for]="attributeDefinition.id">{{attributeDefinition.name}}</label>
+                  <input type="text" [id]="attributeDefinition.id" class="form-control"
+                         [formControlName]="attributeDefinition.id" placeholder="">
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+                <div *ngSwitchCase="'BYTE'" class="form-group">
+                  <label [for]="attributeDefinition.id">{{attributeDefinition.name}}</label>
+                  <input type="text" [id]="attributeDefinition.id" class="form-control"
+                         [formControlName]="attributeDefinition.id" placeholder=""
+                         [ngClass]="{ 'is-invalid': configurationForm.controls[attributeDefinition.id].invalid }">
+                  <div *ngIf="configurationForm.controls[attributeDefinition.id].invalid" class="invalid-feedback">
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('min')">{{attributeDefinition.name}}
+                      must be more than -127</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('max')">{{attributeDefinition.name}}
+                      must be less than 128</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('pattern')">{{attributeDefinition.name}}
+                      must be a integer value.</small>
+                  </div>
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+                <div *ngSwitchCase="'DOUBLE'" class="form-group">
+                  <label [for]="attributeDefinition.id">{{attributeDefinition.name}}</label>
+                  <input type="text" [id]="attributeDefinition.id" class="form-control"
+                         [formControlName]="attributeDefinition.id" placeholder=""
+                         [ngClass]="{ 'is-invalid': configurationForm.controls[attributeDefinition.id].invalid }">
+                  <div *ngIf="configurationForm.controls[attributeDefinition.id].invalid" class="invalid-feedback">
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('min')">{{attributeDefinition.name}}
+                      must be more than 4.9E-324</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('max')">{{attributeDefinition.name}}
+                      must be less than 1.7976931348623157E308</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('pattern')">{{attributeDefinition.name}}
+                      must be a decimal value.</small>
+                  </div>
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+                <div *ngSwitchCase="'FLOAT'" class="form-group">
+                  <label [for]="attributeDefinition.id">{{attributeDefinition.name}}</label>
+                  <input type="text" [id]="attributeDefinition.id" class="form-control"
+                         [formControlName]="attributeDefinition.id" placeholder=""
+                         [ngClass]="{ 'is-invalid': configurationForm.controls[attributeDefinition.id].invalid }">
+                  <div *ngIf="configurationForm.controls[attributeDefinition.id].invalid" class="invalid-feedback">
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('min')">{{attributeDefinition.name}}
+                      must be more than 1.4E-45</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('max')">{{attributeDefinition.name}}
+                      must be less than 3.4028235E38</small>
+                    <small
+                      *ngIf="configurationForm.controls[attributeDefinition.id].hasError('pattern')">{{attributeDefinition.name}}
+                      must be a decimal value.</small>
+                  </div>
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+                <div *ngSwitchCase="'BOOLEAN'" class="form-group">
+                  <div class="form-check">
+                    <input type="checkbox" [id]="attributeDefinition.id" class="form-check-input"
+                           [formControlName]="attributeDefinition.id" [value]="true">
+                    <label [for]="attributeDefinition.id" class="form-check-label">{{attributeDefinition.name}}</label>
+                  </div>
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+                <div *ngSwitchCase="'PASSWORD'" class="form-group">
+                  <label [for]="attributeDefinition.id">{{attributeDefinition.name}}</label>
+                  <input type="password" [id]="attributeDefinition.id" class="form-control"
+                         [formControlName]="attributeDefinition.id" placeholder="">
+                  <div *ngIf="configurationForm.controls[attributeDefinition.id].hasError('required')"
+                       class="invalid-feedback">
+                    {{attributeDefinition.name}} is required.
+                  </div>
+                  <small *ngIf="attributeDefinition.description" [id]="attributeDefinition.id + 'help'"
+                         class="form-text text-muted">{{attributeDefinition.description}}</small>
+                </div>
+              </ng-container>
+            </ng-container>
+            <button [disabled]="!configurationForm.valid" type="submit" class="btn btn-primary">Submit</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.0.0">
+    <OCD description="Auth service configuration" name="Ptoceti Auth service"
+         id="com.ptoceti.osgi.auth.AuthService">
+        <AD name="Ihm url path pattern" id="com.ptoceti.osgi.auth.api.path.pattern" required="true" type="String"
+            default="/auth"/>
+    </OCD>
+    <Designate pid="com.ptoceti.osgi.auth.AuthService">
+        <Object ocdref="com.ptoceti.osgi.auth.AuthService"/>
+    </Designate>
+</MetaData>

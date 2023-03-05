@@ -10,6 +10,8 @@ import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.log.LogService;
+import org.osgi.service.log.Logger;
+import org.osgi.service.log.LoggerFactory;
 
 /**
  * Activator class implement the BundleActivator interface. This class load the bundle in the framework.
@@ -24,9 +26,10 @@ public class Activator implements BundleActivator {
     // a reference to this service bundle context.
     static BundleContext bc = null;
     // a reference to the logging service.
-    static LogService logSer;
+    static LoggerFactory logFactory;
+    static Logger logger;
     // the name of the logging service in the osgi framework.
-    static private final String logServiceName = org.osgi.service.log.LogService.class.getName();
+    static final String logFactoryName = org.osgi.service.log.LoggerFactory.class.getName();
     // a reference to the ModbusDevice factory service.
     private EbusDeviceFactory ebusDevFact;
 
@@ -47,27 +50,18 @@ public class Activator implements BundleActivator {
         Activator.bc = context;
 
         // we construct a listener to detect if the log service appear or disapear.
-        String filter = "(objectclass=" + logServiceName + ")";
-        ServiceListener logServiceListener = new LogServiceListener();
+        String filter = "(objectclass=" + logFactoryName + ")";
+        ServiceListener logFactoryListener = new LoggerFactoryListener();
         try {
-            bc.addServiceListener(logServiceListener, filter);
+            bc.addServiceListener(logFactoryListener, filter);
             // in case the service is already registered, we send a REGISTERED event to its listener.
-            ServiceReference srLog = bc.getServiceReference(logServiceName);
+            ServiceReference srLog = bc.getServiceReference(logFactoryName);
             if (srLog != null) {
-                logServiceListener.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, srLog));
+                logFactoryListener.serviceChanged(new ServiceEvent(ServiceEvent.REGISTERED, srLog));
             }
         } catch (InvalidSyntaxException e) {
             throw new BundleException("Error in filter string while registering LogServiceListener." + e.toString());
         }
-
-        try {
-            // create a instance of the ModusDevice factory.
-            ebusDevFact = new EbusDeviceFactory();
-        } catch (Exception e) {
-            throw new BundleException(e.toString());
-        }
-
-        log(LogService.LOG_INFO, "Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
 
     }
 
@@ -80,7 +74,7 @@ public class Activator implements BundleActivator {
     public void stop(BundleContext context) {
 
         if (ebusDevFact != null) ebusDevFact.stop();
-        log(LogService.LOG_INFO, "Stopping");
+        Activator.getLogger().info("Stopping");
         Activator.bc = null;
     }
 
@@ -99,12 +93,13 @@ public class Activator implements BundleActivator {
      * Class method for logging to the logservice. This method can be accessed from every class
      * in the bundle by simply invoking Activator.log(..).
      *
-     * @param logLevel : the level to use when togging this message.
-     * @param message  : the message to log.
+     * @return the Activator logger
      */
-    static public void log(int logLevel, String message) {
-        if (logSer != null)
-            logSer.log(logLevel, message);
+    static public Logger getLogger() {
+        if (logger == null && logFactory != null) {
+            logger = logFactory.getLogger(Activator.class);
+        }
+        return logger;
     }
 
     /**
@@ -113,7 +108,13 @@ public class Activator implements BundleActivator {
      * and it is important to note when services appear and disappear.
      * This inner class update the outer class reference to the log service in concordance.
      */
-    private class LogServiceListener implements ServiceListener {
+    /**
+     * Internal listener class that receives framework event when the log service is registered
+     * in the the framework and when it is being removed from it. The framework is a dynamic place
+     * and it is important to note when services appear and disappear.
+     * This inner class update the outer class reference to the log service in concordance.
+     */
+    public class LoggerFactoryListener implements ServiceListener {
 
         /**
          * Unique method of the ServiceListener interface.
@@ -123,11 +124,15 @@ public class Activator implements BundleActivator {
             ServiceReference sr = event.getServiceReference();
             switch (event.getType()) {
                 case ServiceEvent.REGISTERED: {
-                    logSer = (LogService) bc.getService(sr);
+                    logFactory = (LogService) bc.getService(sr);
+                    Activator.getLogger().info("Starting version " + bc.getBundle().getHeaders().get("Bundle-Version"));
+                    ebusDevFact = new EbusDeviceFactory();
+
                 }
                 break;
                 case ServiceEvent.UNREGISTERING: {
-                    logSer = null;
+                    logFactory = null;
+
                 }
                 break;
             }

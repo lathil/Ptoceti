@@ -1,3 +1,0 @@
-{
-	"alarmservice" : {"type":"AlarmService","is":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"ptoceti:AlarmService"}]},"isNull":false,"writable":false,"childrens":[{"type":"op","name":"make","href":{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"/alarmservice/"},"is":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:Op"}]},"isNull":false,"writable":false,"childrens":[],"in":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:ref"}]},"out":{"uris":[{"type":"uri","name":"uri","isNull":false,"writable":false,"childrens":[],"val":"obix:Alarm"}]}}]}
-}

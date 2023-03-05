@@ -1,0 +1,5 @@
+{
+  "authUrl": "/auth",
+  "restUrl": "/rest",
+  "sseUrl": "/rest/events"
+}

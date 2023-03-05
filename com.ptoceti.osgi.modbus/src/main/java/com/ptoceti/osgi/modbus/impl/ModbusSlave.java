@@ -34,31 +34,25 @@ import com.ptoceti.osgi.modbus.impl.connection.ModbusSerialASCIIConnection;
 import com.ptoceti.osgi.modbus.impl.connection.ModbusSerialRTUConnection;
 
 /**
- * 
+ *
  */
- 
+
 public class ModbusSlave extends ModbusDriverImpl {
 
-	public FrameListener listener;
-	
-	public ModbusSlave( int id, String portName, String encoding, int baudRate, boolean usesParity, boolean evenParity  ) throws Exception {
-		
-		this.setID((byte)id);
+    public FrameListener listener;
 
-		if( encoding.equals(ModbusDriver.RTU_ENCODING))
-			mdbConnection = new ModbusSerialRTUConnection( portName, baudRate, usesParity, evenParity, false );
-		else if (encoding.equals(ModbusDriver.ASCII_ENCODING ))
-			mdbConnection = new ModbusSerialASCIIConnection( portName, baudRate, usesParity, evenParity, false );
-		
-		listener = new FrameListener();
-	}
-	
-	
-	public boolean isMaster() {
-		return false;
-	}
-	
-	public boolean isSlave() {
+    public ModbusSlave(String pid, int id, String portName, String encoding, int baudRate, boolean usesParity, boolean evenParity) throws Exception {
+        super(pid, id, portName, encoding, baudRate, usesParity, evenParity);
+
+        listener = new FrameListener();
+    }
+
+
+    public boolean isMaster() {
+        return false;
+    }
+
+    public boolean isSlave() {
 		return true;
 	}
 	

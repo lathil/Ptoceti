@@ -1,0 +1,11 @@
+.app, app-dashboard, app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header-fixed .app-header {
+  position: fixed;
+  z-index: 1020;
+  width: 100%;
+}

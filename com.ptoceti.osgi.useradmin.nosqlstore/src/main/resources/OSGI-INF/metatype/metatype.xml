@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0">
+    <OCD description="Configuration of userAdmin nosql store" name="Ptoceti UserAdminNoSqlStore Service"
+         id="com.ptoceti.osgi.useradmin.nosqlstore.impl.RoleRepositoryStoreBuilder">
+        <AD name="Database filepath" id="com.ptoceti.osgi.useradmin.nosqlstore.nitrite.db.filepath" required="true"
+            type="String"
+            default="useradmin.nitrite.db"/>
+    </OCD>
+    <Designate pid="com.ptoceti.osgi.useradmin.nosqlstore.impl.RoleRepositoryStoreBuilder">
+        <Object ocdref="com.ptoceti.osgi.useradmin.nosqlstore.impl.RoleRepositoryStoreBuilder"/>
+    </Designate>
+</MetaData>

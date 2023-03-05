@@ -35,27 +35,41 @@ public interface ModbusDriver {
 	public static final String ASCII_ENCODING = "ascii_encoding";
 	public static final String MASTER = "master";
 	public static final String SLAVE = "slave";
-		
-	public static final String MODBUS_ENCODING = "com.ptoceti.osgi.modbusdriver.encoding";
-	public static final String MODBUS_PORT = "com.ptoceti.osgi.modbusdriver.port";
-	public static final String MODBUS_SLAVE_MASTER = "com.ptoceti.osgi.modbusdriver.slave.master";
-	public static final String MODBUS_ID = "com.ptoceti.osgi.modbusdriver.id";
-	public static final String MODBUS_BAUDRATE = "com.ptoceti.osgi.modbusdriver.baudrate";
-	public static final String MODBUS_USESPARITY = "com.ptoceti.osgi.modbusdriver.usesparity";
-	public static final String MODBUS_EVENPARITY = "com.ptoceti.osgi.modbusdriver.evenparity";
-	public static final String MODBUS_DRIVER_SERVICE_PORT = "com.ptoceti.osgi.modbusdriver.port";
-	public static final String MODBUS_ECHO = "com.ptoceti.osgi.modbusdriver.echo";
-	
-	public boolean isMaster();
-	public boolean isSlave();
-	public byte getID();
-	public String getPortName();
-	
-	public byte[] readCoilsStatus( byte unitID, int coilID, int nbCoils );
-	public byte[] readInputStatus( byte unitID, int inputStatID, int nbInputsStats );
-	public int[] readHoldingRegisters( byte unitID, int holdingRegID, int nbHoldingReg );
-	public int[] readInputRegisters( byte unitID, int inputRegID, int bnInputReg );
-	public boolean forceSingleCoil( byte unitID, int coilID, boolean value );
-	public boolean forceSingleRegister( byte unitID, int registerID, int value );
+
+    public static final String MODBUS_ENCODING = "com.ptoceti.osgi.modbusdriver.encoding";
+    public static final String MODBUS_PORT = "com.ptoceti.osgi.modbusdriver.port";
+    public static final String MODBUS_SLAVE_MASTER = "com.ptoceti.osgi.modbusdriver.slave.master";
+    public static final String MODBUS_ID = "com.ptoceti.osgi.modbusdriver.id";
+    public static final String MODBUS_BAUDRATE = "com.ptoceti.osgi.modbusdriver.baudrate";
+    public static final String MODBUS_USESPARITY = "com.ptoceti.osgi.modbusdriver.usesparity";
+    public static final String MODBUS_EVENPARITY = "com.ptoceti.osgi.modbusdriver.evenparity";
+    public static final String MODBUS_DRIVER_SERVICE_PORT = "com.ptoceti.osgi.modbusdriver.port";
+    public static final String MODBUS_ECHO = "com.ptoceti.osgi.modbusdriver.echo";
+
+    public static final String MODBUS_DRIVER_NAME = "Modbus";
+
+    public boolean isMaster();
+
+    public boolean isSlave();
+
+    public byte getID();
+
+    public String getPortName();
+
+    public void addListener(ModbusDriverListener listener);
+
+    public void removeListener(ModbusDriverListener listener);
+
+    public byte[] readCoilsStatus(byte unitID, int coilID, int nbCoils);
+
+    public byte[] readInputStatus(byte unitID, int inputStatID, int nbInputsStats);
+
+    public int[] readHoldingRegisters(byte unitID, int holdingRegID, int nbHoldingReg);
+
+    public int[] readInputRegisters(byte unitID, int inputRegID, int bnInputReg);
+
+    public boolean forceSingleCoil(byte unitID, int coilID, boolean value);
+
+    public boolean forceSingleRegister(byte unitID, int registerID, int value);
 
 }

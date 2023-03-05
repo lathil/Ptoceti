@@ -1,76 +1,69 @@
-Ptoceti : an embedable Obix server
+Ptoceti : an OSGI R6 Iot Gatway
 ==================================================
 
-Ptoceti is a set of Osgi bundles to build a [Obix]( http://www.obix.org/) server.
+Ptoceti is a set of Osgi bundles to build a Iot Gateway
 
-Ptoceti is build on top of [Osgi](www.osgi.org) R4 and and execute in a jdk 1.7. It needs about 20-30 mb of memory to execute which make it a nice fit for a small form factor Arm computer.
+Ptoceti is build on top of [Osgi](www.osgi.org) R6 with use of Device Access, Device Abstraction Layer and Device Abstraction Layer Function specifications.
 
-The architecture of the server rest on a consumer / producer pattern so that you can easely provide your own to data to be exposed through your own bundles.
-Additionally an embedded [SQLite](http://sqlite.org) database is used to record data and serves it through a SPA Javascript style client for interaction in mobile and tablet devices.
 
- 
 ## Ptoceti's modules
 
 Ptoceti's main modules are:
 
-- com.ptoceti.osgi.obix.backbones : the single page web application to serve obix content.
+- com.ptoceti.osgi.configadmin.eventlistener : a bundle exposing Configuration Admin event throught Event Admin
+- com.ptoceti.osgi.control :
+- com.ptoceti.osgi.deviceaccess : a implementation of Osgi DeviceAccess specification
+- com.ptoceti.osgi.deviceadmin : 
+- com.ptoceti.osgi.ebus : ebus driver exposed throught Device Access Specification
+- com.ptoceti.osgi.ebusdevice : ebus device exposed throught Device Abstract Layer and Function specification
+- com.ptoceti.osgi.feature : feature bundle to expose all bundle as features in Karaf
+- com.ptoceti.osgi.ihm : L'ihm en Angular 10
+- com.ptoceti.osgi.modbus : modbus driver exposed throught Device Access Specification
+- com.ptoceti.osgi.modbusdevice : modbus device exposed throught Device Abstract Layer and Function specification
+- com.ptoceti.osgi.mqtt : an mqtt client based on Mosquitto
+- com.ptoceti.osgi.rest : une api rest pour l'ihm en jaxrs 2.1 via RestEasy
+- com.ptoceti.osgi.resteasy : parent module for RestEasy bundle
+- com.ptoceti.osgi.resteasy-core : exposition of RestEasy Core as an Osgi Bundle
+- com.ptoceti.osgi.resteasy-core-spi : exposition of RestEasy Core Spi as an Osgi Bundle
+- com.ptoceti.osgi.resteasy-guice : exposition of RestEasy Guice as an Osgi Bundle
+- com.ptoceti.osgi.resteasy-jackson2-provider : exposition of RestEasy Jackson2 as an Osgi Bundle
+- com.ptoceti.osgi.resteasy-jaxb-provider: exposition of RestEasy Jaxb as an Osgi Bundle
+- com.ptoceti.osgi.serialdevice.nrjjavaserial : a serial device factory according to Serial Device Specification via NrjJavaSerial
+- com.ptoceti.osgi.serialdevice.rxtx : a serial device factory according to Serial Device Specification via Rxtx
+- com.ptoceti.osgi.smallrye : Jakarte type configuration needed by RestEasy
+- com.ptoceti.osgi.timeseries : A time serie listener based on InfluxDb
+- com.ptoceti.osgi.usb.api : exposition of javax.usb.api as a bundle
+- com.ptoceti.osgi.usb4java : parant module for usb4java
+- com.ptoceti.osgi.usb4java.usb4java : exposition of org.usb4java as an osgi bundle
+- com.ptoceti.osgi.usb4java.usb4java-javax : exposition of or.usb4java-javax as an osgi bundle
+- com.ptoceti.osgi.usbdevice : a usb device factory according to USB Information Device Category specification   
+- com.ptoceti.osgi.wireadmin : a implementation of Osgi WireAdmin specification
 
-- com.ptoceti.osgi.obix : the obix server itself, splitted into two modules, api and impl
-
-- com.ptoceti.osgi.sqlite : the database used by the server
-
-- com.ptoceti.osgi.wireadmin : the messaging system responsible for transiting messages between producer and consumer ( the server and other data provider )
-
-- com.ptoceti.osgi.modbus : a set of two bundles ( modbus and modbusdevice ) capable to connect to a modbus link ( Rs-485 ) and present data to the wire handler.
-
-- com.ptoceti.osgi.pi : a bundle capable to produce data from inside a raspberry Pi; Make use of the [Pi4j project](https://github.com/Pi4J/pi4j/).
 
 
 ## Compatibility and requirements
 
-Currently, Ptoceti need the following modules:
-- rxtxcomm-API 2.1.7
-- kxml-LIB 2.3.0
-- pax-web-extender-whiteboard 1.0.12
-- restlet 2.0.5
-- guice 2.0
-- sqlite-jdbc 3.7.15
-- jackson 2.2
+Ptoceti is build with Java 11.
 
-jre or jdk : 1.7
+It makes uses of the following specs in Osgi R6:
+- Log Service Specification
+- Http Service Specification
+- Device Access Specification
+- Configuration Admin Service Specification
+- Metatype Service Specification
+- Wire Admin Service Specification
+- Event Admin Service Specification
+- Http Whiteboard Specification
+- Device Abstraction Layer Specification
+- Device Abstraction Layer Functions Specification
+- USB Information Device Category Specification
+- Serial Device Service Specification
+- Position Specification
+- Measurement and State Specification
 
 
-To run, it will need an implementation of Osgi R4. I made it execute on a patch of [Felix](/felix.apache.org) and [Knopflerfish](http://www.knopflerfish.org/) bundles.
-It will also need an implementation of Osgi Http server that can be provided by  [Pax Web](https://github.com/ops4j/org.ops4j.pax.web) (Jetty or Apache Tomcat)
- 
-##Getting started
 
-### Build from sources
 
-You'll need maven 3.x installed for compiling and packaging the bundles. For building the UX project ( com.ptoceti.osgi.obix.backbones ), you'll need node.js, npm and Grunt installed as well.
-Assure that everything is available from the current path and under the shell simply enter
-
-```
-maven clean install
-```
-
-### Launch
-If you want to execute the freshly build bundles for debugging or testing, you can launch a full setup using the include maven-pax-plugin by isuing the command:
-
-```
-maven pax:run
-```
-Once the platform successfully launched, the compiled web application is accessible under *http://localhost:8080/obix/client/backbones/index.html*
-The Osgi console is reachable at *http://localhost:8080/system/console*
-
-If you need to fine tune the launching setup, you can modify the configuration of maven-pax-plugin according to the documention of [Pax Runner](https://ops4j1.jira.com/wiki/display/paxrunner/Pax+Runner)
-
-### Develop / debug
-If you want to modify the web application and see immediate results without having to do a full recompile, the source folder (com.ptoceti.osgi.obix.backbones/src/main/webapp) is available under *http://localhost:8080/obix/dev/backbones*
-For remote java remote debuging, the port 5005 is available. 
-
-##License
-Code released under the [Apache licence]( http://www.apache.org/licenses/)
 
 
 

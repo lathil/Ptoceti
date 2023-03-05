@@ -1,0 +1,9 @@
+openapi: "3.0.0"
+info:
+  version: "0.0.1"
+  title: "Swagger UI Webpack Setup"
+  description: "Demonstrates Swagger UI with Webpack including CSS and OAuth"
+servers:
+  - url: "/rest/openapi"
+    description: "Identity Server test API"
+

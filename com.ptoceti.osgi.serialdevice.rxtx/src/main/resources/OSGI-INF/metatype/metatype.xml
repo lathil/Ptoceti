@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0">
+    <OCD description="Rxtx Device" name="Ptoceti Rxtx Device Service" id="ocd">
+        <AD name="Serial port" id="com.ptoceti.osgi.serialdevice.rxtx.serialport" required="true" type="String"
+            description="Name (Windows) or path (Linux) of/to the serial port this base device is connected."/>
+        <AD name="Usb device filter" id="com.ptoceti.osgi.serialdevice.rxtx.usbdevicefilter" required="false"
+            type="String"
+            description="Osgi filter for detecting usb serial dongles. Filter base on usbInfo properties."/>
+    </OCD>
+    <Designate factoryPid="com.ptoceti.osgi.serialdevice.rxtx.SerialDeviceFactory" bundle="*">
+        <Object ocdref="ocd"/>
+    </Designate>
+</MetaData>

@@ -1,0 +1,61 @@
+<!--
+<div class="card">
+  <div class="card-body">
+    <dl class="row">
+      <dt class="col-sm-3">Item Uid</dt>
+      <dd class="col-sm-9">{{item.uid}}</dd>
+      <dt class="col-sm-3">Description</dt>
+      <dd class="col-sm-9">{{item.description}}</dd>
+      <dt class="col-sm-3">Type</dt>
+      <dd class="col-sm-9">{{item.type}}</dd>
+      <dt class="col-sm-3">Version</dt>
+      <dd class="col-sm-9">{{item.version}}</dd>
+    </dl>
+  </div>
+</div>-->
+<div class="card">
+  <div class="card-body">
+    <div class="row">
+      <div class="col">
+        <h5 class="card-title">{{item.uid}}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">{{item.description}}</h6>
+      </div>
+      <div class="col">
+        <ul class="list-group">
+          <ng-container *ngFor="let propertyName of item.propertyNames">
+            <ng-container *ngIf="getFunctionProperty(propertyName) | async as functionDataWrapper">
+              <li class="list-group-item">
+                <p>{{propertyName}}</p>
+                <span
+                  class="h4">{{functionDataWrapper.fields['level']}} {{item.propertiesMetadata[propertyName].metaData['units']}}</span>
+                <div *ngIf="functionDataWrapper.timestamp"><span
+                  class="mb-0">{{functionDataWrapper.timestamp | date:'medium'}}</span></div>
+              </li>
+            </ng-container>
+          </ng-container>
+
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<!--
+<div class="card card-inverse bg-primary">
+  <div class="card-block pb-0">
+    <div class="float-right">
+      <i class="fa {{getStatusIcon()}} fa-lg"></i>
+      <a (click)="onRemoveClick()" class="fa fa-remove fa-lg"></a>
+    </div>
+    <div><span class="h4 mb-0">{{valToPrecision()}} {{getUnit()}}</span></div>
+    <div *ngIf="obj.timestamp"><span class="mb-0" >{{obj.timestamp | amCalendar }}</span></div>
+    <p>{{obj.displayName || obj.name}}</p>
+
+    <div *ngIf="hasHistory()" class="chart-wrapper pb-3" style="height:100px;">
+
+      <d3-line-chart [data]="lineChartData" #d3lineChart></d3-line-chart>
+    </div>
+
+
+  </div>
+</div>
+-->
