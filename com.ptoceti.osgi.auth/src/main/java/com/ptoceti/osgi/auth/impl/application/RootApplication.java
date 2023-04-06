@@ -62,6 +62,7 @@ public class RootApplication extends Application {
         final Set<Class<?>> classes = new HashSet<>();
         classes.add(AcceptHeaderOpenApiResource.class);
         classes.add(LoginResource.class);
+        classes.add(PreferencesResource.class);
 
         return classes;
     }

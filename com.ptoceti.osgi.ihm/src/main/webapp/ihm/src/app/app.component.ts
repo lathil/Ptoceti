@@ -4,13 +4,14 @@ import {Store} from '@ngrx/store';
 import {loadThing, loadThingsList, thingRemoved, thingUpdated} from './state/things.actions';
 import {SseService} from './services/sse.service';
 import {EventsService, EventWrapper, EventWrapperEventEnum, FunctionDataWrapper} from './api';
-import {deviceRemoved, loadDevice} from './state/devices.actions';
+import {deviceRemoved, loadDevice, loadDevicesList} from './state/devices.actions';
 import {driverAttached, driverRemoved, loadDriver} from './state/drivers.actions';
 import {deletedConfigurationSuccess, updateConfiguration} from './state/configurations.actions';
 import {loadItem} from './state/items.actions';
 import {itemFunctionDatapropertyUpdated} from './state/functiondata.actions';
 import {AuthenticationService} from './services/authentication.service';
 import {Subscription} from 'rxjs';
+import {loadPreferencesList} from './state/preferences.actions';
 
 
 @Component({
@@ -46,6 +47,7 @@ export class AppComponent implements OnInit {
             this.sseEventSubscription.unsubscribe();
           }
           this.sseEventSubscription = this.subscribeSseEvent();
+          this.store.dispatch(loadPreferencesList());
         } else {
           if (this.sseEventSubscription != null) {
             this.sseEventSubscription.unsubscribe();

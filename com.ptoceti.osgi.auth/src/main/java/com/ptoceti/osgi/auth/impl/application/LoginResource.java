@@ -81,8 +81,6 @@ public class LoginResource {
             Response response = Response.serverError().build();
             throw new WebApplicationException(response);
         }
-
-
     }
 
     @POST
@@ -104,8 +102,6 @@ public class LoginResource {
         return Response.status(Response.Status.OK).build();
 
     }
-
-    ;
 
     @GET
     @Secured

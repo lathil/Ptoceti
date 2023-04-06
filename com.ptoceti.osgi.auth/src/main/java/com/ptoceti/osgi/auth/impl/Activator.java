@@ -20,6 +20,7 @@ public class Activator implements BundleActivator {
     static AuthServiceImpl authService = null;
 
     protected static UserAdminserviceListener userAdminServiceListener = null;
+    protected static PreferenceServiceListener preferenceServiceListener = null;
 
 
     /**
@@ -52,6 +53,7 @@ public class Activator implements BundleActivator {
         }
 
         userAdminServiceListener = new UserAdminserviceListener(context);
+        preferenceServiceListener = new PreferenceServiceListener(context);
 
     }
 
@@ -135,6 +137,10 @@ public class Activator implements BundleActivator {
 
     public static UserAdminserviceListener getUserAdminServiceListener() {
         return userAdminServiceListener;
+    }
+
+    public static PreferenceServiceListener getPreferenceServiceListener() {
+        return preferenceServiceListener;
     }
 
     public static AuthService getAuthService() {

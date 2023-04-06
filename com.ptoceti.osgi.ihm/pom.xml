@@ -99,57 +99,7 @@
 
         <plugins>
 
-            <!-- copy open api swagger.yaml sec from rest module -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-api-swagger</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.ptoceti</groupId>
-                                    <artifactId>com.ptoceti.osgi.rest</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>yaml</type>
-                                    <classifier>swagger</classifier>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>src/main/webapp/ihm</outputDirectory>
-                                    <destFileName>api-swagger.yaml</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                            <!-- other configurations here -->
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-auth-swagger</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>com.ptoceti</groupId>
-                                    <artifactId>com.ptoceti.osgi.auth</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>yaml</type>
-                                    <classifier>swagger</classifier>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>src/main/webapp/ihm</outputDirectory>
-                                    <destFileName>auth-swagger.yaml</destFileName>
-                                </artifactItem>
-                            </artifactItems>
-                            <!-- other configurations here -->
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+
 
             <!-- JAVA COMPILER -->
             <plugin>
@@ -208,10 +158,6 @@
                         <goals>
                             <goal>install-node-and-npm</goal>
                         </goals>
-                        <configuration>
-                            <nodeVersion>v10.15.3</nodeVersion>
-                            <npmVersion>6.4.1</npmVersion>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>npm-install</id>
@@ -224,26 +170,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>api</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run-script api</arguments>
-                        </configuration>
-                        <phase>generate-resources</phase>
-                    </execution>
-                    <execution>
-                        <id>auth</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run-script auth</arguments>
-                        </configuration>
-                        <phase>generate-resources</phase>
-                    </execution>
-                    <execution>
                         <id>prod</id>
                         <goals>
                             <goal>npm</goal>
@@ -254,11 +180,6 @@
                         <phase>generate-resources</phase>
                     </execution>
                 </executions>
-                <configuration>
-                    <installDirectory>target/node-installation-dir</installDirectory>
-                    <workingDirectory>src/main/webapp/ihm</workingDirectory>
-                    <skip>${frontend.skip}</skip>
-                </configuration>
             </plugin>
 
         </plugins>
@@ -270,10 +191,123 @@
                     <artifactId>frontend-maven-plugin</artifactId>
                     <!-- Use the latest released version: https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
                     <version>1.9.1</version>
+                    <configuration>
+                        <installDirectory>target/node-installation-dir</installDirectory>
+                        <workingDirectory>src/main/webapp/ihm</workingDirectory>
+                        <skip>${frontend.skip}</skip>
+                        <nodeVersion>v10.15.3</nodeVersion>
+                        <npmVersion>6.4.1</npmVersion>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
-
     </build>
+
+    <profiles>
+        <profile>
+            <id>ihm-generate-rest-api</id>
+            <build>
+                <plugins>
+                    <!-- copy open api swagger.yaml sec from rest module -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-api-swagger</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.ptoceti</groupId>
+                                            <artifactId>com.ptoceti.osgi.rest</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>yaml</type>
+                                            <classifier>swagger</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>src/main/webapp/ihm</outputDirectory>
+                                            <destFileName>api-swagger.yaml</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <!-- other configurations here -->
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>api</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run-script api</arguments>
+                                </configuration>
+                                <phase>generate-resources</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>ihm-generate-auth-api</id>
+            <build>
+                <plugins>
+                    <!-- copy open api swagger.yaml sec from rest module -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-auth-swagger</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>com.ptoceti</groupId>
+                                            <artifactId>com.ptoceti.osgi.auth</artifactId>
+                                            <version>${project.version}</version>
+                                            <type>yaml</type>
+                                            <classifier>swagger</classifier>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>src/main/webapp/ihm</outputDirectory>
+                                            <destFileName>auth-swagger.yaml</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <!-- other configurations here -->
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>auth</id>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run-script auth</arguments>
+                                </configuration>
+                                <phase>generate-resources</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

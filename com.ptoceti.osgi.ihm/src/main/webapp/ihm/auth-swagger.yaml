@@ -55,6 +55,108 @@ paths:
           description: default response
           content:
             '*/*': { }
+  /prefs/node/{nodePath}:
+    get:
+      tags:
+        - prefs
+      operationId: getPreferences
+      parameters:
+        - name: nodePath
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/PreferencesWrapper'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreferencesWrapper'
+    delete:
+      tags:
+        - prefs
+      operationId: deletePreferences
+      parameters:
+        - name: nodePath
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': { }
+  /prefs/props/{nodePath}:
+    get:
+      tags:
+        - prefs
+      operationId: getPreferencesProperty
+      parameters:
+        - name: nodePath
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: name
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PreferencePropertyEntry'
+    post:
+      tags:
+        - prefs
+      operationId: addPreferencesProperty
+      parameters:
+        - name: nodePath
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/PreferencePropertyEntry'
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': { }
+    delete:
+      tags:
+        - prefs
+      operationId: deletePreferencesProperty
+      parameters:
+        - name: nodePath
+          in: path
+          required: true
+          schema:
+            type: string
+            default: ""
+        - name: name
+          in: query
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': { }
 components:
   schemas:
     Credential:
@@ -62,3 +164,43 @@ components:
       properties:
         token:
           type: string
+    PreferencePropertyEntry:
+      type: object
+      properties:
+        key:
+          type: string
+          xml:
+            attribute: true
+        value:
+          type: string
+          xml:
+            attribute: true
+    PreferencesWrapper:
+      type: object
+      properties:
+        absolutePath:
+          type: string
+          xml:
+            wrapped: true
+        childrenNames:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            type: string
+            xml:
+              name: childrenNames
+        name:
+          type: string
+          xml:
+            wrapped: true
+        parent:
+          type: string
+          xml:
+            wrapped: true
+        properties:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: '#/components/schemas/PreferencePropertyEntry'

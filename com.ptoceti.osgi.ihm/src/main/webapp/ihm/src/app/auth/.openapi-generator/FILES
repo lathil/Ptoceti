@@ -3,6 +3,7 @@ README.md
 api.module.ts
 api/api.ts
 api/login.service.ts
+api/prefs.service.ts
 configuration.ts
 encoder.ts
 git_push.sh
@@ -10,4 +11,6 @@ index.ts
 model/credential.ts
 model/inlineResponseDefault.ts
 model/models.ts
+model/preferencePropertyEntry.ts
+model/preferencesWrapper.ts
 variables.ts

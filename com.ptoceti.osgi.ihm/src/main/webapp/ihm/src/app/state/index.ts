@@ -16,6 +16,7 @@ import * as metatypesReducers from './metatypes.reducer';
 import * as configurationsReducers from './configurations.reducer';
 import * as factoriesReducers from './deviceFactories.reducer';
 import * as functiondataReducers from './functiondata.reducer';
+import * as preferencesReducers from './preferences.reducer';
 import {WiresEffects} from './wires.effects';
 import {WiresState} from './wires.reducer';
 import {ThingsState} from './things.reducer';
@@ -23,6 +24,7 @@ import {ThingsEffects} from './things.effects';
 import {DevicesState} from './devices.reducer';
 import {DevicesEffects} from './devices.effects';
 import {DriversState} from './drivers.reducer';
+import {PreferencesState} from './preferences.reducer';
 import {DriversEffects} from './drivers.effects';
 import {MetatypesState} from './metatypes.reducer';
 import {MetatypesEffects} from './metatypes.effects';
@@ -33,7 +35,8 @@ import {DeviceFactoriesEffects} from './deviceFactories.effects';
 import {ItemsState} from './items.reducer';
 import {ItemsEffects} from './items.effects';
 import {FunctionDatasState} from './functiondata.reducer';
-import {FunctionDataEffects} from "./functiondata.effects";
+import {FunctionDataEffects} from './functiondata.effects';
+import {PreferencesEffects} from "./preferences.effects";
 
 
 export interface AppState {
@@ -46,6 +49,7 @@ export interface AppState {
   configurations: ConfigurationsState;
   factories: DeviceFactoriesState;
   functiondatas: FunctionDatasState;
+  preferences: PreferencesState;
 }
 
 
@@ -58,7 +62,8 @@ export const reducers: ActionReducerMap<AppState> = {
   metatypes: metatypesReducers.metatypesReducer,
   configurations: configurationsReducers.configurationsReducer,
   factories: factoriesReducers.devicesFactoriesReducer,
-  functiondatas: functiondataReducers.functionDataReducers
+  functiondatas: functiondataReducers.functionDataReducers,
+  preferences: preferencesReducers.preferencesReducer
 };
 
 // console.log all actions
@@ -87,6 +92,6 @@ export function logger2(reducer: ActionReducer<any>): ActionReducer<any> {
 export const genericErrorAction = createAction('[GENERIC_ERROR_ACTION]', props<{ any }>());
 export const genericForbiddenErrorAction = createAction('[FORBIDDEN_ERROR_ACTION]', props<{ any }>());
 
-export const effects: any[] = [WiresEffects, ThingsEffects, ItemsEffects, DriversEffects, DevicesEffects, MetatypesEffects, ConfigurationsEffects, DeviceFactoriesEffects, FunctionDataEffects];
+export const effects: any[] = [WiresEffects, ThingsEffects, ItemsEffects, DriversEffects, DevicesEffects, MetatypesEffects, ConfigurationsEffects, DeviceFactoriesEffects, FunctionDataEffects, PreferencesEffects];
 
 export const metaReducers: MetaReducer<AppState>[] = !environment.production ? [logger2] : [];

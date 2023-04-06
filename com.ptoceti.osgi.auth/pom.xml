@@ -228,6 +228,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.prefs</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
 
         <dependency>
             <groupId>com.ptoceti</groupId>

@@ -3,6 +3,7 @@ import {AuthConfiguration} from './configuration';
 import {HttpClient} from '@angular/common/http';
 
 import {LoginService} from './api/login.service';
+import {PrefsService} from './api/prefs.service';
 
 @NgModule({
   imports: [],
