@@ -40,6 +40,8 @@
         <bundle dependency="true">mvn:org.osgi/org.osgi.util.pushstream/${org.osgi.util.pushstream.version}</bundle>
         <bundle dependency="true">mvn:org.osgi/org.osgi.util.function/${org.osgi.util.function.version}</bundle>
         <bundle dependency="true">mvn:org.osgi/org.osgi.util.promise/${org.osgi.util.promise.version}</bundle>
+        <!-- Preferences for Auth service-->
+        <bundle dependency="true">mvn:org.osgi/org.osgi.service.prefs/${org.osgi.service.preferences.version}</bundle>
     </feature>
 
 
